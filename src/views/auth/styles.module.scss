@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100%;
+  gap: 18px;
+}
+
+.form {
+  width: 264px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.submit {
+  align-self: flex-end;
+}

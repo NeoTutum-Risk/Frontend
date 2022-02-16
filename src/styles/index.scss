@@ -1,0 +1,41 @@
+@import '~normalize.css';
+@import '~@blueprintjs/core/lib/css/blueprint.css';
+@import '~@blueprintjs/icons/lib/css/blueprint-icons.css';
+@import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
+@import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
+@import '~@blueprintjs/table/lib/css/table-modern.css';
+// @import '~@blueprintjs/datetime/lib/css/blueprint-datetime.css';
+@import '~bpmn-js/dist/assets/diagram-js.css';
+@import '~bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
+@import '~diagram-js-minimap/assets/diagram-js-minimap.css';
+@import '~react-resizable/css/styles.css';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.bjs-powered-by {
+  display: none;
+}

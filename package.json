@@ -1,0 +1,61 @@
+{
+  "name": "neotutum-ui",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@blueprintjs/core": "^3.52.0",
+    "@blueprintjs/datetime": "^3.23.19",
+    "@blueprintjs/icons": "^3.31.0",
+    "@blueprintjs/popover2": "^0.12.9",
+    "@blueprintjs/select": "^3.18.11",
+    "@blueprintjs/table": "^3.9.13",
+    "@testing-library/jest-dom": "^5.16.2",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
+    "ag-grid-community": "^26.2.1",
+    "ag-grid-react": "^26.2.0",
+    "axios": "^0.25.0",
+    "bpmn-js": "^8.9.1",
+    "buffer": "^6.0.3",
+    "diagram-js-minimap": "^2.0.4",
+    "lodash": "^4.17.21",
+    "normalize.css": "^8.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-draggable": "^4.4.4",
+    "react-resizable": "^3.0.4",
+    "react-resize-detector": "^7.0.0",
+    "react-router-dom": "^6.2.1",
+    "react-scripts": "5.0.0",
+    "react-xml-parser": "^1.1.8",
+    "recoil": "^0.6.1",
+    "sass": "^1.49.7",
+    "stream": "^0.0.2",
+    "web-vitals": "^2.1.4",
+    "xml-js": "^1.6.11"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

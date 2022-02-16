@@ -1,0 +1,96 @@
+.container {
+  display: flex;
+  height: 100%;
+}
+
+.sideNavigatorContainer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+  background-color: #293742;
+  color: #e1e8ed;
+  min-width: 250px;
+  overflow: auto;
+  flex-shrink: 0;
+}
+
+.mainContainer {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  background-color: #e1e8ed;
+  position: relative;
+  overflow: auto;
+  flex-grow: 15;
+  flex-shrink: 2;
+}
+
+.userName {
+  align-self: center;
+}
+
+.platformLable {
+  cursor: pointer;
+}
+
+.tree {
+  width: 100%;
+}
+
+.addPortfolio {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.windowContainerMax {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  margin: 0px !important;
+  z-index: 20;
+}
+
+.windowContainer {
+  margin: 15px;
+}
+
+.windowCard {
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.windowHeader {
+  padding: 5px;
+  background-color: #293742;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &_title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  &_controls {
+  }
+}
+
+.addWindowsButton {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 18;
+}
+
+.windowBody {
+  padding: 5px;
+  width: 100%;
+  height: 100%;
+}
