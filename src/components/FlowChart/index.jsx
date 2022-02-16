@@ -18,6 +18,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
     edges.push({from,to});
     network.setData({nodes,edges});
     canAddEdge = false;
+    onNetworkChange({nodes,edges});
   }
 
   const canAddEdgeHandler = ()=>{
@@ -38,6 +39,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
     }
   }
 
+  const getCurrentData = ()=>{ return {nodes,edges}; }
 
 
   const visJsRef = useRef(null);
@@ -57,13 +59,14 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
         enabled: false
       },
       edges: {
-    arrows: {
-            to: {
-              enabled: true
+        arrows: {
+                to: {
+                  enabled: true
+                }
             }
-          }
         }
     };
+
     network = visJsRef.current && new Network(visJsRef.current, data,options);
 
     network.on('click', (properties)=>{
