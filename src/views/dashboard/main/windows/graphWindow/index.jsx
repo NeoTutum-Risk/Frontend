@@ -1,48 +1,60 @@
-import { Intent, Spinner, Switch } from '@blueprintjs/core'
-import { useCallback, useState } from 'react'
-import { useRecoilState } from 'recoil'
-import { Bpmn } from '../../../../../components/bpmn'
-import { updateBpmnStatus } from '../../../../../services'
-import { platformState } from '../../../../../store/portfolios'
-import { showDangerToaster } from '../../../../../utils/toaster'
-import { Window } from '../window'
+import { Intent, Spinner, Switch } from "@blueprintjs/core";
+import { useCallback, useState } from "react";
+import { useRecoilState, useResetRecoilState } from "recoil";
+import { Bpmn } from "../../../../../components/bpmn";
+import { updateBpmnStatus } from "../../../../../services";
+import { platformState,protfoliosState } from "../../../../../store/portfolios";
+import { elementSelectorState } from "../../../../../store/elementSelector";
+import { showDangerToaster } from "../../../../../utils/toaster";
+import { Window } from "../window";
 
 export const GraphWindow = ({ onClose, window }) => {
-  const [bpmn, setbpmn] = useRecoilState(platformState(window.data.id))
-  const [autoSave, setAutoSave] = useState(true)
-  const [autoSaveLoading, setAutoSaveLoading] = useState(false)
-
+  const [bpmn, setbpmn] = useRecoilState(platformState(window.data.id));
+  const [autoSave, setAutoSave] = useState(true);
+  const [autoSaveLoading, setAutoSaveLoading] = useState(false);
+  const [elementSelector,setElementSelector] = useRecoilState(elementSelectorState);
+  const elementSelectorHandler = useCallback((data)=>{
+    const elementId = data.element.id;
+    if(!elementId) return;
+    console.log(data.element.children);
+    if(data.element.children.length>0){
+      setElementSelector(null);
+    }else{
+      setElementSelector(elementId);
+      console.log(elementSelector);
+    }
+  },[setElementSelector,elementSelector])
   const saveBpmn = useCallback(
-    async fileData => {
+    async (fileData) => {
       try {
-        setAutoSaveLoading(true)
+        setAutoSaveLoading(true);
 
         await updateBpmnStatus({
           id: window.data.id,
-          status: 'changed',
+          status: "changed",
           fileData,
-        })
-        setAutoSaveLoading(false)
+        });
+        setAutoSaveLoading(false);
       } catch (error) {
-        setAutoSaveLoading(false)
-        showDangerToaster(error?.response?.data?.msg ?? error.message)
+        setAutoSaveLoading(false);
+        showDangerToaster(error?.response?.data?.msg ?? error.message);
       }
     },
     [window]
-  )
+  );
 
   return (
     <Window
       title={window.data.fileName}
-      icon='document'
+      icon="document"
       onClose={onClose}
       headerAdditionalContent={
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <Switch
             checked={autoSave}
             style={{ marginBottom: 0 }}
-            label='Auto Save'
-            onChange={() => setAutoSave(prevAutoSave => !prevAutoSave)}
+            label="Auto Save"
+            onChange={() => setAutoSave((prevAutoSave) => !prevAutoSave)}
           />
           {autoSaveLoading && <Spinner size={12} intent={Intent.PRIMARY} />}
         </div>
@@ -50,13 +62,14 @@ export const GraphWindow = ({ onClose, window }) => {
     >
       <Bpmn
         xml={bpmn.xml ?? window.data.fileData}
-        onChange={data => {
-          setbpmn({ xml: data, changed: !autoSave })
+        onChange={(data) => {
+          setbpmn({ xml: data, changed: !autoSave });
           if (autoSave) {
-            saveBpmn(data)
+            saveBpmn(data);
           }
         }}
+        onClick={(data) => elementSelectorHandler(data)}
       />
     </Window>
-  )
-}
+  );
+};

@@ -3,7 +3,6 @@ import { useRecoilState } from 'recoil'
 import { Async } from '../../../components/asyncHOC'
 import { windowsState } from '../../../store/windows'
 import styles from '../styles.module.scss'
-import { AddWindowsButton } from './addWindowsButton'
 import { DataWindow } from './windows/dataWindow'
 import { GraphWindow } from './windows/graphWindow'
 

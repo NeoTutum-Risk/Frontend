@@ -1,48 +1,55 @@
-import { Button, ButtonGroup } from '@blueprintjs/core'
-import { Tooltip2 } from '@blueprintjs/popover2'
-import BpmnModeler from 'bpmn-js/lib/Modeler'
-import minimapModule from 'diagram-js-minimap'
-import { memo, useCallback, useEffect, useState } from 'react'
-import { useResizeDetector } from 'react-resize-detector'
+import { Button, ButtonGroup } from "@blueprintjs/core";
+import { Tooltip2 } from "@blueprintjs/popover2";
+import BpmnModeler from "bpmn-js/lib/Modeler";
+import minimapModule from "diagram-js-minimap";
+import { memo, useCallback, useEffect, useState } from "react";
+import { useResizeDetector } from "react-resize-detector";
 
-export const Bpmn = memo(({ xml = '', onChange }) => {
-  const [modeler, setModeler] = useState(null)
-  const { width, height, ref: modelerRef } = useResizeDetector()
+export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
+  const [modeler, setModeler] = useState(null);
+  const { width, height, ref: modelerRef } = useResizeDetector();
 
   const resizeBpmn = useCallback(() => {
-    if (!modeler) return
-    modeler.get('canvas').zoom('fit-viewport', 'auto')
-  }, [modeler])
+    if (!modeler) return;
+    modeler.get("canvas").zoom("fit-viewport", "auto");
+  }, [modeler]);
 
   const onChangeHandler = useCallback(async () => {
-    if (!modeler) return
+    if (!modeler) return;
 
-    const { xml } = await modeler.saveXML({ format: true })
-    onChange(xml)
-  }, [modeler, onChange])
+    const { xml } = await modeler.saveXML({ format: true });
+    onChange(xml);
+  }, [modeler, onChange]);
+
+  const onClickHandler = useCallback(async (event) => {
+    if (!modeler) return;
+
+    onClick(event);
+  }, [modeler, onClick]);
 
   useEffect(() => {
-    if (!modeler || !xml) return
+    if (!modeler || !xml) return;
 
     modeler
       .importXML(xml)
       .then(() => resizeBpmn())
-      .catch(error => alert(error))
-  }, [modeler, resizeBpmn, xml])
+      .catch((error) => alert(error));
+  }, [modeler, resizeBpmn, xml]);
 
   useEffect(() => {
-    resizeBpmn()
-  }, [width, height, resizeBpmn])
+    resizeBpmn();
+  }, [width, height, resizeBpmn]);
 
   useEffect(() => {
-    if (!modeler) return
-
-    modeler.on('commandStack.changed', onChangeHandler)
+    if (!modeler) return;
+    
+    modeler.on('element.click', onClickHandler);
+    modeler.on("commandStack.changed", onChangeHandler);
 
     return () => {
-      modeler.off('commandStack.changed', onChangeHandler)
-    }
-  }, [modeler, onChangeHandler])
+      modeler.off("commandStack.changed", onChangeHandler);
+    };
+  }, [modeler, onChangeHandler,onClickHandler]);
 
   useEffect(() => {
     setModeler(
@@ -50,54 +57,60 @@ export const Bpmn = memo(({ xml = '', onChange }) => {
         container: modelerRef.current,
         additionalModules: [minimapModule],
       })
-    )
-
+    );
     return () => {
-      modelerRef.current = null
-    }
-  }, [modelerRef])
+      modelerRef.current = null;
+    };
+  }, [modelerRef]);
 
   const onZoomOut = useCallback(() => {
-    if (!modeler) return
+    if (!modeler) return;
 
-    const scale = modeler.get('canvas').viewbox().scale
+    const scale = modeler.get("canvas").viewbox().scale;
 
-    modeler.get('canvas').zoom(scale - 0.1, true)
-  }, [modeler])
+    modeler.get("canvas").zoom(scale - 0.1, true);
+  }, [modeler]);
   const onZoomIn = useCallback(() => {
-    if (!modeler) return
-    const scale = modeler.get('canvas').viewbox().scale
+    if (!modeler) return;
+    const scale = modeler.get("canvas").viewbox().scale;
 
-    modeler.get('canvas').zoom(scale + 0.1, true)
-  }, [modeler])
+    modeler.get("canvas").zoom(scale + 0.1, true);
+  }, [modeler]);
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        cursor: "pointer",
+      }}
+    >
       <div
         style={{
-          position: 'absolute',
-          flexDirection: 'column',
-          cursor: 'pointer',
-          alignItems: 'center',
-          justifyContent: 'center',
+          position: "absolute",
+          flexDirection: "column",
+          cursor: "pointer",
+          alignItems: "center",
+          justifyContent: "center",
           zIndex: 19,
           right: 20,
-          bottom: '10%',
+          bottom: "10%",
         }}
       >
         <ButtonGroup vertical>
           <Tooltip2 content={<span>Zoom To Fit</span>}>
-            <Button onClick={resizeBpmn} icon='zoom-to-fit' />
+            <Button onClick={resizeBpmn} icon="zoom-to-fit" />
           </Tooltip2>
           <Tooltip2 content={<span>Zoom In</span>}>
-            <Button onClick={onZoomIn} icon='plus' />
+            <Button onClick={onZoomIn} icon="plus" />
           </Tooltip2>
           <Tooltip2 content={<span>Zoom Out</span>}>
-            <Button onClick={onZoomOut} icon='minus' />
+            <Button onClick={onZoomOut} icon="minus" />
           </Tooltip2>
         </ButtonGroup>
       </div>
-      <div ref={modelerRef} style={{ width: '100%', height: '100%' }} />
+      <div ref={modelerRef} style={{ width: "100%", height: "100%" }} />
     </div>
-  )
-})
+  );
+});
