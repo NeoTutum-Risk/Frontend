@@ -19,8 +19,9 @@ export const Table = ({
   paginationPageSize = 10,
 }) => {
   const gridRef = useRef();
-  const [currentSelected,setCurrentSelected] = useState(null);
-  const [elementSelector,setElementSelector] = useRecoilState(elementSelectorState);
+  const [currentSelected, setCurrentSelected] = useState(null);
+  const [elementSelector, setElementSelector] =
+    useRecoilState(elementSelectorState);
   console.log(elementSelector);
   const autoSizeAll = useCallback((skipHeader) => {
     const allColumnIds = [];
@@ -30,16 +31,18 @@ export const Table = ({
     gridRef.current.columnApi.autoSizeColumns(allColumnIds, false);
   }, []);
 
-  useEffect(()=>{
-    if(elementSelector){
-      const selectedElementIndex = data.map(row=>row.elementId).indexOf(elementSelector);
-       console.log(selectedElementIndex);
-      gridRef.current.api.getRowNode(selectedElementIndex).setSelected(true);
-    }else{
+  useEffect(() => {
+    if (elementSelector) {
+      const selectedElementIndex = data
+        .map((row) => row.elementId)
+        .indexOf(elementSelector);
+      if (selectedElementIndex > -1) {
+        gridRef.current.api.getRowNode(selectedElementIndex).setSelected(true);
+      }
+    } else {
       gridRef.current.api.deselectAll();
     }
-  },[elementSelector,data])
-  
+  }, [elementSelector, data]);
 
   return (
     <div className="ag-theme-balham" style={{ height, width }}>
