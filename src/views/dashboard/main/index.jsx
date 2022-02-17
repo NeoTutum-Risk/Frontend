@@ -35,14 +35,21 @@ export const Main = () => {
 
   const windowRestoreHandler = useCallback(
     (id) =>
-      setWindows((prevWindows) =>
-        prevWindows.map((window) => {
-          if (window.id !== id) {
-            return window;
-          } else {
-            return { ...window, collapse: false };
-          }
-        })
+      setWindows(
+        (prevWindows) => [
+          {
+            ...prevWindows[prevWindows.map((row) => row.id).indexOf(id)],
+            collapse: false,
+          },
+          ...prevWindows.filter((window) => window.id !== id),
+        ]
+        // prevWindows.map((window) => {
+        //   if (window.id !== id) {
+        //     return window;
+        //   } else {
+        //     return { ...window, collapse: false };
+        //   }
+        // })
       ),
     [setWindows]
   );
