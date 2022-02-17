@@ -3,27 +3,34 @@ import { useCallback, useState } from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import { Bpmn } from "../../../../../components/bpmn";
 import { updateBpmnStatus } from "../../../../../services";
-import { platformState,protfoliosState } from "../../../../../store/portfolios";
+import {
+  platformState,
+  protfoliosState,
+} from "../../../../../store/portfolios";
 import { elementSelectorState } from "../../../../../store/elementSelector";
 import { showDangerToaster } from "../../../../../utils/toaster";
 import { Window } from "../window";
 
-export const GraphWindow = ({ onClose, window }) => {
+export const GraphWindow = ({ onClose, onCollapse, onRestore, window, collapseState }) => {
   const [bpmn, setbpmn] = useRecoilState(platformState(window.data.id));
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveLoading, setAutoSaveLoading] = useState(false);
-  const [elementSelector,setElementSelector] = useRecoilState(elementSelectorState);
-  const elementSelectorHandler = useCallback((data)=>{
-    const elementId = data.element.id;
-    if(!elementId) return;
-    console.log(data.element.children);
-    if(data.element.children.length>0){
-      setElementSelector(null);
-    }else{
-      setElementSelector(elementId);
-      console.log(elementSelector);
-    }
-  },[setElementSelector,elementSelector])
+  const [elementSelector, setElementSelector] =
+    useRecoilState(elementSelectorState);
+  const elementSelectorHandler = useCallback(
+    (data) => {
+      const elementId = data.element.id;
+      if (!elementId) return;
+      console.log(data.element.children);
+      if (data.element.children.length > 0) {
+        setElementSelector(null);
+      } else {
+        setElementSelector(elementId);
+        console.log(elementSelector);
+      }
+    },
+    [setElementSelector, elementSelector]
+  );
   const saveBpmn = useCallback(
     async (fileData) => {
       try {
@@ -48,6 +55,9 @@ export const GraphWindow = ({ onClose, window }) => {
       title={window.data.fileName}
       icon="document"
       onClose={onClose}
+      onCollapse={onCollapse}
+      onRestore={onRestore}
+      collapseState={collapseState}
       headerAdditionalContent={
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <Switch

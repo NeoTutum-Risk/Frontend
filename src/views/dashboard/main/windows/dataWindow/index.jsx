@@ -1,9 +1,9 @@
 import { Table } from '../../../../../components/table'
 import { Window } from '../window'
 
-export const DataWindow = ({ window, onClose }) => {
+export const DataWindow = ({ window, onClose,onCollapse,onResotre,collapseState }) => {
   return (
-    <Window onClose={onClose} title={window.data.type} icon='th'>
+    <Window onClose={onClose} onCollapse={onCollapse} onRestore={onResotre} title={window.data.type} collapseState={collapseState} icon='th'>
       <>
         {window.data.type === 'BPMN Associations' && (
           <Table
