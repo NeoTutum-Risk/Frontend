@@ -1,6 +1,7 @@
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-balham.css";
 import { AgGridColumn, AgGridReact } from "ag-grid-react";
+import {Slider} from "@blueprintjs/core";
 import React, {
   useCallback,
   useEffect,
@@ -19,7 +20,6 @@ export const Table = ({
   paginationPageSize = 10,
 }) => {
   const gridRef = useRef();
-  const [currentSelected, setCurrentSelected] = useState(null);
   const [elementSelector, setElementSelector] =
     useRecoilState(elementSelectorState);
   console.log(elementSelector);
@@ -49,7 +49,8 @@ export const Table = ({
       <AgGridReact
         ref={gridRef}
         pagination
-        paginationPageSize={paginationPageSize}
+        // paginationPageSize={paginationPageSize}
+        paginationAutoPageSize={true}
         rowData={data}
         onFirstDataRendered={autoSizeAll}
       >
