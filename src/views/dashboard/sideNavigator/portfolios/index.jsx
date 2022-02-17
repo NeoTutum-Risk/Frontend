@@ -106,49 +106,54 @@ export const Portfolios = () => {
 
   const onImportBpmnFile = useCallback(
     async (event) => {
-      const bpmnFile = await event.target.files[0].text();
-      const fileName = event.target.files[0].name;
+      try {
+        const bpmnFile = await event.target.files[0].text();
+        const fileName = event.target.files[0].name;
 
-      const { data } = await addNewBpmn({
-        file: bpmnFile,
-        creatorId: 1,
-        fileName,
-        platformId: platformPopOver.platformId,
-        ...xmlParser(bpmnFile),
-      });
+        const { data } = await addNewBpmn({
+          file: bpmnFile,
+          creatorId: 1,
+          fileName,
+          platformId: platformPopOver.platformId,
+          ...xmlParser(bpmnFile),
+        });
 
-      setPortfolios((prevPortfolios) => ({
-        ...prevPortfolios,
-        data: prevPortfolios.data.map((portfolio) =>
-          portfolio.id === platformPopOver.portfolioId
-            ? {
-                ...portfolio,
-                serviceChains:
-                  portfolio?.serviceChains.map((serviceChain) =>
-                    platformPopOver.serviceChainId === serviceChain.id
-                      ? {
-                          ...serviceChain,
-                          platforms: serviceChain?.platforms.map((platform) =>
-                            platform.id === platformPopOver.platformId
-                              ? {
-                                  ...platform,
-                                  bpmnFiles: platform.bpmnFiles
-                                    ? [data.data, ...platform.bpmnFiles]
-                                    : [data.data],
-                                }
-                              : platform
-                          ),
-                        }
-                      : serviceChain
-                  ) ?? [],
-              }
-            : portfolio
-        ),
-      }));
+        setPortfolios((prevPortfolios) => ({
+          ...prevPortfolios,
+          data: prevPortfolios.data.map((portfolio) =>
+            portfolio.id === platformPopOver.portfolioId
+              ? {
+                  ...portfolio,
+                  serviceChains:
+                    portfolio?.serviceChains.map((serviceChain) =>
+                      platformPopOver.serviceChainId === serviceChain.id
+                        ? {
+                            ...serviceChain,
+                            platforms: serviceChain?.platforms.map((platform) =>
+                              platform.id === platformPopOver.platformId
+                                ? {
+                                    ...platform,
+                                    bpmnFiles: platform.bpmnFiles
+                                      ? [data.data, ...platform.bpmnFiles]
+                                      : [data.data],
+                                  }
+                                : platform
+                            ),
+                          }
+                        : serviceChain
+                    ) ?? [],
+                }
+              : portfolio
+          ),
+        }));
 
-      updatePlatform({ file: bpmnFile, bpmnId: data.data.id });
-      addNewWindow({ type: "bpmn", data: data.data });
-      showSuccessToaster(`New bpmn file uploaded successfully`);
+        updatePlatform({ file: bpmnFile, bpmnId: data.data.id });
+        addNewWindow({ type: "bpmn", data: data.data });
+        showSuccessToaster(`New bpmn file uploaded successfully`);
+      } catch (error) {
+        console.log(error);
+        showDangerToaster(`Failed to upload bpmn file : ${error}`);
+      }
     },
     [addNewWindow, platformPopOver, setPortfolios, updatePlatform]
   );
