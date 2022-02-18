@@ -7,7 +7,13 @@ import { DataWindow } from "./windows/dataWindow";
 import { GraphWindow } from "./windows/graphWindow";
 import { CollapsedWindow } from "./windows/collapsedWindow";
 import { CollapsePanel } from "./collapsePanel";
-
+import { showWarningToaster } from "../../../utils/toaster";
+import {
+  getBpmnAssociations,
+  getBpmnEntities,
+  getBpmnLanes,
+  getBpmnSequenceFlows,
+} from "../../../services";
 export const Main = () => {
   const [windows, setWindows] = useRecoilState(windowsState);
 
@@ -35,22 +41,49 @@ export const Main = () => {
 
   const windowRestoreHandler = useCallback(
     (id) =>
-      setWindows(
-        (prevWindows) => [
-          {
-            ...prevWindows[prevWindows.map((row) => row.id).indexOf(id)],
-            collapse: false,
-          },
-          ...prevWindows.filter((window) => window.id !== id),
-        ]
-        // prevWindows.map((window) => {
-        //   if (window.id !== id) {
-        //     return window;
-        //   } else {
-        //     return { ...window, collapse: false };
-        //   }
-        // })
-      ),
+      setWindows((prevWindows) => [
+        {
+          ...prevWindows[prevWindows.map((row) => row.id).indexOf(id)],
+          collapse: false,
+        },
+        ...prevWindows.filter((window) => window.id !== id),
+      ]),
+    [setWindows]
+  );
+
+  const windowTypeHandler = useCallback(
+    async (id, type) => {
+      let dataObject;
+      switch (type) {
+        case "BPMN Associations":
+          dataObject["associations"] = await getBpmnAssociations().data.data;
+          dataObject["type"] = "BPMN Associations";
+          break;
+        case "BPMN Entities":
+          dataObject["entities"] = await getBpmnEntities().data;
+          dataObject["type"] = "BPMN Entities";
+          break;
+        case "BPMN SequenceFlows":
+          dataObject["sequenceFlows"] = await getBpmnSequenceFlows().data;
+          dataObject["type"] = "BPMN SequenceFlows";
+          break;
+        case "Lanes":
+          dataObject["lanes"] = await getBpmnLanes().data;
+          dataObject["type"] = "Lanes";
+          break;
+        default:
+          showWarningToaster(`Worng Type Selection`);
+      }
+      setWindows((prevWindows) =>
+        prevWindows.map((window) => {
+          if (window.id !== id) {
+            return window;
+          } else {
+            return { ...window, type: "data", data: dataObject };
+          }
+        })
+      );
+    },
     [setWindows]
   );
 
@@ -66,7 +99,6 @@ export const Main = () => {
                 onClose={() => windowCloseHandler(window.id)}
                 onCollapse={() => windowCollapseHandler(window.id)}
                 onRestore={() => windowRestoreHandler(window.id)}
-                collapseState={true}
               />
             )}
             {window.type === "data" && window.collapse === false && (
@@ -76,7 +108,6 @@ export const Main = () => {
                 onClose={() => windowCloseHandler(window.id)}
                 onCollapse={() => windowCollapseHandler(window.id)}
                 onRestore={() => windowRestoreHandler(window.id)}
-                collapseState={true}
               />
             )}
           </>
@@ -97,7 +128,7 @@ export const Main = () => {
                 onClose={() => windowCloseHandler(window.id)}
                 onCollapse={() => windowCollapseHandler(window.id)}
                 onRestore={() => windowRestoreHandler(window.id)}
-                collapseState={true}
+                
               />
             )}
           </>

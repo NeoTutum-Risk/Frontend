@@ -7,12 +7,15 @@ export const DataWindow = ({
   onCollapse,
   onResotre,
   collapseState,
+  onTypeChange,
 }) => {
   return (
     <Window
+      windowID={window.id}
       onClose={onClose}
       onCollapse={onCollapse}
       onRestore={onResotre}
+      onTypeChange={onTypeChange}
       title={window.data.type}
       collapseState={collapseState}
       icon="th"

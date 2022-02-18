@@ -1,17 +1,23 @@
 import { Intent, Spinner, Switch } from "@blueprintjs/core";
 import { useCallback, useState } from "react";
-import { useRecoilState, useResetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { Bpmn } from "../../../../../components/bpmn";
 import { updateBpmnStatus } from "../../../../../services";
 import {
   platformState,
-  protfoliosState,
 } from "../../../../../store/portfolios";
 import { elementSelectorState } from "../../../../../store/elementSelector";
 import { showDangerToaster } from "../../../../../utils/toaster";
 import { Window } from "../window";
 
-export const GraphWindow = ({ onClose, onCollapse, onRestore, window, collapseState }) => {
+export const GraphWindow = ({
+  onClose,
+  onCollapse,
+  onRestore,
+  window,
+  collapseState,
+  onTypeChange,
+}) => {
   const [bpmn, setbpmn] = useRecoilState(platformState(window.data.id));
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveLoading, setAutoSaveLoading] = useState(false);
@@ -53,10 +59,12 @@ export const GraphWindow = ({ onClose, onCollapse, onRestore, window, collapseSt
   return (
     <Window
       title={window.data.fileName}
+      windowID={window.id}
       icon="document"
       onClose={onClose}
       onCollapse={onCollapse}
       onRestore={onRestore}
+      onTypeChange={onTypeChange}
       collapseState={collapseState}
       headerAdditionalContent={
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>

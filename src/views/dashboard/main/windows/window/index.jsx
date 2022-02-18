@@ -7,28 +7,77 @@ import {
   Intent,
   Menu,
   MenuItem,
+  Spinner,
 } from "@blueprintjs/core";
 import { Popover2, Tooltip2 } from "@blueprintjs/popover2";
 import React, { useState } from "react";
 import { ResizableBox } from "react-resizable";
 import styles from "../../../styles.module.scss";
 import { AddWindowsButton } from "../../addWindowsButton";
-
-export const Window = (
-  {
-    icon,
-    title,
-    onClose,
-    onCollapse,
-    onRestore,
-    collapseState,
-    children,
-    headerAdditionalContent = null,
-  },
-  props
-) => {
+import {
+  getBpmnAssociations,
+  getBpmnEntities,
+  getBpmnLanes,
+  getBpmnSequenceFlows,
+} from "../../../../../services";
+import { showWarningToaster } from "../../../../../utils/toaster";
+import { windowsState } from "../../../../../store/windows";
+import { useRecoilState } from "recoil";
+import { useCallback } from "react";
+export const Window = ({
+  icon,
+  title,
+  onClose,
+  onCollapse,
+  children,
+  headerAdditionalContent = null,
+  windowID,
+}) => {
+  const [windows, setWindows] = useRecoilState(windowsState);
+  console.log(windowID);
   const [isMaximize, setIsMaximize] = useState(false);
-  const [isCollapse, setIsCollapse] = useState(false);
+  const [changeTypeLoading, setChangeTypeLoading] = useState(false);
+  const windowTypeHandler = useCallback(
+    async (id, type) => {
+      setChangeTypeLoading(true);
+      let dataObject = {};
+      switch (type) {
+        case "BPMN Associations":
+          const associations = await getBpmnAssociations();
+          dataObject["associations"] = associations.data.data;
+          dataObject["type"] = "BPMN Associations";
+          break;
+        case "BPMN Entities":
+          const entities = await getBpmnEntities();
+          dataObject["entities"] = entities.data.data;
+          dataObject["type"] = "BPMN Entities";
+          break;
+        case "BPMN SequenceFlows":
+          const sequenceFlows = await getBpmnSequenceFlows();
+          dataObject["sequenceFlows"] = sequenceFlows.data.data;
+          dataObject["type"] = "BPMN SequenceFlows";
+          break;
+        case "Lanes":
+          const lanes = await getBpmnLanes();
+          dataObject["lanes"] = lanes.data.data;
+          dataObject["type"] = "Lanes";
+          break;
+        default:
+          showWarningToaster(`Worng Type Selection`);
+      }
+      setWindows((prevWindows) =>
+        prevWindows.map((window) => {
+          if (window.id !== id) {
+            return window;
+          } else {
+            return { ...window, type: "data", data: dataObject };
+          }
+        })
+      );
+      setChangeTypeLoading(false);
+    },
+    [setWindows]
+  );
   return (
     <ResizableBox
       className={
@@ -51,22 +100,40 @@ export const Window = (
           <Popover2
             content={
               <Menu>
-                <MenuItem icon="th" text="BPMN Associations" />
-                <MenuItem icon="th" text="BPMN Entities" />
-                <MenuItem icon="th" text="BPMN SequenceFlows" />
-                <MenuItem icon="th" text="Lanes" />
+                <MenuItem
+                  icon="th"
+                  text="BPMN Associations"
+                  onClick={() =>
+                    windowTypeHandler(windowID, "BPMN Associations")
+                  }
+                />
+                <MenuItem
+                  icon="th"
+                  text="BPMN Entities"
+                  onClick={() => windowTypeHandler(windowID, "BPMN Entities")}
+                />
+                <MenuItem
+                  icon="th"
+                  text="BPMN SequenceFlows"
+                  onClick={() =>
+                    windowTypeHandler(windowID, "BPMN SequenceFlows")
+                  }
+                />
+                <MenuItem
+                  icon="th"
+                  text="Lanes"
+                  onClick={() => windowTypeHandler(windowID, "Lanes")}
+                />
               </Menu>
             }
           >
-            <Button small loading={false} icon="eye-open" text="Change Type" />
+            <Button small loading={changeTypeLoading} icon="eye-open" text="Change Type" />
           </Popover2>
 
           {headerAdditionalContent}
           <ButtonGroup>
             <AddWindowsButton />
-            <Tooltip2
-              content={<span>Collapse</span>}
-            >
+            <Tooltip2 content={<span>Collapse</span>}>
               <Button
                 onClick={onCollapse}
                 icon={"double-chevron-down"}
