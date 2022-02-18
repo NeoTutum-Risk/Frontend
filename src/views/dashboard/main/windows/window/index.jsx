@@ -20,7 +20,7 @@ import {
   getBpmnLanes,
   getBpmnSequenceFlows,
 } from "../../../../../services";
-import { showWarningToaster } from "../../../../../utils/toaster";
+import { showWarningToaster,showDangerToaster } from "../../../../../utils/toaster";
 import { windowsState } from "../../../../../store/windows";
 import { useRecoilState } from "recoil";
 import { useCallback } from "react";
@@ -39,42 +39,47 @@ export const Window = ({
   const [changeTypeLoading, setChangeTypeLoading] = useState(false);
   const windowTypeHandler = useCallback(
     async (id, type) => {
-      setChangeTypeLoading(true);
-      let dataObject = {};
-      switch (type) {
-        case "BPMN Associations":
-          const associations = await getBpmnAssociations();
-          dataObject["associations"] = associations.data.data;
-          dataObject["type"] = "BPMN Associations";
-          break;
-        case "BPMN Entities":
-          const entities = await getBpmnEntities();
-          dataObject["entities"] = entities.data.data;
-          dataObject["type"] = "BPMN Entities";
-          break;
-        case "BPMN SequenceFlows":
-          const sequenceFlows = await getBpmnSequenceFlows();
-          dataObject["sequenceFlows"] = sequenceFlows.data.data;
-          dataObject["type"] = "BPMN SequenceFlows";
-          break;
-        case "Lanes":
-          const lanes = await getBpmnLanes();
-          dataObject["lanes"] = lanes.data.data;
-          dataObject["type"] = "Lanes";
-          break;
-        default:
-          showWarningToaster(`Worng Type Selection`);
+      try {
+        setChangeTypeLoading(true);
+        let dataObject = {};
+        switch (type) {
+          case "BPMN Associations":
+            const associations = await getBpmnAssociations();
+            dataObject["associations"] = associations.data.data;
+            dataObject["type"] = "BPMN Associations";
+            break;
+          case "BPMN Entities":
+            const entities = await getBpmnEntities();
+            dataObject["entities"] = entities.data.data;
+            dataObject["type"] = "BPMN Entities";
+            break;
+          case "BPMN SequenceFlows":
+            const sequenceFlows = await getBpmnSequenceFlows();
+            dataObject["sequenceFlows"] = sequenceFlows.data.data;
+            dataObject["type"] = "BPMN SequenceFlows";
+            break;
+          case "Lanes":
+            const lanes = await getBpmnLanes();
+            dataObject["lanes"] = lanes.data.data;
+            dataObject["type"] = "Lanes";
+            break;
+          default:
+            showWarningToaster(`Worng Type Selection`);
+        }
+        setWindows((prevWindows) =>
+          prevWindows.map((window) => {
+            if (window.id !== id) {
+              return window;
+            } else {
+              return { ...window, type: "data", data: dataObject };
+            }
+          })
+        );
+        setChangeTypeLoading(false);
+      } catch (error) {
+        showDangerToaster(`Can't Change Window Type: ${error}`);
+        setChangeTypeLoading(false);
       }
-      setWindows((prevWindows) =>
-        prevWindows.map((window) => {
-          if (window.id !== id) {
-            return window;
-          } else {
-            return { ...window, type: "data", data: dataObject };
-          }
-        })
-      );
-      setChangeTypeLoading(false);
     },
     [setWindows]
   );
@@ -94,6 +99,7 @@ export const Window = ({
       >
         <div className={`handle bp3-dark ${styles.windowHeader}`}>
           <div className={styles.windowHeader_title}>
+            {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
             <Icon icon={icon} />
             <div className="bp3-ui-text">{title}</div>
           </div>
@@ -127,7 +133,12 @@ export const Window = ({
               </Menu>
             }
           >
-            <Button small loading={changeTypeLoading} icon="eye-open" text="Change Type" />
+            <Button
+              small
+              loading={changeTypeLoading}
+              icon="eye-open"
+              text="Change Type"
+            />
           </Popover2>
 
           {headerAdditionalContent}
