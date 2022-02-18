@@ -12,6 +12,7 @@ import {
 import { Popover2, Tooltip2 } from "@blueprintjs/popover2";
 import React, { useState } from "react";
 import { ResizableBox } from "react-resizable";
+import Resizable from "react-resizable-box";
 import styles from "../../../styles.module.scss";
 import { AddWindowsButton } from "../../addWindowsButton";
 import {
@@ -20,7 +21,10 @@ import {
   getBpmnLanes,
   getBpmnSequenceFlows,
 } from "../../../../../services";
-import { showWarningToaster,showDangerToaster } from "../../../../../utils/toaster";
+import {
+  showWarningToaster,
+  showDangerToaster,
+} from "../../../../../utils/toaster";
 import { windowsState } from "../../../../../store/windows";
 import { useRecoilState } from "recoil";
 import { useCallback } from "react";
@@ -34,9 +38,60 @@ export const Window = ({
   windowID,
 }) => {
   const [windows, setWindows] = useRecoilState(windowsState);
-  console.log(windowID);
   const [isMaximize, setIsMaximize] = useState(false);
   const [changeTypeLoading, setChangeTypeLoading] = useState(false);
+
+  const windowLocationHandler = useCallback(
+    (id, location) => {
+      const windowIndex = windows.map((window) => window.id).indexOf(id);
+      const windowsLength = windows.length;
+      if (location === "left" && windowIndex === 0) return;
+      if (location === "right" && windowIndex === windowsLength - 1) return;
+      const windowData = windows[windowIndex];
+      switch (location) {
+        case "left":
+          const leftIndex = windowIndex - 1;
+          const leftData = windows[leftIndex];
+          setWindows((prevWindows) => {
+            return prevWindows.map((window, index) => {
+              if (index !== windowIndex && index !== leftIndex) {
+                return window;
+              }
+              if (index === windowIndex) {
+                return leftData;
+              }
+              if (index === leftIndex) {
+                return windowData;
+              }
+            });
+          });
+          break;
+
+        case "right":
+          const rightIndex = windowIndex + 1;
+          const rightData = windows[rightIndex];
+          setWindows((prevWindows) => {
+            return prevWindows.map((window, index) => {
+              if (index !== windowIndex && index !== rightIndex) {
+                return window;
+              }
+              if (index === windowIndex) {
+                return rightData;
+              }
+              if (index === rightIndex) {
+                return windowData;
+              }
+            });
+          });
+          break;
+
+        default:
+          return;
+      }
+    },
+    [setWindows, windows]
+  );
+
   const windowTypeHandler = useCallback(
     async (id, type) => {
       try {
@@ -84,13 +139,14 @@ export const Window = ({
     [setWindows]
   );
   return (
-    <ResizableBox
+    <Resizable
       className={
         isMaximize ? styles.windowContainerMax : styles.windowContainer
       }
       width={500}
       height={400}
-      minConstraints={[500, 300]}
+      minWidth={500}
+      minHeight={300}
     >
       <Card
         className={`${styles.windowCard} `}
@@ -144,6 +200,22 @@ export const Window = ({
           {headerAdditionalContent}
           <ButtonGroup>
             <AddWindowsButton />
+            <Tooltip2 content={<span>Move To left</span>}>
+              <Button
+                onClick={() => windowLocationHandler(windowID, "left")}
+                icon={"double-chevron-left"}
+                small
+                intent={Intent.PRIMARY}
+              />
+            </Tooltip2>
+            <Tooltip2 content={<span>Move To Right</span>}>
+              <Button
+                onClick={() => windowLocationHandler(windowID, "right")}
+                icon={"double-chevron-right"}
+                small
+                intent={Intent.PRIMARY}
+              />
+            </Tooltip2>
             <Tooltip2 content={<span>Collapse</span>}>
               <Button
                 onClick={onCollapse}
@@ -176,6 +248,6 @@ export const Window = ({
         </div>
         <div className={styles.windowBody}>{children}</div>
       </Card>
-    </ResizableBox>
+    </Resizable>
   );
 };
