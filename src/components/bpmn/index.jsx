@@ -52,6 +52,8 @@ export const Bpmn = memo(({ xml = '', onChange }) => {
       })
     )
 
+    document.getElementsByClassName("djs-container")[0].style.overflow = "visible";
+
     return () => {
       modelerRef.current = null
     }
@@ -97,7 +99,7 @@ export const Bpmn = memo(({ xml = '', onChange }) => {
           </Tooltip2>
         </ButtonGroup>
       </div>
-      <div ref={modelerRef} style={{ width: '100%', height: '100%' }} />
+      <div ref={modelerRef} style={{position:"absolute",marginLeft:"70px",width: 'calc(100% - 70px)', height: '100%' }} />
     </div>
   )
 })
