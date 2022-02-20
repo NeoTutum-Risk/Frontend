@@ -1,0 +1,33 @@
+
+.submit-button{
+  border-radius:8px;
+  box-shadow: 0px 8px 12px rgba(10,0,180,0.2);
+  padding:30px;
+  font-family: 'Open Sans', sans-serif;
+  padding-top: 1.2vh;
+  padding-bottom: 1.2vh;
+  width:44%;
+  margin-top: 6vh;
+  border:0px;
+  color:white;
+  background:#013e79;
+  position: relative;
+  left:50%;
+  transform: translate(-50%, 0%);
+}
+.submit-button:hover{
+  cursor:pointer;
+  opacity:0.7;
+}
+
+.submit-button-text{
+  vertical-align: middle;
+  display: inline-block;
+  margin-right: 1vw;
+}
+
+.submit-button-icon-main{
+  height:2.4vh;
+  vertical-align: middle;
+  display: inline-block;
+}

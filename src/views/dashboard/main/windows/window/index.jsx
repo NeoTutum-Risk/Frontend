@@ -7,11 +7,11 @@ import {
   Intent,
   Menu,
   MenuItem,
-  Spinner,
+  // Spinner,
 } from "@blueprintjs/core";
 import { Popover2, Tooltip2 } from "@blueprintjs/popover2";
 import React, { useState } from "react";
-import { ResizableBox } from "react-resizable";
+// import { ResizableBox } from "react-resizable";
 import Resizable from "react-resizable-box";
 import styles from "../../../styles.module.scss";
 import { AddWindowsButton } from "../../addWindowsButton";

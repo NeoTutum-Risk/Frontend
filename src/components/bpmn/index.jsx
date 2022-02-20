@@ -5,7 +5,7 @@ import minimapModule from "diagram-js-minimap";
 import { memo, useCallback, useEffect, useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
 
-export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
+export const Bpmn = memo(({ xml = "", onChange }) => {
   const [modeler, setModeler] = useState(null);
   const { width, height, ref: modelerRef } = useResizeDetector();
 
@@ -20,12 +20,6 @@ export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
     const { xml } = await modeler.saveXML({ format: true });
     onChange(xml);
   }, [modeler, onChange]);
-
-  const onClickHandler = useCallback(async (event) => {
-    if (!modeler) return;
-
-    onClick(event);
-  }, [modeler, onClick]);
 
   useEffect(() => {
     if (!modeler || !xml) return;
@@ -42,14 +36,13 @@ export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
 
   useEffect(() => {
     if (!modeler) return;
-    
-    modeler.on('element.click', onClickHandler);
+
     modeler.on("commandStack.changed", onChangeHandler);
 
     return () => {
       modeler.off("commandStack.changed", onChangeHandler);
     };
-  }, [modeler, onChangeHandler,onClickHandler]);
+  }, [modeler, onChangeHandler]);
 
   useEffect(() => {
     setModeler(
@@ -58,6 +51,10 @@ export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
         additionalModules: [minimapModule],
       })
     );
+
+    document.getElementsByClassName("djs-container")[0].style.overflow =
+      "visible";
+
     return () => {
       modelerRef.current = null;
     };
@@ -110,7 +107,15 @@ export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
           </Tooltip2>
         </ButtonGroup>
       </div>
-      <div ref={modelerRef} style={{ width: "100%", height: "100%" }} />
+      <div
+        ref={modelerRef}
+        style={{
+          position: "absolute",
+          marginLeft: "70px",
+          width: "calc(100% - 70px)",
+          height: "100%",
+        }}
+      />
     </div>
   );
 });
