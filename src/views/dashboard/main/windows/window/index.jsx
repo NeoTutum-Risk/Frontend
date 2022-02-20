@@ -63,6 +63,8 @@ export const Window = ({
               if (index === leftIndex) {
                 return windowData;
               }
+
+              return {};
             });
           });
           break;
@@ -81,6 +83,8 @@ export const Window = ({
               if (index === rightIndex) {
                 return windowData;
               }
+
+              return {};
             });
           });
           break;
