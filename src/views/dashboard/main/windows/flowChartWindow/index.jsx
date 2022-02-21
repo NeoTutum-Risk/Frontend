@@ -18,6 +18,13 @@ export const FlowChartWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const preparedNodes = window.data.dataObjectLevels.map(level=>{
+    return level.dataObjectElements.map(element=>{
+      return {label:element.name,id:element.id,level_value:level.level_value}
+    })
+
+  })
+  console.log(preparedNodes);
   return (
     <Window
       // title={window.data.fileName}
@@ -40,7 +47,7 @@ export const FlowChartWindow = ({
         </div>
       }
     >
-      <FlowChart graph={{nodes:window.data.dataObjectLevels.map(level=>{return {label:level.name,id:level.id}}),edges:[]}} onNetworkChange={data=>console.log(data)}/>
+      <FlowChart graph={{nodes:preparedNodes.flat(),edges:[]}} onNetworkChange={data=>console.log(data)}/>
       {/* <Bpmn
         xml={bpmn.xml ?? window.data.fileData}
         onChange={(data) => {

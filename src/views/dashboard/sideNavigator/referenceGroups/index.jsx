@@ -29,6 +29,7 @@ import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 
 export const ReferenceGroups = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const setWindows = useSetRecoilState(windowsState);
   const [referenceGroups, setReferenceGroups] =
     useRecoilState(referenceGroupsState);
@@ -48,6 +49,46 @@ export const ReferenceGroups = () => {
     console.log(data);
     setMetaData(data.data);
   }, []);
+
+  //work around for context menu
+  const useOnClickOutsideContextMenu = (handler) => {
+    useEffect(() => {
+      const listener = (event) => {
+        if (
+          event.target.classList.contains("target_menu") ||
+          event.target.getAttribute("data-icon") === "plus" ||
+          event.target.getAttribute("data-icon") === "update" ||
+          event.target.tagName === "path" ||
+          event.target.classList.contains("bp3-menu-item")
+        )
+          return;
+
+        handler(event);
+      };
+      document.addEventListener("mousedown", listener);
+      document.addEventListener("touchstart", listener);
+      return () => {
+        document.removeEventListener("mousedown", listener);
+        document.removeEventListener("touchstart", listener);
+      };
+    }, [handler]);
+  };
+
+  useOnClickOutsideContextMenu(() => {
+    setReferenceGroupContextMenu(null);
+  });
+
+  const clearData = useCallback(() => {
+    setReferenceGroupPopOverOpenId(null);
+    setDataObjectType(null);
+    setDataObjectLevels(1);
+    setDataObjectLevelsInput([]);
+  }, [
+    setReferenceGroupPopOverOpenId,
+    setDataObjectType,
+    setDataObjectLevels,
+    setDataObjectLevelsInput,
+  ]);
 
   useEffect(() => {
     fetchMetaData();
@@ -139,6 +180,7 @@ export const ReferenceGroups = () => {
   const createDataObject = useCallback(
     async (e) => {
       e.preventDefault();
+      setIsLoading(true);
       if (
         dataObjectType &&
         referenceGroupPopOverOpenName &&
@@ -166,26 +208,25 @@ export const ReferenceGroups = () => {
             };
           }),
         };
-
+        console.log("payload", payload);
         const response = await addDataObject(payload);
-        console.log(response);
         showSuccessToaster(response.data.msg);
-        // setReferenceGroupPopOverOpenName("");
-        setReferenceGroupPopOverOpenId(null);
-        setDataObjectType(null);
-        setDataObjectLevels(1);
-        setDataObjectLevelsInput([]);
+        clearData();
+        setIsLoading(false);
       } catch (error) {
         showDangerToaster(error);
+        setIsLoading(false);
       }
     },
     [
+      clearData,
       dataObjectLevelsInput,
       dataObjectType,
       referenceGroupPopOverOpenId,
       referenceGroupPopOverOpenName,
     ]
   );
+
   const dataObjectPopOverContent = useMemo(
     () => (
       <div key="text3">
@@ -250,13 +291,13 @@ export const ReferenceGroups = () => {
               className={Classes.POPOVER2_DISMISS}
               disabled={false}
               style={{ marginRight: 10 }}
-              onClick={() => setReferenceGroupPopOverOpenId(null)}
+              onClick={() => clearData()}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              loading={false}
+              loading={isLoading}
               intent={Intent.SUCCESS}
               className={Classes.POPOVER2_DISMISS}
             >
@@ -266,7 +307,7 @@ export const ReferenceGroups = () => {
         </form>
       </div>
     ),
-    [metaData, levelsInputContent]
+    [metaData, levelsInputContent, isLoading, clearData, createDataObject]
   );
   const newDataObject = (id) => {
     setReferenceGroupPopOverOpenId(id);
@@ -278,6 +319,9 @@ export const ReferenceGroups = () => {
         return {
           id: rGroup.id,
           icon: "projects",
+          isExpanded:
+          prev?.find((node) => rGroup.id=== node.id)?.isExpanded ??
+          false,
           label: (
             <Popover2
               popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
@@ -286,7 +330,6 @@ export const ReferenceGroups = () => {
               position="right"
             >
               <Popover2
-                // position="right"
                 content={
                   <Menu>
                     <MenuItem
@@ -303,13 +346,16 @@ export const ReferenceGroups = () => {
               </Popover2>
             </Popover2>
           ),
-          childNodes: rGroup.dataObjects.map((dataObject) => {
-            return {
-              id: dataObject.id,
-              label: dataObject.metaDataLevel2.name,
-              icon: "diagram-tree",
-            };
-          }),
+          childNodes: rGroup?.dataObjects
+            ? rGroup.dataObjects.map((dataObject) => {
+                return {
+                  id: dataObject.id,
+                  label: dataObject.metaDataLevel2.name,
+                  icon: "diagram-tree",
+                  type: "dataObject",
+                };
+              })
+            : [],
         };
       })
     );
@@ -319,17 +365,6 @@ export const ReferenceGroups = () => {
     referenceGroups.data,
     dataObjectPopOverContent,
   ]);
-
-  const addNewWindow = useCallback(
-    ({ data, type }) => {
-      setWindows((prevWindows) =>
-        prevWindows.find((window) => window.data.id === data.id)
-          ? prevWindows
-          : [{ type, data, id: generateID(), collapse: false }, ...prevWindows]
-      );
-    },
-    [setWindows]
-  );
 
   const onNodeCollapse = useCallback(
     (nodeData) =>
@@ -359,23 +394,17 @@ export const ReferenceGroups = () => {
     [setReferenceGroupsNodes]
   );
 
-  const onNodeContextMenu = useCallback(
-    (nodeData, _, e) => {
-      e.preventDefault();
-      setReferenceGroupContextMenu(nodeData.id);
-      console.log(referenceGroupContextMenu);
-    },
-    [setReferenceGroupContextMenu, referenceGroupContextMenu]
-  );
+  const onNodeContextMenu = useCallback((nodeData, _, e) => {
+    e.preventDefault();
+    setReferenceGroupContextMenu(nodeData.id);
+    // console.log(referenceGroupContextMenu);
+  }, []);
 
   const onNodeClick = useCallback(
     async (node) => {
+      console.log(node);
+      if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
-      // if (node.nodeData.type !== "bpmn") return;
-      console.log(nodeData.data.data);
-      // setNodes(setNodesAttribute(nodes, 'isSelected', false))
-      // setNodes(setNodeAttribute(nodes, nodePath, 'isSelected', true))
-      // addNewWindow({type: "flowChart", data: nodeData.data.data });
       setWindows((prevWindows) =>
         prevWindows.find(
           (window) =>
