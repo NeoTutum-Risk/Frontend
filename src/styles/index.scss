@@ -48,9 +48,9 @@ body,
   transform: translate(-100px, 0%);
   left:calc(10px);
   top:10px;
-  background:#EBEEFF;
+  // background:#EBEEFF;
   border-radius: 6px;
-  border:0px;
-  zoom: 0.7;
-  -moz-transform: scale(0.7);
+  border:1px solid #555;
+  zoom: 0.8;
+  -moz-transform: scale(0.8);
 }

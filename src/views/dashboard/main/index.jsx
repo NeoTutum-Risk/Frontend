@@ -5,6 +5,7 @@ import { windowsState } from "../../../store/windows";
 import styles from "../styles.module.scss";
 import { DataWindow } from "./windows/dataWindow";
 import { GraphWindow } from "./windows/graphWindow";
+import {FlowChartWindow} from "./windows/flowChartWindow";
 import { CollapsedWindow } from "./windows/collapsedWindow";
 import { CollapsePanel } from "./collapsePanel";
 export const Main = () => {
@@ -60,6 +61,15 @@ export const Main = () => {
             )}
             {window.type === "data" && window.collapse === false && (
               <DataWindow
+                key={window.id}
+                window={window}
+                onClose={() => windowCloseHandler(window.id)}
+                onCollapse={() => windowCollapseHandler(window.id)}
+                onRestore={() => windowRestoreHandler(window.id)}
+              />
+            )}
+            {window.type === "flowchart" && window.collapse === false && (
+              <FlowChartWindow
                 key={window.id}
                 window={window}
                 onClose={() => windowCloseHandler(window.id)}

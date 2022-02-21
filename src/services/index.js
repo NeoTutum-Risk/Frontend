@@ -5,6 +5,12 @@ export const getPortfolios = () => serviceProvider('/portfolios')
 
 export const getReferenceGroups = () => serviceProvider('/referenceGroups')
 
+export const getMetaData = () => serviceProvider('metaDataLevel1')
+
+export const addDataObject = data => serviceProvider.post('/dataObjects',data)
+
+export const getDataObject = id => serviceProvider(`/dataObjects/${id}`)
+
 export const addNewReferenceGroup = data => serviceProvider.post('/referenceGroups',data)
 
 export const addServiceChain = data => serviceProvider.post('/serviceChains', data)
