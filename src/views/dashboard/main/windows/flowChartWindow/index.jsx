@@ -9,8 +9,8 @@ import {
 import { elementSelectorState } from "../../../../../store/elementSelector";
 import { showDangerToaster } from "../../../../../utils/toaster";
 import { Window } from "../window";
-
-export const GraphWindow = ({
+import {FlowChart} from "../../../../../components/FlowChart";
+export const FlowChartWindow = ({
   onClose,
   onCollapse,
   onRestore,
@@ -18,49 +18,18 @@ export const GraphWindow = ({
   collapseState,
   onTypeChange,
 }) => {
-  const [bpmn, setbpmn] = useRecoilState(platformState(window.data.id));
-  const [autoSave, setAutoSave] = useState(true);
-  const [autoSaveLoading, setAutoSaveLoading] = useState(false);
-  const [elementSelector, setElementSelector] =
-    useRecoilState(elementSelectorState);
-  const elementSelectorHandler = useCallback(
-    (data) => {
-      const elementId = data.element.id;
-      if (!elementId) return;
-      console.log(data.element.children);
-      if (data.element.children.length > 0) {
-        setElementSelector(null);
-      } else {
-        setElementSelector(elementId);
-        console.log(elementSelector);
-      }
-    },
-    [setElementSelector, elementSelector]
-  );
-  const saveBpmn = useCallback(
-    async (fileData) => {
-      try {
-        setAutoSaveLoading(true);
+  const preparedNodes = window.data.dataObjectLevels.map(level=>{
+    return level.dataObjectElements.map(element=>{
+      return {label:element.name,id:element.id,level_value:level.level_value}
+    })
 
-        await updateBpmnStatus({
-          id: window.data.id,
-          status: "changed",
-          fileData,
-        });
-        setAutoSaveLoading(false);
-      } catch (error) {
-        setAutoSaveLoading(false);
-        showDangerToaster(error?.response?.data?.msg ?? error.message);
-      }
-    },
-    [window]
-  );
-
+  })
+  console.log(preparedNodes);
   return (
     <Window
-      title={window.data.fileName}
+      // title={window.data.fileName}
       windowID={window.id}
-      icon="document"
+      icon="diagram-tree"
       onClose={onClose}
       onCollapse={onCollapse}
       onRestore={onRestore}
@@ -68,17 +37,18 @@ export const GraphWindow = ({
       collapseState={collapseState}
       headerAdditionalContent={
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <Switch
+          {/* <Switch
             checked={autoSave}
             style={{ marginBottom: 0 }}
             label="Auto Save"
             onChange={() => setAutoSave((prevAutoSave) => !prevAutoSave)}
-          />
-          {autoSaveLoading && <Spinner size={12} intent={Intent.PRIMARY} />}
+          /> */}
+          {/* {autoSaveLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
         </div>
       }
     >
-      <Bpmn
+      <FlowChart graph={{nodes:preparedNodes.flat(),edges:[]}} onNetworkChange={data=>console.log(data)}/>
+      {/* <Bpmn
         xml={bpmn.xml ?? window.data.fileData}
         onChange={(data) => {
           setbpmn({ xml: data, changed: !autoSave });
@@ -87,7 +57,7 @@ export const GraphWindow = ({
           }
         }}
         onClick={(data) => elementSelectorHandler(data)}
-      />
+      /> */}
     </Window>
   );
 };
