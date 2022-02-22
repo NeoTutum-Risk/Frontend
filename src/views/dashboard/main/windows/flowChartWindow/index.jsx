@@ -1,15 +1,16 @@
 import { Intent, Spinner, Switch } from "@blueprintjs/core";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { Bpmn } from "../../../../../components/bpmn";
-import { addNewElementsConnection } from "../../../../../services";
 import {
-  platformState,
-} from "../../../../../store/portfolios";
+  addNewElementsConnection,
+  getDataObjectConnections,
+} from "../../../../../services";
+import { platformState } from "../../../../../store/portfolios";
 import { elementSelectorState } from "../../../../../store/elementSelector";
 import { showDangerToaster } from "../../../../../utils/toaster";
 import { Window } from "../window";
-import {FlowChart} from "../../../../../components/FlowChart";
+import { FlowChart } from "../../../../../components/FlowChart";
 export const FlowChartWindow = ({
   onClose,
   onCollapse,
@@ -18,22 +19,38 @@ export const FlowChartWindow = ({
   collapseState,
   onTypeChange,
 }) => {
-  const preparedNodes = window.data.dataObjectLevels.map(level=>{
-    return level.dataObjectElements.map(element=>{
-      return {label:element.name,id:element.id,level_value:level.level_value}
-    })
+  const [edges, setEdges] = useState([]);
+  const preparedNodes = window.data.dataObjectLevels.map((level) => {
+    return level.dataObjectElements.map((element) => {
+      return {
+        label: element.name,
+        id: element.id,
+        level_value: level.level_value,
+      };
+    });
+  });
 
-  })
+  const getEdges = useCallback(async () => {
+    const response = await getDataObjectConnections();
+    setEdges(response.data.data);
+    console.log(response.data.data);
+  },[]);
+
+  useEffect(() => {
+    getEdges();
+  }, [getEdges]);
   // console.log(preparedNodes);
-  const onNetworkChange = useCallback(async (data)=>{
-
-    const {sourceId,targetId,name} = data;
-    if(!sourceId || !targetId) return;
+  const onNetworkChange = useCallback(async (data) => {
+    const { sourceId, targetId, name } = data;
+    if (!sourceId || !targetId) {
+      console.log(data);
+      return;
+    }
     //if(edges.length===0)return;
 
-   const response = await addNewElementsConnection(data)
-    console.log("working on network",data);
-  })
+    const response = await addNewElementsConnection(data);
+    console.log("working on network", data);
+  },[]);
   return (
     <Window
       // title={window.data.fileName}
@@ -56,7 +73,10 @@ export const FlowChartWindow = ({
         </div>
       }
     >
-      <FlowChart graph={{nodes:preparedNodes.flat(),edges:[]}} onNetworkChange={onNetworkChange}/>
+      <FlowChart
+        graph={{ nodes: preparedNodes.flat(), edges: edges }}
+        onNetworkChange={onNetworkChange}
+      />
       {/* <Bpmn
         xml={bpmn.xml ?? window.data.fileData}
         onChange={(data) => {

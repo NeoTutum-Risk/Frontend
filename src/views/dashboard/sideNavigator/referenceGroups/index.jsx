@@ -24,6 +24,7 @@ import { addDataObject } from "../../../../services";
 import {
   showDangerToaster,
   showSuccessToaster,
+  showWarningToaster,
 } from "../../../../utils/toaster";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
@@ -181,12 +182,10 @@ export const ReferenceGroups = () => {
     async (e) => {
       e.preventDefault();
       setIsLoading(true);
-      if (
-        dataObjectType &&
-        referenceGroupPopOverOpenName &&
-        referenceGroupPopOverOpenId
-      ) {
-      } else {
+      if (!dataObjectType) {
+        showWarningToaster("Select Data Object Type");
+        setIsLoading(false);
+        return;
       }
       try {
         const payload = {
@@ -210,6 +209,13 @@ export const ReferenceGroups = () => {
         };
         console.log("payload", payload);
         const response = await addDataObject(payload);
+        setReferenceGroups((prev)=>(
+          {...prev,
+             data:prev.data.map(rGroup=>rGroup.id===referenceGroupPopOverOpenId?{
+              ...rGroup,dataObjects:[response.data.data,...rGroup.dataObjects]
+            }:rGroup)
+          }
+        ))
         showSuccessToaster(response.data.msg);
         clearData();
         setIsLoading(false);
@@ -224,6 +230,7 @@ export const ReferenceGroups = () => {
       dataObjectType,
       referenceGroupPopOverOpenId,
       referenceGroupPopOverOpenName,
+      setReferenceGroups
     ]
   );
 
@@ -320,8 +327,7 @@ export const ReferenceGroups = () => {
           id: rGroup.id,
           icon: "projects",
           isExpanded:
-          prev?.find((node) => rGroup.id=== node.id)?.isExpanded ??
-          false,
+            prev?.find((node) => rGroup.id === node.id)?.isExpanded ?? false,
           label: (
             <Popover2
               popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
@@ -405,6 +411,7 @@ export const ReferenceGroups = () => {
       console.log(node);
       if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
+
       setWindows((prevWindows) =>
         prevWindows.find(
           (window) =>

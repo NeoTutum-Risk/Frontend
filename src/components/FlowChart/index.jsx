@@ -33,7 +33,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
     canAddEdge = false;
     chosenNode1 = null;
     onNetworkChange({sourceId:from.id, targetId:to.id, name:newEdgeName});
-  },[])
+  },[onNetworkChange])
 
   const canAddEdgeHandler = ()=>{
     canAddEdge = true;
