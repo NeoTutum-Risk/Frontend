@@ -109,9 +109,8 @@ export const Bpmn = memo(({ xml = "", onChange }) => {
           </Tooltip2>
         </ButtonGroup>
       </div>
-<<<<<<< HEAD
       <div ref={modelerRef} style={{position:"absolute",marginLeft:"70px",width: 'calc(100% - 70px)', height: '100%' }} />
-=======
+
       <div
         ref={modelerRef}
         style={{
@@ -121,7 +120,7 @@ export const Bpmn = memo(({ xml = "", onChange }) => {
           height: "100%",
         }}
       />
->>>>>>> 95174d4b587b328302bd09fb33b432e317a302c1
+      
     </div>
   );
 });
