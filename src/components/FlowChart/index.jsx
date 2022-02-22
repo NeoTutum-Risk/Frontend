@@ -9,17 +9,15 @@ import { showDangerToaster, showSuccessToaster } from "../../utils/toaster";
 export const FlowChart = ({ graph, onNetworkChange }) => {
 
 
-  var nodes = new DataSet(graph.nodes);
-  var edges = [];//new DataSet(graph.edges);
+  var nodes = null;
+  var edges = 
   var canAddEdge = false;
   var chosenNode1 = null;
   var network;
-  var newEdgeName = '';
+  const [newEdgeName,setNewEdgeName] = useState('');
 
 
   const createEdge = useCallback((from, to)=>{
-
-    console.log('Edge added');
 
     if(from.level_value !== to.level_value - 1){
       canAddEdge = false;
@@ -32,8 +30,9 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
     network.setData({nodes,edges});
     canAddEdge = false;
     chosenNode1 = null;
+    setNewEdgeName('');
     onNetworkChange({sourceId:from.id, targetId:to.id, name:newEdgeName});
-  },[onNetworkChange])
+  },[onNetworkChange,canAddEdge])
 
   const canAddEdgeHandler = ()=>{
     canAddEdge = true;
@@ -48,6 +47,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
       createEdge(chosenNode1,id);
     }else{
       chosenNode1 = id;
+      console.log('node1');
       console.log(chosenNode1);
       console.log(id);
     }
@@ -58,11 +58,12 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
 
    useEffect(() => {
 
+    nodes = new DataSet(graph.nodes);
+
     nodes.forEach((node, nodeIndex) => {
       node.x = 90 * nodeIndex;
       node.y = 70 * node.level_value || 0;
     });
-
 
     var data = {nodes,edges};
     console.log(data);
@@ -105,9 +106,8 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
         <InputGroup
           required
           placeholder="New Connection Name..."
-          id='newReferenceGroupName'
           onChange={event => {
-            newEdgeName = event.target.value;
+            setNewEdgeName(event.target.value);
           }}
         />
         </div>

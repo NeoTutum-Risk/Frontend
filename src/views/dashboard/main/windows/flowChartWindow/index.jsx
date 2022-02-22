@@ -32,7 +32,7 @@ export const FlowChartWindow = ({
 
   const getEdges = useCallback(async () => {
     const response = await getDataObjectConnections();
-    setEdges(response.data.data);
+    setEdges(response.data.data.map(edge=>({from:edge.sourceId,to:edge.targetId})));
     console.log(response.data.data);
   },[]);
 
