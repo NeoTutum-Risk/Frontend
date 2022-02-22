@@ -3,48 +3,59 @@ import { Tooltip2 } from '@blueprintjs/popover2';
 import { memo, useCallback, useEffect, useState, useRef } from 'react';
 import React from 'react';
 import {Network} from 'vis-network';
+import {DataSet} from 'vis-data';
+import { showDangerToaster } from "../../utils/toaster";
 
 export const FlowChart = ({ graph, onNetworkChange }) => {
 
-  var nodes = graph.nodes;
-  var edges = graph.edges;
+  var nodes = new DataSet(graph.nodes);
+  var edges = [];//new DataSet(graph.edges);
   var canAddEdge = false;
   var chosenNode1 = null;
   var network;
 
 
-  const createEdge = (from, to)=>{
-    console.log({from,to});
-    edges.push({from,to});
+  const createEdge = useCallback((from, to)=>{
+
+    if(from.level_value !== to.level_value - 1){
+      canAddEdge = false;
+      chosenNode1 = null;
+      showDangerToaster('Invalid connection made');
+      return;
+    }
+
+    edges.push({from:from.id, to:to.id});
     network.setData({nodes,edges});
     canAddEdge = false;
-    onNetworkChange({nodes,edges});
-  }
+    chosenNode1 = null;
+    onNetworkChange({sourceId:from.id, targetId:to.id, name:""});
+  },[canAddEdge,chosenNode1,edges,network,onNetworkChange])
 
   const canAddEdgeHandler = ()=>{
     canAddEdge = true;
   }
 
-  const nodeClicked = (id,edgeAllowed)=>{
-    console.log(id);
+  const nodeClicked = useCallback((id,edgeAllowed)=>{
 
     if(!canAddEdge) return;
-    console.log("Past issue");
-    console.log(chosenNode1);
 
     if(chosenNode1){
       createEdge(chosenNode1,id);
     }else{
       chosenNode1 = id;
     }
-  }
-
-  const getCurrentData = ()=>{ return {nodes,edges}; }
+  },[canAddEdge,chosenNode1])
 
 
   const visJsRef = useRef(null);
 
    useEffect(() => {
+
+    nodes.forEach((node, nodeIndex) => {
+      node.x = 90 * nodeIndex;
+      node.y = 70 * node.level_value || 0;
+    });
+
 
     var data = {nodes,edges};
     console.log(data);
@@ -71,7 +82,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
 
     network.on('click', (properties)=>{
         var ids = properties.nodes;
-        var clickedNode = ids[0];
+        var clickedNode = nodes.get(ids[0]);
         nodeClicked(clickedNode, canAddEdge);
         onNetworkChange(properties);
     });
