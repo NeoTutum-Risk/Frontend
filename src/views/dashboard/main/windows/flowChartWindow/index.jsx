@@ -32,7 +32,7 @@ export const FlowChartWindow = ({
 
   const getEdges = useCallback(async () => {
     const response = await getDataObjectConnections();
-    setEdges(response.data.data);
+    setEdges(response.data.data.map(edge=>({from:edge.sourceId,to:edge.targetId})));
     console.log(response.data.data);
   },[]);
 
@@ -61,32 +61,11 @@ export const FlowChartWindow = ({
       onRestore={onRestore}
       onTypeChange={onTypeChange}
       collapseState={collapseState}
-      headerAdditionalContent={
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          {/* <Switch
-            checked={autoSave}
-            style={{ marginBottom: 0 }}
-            label="Auto Save"
-            onChange={() => setAutoSave((prevAutoSave) => !prevAutoSave)}
-          /> */}
-          {/* {autoSaveLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
-        </div>
-      }
     >
       <FlowChart
         graph={{ nodes: preparedNodes.flat(), edges: edges }}
         onNetworkChange={onNetworkChange}
       />
-      {/* <Bpmn
-        xml={bpmn.xml ?? window.data.fileData}
-        onChange={(data) => {
-          setbpmn({ xml: data, changed: !autoSave });
-          if (autoSave) {
-            saveBpmn(data);
-          }
-        }}
-        onClick={(data) => elementSelectorHandler(data)}
-      /> */}
     </Window>
   );
 };
