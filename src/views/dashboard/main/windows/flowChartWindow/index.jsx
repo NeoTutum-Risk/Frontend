@@ -2,7 +2,7 @@ import { Intent, Spinner, Switch } from "@blueprintjs/core";
 import { useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
 import { Bpmn } from "../../../../../components/bpmn";
-import { updateBpmnStatus } from "../../../../../services";
+import { addNewElementsConnection } from "../../../../../services";
 import {
   platformState,
 } from "../../../../../store/portfolios";
@@ -24,7 +24,16 @@ export const FlowChartWindow = ({
     })
 
   })
-  console.log(preparedNodes);
+  // console.log(preparedNodes);
+  const onNetworkChange = useCallback(async (data)=>{
+
+    const {sourceId,targetId,name} = data;
+    if(!sourceId || !targetId) return;
+    //if(edges.length===0)return;
+
+   const response = await addNewElementsConnection(data)
+    console.log("working on network",data);
+  })
   return (
     <Window
       // title={window.data.fileName}
@@ -47,7 +56,7 @@ export const FlowChartWindow = ({
         </div>
       }
     >
-      <FlowChart graph={{nodes:preparedNodes.flat(),edges:[]}} onNetworkChange={data=>console.log(data)}/>
+      <FlowChart graph={{nodes:preparedNodes.flat(),edges:[]}} onNetworkChange={onNetworkChange}/>
       {/* <Bpmn
         xml={bpmn.xml ?? window.data.fileData}
         onChange={(data) => {

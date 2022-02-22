@@ -9,7 +9,11 @@ import { showDangerToaster } from "../../utils/toaster";
 export const FlowChart = ({ graph, onNetworkChange }) => {
 
   var nodes = new DataSet(graph.nodes);
+<<<<<<< HEAD
   var edges = new DataSet(graph.edges);
+=======
+  var edges = [];//new DataSet(graph.edges);
+>>>>>>> 4ddf52e7a4a4c916cfe4ee8d8e996abdd486b0d7
   var canAddEdge = false;
   var chosenNode1 = null;
   var network;

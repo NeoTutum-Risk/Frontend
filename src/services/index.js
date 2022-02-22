@@ -19,6 +19,8 @@ export const addNewPortfolio = data => serviceProvider.post('/portfolios', data)
 
 export const addNewPlatform = data => serviceProvider.post('/platforms', data)
 
+export const addNewElementsConnection = data => serviceProvider.post('/dataObjectConnections', data)
+
 export const addNewBpmn = ({
   file,
   platformId,
