@@ -26,18 +26,19 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
     }
 
     edges.push({from:from.id, to:to.id});
+    console.log('Edge added');
     network.setData({nodes,edges});
     canAddEdge = false;
     chosenNode1 = null;
     onNetworkChange({sourceId:from.id, targetId:to.id, name:newEdgeName});
-  },[canAddEdge,chosenNode1,edges,network,onNetworkChange])
+  },[])
 
   const canAddEdgeHandler = ()=>{
     canAddEdge = true;
   }
 
   const nodeClicked = useCallback((id,edgeAllowed)=>{
-
+    console.log("Node Clicked");
     if(!canAddEdge) return;
 
     if(chosenNode1){
@@ -45,7 +46,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
     }else{
       chosenNode1 = id;
     }
-  },[canAddEdge,chosenNode1])
+  },[])
 
 
   const visJsRef = useRef(null);
@@ -71,7 +72,6 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
         enabled: false
       },
       edges: {
-        smooth:false,
         arrows: {
                 to: {
                   enabled: true
