@@ -10,18 +10,18 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
 
 
   var nodes = null;
-  var edges = 
+  var edges = [];
   var canAddEdge = false;
   var chosenNode1 = null;
   var network;
-  const [newEdgeName,setNewEdgeName] = useState('');
+  var newEdgeName = '';
 
 
-  const createEdge = useCallback((from, to)=>{
+  const createEdge = (from, to)=>{
 
     if(from.level_value !== to.level_value - 1){
       canAddEdge = false;
-      chosenNode1 = null;
+      chosenNode1 = false;
       showDangerToaster('Invalid connection made');
       return;
     }
@@ -30,28 +30,34 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
     network.setData({nodes,edges});
     canAddEdge = false;
     chosenNode1 = null;
-    setNewEdgeName('');
+    newEdgeName = '';
     onNetworkChange({sourceId:from.id, targetId:to.id, name:newEdgeName});
-  },[onNetworkChange,canAddEdge])
+  }
 
   const canAddEdgeHandler = ()=>{
     canAddEdge = true;
+    console.log(canAddEdge);
   }
 
-  const nodeClicked = useCallback((id,edgeAllowed)=>{
-    console.log("Node Clicked");
+  const nodeClicked = (id)=>{
+
+    console.log("canAddEdge: "+canAddEdge);
+
     if(!canAddEdge) return;
-    console.log(canAddEdge);
 
     if(chosenNode1){
       createEdge(chosenNode1,id);
     }else{
       chosenNode1 = id;
-      console.log('node1');
-      console.log(chosenNode1);
-      console.log(id);
     }
-  },[canAddEdge])
+  }
+
+  const networkOnClickHandler = (properties)=>{
+      var ids = properties.nodes;
+      var clickedNode = nodes.get(ids[0]);
+      nodeClicked(clickedNode);
+      onNetworkChange(properties);
+  }
 
 
   const visJsRef = useRef(null);
@@ -65,8 +71,10 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
       node.y = 70 * node.level_value || 0;
     });
 
+    edges = graph.edges;
+
     var data = {nodes,edges};
-    console.log(data);
+
     var options = {
       height: '100%',
       width: '100%',
@@ -89,14 +97,9 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
 
     network = visJsRef.current && new Network(visJsRef.current, data,options);
 
-    network.on('click', (properties)=>{
-        var ids = properties.nodes;
-        var clickedNode = nodes.get(ids[0]);
-        nodeClicked(clickedNode, canAddEdge);
-        onNetworkChange(properties);
-    });
+    network.on('click', networkOnClickHandler);
 
-  },[visJsRef])
+  },[visJsRef,graph,edges])
 
 
   return (
@@ -107,7 +110,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
           required
           placeholder="New Connection Name..."
           onChange={event => {
-            setNewEdgeName(event.target.value);
+            newEdgeName = event.target.value;
           }}
         />
         </div>
