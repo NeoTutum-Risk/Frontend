@@ -71,6 +71,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
         enabled: false
       },
       edges: {
+        smooth:false,
         arrows: {
                 to: {
                   enabled: true
