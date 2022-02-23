@@ -124,6 +124,14 @@ export const ReferenceGroups = () => {
       Papa.parse(files[0], {
         complete: function (results) {
           let csvError = false;
+          console.log("empty last row check",results.data[results.data.length-1]);
+          if(results.data[results.data.length-1].length===1){
+            const lastRow = results.data.pop();
+            console.log("Fixed File",results.data);
+            showWarningToaster(`CSV row#${results.data.length} is an empty row and is removed`);
+          }
+
+          //return;
           console.log("header Check", results.data[0][0], results.data[0][2]);
           if (
             !(
