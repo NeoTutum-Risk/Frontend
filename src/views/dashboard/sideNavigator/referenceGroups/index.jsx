@@ -31,6 +31,7 @@ import { generateID } from "../../../../utils/generateID";
 
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState([]);
   const setWindows = useSetRecoilState(windowsState);
   const [referenceGroups, setReferenceGroups] =
     useRecoilState(referenceGroupsState);
@@ -122,6 +123,57 @@ export const ReferenceGroups = () => {
       console.log(files[0].name, i);
       Papa.parse(files[0], {
         complete: function (results) {
+          let csvError = false;
+          console.log("header Check", results.data[0][0], results.data[0][2]);
+          if (
+            !(
+              Number.isInteger(Number(results.data[0][0])) &&
+              Number.isInteger(Number(results.data[0][2]))
+            )
+          ) {
+            const header = results.data.shift();
+            console.log("igoring the header", results.data, header);
+            showWarningToaster(`CSV row#1 is considered as header`);
+          }
+
+          results.data.forEach((row, index) => {
+            if (row.length < 5) {
+              showWarningToaster(`CSV row ${index + 1} is less than 5 columns`);
+              csvError = true;
+            } else {
+              // Check Empty Values
+              row.forEach((column, columnIndex) => {
+                if (!column) {
+                  showWarningToaster(
+                    `CSV row#${index + 1} column#${columnIndex + 1} is empty`
+                  );
+                  csvError = true;
+                }
+              });
+
+              // Check Index & Rank Integers
+              console.log(
+                "Checking Index & Rank",
+                row[0],
+                Number(row[0]),
+                row[2],
+                Number(row[2])
+              );
+              if (
+                !(
+                  Number.isInteger(Number(row[0])) &&
+                  Number.isInteger(Number(row[2]))
+                )
+              ) {
+                showWarningToaster(
+                  `CSV row#${index + 1} column#1 and column#3 must be integers`
+                );
+                csvError = true;
+              }
+            }
+          });
+          console.log(results.data);
+          if (csvError) return;
           setDataObjectLevelsInput((prev) => {
             // console.log(prev);
             return prev.map((level) => {
@@ -187,6 +239,27 @@ export const ReferenceGroups = () => {
         setIsLoading(false);
         return;
       }
+
+      if (dataObjectLevelsInput.length < dataObjectLevels) {
+        showWarningToaster("Levels Entered are less than Levels Count");
+        setIsLoading(false);
+        return;
+      }
+
+      let levelErrors = false;
+      dataObjectLevelsInput.forEach((level, index) => {
+        if (!level.levelData) {
+          showWarningToaster(
+            `Level ${level.name} index#${index+1} data is missing`
+          );
+          levelErrors = true;
+        }
+      });
+      if (levelErrors){
+        setIsLoading(false);
+        return;
+      } 
+
       try {
         const payload = {
           // name: referenceGroupPopOverOpenName,
@@ -209,13 +282,17 @@ export const ReferenceGroups = () => {
         };
         console.log("payload", payload);
         const response = await addDataObject(payload);
-        setReferenceGroups((prev)=>(
-          {...prev,
-             data:prev.data.map(rGroup=>rGroup.id===referenceGroupPopOverOpenId?{
-              ...rGroup,dataObjects:[response.data.data,...rGroup.dataObjects]
-            }:rGroup)
-          }
-        ))
+        setReferenceGroups((prev) => ({
+          ...prev,
+          data: prev.data.map((rGroup) =>
+            rGroup.id === referenceGroupPopOverOpenId
+              ? {
+                  ...rGroup,
+                  dataObjects: [response.data.data, ...rGroup.dataObjects],
+                }
+              : rGroup
+          ),
+        }));
         showSuccessToaster(response.data.msg);
         clearData();
         setIsLoading(false);
@@ -230,7 +307,7 @@ export const ReferenceGroups = () => {
       dataObjectType,
       referenceGroupPopOverOpenId,
       referenceGroupPopOverOpenName,
-      setReferenceGroups
+      setReferenceGroups,
     ]
   );
 
