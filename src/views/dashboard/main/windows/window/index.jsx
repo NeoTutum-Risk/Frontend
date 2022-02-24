@@ -150,7 +150,7 @@ export const Window = ({
       width={500}
       height={400}
       minWidth={500}
-      minHeight={300}
+      minHeight={320}
     >
       <Card
         className={`${styles.windowCard} `}
@@ -197,7 +197,7 @@ export const Window = ({
               small
               loading={changeTypeLoading}
               icon="eye-open"
-              text="Change Type"
+              text="Type"
             />
           </Popover2>
 

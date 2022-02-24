@@ -7,6 +7,8 @@ export const getReferenceGroups = () => serviceProvider('/referenceGroups')
 
 export const getMetaData = () => serviceProvider('metaDataLevel1')
 
+export const getMetaDataL2 = () => serviceProvider('metaDataLevel2')
+
 export const addDataObject = data => serviceProvider.post('/dataObjects',data)
 
 export const getDataObject = id => serviceProvider(`/dataObjects/${id}`)

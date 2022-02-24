@@ -19,7 +19,7 @@ import cloneDeep from "lodash/cloneDeep";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
 import { referenceGroupsState } from "../../../../store/referenceGroups";
-import { getMetaData, getDataObject } from "../../../../services";
+import { getMetaData,getMetaDataL2, getDataObject } from "../../../../services";
 import { addDataObject } from "../../../../services";
 import {
   showDangerToaster,
@@ -43,6 +43,7 @@ export const ReferenceGroups = () => {
   const [referenceGroupContextMenu, setReferenceGroupContextMenu] =
     useState(null);
   const [metaData, setMetaData] = useState(null);
+  const [metaDataL2, setMetaDataL2] = useState(null);
   const [dataObjectType, setDataObjectType] = useState(null);
   const [dataObjectLevels, setDataObjectLevels] = useState(1);
   const [dataObjectLevelsInput, setDataObjectLevelsInput] = useState([]);
@@ -50,6 +51,12 @@ export const ReferenceGroups = () => {
     const { data } = await getMetaData();
     console.log(data);
     setMetaData(data.data);
+  }, []);
+
+  const fetchMetaDataL2 = useCallback(async () => {
+    const { data } = await getMetaDataL2();
+    console.log(data);
+    setMetaDataL2(data.data);
   }, []);
 
   //work around for context menu
@@ -94,7 +101,8 @@ export const ReferenceGroups = () => {
 
   useEffect(() => {
     fetchMetaData();
-  }, [fetchMetaData]);
+    fetchMetaDataL2();
+  }, [fetchMetaData,fetchMetaDataL2]);
 
   const handleTextInput = (e, i) => {
     setDataObjectLevelsInput((prev) => {
@@ -124,11 +132,16 @@ export const ReferenceGroups = () => {
       Papa.parse(files[0], {
         complete: function (results) {
           let csvError = false;
-          console.log("empty last row check",results.data[results.data.length-1]);
-          if(results.data[results.data.length-1].length===1){
+          console.log(
+            "empty last row check",
+            results.data[results.data.length - 1]
+          );
+          if (results.data[results.data.length - 1].length === 1) {
             const lastRow = results.data.pop();
-            console.log("Fixed File",results.data);
-            showWarningToaster(`CSV row#${results.data.length} is an empty row and is removed`);
+            console.log("Fixed File", results.data);
+            showWarningToaster(
+              `CSV row#${results.data.length} is an empty row and is removed`
+            );
           }
 
           //return;
@@ -183,18 +196,47 @@ export const ReferenceGroups = () => {
           console.log(results.data);
           if (csvError) return;
           setDataObjectLevelsInput((prev) => {
-            // console.log(prev);
-            return prev.map((level) => {
-              if (level.levelId === i) {
-                return {
-                  ...level,
-                  fileName: files[0].name,
+            if (
+              prev.map((item) => item.levelId).indexOf(i) === -1 ||
+              prev.length === 0
+            ) {
+              //console.log(prev.map((item) => item.levelId).indexOf(i));
+              return [
+                ...prev,
+                {
+                  levelId: i,
+                  name: files[0].name,
                   levelData: results,
-                };
-              } else {
-                return level;
-              }
-            });
+                  fileName: files[0].name,
+                },
+              ];
+            } else {
+              return prev.map((item) => {
+                if (item.levelId === i) {
+                  return {
+                    ...item,
+                    name: files[0].name,
+                    levelData: results,
+                    fileName: files[0].name,
+                  };
+                } else {
+                  return item;
+                }
+              });
+            }
+
+            // console.log(prev);
+            // return prev.map((level) => {
+            //   if (level.levelId === i) {
+            //     return {
+            //       ...level,
+            //       fileName: files[0].name,
+            //       levelData: results,
+            //     };
+            //   } else {
+            //     return level;
+            //   }
+            // });
           });
           // console.log("Finished:", results.data);
         },
@@ -211,16 +253,16 @@ export const ReferenceGroups = () => {
           intent={false ? Intent.DANGER : Intent.NONE}
           labelFor="Type"
         >
-          <InputGroup onChange={(e) => handleTextInput(e, j)}></InputGroup>
+          {/* <InputGroup onChange={(e) => handleTextInput(e, j)}></InputGroup> */}
           <FileInput
             hasSelection={
               dataObjectLevelsInput[
                 dataObjectLevelsInput.map((item) => item.levelId).indexOf(j)
               ]?.fileName
             }
-            disabled={
-              dataObjectLevelsInput.map((item) => item.levelId).indexOf(j) < 0
-            }
+            // disabled={
+            //   dataObjectLevelsInput.map((item) => item.levelId).indexOf(j) < 0
+            // }
             text={
               dataObjectLevelsInput[
                 dataObjectLevelsInput.map((item) => item.levelId).indexOf(j)
@@ -258,15 +300,15 @@ export const ReferenceGroups = () => {
       dataObjectLevelsInput.forEach((level, index) => {
         if (!level.levelData) {
           showWarningToaster(
-            `Level ${level.name} index#${index+1} data is missing`
+            `Level ${level.name} index#${index + 1} data is missing`
           );
           levelErrors = true;
         }
       });
-      if (levelErrors){
+      if (levelErrors) {
         setIsLoading(false);
         return;
-      } 
+      }
 
       try {
         const payload = {
@@ -290,19 +332,28 @@ export const ReferenceGroups = () => {
         };
         console.log("payload", payload);
         const response = await addDataObject(payload);
-        setReferenceGroups((prev) => ({
-          ...prev,
-          data: prev.data.map((rGroup) =>
-            rGroup.id === referenceGroupPopOverOpenId
-              ? {
-                  ...rGroup,
-                  dataObjects: [response.data.data, ...rGroup.dataObjects],
-                }
-              : rGroup
-          ),
-        }));
-        showSuccessToaster(response.data.msg);
-        clearData();
+
+        if (response.data.error) {
+          showDangerToaster(
+            `Error Creating Data Object: ${response.data.error}`
+          );
+        } else {
+          const metaDataLevel2 = metaDataL2.find(data=>data.id===response.data.data.metaDataLevel2Id);
+          setReferenceGroups((prev) => ({
+            ...prev,
+            data: prev.data.map((rGroup) =>
+              rGroup.id === referenceGroupPopOverOpenId
+                ? {
+                    ...rGroup,
+                    dataObjects: [{...response.data.data,metaDataLevel2}, ...rGroup.dataObjects],
+                  }
+                : rGroup
+            ),
+          }));
+          showSuccessToaster(response.data.msg);
+          clearData();
+        }
+
         setIsLoading(false);
       } catch (error) {
         showDangerToaster(error);
