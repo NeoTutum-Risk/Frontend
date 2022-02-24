@@ -85,8 +85,18 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
       physics: {
         enabled: false
       },
+      nodes: {
+        shape: "dot",
+        size: 30,
+        font: {
+          size: 32,
+          color: "#3477eb",
+        },
+        borderWidth: 2,
+      },
       edges: {
         smooth:false,
+        width: 2,
         arrows: {
                 to: {
                   enabled: true
