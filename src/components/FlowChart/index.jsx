@@ -1,115 +1,113 @@
 import { Button, ButtonGroup, InputGroup } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
-import { memo, useCallback, useEffect, useState, useRef } from 'react';
+import { memo, useCallback, useMemo, useEffect, useState, useRef } from 'react';
 import React from 'react';
 import {Network} from 'vis-network';
 import {DataSet} from 'vis-data';
 import { showDangerToaster, showSuccessToaster } from "../../utils/toaster";
+import Graph from "react-graph-vis";
+import { useResizeDetector } from "react-resize-detector";
 
 export const FlowChart = ({ graph, onNetworkChange }) => {
 
 
-  var nodes = null;
-  var edges = [];
-  var canAddEdge = false;
-  var chosenNode1 = null;
-  var network;
-  var newEdgeName = '';
+  const [canAddEdge, setCanAddEdge] = useState(false);
+  const [chosenNode1, setChosenNode1] = useState(null);
+  const [newEdgeName,setNewEdgeName] = useState('');
+  const visJsRef = useRef(null);
+  const calculateNodesAndEdges = useCallback((inputGraph)=>{
+    return {nodes:inputGraph.nodes.map((node,nodeIndex)=> {
+      return {
+        label:node.label,
+        id:node.id,
+        x:(node.x || (node.level_value * 200)),
+        y:(node.y || (nodeIndex * 80 - (node.level_value * 80))),
+        level_value:node.level_value
+      }
+    }), edges:inputGraph.edges
+    };
+  },[]);
+  const [mainGraph,setMainGraph] = useState(graph);
+  const memoGraph = useMemo(() => calculateNodesAndEdges(mainGraph), [mainGraph]);
 
+  const createEdge = useCallback((from, to)=>{
 
-  const createEdge = (from, to)=>{
+    if(from.id === to.id) return;
 
     if(from.level_value !== to.level_value - 1){
-      canAddEdge = false;
-      chosenNode1 = false;
+      setCanAddEdge(false);
+      setChosenNode1(null);
       showDangerToaster('Invalid connection made');
       return;
     }
 
-    edges.push({from:from.id, to:to.id});
-    network.setData({nodes,edges});
-    canAddEdge = false;
-    chosenNode1 = null;
+    const newGraph = mainGraph;
+    newGraph.edges.push({from:from.id, to:to.id,label:newEdgeName});
+    setMainGraph(newGraph);
+    setCanAddEdge(false);
+    setChosenNode1(null);
     onNetworkChange({sourceId:from.id, targetId:to.id, name:newEdgeName});
-    newEdgeName = '';
-  }
+    setNewEdgeName('');
+  },[mainGraph,setChosenNode1,newEdgeName,setNewEdgeName,onNetworkChange])
 
-  const canAddEdgeHandler = ()=>{
-    canAddEdge = true;
+  const canAddEdgeHandler = useCallback(()=>{
+    setCanAddEdge(true);
     console.log(canAddEdge);
-  }
+  },[canAddEdge,setCanAddEdge])
 
-  const nodeClicked = (id)=>{
-
-    console.log("canAddEdge: "+canAddEdge);
+  const nodeClicked = useCallback((id)=>{
 
     if(!canAddEdge) return;
 
     if(chosenNode1){
       createEdge(chosenNode1,id);
     }else{
-      chosenNode1 = id;
+      setChosenNode1(id);
     }
-  }
+  },[chosenNode1,setChosenNode1,createEdge])
 
-  const networkOnClickHandler = (properties)=>{
+  const networkOnClickHandler = useCallback((properties)=>{
       var ids = properties.nodes;
-      var clickedNode = nodes.get(ids[0]);
+      var clickedNode = mainGraph.nodes.filter((node)=> node.id === properties.nodes[0])[0];
+      console.log(clickedNode);
       nodeClicked(clickedNode);
-      onNetworkChange(properties);
+      //onNetworkChange(properties);
+  }, [mainGraph, canAddEdge]);
+
+  const options = {
+    height: '100%',
+    width: '100%',
+    locale: 'en',
+    interaction: {
+      multiselect: true
+    },
+    physics: {
+      enabled: false
+    },
+    nodes: {
+      shape: "dot",
+      size: 20,
+      font: {
+        size: 16,
+        color: "#383838",
+      },
+      borderWidth: 2,
+    },
+    edges: {
+      smooth:false,
+      width: 2,
+      arrows: {
+              to: {
+                enabled: true
+              }
+          }
+      }
   }
 
-
-  const visJsRef = useRef(null);
-
-   useEffect(() => {
-
-    nodes = new DataSet(graph.nodes);
-
-    nodes.forEach((node, nodeIndex) => {
-      node.x = 90 * nodeIndex;
-      node.y = 70 * node.level_value || 0;
-    });
-
-    edges = graph.edges;
-
-    var data = {nodes,edges};
-
-    var options = {
-      height: '100%',
-      width: '100%',
-      locale: 'en',
-      interaction: {
-        multiselect: true
-      },
-      physics: {
-        enabled: false
-      },
-      nodes: {
-        shape: "dot",
-        size: 30,
-        font: {
-          size: 32,
-          color: "#3477eb",
-        },
-        borderWidth: 2,
-      },
-      edges: {
-        smooth:false,
-        width: 2,
-        arrows: {
-                to: {
-                  enabled: true
-                }
-            }
-        }
-    };
-
-    network = visJsRef.current && new Network(visJsRef.current, data,options);
-
-    network.on('click', networkOnClickHandler);
-
-  },[visJsRef,graph,edges])
+  const events = {
+    doubleClick: (eventObject)=>{},
+    click: networkOnClickHandler
+  }
 
 
   return (
@@ -120,7 +118,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
           required
           placeholder="New Connection Name..."
           onChange={event => {
-            newEdgeName = event.target.value;
+            setNewEdgeName(event.target.value);
           }}
         />
         </div>
@@ -133,7 +131,13 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
           <Button intent="none" text="Add Connection" onClick={canAddEdgeHandler} />
         </div>
       </div>
-      <div ref={visJsRef} style={{width: '100%', height:"90%", position: 'relative', cursor: 'pointer' }} />
+      <Graph
+        graph={memoGraph}
+        options={options}
+        events={events}
+        ref={visJsRef}
+        style={{width: '100%', height:"90%", position: 'relative', cursor: 'pointer',overflowY:"hidden" }}
+      />
     </div>
   )
 

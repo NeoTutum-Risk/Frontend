@@ -19,7 +19,7 @@ import cloneDeep from "lodash/cloneDeep";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
 import { referenceGroupsState } from "../../../../store/referenceGroups";
-import { getMetaData, getDataObject } from "../../../../services";
+import { getMetaData,getMetaDataL2, getDataObject } from "../../../../services";
 import { addDataObject } from "../../../../services";
 import {
   showDangerToaster,
@@ -31,6 +31,7 @@ import { generateID } from "../../../../utils/generateID";
 
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState([]);
   const setWindows = useSetRecoilState(windowsState);
   const [referenceGroups, setReferenceGroups] =
     useRecoilState(referenceGroupsState);
@@ -42,6 +43,7 @@ export const ReferenceGroups = () => {
   const [referenceGroupContextMenu, setReferenceGroupContextMenu] =
     useState(null);
   const [metaData, setMetaData] = useState(null);
+  const [metaDataL2, setMetaDataL2] = useState(null);
   const [dataObjectType, setDataObjectType] = useState(null);
   const [dataObjectLevels, setDataObjectLevels] = useState(1);
   const [dataObjectLevelsInput, setDataObjectLevelsInput] = useState([]);
@@ -49,6 +51,12 @@ export const ReferenceGroups = () => {
     const { data } = await getMetaData();
     console.log(data);
     setMetaData(data.data);
+  }, []);
+
+  const fetchMetaDataL2 = useCallback(async () => {
+    const { data } = await getMetaDataL2();
+    console.log(data);
+    setMetaDataL2(data.data);
   }, []);
 
   //work around for context menu
@@ -93,7 +101,8 @@ export const ReferenceGroups = () => {
 
   useEffect(() => {
     fetchMetaData();
-  }, [fetchMetaData]);
+    fetchMetaDataL2();
+  }, [fetchMetaData,fetchMetaDataL2]);
 
   const handleTextInput = (e, i) => {
     setDataObjectLevelsInput((prev) => {
@@ -122,19 +131,112 @@ export const ReferenceGroups = () => {
       console.log(files[0].name, i);
       Papa.parse(files[0], {
         complete: function (results) {
-          setDataObjectLevelsInput((prev) => {
-            // console.log(prev);
-            return prev.map((level) => {
-              if (level.levelId === i) {
-                return {
-                  ...level,
-                  fileName: files[0].name,
-                  levelData: results,
-                };
-              } else {
-                return level;
+          let csvError = false;
+          console.log(
+            "empty last row check",
+            results.data[results.data.length - 1]
+          );
+          if (results.data[results.data.length - 1].length === 1) {
+            const lastRow = results.data.pop();
+            console.log("Fixed File", results.data);
+            showWarningToaster(
+              `CSV row#${results.data.length} is an empty row and is removed`
+            );
+          }
+
+          //return;
+          console.log("header Check", results.data[0][0], results.data[0][2]);
+          if (
+            !(
+              Number.isInteger(Number(results.data[0][0])) &&
+              Number.isInteger(Number(results.data[0][2]))
+            )
+          ) {
+            const header = results.data.shift();
+            console.log("igoring the header", results.data, header);
+            showWarningToaster(`CSV row#1 is considered as header`);
+          }
+
+          results.data.forEach((row, index) => {
+            if (row.length < 5) {
+              showWarningToaster(`CSV row ${index + 1} is less than 5 columns`);
+              csvError = true;
+            } else {
+              // Check Empty Values
+              row.forEach((column, columnIndex) => {
+                if (!column) {
+                  showWarningToaster(
+                    `CSV row#${index + 1} column#${columnIndex + 1} is empty`
+                  );
+                  csvError = true;
+                }
+              });
+
+              // Check Index & Rank Integers
+              console.log(
+                "Checking Index & Rank",
+                row[0],
+                Number(row[0]),
+                row[2],
+                Number(row[2])
+              );
+              if (
+                !(
+                  Number.isInteger(Number(row[0])) &&
+                  Number.isInteger(Number(row[2]))
+                )
+              ) {
+                showWarningToaster(
+                  `CSV row#${index + 1} column#1 and column#3 must be integers`
+                );
+                csvError = true;
               }
-            });
+            }
+          });
+          console.log(results.data);
+          if (csvError) return;
+          setDataObjectLevelsInput((prev) => {
+            if (
+              prev.map((item) => item.levelId).indexOf(i) === -1 ||
+              prev.length === 0
+            ) {
+              //console.log(prev.map((item) => item.levelId).indexOf(i));
+              return [
+                ...prev,
+                {
+                  levelId: i,
+                  name: files[0].name,
+                  levelData: results,
+                  fileName: files[0].name,
+                },
+              ];
+            } else {
+              return prev.map((item) => {
+                if (item.levelId === i) {
+                  return {
+                    ...item,
+                    name: files[0].name,
+                    levelData: results,
+                    fileName: files[0].name,
+                  };
+                } else {
+                  return item;
+                }
+              });
+            }
+
+            // console.log(prev);
+            // return prev.map((level) => {
+            //   if (level.levelId === i) {
+            //     return {
+            //       ...level,
+            //       fileName: files[0].name,
+            //       levelData: results,
+            //     };
+            //   } else {
+            //     return level;
+            //   }
+            // });
           });
           // console.log("Finished:", results.data);
         },
@@ -151,16 +253,16 @@ export const ReferenceGroups = () => {
           intent={false ? Intent.DANGER : Intent.NONE}
           labelFor="Type"
         >
-          <InputGroup onChange={(e) => handleTextInput(e, j)}></InputGroup>
+          {/* <InputGroup onChange={(e) => handleTextInput(e, j)}></InputGroup> */}
           <FileInput
             hasSelection={
               dataObjectLevelsInput[
                 dataObjectLevelsInput.map((item) => item.levelId).indexOf(j)
               ]?.fileName
             }
-            disabled={
-              dataObjectLevelsInput.map((item) => item.levelId).indexOf(j) < 0
-            }
+            // disabled={
+            //   dataObjectLevelsInput.map((item) => item.levelId).indexOf(j) < 0
+            // }
             text={
               dataObjectLevelsInput[
                 dataObjectLevelsInput.map((item) => item.levelId).indexOf(j)
@@ -187,6 +289,27 @@ export const ReferenceGroups = () => {
         setIsLoading(false);
         return;
       }
+
+      if (dataObjectLevelsInput.length < dataObjectLevels) {
+        showWarningToaster("Levels Entered are less than Levels Count");
+        setIsLoading(false);
+        return;
+      }
+
+      let levelErrors = false;
+      dataObjectLevelsInput.forEach((level, index) => {
+        if (!level.levelData) {
+          showWarningToaster(
+            `Level ${level.name} index#${index + 1} data is missing`
+          );
+          levelErrors = true;
+        }
+      });
+      if (levelErrors) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const payload = {
           // name: referenceGroupPopOverOpenName,
@@ -209,15 +332,28 @@ export const ReferenceGroups = () => {
         };
         console.log("payload", payload);
         const response = await addDataObject(payload);
-        setReferenceGroups((prev)=>(
-          {...prev,
-             data:prev.data.map(rGroup=>rGroup.id===referenceGroupPopOverOpenId?{
-              ...rGroup,dataObjects:[response.data.data,...rGroup.dataObjects]
-            }:rGroup)
-          }
-        ))
-        showSuccessToaster(response.data.msg);
-        clearData();
+
+        if (response.data.error) {
+          showDangerToaster(
+            `Error Creating Data Object: ${response.data.error}`
+          );
+        } else {
+          const metaDataLevel2 = metaDataL2.find(data=>data.id===response.data.data.metaDataLevel2Id);
+          setReferenceGroups((prev) => ({
+            ...prev,
+            data: prev.data.map((rGroup) =>
+              rGroup.id === referenceGroupPopOverOpenId
+                ? {
+                    ...rGroup,
+                    dataObjects: [{...response.data.data,metaDataLevel2}, ...rGroup.dataObjects],
+                  }
+                : rGroup
+            ),
+          }));
+          showSuccessToaster(response.data.msg);
+          clearData();
+        }
+
         setIsLoading(false);
       } catch (error) {
         showDangerToaster(error);
@@ -230,7 +366,7 @@ export const ReferenceGroups = () => {
       dataObjectType,
       referenceGroupPopOverOpenId,
       referenceGroupPopOverOpenName,
-      setReferenceGroups
+      setReferenceGroups,
     ]
   );
 

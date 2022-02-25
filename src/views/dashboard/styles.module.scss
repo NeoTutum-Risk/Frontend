@@ -47,10 +47,12 @@
 }
 
 .windowContainerMax {
-  width: 100% !important;
-  height: 100% !important;
+  width: 99% !important;
+  height: 96% !important;
   position: absolute !important;
   margin: 0px !important;
+  margin-left: .15% !important;
+  margin-top: .5% !important;
   z-index: 20;
 }
 

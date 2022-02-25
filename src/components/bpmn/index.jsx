@@ -5,7 +5,7 @@ import minimapModule from "diagram-js-minimap";
 import { memo, useCallback, useEffect, useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
 
-export const Bpmn = memo(({ xml = "", onChange }) => {
+export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
   const [modeler, setModeler] = useState(null);
   const { width, height, ref: modelerRef } = useResizeDetector();
 
@@ -20,6 +20,12 @@ export const Bpmn = memo(({ xml = "", onChange }) => {
     const { xml } = await modeler.saveXML({ format: true });
     onChange(xml);
   }, [modeler, onChange]);
+
+  const onClickHandler = useCallback(async (event) => {
+    if (!modeler) return;
+
+    onClick(event);
+  }, [modeler, onClick]);
 
   useEffect(() => {
     if (!modeler || !xml) return;
@@ -37,12 +43,14 @@ export const Bpmn = memo(({ xml = "", onChange }) => {
   useEffect(() => {
     if (!modeler) return;
 
+    modeler.on('element.click', onClickHandler);
+
     modeler.on("commandStack.changed", onChangeHandler);
 
     return () => {
       modeler.off("commandStack.changed", onChangeHandler);
     };
-  }, [modeler, onChangeHandler]);
+  }, [modeler, onChangeHandler,onClickHandler]);
 
   useEffect(() => {
     setModeler(
@@ -115,8 +123,8 @@ export const Bpmn = memo(({ xml = "", onChange }) => {
         ref={modelerRef}
         style={{
           position: "absolute",
-          marginLeft: "70px",
-          width: "calc(100% - 70px)",
+          marginLeft: "80px",
+          width: "calc(100% - 80px)",
           height: "100%",
         }}
       />
