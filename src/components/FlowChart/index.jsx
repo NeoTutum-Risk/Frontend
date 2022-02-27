@@ -14,6 +14,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
   const [canAddEdge, setCanAddEdge] = useState(false);
   const [chosenNode1, setChosenNode1] = useState(null);
   const [newEdgeName,setNewEdgeName] = useState('');
+  const [network, setNetwork] = useState(null);
   const visJsRef = useRef(null);
   const calculateNodesAndEdges = useCallback((inputGraph)=>{
     return {nodes:inputGraph.nodes.map((node,nodeIndex)=> {
@@ -30,7 +31,22 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
   const [mainGraph,setMainGraph] = useState(graph);
   const memoGraph = useMemo(() => calculateNodesAndEdges(mainGraph), [mainGraph]);
 
-  const createEdge = useCallback((from, to)=>{
+  const nodeOnDragHandler = useCallback(async(event)=>{
+    if(!event.nodes[0]) return;
+    const mainGraphTmp = mainGraph;
+    for(let index = 0;index < mainGraphTmp.nodes.length;index++){
+      if(mainGraphTmp.nodes[index].id === event.nodes[0]){
+        console.log("triggered");
+        mainGraphTmp.nodes[index].x = event.event.center.x;
+        mainGraphTmp.nodes[index].y = event.event.center.y;
+      }
+    }
+    await setMainGraph(mainGraphTmp);
+    console.log(mainGraphTmp);
+
+  },[mainGraph])
+
+  const createEdge = useCallback(async(from, to)=>{
 
     if(from.id === to.id) return;
 
@@ -43,28 +59,32 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
 
     const newGraph = mainGraph;
     newGraph.edges.push({from:from.id, to:to.id,label:newEdgeName});
-    setMainGraph(newGraph);
+    await setMainGraph(newGraph);
+    await network.setData(calculateNodesAndEdges(mainGraph));
+    console.log(mainGraph);
     setCanAddEdge(false);
     setChosenNode1(null);
     onNetworkChange({sourceId:from.id, targetId:to.id, name:newEdgeName});
     setNewEdgeName('');
-  },[mainGraph,setChosenNode1,newEdgeName,setNewEdgeName,onNetworkChange])
+  },[setMainGraph,mainGraph,setChosenNode1,newEdgeName,setNewEdgeName,onNetworkChange,network])
 
   const canAddEdgeHandler = useCallback(()=>{
     setCanAddEdge(true);
-    console.log(canAddEdge);
   },[canAddEdge,setCanAddEdge])
 
-  const nodeClicked = useCallback((id)=>{
+  const nodeClicked = (id)=>{
 
     if(!canAddEdge) return;
 
     if(chosenNode1){
       createEdge(chosenNode1,id);
+      console.log('2');
     }else{
       setChosenNode1(id);
+      console.log('1');
+      console.log(id);
     }
-  },[chosenNode1,setChosenNode1,createEdge])
+  }
 
   const networkOnClickHandler = useCallback((properties)=>{
       var ids = properties.nodes;
@@ -72,7 +92,7 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
       console.log(clickedNode);
       nodeClicked(clickedNode);
       //onNetworkChange(properties);
-  }, [mainGraph, canAddEdge]);
+  }, [mainGraph, canAddEdge,nodeClicked,network]);
 
   const options = {
     height: '100%',
@@ -106,7 +126,8 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
 
   const events = {
     doubleClick: (eventObject)=>{},
-    click: networkOnClickHandler
+    click: networkOnClickHandler,
+    dragEnd: nodeOnDragHandler
   }
 
 
@@ -137,6 +158,9 @@ export const FlowChart = ({ graph, onNetworkChange }) => {
         events={events}
         ref={visJsRef}
         style={{width: '100%', height:"90%", position: 'relative', cursor: 'pointer',overflowY:"hidden" }}
+        getNetwork={network => {
+          setNetwork(network);
+        }}
       />
     </div>
   )
