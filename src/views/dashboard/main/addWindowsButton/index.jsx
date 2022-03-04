@@ -12,7 +12,7 @@ import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import styles from "../../styles.module.scss";
 
-export const AddWindowsButton = () => {
+export const AddWindowsButton = ({ data }) => {
   const [isLoading, setIsLoading] = useState(false);
   const setWindowsState = useSetRecoilState(windowsState);
 
@@ -24,7 +24,7 @@ export const AddWindowsButton = () => {
         id: generateID(),
         type: "data",
         data: { type: "BPMN Associations", associations: data.data },
-        collapse:false
+        collapse: false,
       },
       ...prevWindows,
     ]);
@@ -56,7 +56,7 @@ export const AddWindowsButton = () => {
         id: generateID(),
         type: "data",
         data: { type: "BPMN SequenceFlows", sequenceFlows: data.data },
-        collapse:false
+        collapse: false,
       },
       ...prevWindows,
     ]);
@@ -71,12 +71,46 @@ export const AddWindowsButton = () => {
         id: generateID(),
         type: "data",
         data: { type: "Lanes", lanes: data.data },
-        collapse:false
+        collapse: false,
       },
       ...prevWindows,
     ]);
     setIsLoading(false);
   }, [setWindowsState]);
+
+  const onLevelClick = useCallback(
+    (id) => {
+      const levelData = data.data.dataObjectLevels.find(
+        (level) => level.id === id
+      );
+      setWindowsState((prevWindows) => [
+        {
+          id: generateID(),
+          type: "data",
+          data: {
+            type: "Level Data",
+            levelName: levelData.name,
+            levelData: levelData.dataObjectElements.map((element) => ({
+              ...element,
+              ConnectedTo:
+                element.dataObjectConnections.length > 0
+                  ? element.dataObjectConnections.reduce((con, acc) => {
+                    const returned = con += ` ${acc.targetId}`
+                    console.log("reduce",returned);
+                      return returned;
+                    }, "")
+                  : "",
+            })),
+          },
+          collapse: false,
+        },
+        ...prevWindows,
+      ]);
+      setIsLoading(false);
+      console.log(levelData);
+    },
+    [data.data.dataObjectLevels, setWindowsState]
+  );
 
   return (
     <Popover2
@@ -85,22 +119,40 @@ export const AddWindowsButton = () => {
       interactionKind="hover"
       content={
         <Menu>
-          <MenuItem
-            icon="th"
-            text="Add BPMN Associations Window"
-            onClick={onAssociationsClick}
-          />
-          <MenuItem
-            icon="th"
-            text="Add BPMN Entities Window"
-            onClick={onEntitiesClick}
-          />
-          <MenuItem
-            icon="th"
-            text="Add BPMN SequenceFlows Window"
-            onClick={onSequenceFlowsClick}
-          />
-          <MenuItem icon="th" text="Add Lanes Window" onClick={onLanesClick} />
+          {data.type === "flowchart" ? (
+            <>
+              {data.data.dataObjectLevels.map((level) => (
+                <MenuItem
+                  icon="th"
+                  text={level.name}
+                  onClick={() => onLevelClick(level.id)}
+                />
+              ))}
+            </>
+          ) : (
+            <>
+              <MenuItem
+                icon="th"
+                text="Add BPMN Associations Window"
+                onClick={onAssociationsClick}
+              />
+              <MenuItem
+                icon="th"
+                text="Add BPMN Entities Window"
+                onClick={onEntitiesClick}
+              />
+              <MenuItem
+                icon="th"
+                text="Add BPMN SequenceFlows Window"
+                onClick={onSequenceFlowsClick}
+              />
+              <MenuItem
+                icon="th"
+                text="Add Lanes Window"
+                onClick={onLanesClick}
+              />
+            </>
+          )}
         </Menu>
       }
     >

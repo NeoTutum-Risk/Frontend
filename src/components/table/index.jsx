@@ -19,6 +19,12 @@ export const Table = ({
   columns = [],
   paginationPageSize = 10,
 }) => {
+  if(data[0]['dataObjectConnections']){
+
+  }else{
+    
+  }
+  console.log("table",data,columns)
   const gridRef = useRef();
   const [elementSelector, setElementSelector] =
     useRecoilState(elementSelectorState);

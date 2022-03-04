@@ -39,6 +39,7 @@ export const GraphWindow = ({
   );
   const saveBpmn = useCallback(
     async (fileData) => {
+      console.log("update bpmn",fileData)
       try {
         setAutoSaveLoading(true);
 
@@ -59,7 +60,7 @@ export const GraphWindow = ({
   return (
     <Window
       title={window.data.fileName}
-      windowID={window.id}
+      window={window}
       icon="document"
       onClose={onClose}
       onCollapse={onCollapse}

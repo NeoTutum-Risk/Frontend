@@ -23,6 +23,8 @@ export const addNewPlatform = data => serviceProvider.post('/platforms', data)
 
 export const addNewElementsConnection = data => serviceProvider.post('/dataObjectConnections', data)
 
+export const removeNewElementsConnection = ({ id }) => serviceProvider.delete(`/dataObjectConnections/${id}`)
+
 export const getDataObjectConnections = () => serviceProvider('dataObjectConnections')
 
 export const addNewBpmn = ({

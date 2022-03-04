@@ -1,130 +1,138 @@
-import { Button, ButtonGroup, InputGroup } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
-import { memo, useCallback, useEffect, useState, useRef } from 'react';
-import React from 'react';
-import {Network} from 'vis-network';
-import {DataSet} from 'vis-data';
-import { showDangerToaster, showSuccessToaster } from "../../utils/toaster";
+import { DataElement } from "./dataElement";
+import { ConnetionContext } from "./connectionContext";
+import { useRef, useEffect, useCallback, useState } from "react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import {
+  addNewElementsConnection,
+  removeNewElementsConnection,
+} from "../../services";
+export const FlowChart = ({ graph }) => {
+  const [selectedElements, setSelectedElements] = useState([]);
 
-export const FlowChart = ({ graph, onNetworkChange }) => {
+  const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
 
+  const contextAction = useCallback(
+    async (option) => {
+      console.log(option, selectedElements);
+      if (option === "Connect") {
+        const payload = {
+          sourceId: selectedElements[0].id,
+          targetId: selectedElements[1].id,
+        };
+        const response = await addNewElementsConnection(payload);
+        console.log(response);
+      } else if (option === "Disconnect") {
+        const connection = selectedElements[0].connections.find(
+          (con) => con.targetId === selectedElements[1].id
+        )
+          ? selectedElements[0].connections.find(
+              (con) => con.targetId === selectedElements[1].id
+            )
+          : selectedElements[1].connections.find(
+              (con) => con.targetId === selectedElements[0].id
+            );
+        const response = await removeNewElementsConnection({
+          id: connection.id,
+        });
+        console.log(connection, response);
+      }
+    },
+    [selectedElements]
+  );
 
-  var nodes = null;
-  var edges = [];
-  var canAddEdge = false;
-  var chosenNode1 = null;
-  var network;
-  var newEdgeName = '';
-
-
-  const createEdge = (from, to)=>{
-
-    if(from.level_value !== to.level_value - 1){
-      canAddEdge = false;
-      chosenNode1 = false;
-      showDangerToaster('Invalid connection made');
-      return;
-    }
-
-    edges.push({from:from.id, to:to.id});
-    network.setData({nodes,edges});
-    canAddEdge = false;
-    chosenNode1 = null;
-    onNetworkChange({sourceId:from.id, targetId:to.id, name:newEdgeName});
-    newEdgeName = '';
-  }
-
-  const canAddEdgeHandler = ()=>{
-    canAddEdge = true;
-    console.log(canAddEdge);
-  }
-
-  const nodeClicked = (id)=>{
-
-    console.log("canAddEdge: "+canAddEdge);
-
-    if(!canAddEdge) return;
-
-    if(chosenNode1){
-      createEdge(chosenNode1,id);
-    }else{
-      chosenNode1 = id;
-    }
-  }
-
-  const networkOnClickHandler = (properties)=>{
-      var ids = properties.nodes;
-      var clickedNode = nodes.get(ids[0]);
-      nodeClicked(clickedNode);
-      onNetworkChange(properties);
-  }
-
-
-  const visJsRef = useRef(null);
-
-   useEffect(() => {
-
-    nodes = new DataSet(graph.nodes);
-
-    nodes.forEach((node, nodeIndex) => {
-      node.x = 90 * nodeIndex;
-      node.y = 70 * node.level_value || 0;
-    });
-
-    edges = graph.edges;
-
-    var data = {nodes,edges};
-
-    var options = {
-      height: '100%',
-      width: '100%',
-      locale: 'en',
-      interaction: {
-        multiselect: true
-      },
-      physics: {
-        enabled: false
-      },
-      edges: {
-        smooth:false,
-        arrows: {
-                to: {
-                  enabled: true
-                }
+  const showContext = useCallback(
+    (data) => {
+      console.log("RCM", data);
+      let option;
+      console.log(
+        "check",
+        selectedElements,
+        selectedElements.find((element) => element.id === data.id)
+      );
+      if (selectedElements.find((element) => element.id === data.id)) {
+        if (selectedElements.length === 2) {
+          if (
+            Math.abs(
+              selectedElements[0].level_value - selectedElements[1].level_value
+            ) === 1
+          ) {
+            if (
+              selectedElements[0].connections.find(
+                (con) => con.targetId === selectedElements[1].id
+              ) ||
+              selectedElements[1].connections.find(
+                (con) => con.targetId === selectedElements[0].id
+              )
+            ) {
+              console.log("Disconnect");
+              option = "Disconnect";
+            } else {
+              console.log("Connect");
+              option = "Connect";
             }
+          } else {
+            console.log("Invalid Connect");
+            option = "Invalid Connection";
+          }
+        } else {
+          console.log("Not Two");
+          option = `Invalid Connection`;
         }
-    };
+      } else {
+        option = `Not Selected`;
+      }
 
-    network = visJsRef.current && new Network(visJsRef.current, data,options);
+      setContextMenu({
+        show: true,
+        x: Number(data.x),
+        y: Number(data.y),
+        option: option,
+        function: contextAction,
+      });
+    },
+    [contextAction, selectedElements]
+  );
 
-    network.on('click', networkOnClickHandler);
+  const elementSelection = useCallback(
+    (elementData, state) => {
+      console.log(elementData, state);
+      if (state) {
+        console.log("selecting");
+        setSelectedElements((prev) => {
+          return [...new Set([...prev, elementData])];
+        });
+      } else {
+        setSelectedElements((prev) =>
+          prev.filter((element) => element.id !== elementData.id)
+        );
+      }
+    },
+    [setSelectedElements]
+  );
 
-  },[visJsRef,graph,edges])
-
+  const handleClick = useCallback(() => {
+    setContextMenu((prev) => ({ ...prev, show: false }));
+  }, []);
 
   return (
-    <div style={{width: '100%', height: '100%', display:"flex",flexDirection:"column"}}>
-      <div style={{position:"absolute",zIndex:20,padding:"10px",paddingTop:"5px",paddingBottom:"5px"}}>
-        <div style={{display:"inline-block",verticalAlign:"middle"}}>
-        <InputGroup
-          required
-          placeholder="New Connection Name..."
-          onChange={event => {
-            newEdgeName = event.target.value;
-          }}
-        />
-        </div>
-        <div style={{
-          display:"inline-block",
-          verticalAlign:"middle",
-          marginLeft:"20px"
-          }}
+    <TransformWrapper>
+      <TransformComponent>
+        <svg
+          viewBox="0 0 500 400"
+          width={490}
+          height={355}
+          onClick={handleClick}
         >
-          <Button intent="none" text="Add Connection" onClick={canAddEdgeHandler} />
-        </div>
-      </div>
-      <div ref={visJsRef} style={{width: '100%', height:"90%", position: 'relative', cursor: 'pointer' }} />
-    </div>
-  )
-
-}
+          {graph.nodes.map((node) => (
+            <DataElement
+              data={node}
+              elementSelection={elementSelection}
+              showContext={showContext}
+            />
+          ))}
+          {contextMenu.show && <ConnetionContext data={contextMenu} />}
+        </svg>
+      </TransformComponent>
+    </TransformWrapper>
+  );
+};

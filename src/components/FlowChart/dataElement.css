@@ -1,0 +1,25 @@
+.activeCircleElement circle,
+.activeCircleElement rect,
+.activeCircleElementellipse {
+  fill: rgb(118, 118, 219);
+  stroke: aqua;
+  stroke-width: 2px;
+}
+
+.activeCircleElement text {
+  fill: rgb(11, 47, 165);
+  cursor: pointer;
+}
+
+.circleElement circle,
+.circleElement rect,
+.circleElement ellipse {
+  fill: #d3d3d3;
+  stroke: rgba(48, 37, 151, 0.2);
+  stroke-width: 2px;
+}
+
+.circleElement text {
+  fill: rgb(93, 149, 151);
+  cursor: pointer;
+}
