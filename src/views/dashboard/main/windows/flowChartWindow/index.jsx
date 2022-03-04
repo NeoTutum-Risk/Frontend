@@ -20,7 +20,7 @@ export const FlowChartWindow = ({
   onTypeChange,
 }) => {
   const [edges, setEdges] = useState([]);
-  // console.log(window.data.dataObjectLevels);
+  console.log("Window Data",window.data);
   const preparedNodes = window.data.dataObjectLevels.map((level) => {
     return level.dataObjectElements.map((element) => {
       return {
@@ -37,7 +37,9 @@ export const FlowChartWindow = ({
       };
     });
   });
-  console.log("pn",preparedNodes);
+
+  
+  // console.log("pn",preparedNodes);
   const getEdges = useCallback(async () => {
     const response = await getDataObjectConnections();
     setEdges(response.data.data.map(edge=>({from:edge.sourceId,to:edge.targetId})));
@@ -74,6 +76,8 @@ export const FlowChartWindow = ({
       <FlowChart
         graph={{ nodes: preparedNodes.flat(), edges: edges }}
         onNetworkChange={onNetworkChange}
+        dataObjectId={window.data.id}
+
       />
     </Window>
   );

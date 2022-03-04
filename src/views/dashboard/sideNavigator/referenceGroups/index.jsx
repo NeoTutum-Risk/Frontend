@@ -380,8 +380,9 @@ export const ReferenceGroups = () => {
       dataObjectLevelsInput,
       dataObjectType,
       referenceGroupPopOverOpenId,
-      referenceGroupPopOverOpenName,
       setReferenceGroups,
+      dataObjectLevels,
+      metaDataL2
     ]
   );
 

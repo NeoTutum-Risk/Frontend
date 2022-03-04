@@ -1,7 +1,9 @@
 import { useCallback, useState } from "react";
 import "./dataElement.css";
 import { Tooltip } from "./dataElementTooltip";
-export const DataElement = ({ data, elementSelection, showContext }) => {
+import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
+export const DataElement = ({ data, elementSelection, showContext,activeStatus }) => {
+  const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
     active: false,
@@ -58,7 +60,7 @@ export const DataElement = ({ data, elementSelection, showContext }) => {
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      console.log("running");
+      console.log("Selecting ....");
       setActive((prev) => {
         elementSelection(data, !prev);
         return !prev;
@@ -104,10 +106,12 @@ export const DataElement = ({ data, elementSelection, showContext }) => {
         onContextMenu={handleContext}
         onMouseOver={handleMouseOver}
         className={active ? "activeCircleElement" : "circleElement"}
+        id={data.id}
+        
       >
         {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
         {/* <circle r={25} cy={drag.cy} cx={drag.cx} /> */}
-        {/* <ellipse cy={drag.cy} cx={drag.cx} rx={50} ry={25} /> */}
+        {/* <ellipse cy={drag.cy} cx={drag.cx} rx={30} ry={10} /> */}
         <text
           x={drag.cx}
           y={drag.cy}
