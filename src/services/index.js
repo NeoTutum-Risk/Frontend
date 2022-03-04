@@ -53,7 +53,7 @@ export const addNewBpmn = ({
 }
 
 export const getBpmnEntities = data => serviceProvider.get('bpmnEntities')
-export const getBpmnAssociations = data => serviceProvider.get('bpmnEntities')
+export const getBpmnAssociations = data => serviceProvider.get('bpmnAssociations')
 export const getBpmnSequenceFlows = data => serviceProvider.get('bpmnSequenceFlows')
 export const getBpmnLanes = data => serviceProvider.get('bpmnLanes')
 

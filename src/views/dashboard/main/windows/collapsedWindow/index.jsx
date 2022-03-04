@@ -24,9 +24,22 @@ export const CollapsedWindow = (
     collapseState,
     children,
     headerAdditionalContent = null,
+    window
   },
   props
 ) => {
+  let collapsedTitle;
+  switch(window.type){
+    case "data":
+      collapsedTitle=window.data.levelName?window.data.levelName:window.data.type;
+    break;
+
+    case "flowchart":
+    collapsedTitle=window.data.metaDataLevel2.name;
+    break;
+    default:
+      collapsedTitle=title;
+  }
   return (
     <Card
       className={`${styles.windowCard} `}
@@ -37,7 +50,7 @@ export const CollapsedWindow = (
         <div className={styles.windowHeader_title}>
           <Icon icon={icon} />
           <div className="bp3-ui-text" style={{ marginRight: "5px" }}>
-            {title}
+            {collapsedTitle}
           </div>
         </div>
 

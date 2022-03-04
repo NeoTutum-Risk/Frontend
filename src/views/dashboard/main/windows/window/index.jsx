@@ -164,7 +164,7 @@ export const Window = ({
             <div className="bp3-ui-text">{title}</div>
           </div>
           {window.type === "flowchart" ||
-          window.type === "Level Data" ? null : (
+          window.type === "data" ? null : (
             <Popover2
               content={
                 <Menu>
@@ -208,7 +208,7 @@ export const Window = ({
 
           {headerAdditionalContent}
           <ButtonGroup>
-            {window.type !== "Level Data" ? (
+            {window.type !== "data" ? (
               <AddWindowsButton data={window} />
             ) : null}
             <Tooltip2 content={<span>Move To left</span>}>
