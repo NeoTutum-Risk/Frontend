@@ -43,7 +43,7 @@ export const FlowChart = ({ graph, dataObjectId }) => {
         // if(response.status===200){
         console.log("new connection", response.data.data);
         setEdges((prev) => [...prev, response.data.data]);
-        // setSelectedElements([]);
+        setSelectedElements([]);
         // }
         // console.log(response);
       } else if (option === "Disconnect") {
@@ -64,7 +64,7 @@ export const FlowChart = ({ graph, dataObjectId }) => {
         });
 
         setEdges((prev) => prev.filter((edge) => edge.id !== connection.id));
-        // setSelectedElements([]);
+        setSelectedElements([]);
         console.log(connection, response);
       }
     },
@@ -171,11 +171,7 @@ export const FlowChart = ({ graph, dataObjectId }) => {
             data={node}
             elementSelection={elementSelection}
             showContext={showContext}
-            activeStatus={
-              selectedElements.find((element) => element.id === node.id)
-                ? true
-                : false
-            }
+            selectedElements={selectedElements}
           />
         ))}
 

@@ -2,7 +2,8 @@ import { useCallback, useState } from "react";
 import "./dataElement.css";
 import { Tooltip } from "./dataElementTooltip";
 import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
-export const DataElement = ({ data, elementSelection, showContext,activeStatus }) => {
+export const DataElement = ({ data, elementSelection, showContext,selectedElements }) => {
+  console.log(`element rerendered ${data.id}`)
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
@@ -61,12 +62,13 @@ export const DataElement = ({ data, elementSelection, showContext,activeStatus }
       e.preventDefault();
       if (e.detail !== 2) return;
       console.log("Selecting ....");
-      setActive((prev) => {
-        elementSelection(data, !prev);
-        return !prev;
-      });
+      elementSelection(data, selectedElements.find((element) => element.id === data.id)?false:true);
+      // setActive((prev) => {
+        
+      //   return !prev;
+      // });
     },
-    [setActive, elementSelection, data]
+    [/*setActive,*/ elementSelection, data,selectedElements]
   );
 
   const handleContext = useCallback(
@@ -77,7 +79,7 @@ export const DataElement = ({ data, elementSelection, showContext,activeStatus }
         y: data.y + 10,
         x: data.x + 100 * data.level_value,
       });
-      console.log("cm", data);
+      // console.log("cm", data);
     },
     [showContext, data]
   );
@@ -90,7 +92,7 @@ export const DataElement = ({ data, elementSelection, showContext,activeStatus }
           setShowTooltip(true);
         }, 1000)
       );
-      console.log("Mouse Over");
+      // console.log("Mouse Over");
     },
     [tooltipTimer]
   );
@@ -105,7 +107,7 @@ export const DataElement = ({ data, elementSelection, showContext,activeStatus }
         onPointerLeave={endDrag}
         onContextMenu={handleContext}
         onMouseOver={handleMouseOver}
-        className={active ? "activeCircleElement" : "circleElement"}
+        className={selectedElements.find((element) => element.id === data.id) ? "activeCircleElement" : "circleElement"}
         id={data.id}
         
       >
