@@ -35,7 +35,7 @@ export const Window = ({
   onCollapse,
   children,
   headerAdditionalContent = null,
-  windowID,
+  window,
 }) => {
   const [windows, setWindows] = useRecoilState(windowsState);
   const [isMaximize, setIsMaximize] = useState(false);
@@ -163,50 +163,57 @@ export const Window = ({
             <Icon icon={icon} />
             <div className="bp3-ui-text">{title}</div>
           </div>
-          <Popover2
-            content={
-              <Menu>
-                <MenuItem
-                  icon="th"
-                  text="BPMN Associations"
-                  onClick={() =>
-                    windowTypeHandler(windowID, "BPMN Associations")
-                  }
-                />
-                <MenuItem
-                  icon="th"
-                  text="BPMN Entities"
-                  onClick={() => windowTypeHandler(windowID, "BPMN Entities")}
-                />
-                <MenuItem
-                  icon="th"
-                  text="BPMN SequenceFlows"
-                  onClick={() =>
-                    windowTypeHandler(windowID, "BPMN SequenceFlows")
-                  }
-                />
-                <MenuItem
-                  icon="th"
-                  text="Lanes"
-                  onClick={() => windowTypeHandler(windowID, "Lanes")}
-                />
-              </Menu>
-            }
-          >
-            <Button
-              small
-              loading={changeTypeLoading}
-              icon="eye-open"
-              text="Type"
-            />
-          </Popover2>
+          {window.type === "flowchart" ||
+          (window.type === "data" && window.data.levelName) ? null : (
+            <Popover2
+              content={
+                <Menu>
+                  <MenuItem
+                    icon="th"
+                    text="BPMN Associations"
+                    onClick={() =>
+                      windowTypeHandler(window.id, "BPMN Associations")
+                    }
+                  />
+                  <MenuItem
+                    icon="th"
+                    text="BPMN Entities"
+                    onClick={() =>
+                      windowTypeHandler(window.id, "BPMN Entities")
+                    }
+                  />
+                  <MenuItem
+                    icon="th"
+                    text="BPMN SequenceFlows"
+                    onClick={() =>
+                      windowTypeHandler(window.id, "BPMN SequenceFlows")
+                    }
+                  />
+                  <MenuItem
+                    icon="th"
+                    text="Lanes"
+                    onClick={() => windowTypeHandler(window.id, "Lanes")}
+                  />
+                </Menu>
+              }
+            >
+              <Button
+                small
+                loading={changeTypeLoading}
+                icon="eye-open"
+                text="Type"
+              />
+            </Popover2>
+          )}
 
           {headerAdditionalContent}
           <ButtonGroup>
-            <AddWindowsButton />
+            {window.type === "data" && window.data.levelName ? null : (
+              <AddWindowsButton data={window} />
+            )}
             <Tooltip2 content={<span>Move To left</span>}>
               <Button
-                onClick={() => windowLocationHandler(windowID, "left")}
+                onClick={() => windowLocationHandler(window.id, "left")}
                 icon={"double-chevron-left"}
                 small
                 intent={Intent.PRIMARY}
@@ -214,7 +221,7 @@ export const Window = ({
             </Tooltip2>
             <Tooltip2 content={<span>Move To Right</span>}>
               <Button
-                onClick={() => windowLocationHandler(windowID, "right")}
+                onClick={() => windowLocationHandler(window.id, "right")}
                 icon={"double-chevron-right"}
                 small
                 intent={Intent.PRIMARY}

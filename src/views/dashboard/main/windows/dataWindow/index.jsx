@@ -11,12 +11,12 @@ export const DataWindow = ({
 }) => {
   return (
     <Window
-      windowID={window.id}
+      window={window}
       onClose={onClose}
       onCollapse={onCollapse}
       onRestore={onResotre}
       onTypeChange={onTypeChange}
-      title={window.data.type}
+      title={window.data.type==="Level Data"?window.data.levelName:window.data.type}
       collapseState={collapseState}
       icon="th"
     >
@@ -71,6 +71,20 @@ export const DataWindow = ({
             columns={
               window.data.lanes?.[0]
                 ? Object.keys(window.data.lanes?.[0]).map((key) => ({
+                    field: key,
+                  }))
+                : []
+            }
+          />
+        )}
+        {window.data.type === "Level Data" && (
+          <Table
+            width={"100%"}
+            height={"100%"}
+            data={window.data.levelData}
+            columns={
+              window.data.levelData?.[0]
+                ? Object.keys(window.data.levelData?.[0]).map((key) => ({
                     field: key,
                   }))
                 : []

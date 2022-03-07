@@ -9,7 +9,8 @@ export const arrayFilter = (jsonArray, filter) => {
 
 export const xmlParser = content => {
   const BPMNJson = new XMLParser().parseFromString(content)
-  const processArray = arrayFilter(BPMNJson.children, 'process')
+  const processArray = arrayFilter(BPMNJson.children, 'process');
+  const diagramArray = arrayFilter(BPMNJson.children,'diagram');
   let fullObject = {
     bpmnAssociations: [],
     bpmnEntities: [],
@@ -19,12 +20,15 @@ export const xmlParser = content => {
 
   processArray.forEach(process => {
     fullObject.bpmnSequenceFlows.push(arrayFilter(process.children, 'sequenceflow'))
-    fullObject.bpmnLanes.push(arrayFilter(process.children, 'lanes'))
-    fullObject.bpmnAssociations.push(arrayFilter(process.children, 'associations'))
+    fullObject.bpmnAssociations.push(arrayFilter(process.children, 'association'))
     fullObject.bpmnEntities.push(arrayFilter(process.children, 'task'))
     fullObject.bpmnEntities.push(arrayFilter(process.children, 'event'))
     fullObject.bpmnEntities.push(arrayFilter(process.children, 'dataobject'))
     fullObject.bpmnEntities.push(arrayFilter(process.children, 'textannotation'))
+  })
+
+  diagramArray.forEach(diagram =>{
+    fullObject.bpmnLanes.push(arrayFilter(diagram.children, 'lane'))
   })
 
   for (const [key, value] of Object.entries(fullObject)) {

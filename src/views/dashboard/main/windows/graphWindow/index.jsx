@@ -3,9 +3,7 @@ import { useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
 import { Bpmn } from "../../../../../components/bpmn";
 import { updateBpmnStatus } from "../../../../../services";
-import {
-  platformState,
-} from "../../../../../store/portfolios";
+import { platformState } from "../../../../../store/portfolios";
 import { elementSelectorState } from "../../../../../store/elementSelector";
 import { showDangerToaster } from "../../../../../utils/toaster";
 import { Window } from "../window";
@@ -26,19 +24,20 @@ export const GraphWindow = ({
   const elementSelectorHandler = useCallback(
     (data) => {
       const elementId = data.element.id;
+      const type = data.element.type;
       if (!elementId) return;
-      console.log(data.element.children);
-      if (data.element.children.length > 0) {
+      if (type === "process") {
         setElementSelector(null);
       } else {
-        setElementSelector(elementId);
-        console.log(elementSelector);
+        setElementSelector({ elementId, type,fileId: window.data.id });
       }
+      console.log({ elementId, type, fileId: window.data.id });
     },
-    [setElementSelector, elementSelector]
+    [setElementSelector, window.data.id]
   );
   const saveBpmn = useCallback(
     async (fileData) => {
+      console.log("update bpmn", fileData);
       try {
         setAutoSaveLoading(true);
 
@@ -59,7 +58,7 @@ export const GraphWindow = ({
   return (
     <Window
       title={window.data.fileName}
-      windowID={window.id}
+      window={window}
       icon="document"
       onClose={onClose}
       onCollapse={onCollapse}

@@ -19,7 +19,11 @@ import cloneDeep from "lodash/cloneDeep";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
 import { referenceGroupsState } from "../../../../store/referenceGroups";
-import { getMetaData,getMetaDataL2, getDataObject } from "../../../../services";
+import {
+  getMetaData,
+  getMetaDataL2,
+  getDataObject,
+} from "../../../../services";
 import { addDataObject } from "../../../../services";
 import {
   showDangerToaster,
@@ -102,7 +106,7 @@ export const ReferenceGroups = () => {
   useEffect(() => {
     fetchMetaData();
     fetchMetaDataL2();
-  }, [fetchMetaData,fetchMetaDataL2]);
+  }, [fetchMetaData, fetchMetaDataL2]);
 
   const handleTextInput = (e, i) => {
     setDataObjectLevelsInput((prev) => {
@@ -338,14 +342,25 @@ export const ReferenceGroups = () => {
             `Error Creating Data Object: ${response.data.error}`
           );
         } else {
-          const metaDataLevel2 = metaDataL2.find(data=>data.id===response.data.data.metaDataLevel2Id);
+          const metaDataLevel2 = metaDataL2.find(
+            (data) => data.id === response.data.data.metaDataLevel2Id
+          );
           setReferenceGroups((prev) => ({
             ...prev,
             data: prev.data.map((rGroup) =>
               rGroup.id === referenceGroupPopOverOpenId
                 ? {
                     ...rGroup,
-                    dataObjects: [{...response.data.data,metaDataLevel2}, ...rGroup.dataObjects],
+                    dataObjects: rGroup.dataObjects
+                      ? [
+                          { ...response.data.data, metaDataLevel2 },
+                          ...rGroup.dataObjects.filter(
+                            (data) =>
+                              data.metaDataLevel2Id !==
+                              response.data.data.metaDataLevel2Id
+                          ),
+                        ]
+                      : [{ ...response.data.data, metaDataLevel2 }],
                   }
                 : rGroup
             ),
@@ -365,8 +380,9 @@ export const ReferenceGroups = () => {
       dataObjectLevelsInput,
       dataObjectType,
       referenceGroupPopOverOpenId,
-      referenceGroupPopOverOpenName,
       setReferenceGroups,
+      dataObjectLevels,
+      metaDataL2
     ]
   );
 

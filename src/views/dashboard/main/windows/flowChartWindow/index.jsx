@@ -20,20 +20,30 @@ export const FlowChartWindow = ({
   onTypeChange,
 }) => {
   const [edges, setEdges] = useState([]);
+  console.log("Window Data",window.data);
   const preparedNodes = window.data.dataObjectLevels.map((level) => {
     return level.dataObjectElements.map((element) => {
       return {
-        label: element.name,
+        label: element.label,
+        name: element.name,
+        description: element.description,
         id: element.id,
+        x:element.x,
+        y:element.y,
         level_value: level.level_value,
+        level_name: level.name,
+        level_id: level.id,
+        connections:element.dataObjectConnections
       };
     });
   });
 
+  
+  // console.log("pn",preparedNodes);
   const getEdges = useCallback(async () => {
     const response = await getDataObjectConnections();
     setEdges(response.data.data.map(edge=>({from:edge.sourceId,to:edge.targetId})));
-    console.log(response.data.data);
+    // console.log(response.data.data);
   },[]);
 
   useEffect(() => {
@@ -43,7 +53,7 @@ export const FlowChartWindow = ({
   const onNetworkChange = useCallback(async (data) => {
     const { sourceId, targetId, name } = data;
     if (!sourceId || !targetId) {
-      console.log(data);
+      // console.log(data);
       return;
     }
     //if(edges.length===0)return;
@@ -54,17 +64,20 @@ export const FlowChartWindow = ({
   return (
     <Window
       // title={window.data.fileName}
-      windowID={window.id}
+      window={window}
       icon="diagram-tree"
       onClose={onClose}
       onCollapse={onCollapse}
       onRestore={onRestore}
       onTypeChange={onTypeChange}
       collapseState={collapseState}
+      title={window.data.metaDataLevel2.name}
     >
       <FlowChart
         graph={{ nodes: preparedNodes.flat(), edges: edges }}
         onNetworkChange={onNetworkChange}
+        dataObjectId={window.data.id}
+
       />
     </Window>
   );

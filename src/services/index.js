@@ -23,6 +23,8 @@ export const addNewPlatform = data => serviceProvider.post('/platforms', data)
 
 export const addNewElementsConnection = data => serviceProvider.post('/dataObjectConnections', data)
 
+export const removeNewElementsConnection = ({ id }) => serviceProvider.delete(`/dataObjectConnections/${id}`)
+
 export const getDataObjectConnections = () => serviceProvider('dataObjectConnections')
 
 export const addNewBpmn = ({
@@ -51,7 +53,7 @@ export const addNewBpmn = ({
 }
 
 export const getBpmnEntities = data => serviceProvider.get('bpmnEntities')
-export const getBpmnAssociations = data => serviceProvider.get('bpmnEntities')
+export const getBpmnAssociations = data => serviceProvider.get('bpmnAssociations')
 export const getBpmnSequenceFlows = data => serviceProvider.get('bpmnSequenceFlows')
 export const getBpmnLanes = data => serviceProvider.get('bpmnLanes')
 

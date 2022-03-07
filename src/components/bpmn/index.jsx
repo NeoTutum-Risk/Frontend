@@ -14,6 +14,29 @@ export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
     modeler.get("canvas").zoom("fit-viewport", "auto");
   }, [modeler]);
 
+  const downloadBpmn = useCallback(async() => {
+    if (!modeler) return;
+    const { xml } = await modeler.saveXML({format:true});
+    let link = document.createElement("a");
+    let url = encodeURIComponent(xml);
+    let bb = new Blob([xml], {type: 'text/plain'});
+    link.setAttribute("download", "diagram.bpmn");
+    link.setAttribute("href", window.URL.createObjectURL(bb));
+    document.body.appendChild(link); // Required for FF
+    link.click();
+  }, [modeler]);
+
+  const downloadSvg = useCallback(async() => {
+    if (!modeler) return;
+    const { svg } = await modeler.saveSVG();
+    let link = document.createElement("a");
+    let url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+    link.setAttribute("download", "diagram.svg");
+    link.setAttribute("href", url);
+    document.body.appendChild(link); // Required for FF
+    link.click();
+  }, [modeler]);
+
   const onChangeHandler = useCallback(async () => {
     if (!modeler) return;
 
@@ -106,6 +129,12 @@ export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
         }}
       >
         <ButtonGroup vertical>
+          <Tooltip2 content={<span>Download as BPMN</span>}>
+            <Button onClick={downloadBpmn} icon="import" />
+          </Tooltip2>
+          <Tooltip2 content={<span>Download as SVG</span>}>
+            <Button onClick={downloadSvg} icon="cloud-download" />
+          </Tooltip2>
           <Tooltip2 content={<span>Zoom To Fit</span>}>
             <Button onClick={resizeBpmn} icon="zoom-to-fit" />
           </Tooltip2>
@@ -128,7 +157,7 @@ export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
           height: "100%",
         }}
       />
-      
+
     </div>
   );
 });
