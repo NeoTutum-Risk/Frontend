@@ -1,10 +1,12 @@
 import { Button, Card, FormGroup, InputGroup } from '@blueprintjs/core'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useRecoilState } from 'recoil'
+import { userState } from '../../store/user'
 import styles from './styles.module.scss'
 
 export const Auth = () => {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useRecoilState(userState)
   const [password, setPassword] = useState(null)
   const navigate = useNavigate()
 

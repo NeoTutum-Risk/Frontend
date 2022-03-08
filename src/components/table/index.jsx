@@ -1,7 +1,7 @@
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-balham.css";
 import { AgGridColumn, AgGridReact } from "ag-grid-react";
-import { Slider } from "@blueprintjs/core";
+import { Slider, Button } from "@blueprintjs/core";
 import React, {
   useCallback,
   useEffect,
@@ -18,6 +18,7 @@ export const Table = ({
   data = [],
   columns = [],
   paginationPageSize = 10,
+  operations = {},
 }) => {
   console.log("table", data, columns);
   const gridRef = useRef();
@@ -33,7 +34,7 @@ export const Table = ({
   }, []);
 
   useEffect(() => {
-    if (elementSelector && elementSelector!=="process") {
+    if (elementSelector && elementSelector !== "process") {
       gridRef.current.api.deselectAll();
       const selectedElementIndex = data.findIndex(
         (row) =>
@@ -48,6 +49,42 @@ export const Table = ({
       gridRef.current.api.deselectAll();
     }
   }, [elementSelector, data]);
+
+  const EditOperator = (field) => {
+    return (
+      <button
+      onClick={() =>
+        operations.hasOwnProperty("edit") ? operations.edit(field.field.data.id) : {}
+      }
+      >
+        Edit
+      </button>
+    );
+  };
+
+  const ViewOperator = (field) => {
+    return (
+      <button
+        onClick={() =>
+          operations.hasOwnProperty("view") ? operations.view(field.field.data.id) : {}
+        }
+      >
+        View
+      </button>
+    );
+  };
+
+  const DeleteOperator = (field) => {
+    return (
+      <button
+        onClick={() =>
+          operations.hasOwnProperty("delete") ? operations.delete(field.field.data.id) : {}
+        }
+      >
+        Delete
+      </button>
+    );
+  };
 
   return (
     <div className="ag-theme-balham" style={{ height, width }}>
@@ -69,6 +106,35 @@ export const Table = ({
             suppressSizeToFit={column.suppressSizeToFit ?? true}
           />
         ))}
+        {operations.hasOwnProperty("view") && (
+          <AgGridColumn
+            key="viewoperator"
+            field="View Operator"
+            cellRendererFramework={(field) => (
+              <ViewOperator field={field} />
+            )}
+          />
+        )}
+
+        {operations.hasOwnProperty("edit") && (
+          <AgGridColumn
+            key="editoperator"
+            field="Edit Operator"
+            cellRendererFramework={(field) => (
+              <EditOperator field={field} />
+            )}
+          />
+        )}
+
+        {operations.hasOwnProperty("delete") && (
+          <AgGridColumn
+            key="deleteoperator"
+            field="Delete Operator"
+            cellRendererFramework={(field) => (
+              <DeleteOperator field={field} />
+            )}
+          />
+        )}
       </AgGridReact>
     </div>
   );

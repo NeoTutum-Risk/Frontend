@@ -1,0 +1,20 @@
+.metaDataContainer {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.addBtnContainer {
+    position: absolute;
+    top: 26px;
+    left: 15px;
+}
+
+.tableContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100rem;
+    width: 48%;
+}
