@@ -41,7 +41,7 @@ const MetaDataForm = () => {
       typeof metaData.l2 === "string" && metaData.l2.length
         ? metaData.l2.split(",")
         : [];
-    const data = { name: metaData.name, l2 };
+    const data = { name: metaData.name, level2Names: l2 };
 
     if (metaData.type === "edit") {
       updateMetaData(metaData.id, data)

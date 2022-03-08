@@ -20,7 +20,6 @@ const MetaData = () => {
   const [metaData, setMetaData] = useRecoilState(metaDataState);
   const loadList = useRecoilValue(metaDataLoadState);
 
-  console.log(metaData)
 
   const openEditOperation = (id) => {
     setOpenDialog(true);
