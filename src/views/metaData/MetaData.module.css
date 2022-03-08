@@ -6,11 +6,20 @@
   align-items: center;
 }
 
-.addBtnContainer {
-  position: absolute;
-  top: 26px;
-  left: 15px;
+.header {
+    display: flex;
+    width: 85%;
+    align-items: center;
 }
+
+.header div {
+    flex: 1;
+}
+
+.title {
+    text-align: center;
+}
+
 
 .tableContainer {
   display: flex;

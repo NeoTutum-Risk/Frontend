@@ -1,4 +1,4 @@
-import { Button, Card, FormGroup, InputGroup } from '@blueprintjs/core'
+import { Button, Card, Classes, FormGroup, InputGroup } from '@blueprintjs/core'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
@@ -24,7 +24,7 @@ export const Auth = () => {
 
   return (
     <div className={styles.container}>
-      <img style={{height: "9.5rem"}} src={logo} alt="logo" />
+      <img  className={styles.logo} src={logo} alt="logo" />
       <Card>
         <form className={styles.form} onSubmit={onSubmit}>
           <FormGroup label='User' labelFor='user-input'>

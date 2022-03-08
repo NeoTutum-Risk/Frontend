@@ -9,21 +9,31 @@ const AdminPanel = () => {
 
   return (
     <div className={classes.adminPanelContainer}>
-      <div className={classes.addBtnContainer}>
-        <Tooltip2 content={<span>Dashboard</span>}>
-          <Button icon="home" onClick={() => navigate("/dashboard")} />
-        </Tooltip2>
+      <div className={classes.headerContainer}>
+        <div className={classes.header}>
+          <div>
+            <Tooltip2 content={<span>Dashboard</span>}>
+              <Button
+                className={classes.btnStyle}
+                icon="home"
+                onClick={() => navigate("/dashboard")}
+              />
+            </Tooltip2>
+          </div>
+          <div className={classes.title}>
+            <h1>Admin Panel</h1>
+          </div>
+          <div></div>
+        </div>
       </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <h1>Admin Panel</h1>
+
+      <div className={classes.bodyContainer}>
         <Card className={classes.cardsContainer}>
-          <Card className={classes.cardStyle} interactive={true} onClick={() => navigate("/meta-data")}>
+          <Card
+            className={classes.cardStyle}
+            interactive={true}
+            onClick={() => navigate("/meta-data")}
+          >
             <h1>Risk Object Meta Data</h1>
           </Card>
 
@@ -31,7 +41,7 @@ const AdminPanel = () => {
             <h1>Admin Option</h1>
           </Card>
 
-          <Card className={classes.cardStyle} interactive={true} >
+          <Card className={classes.cardStyle} interactive={true}>
             <h1>Settings</h1>
           </Card>
         </Card>

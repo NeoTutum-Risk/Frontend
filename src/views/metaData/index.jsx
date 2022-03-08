@@ -14,7 +14,11 @@ import classes from "./MetaData.module.css";
 import { Tooltip2 } from "@blueprintjs/popover2";
 import { useNavigate } from "react-router-dom";
 
-const columns = [{value: "id", width: 100},{value: "name", width: 260}, {value: "metaDataLevel2s", width: 700}];
+const columns = [
+  { value: "id", width: 100 },
+  { value: "name", width: 260 },
+  { value: "metaDataLevel2s", width: 700 },
+];
 
 const MetaData = () => {
   const [metaDataList, setMetaDataList] = useState([]);
@@ -62,10 +66,9 @@ const MetaData = () => {
     setMetaData({ ...metaData, type: "add" });
   };
 
-
   const operations = {
-    edit: {func: openEditOperation, width: 120},
-    delete: {func: openDeleteOperation, width:120},
+    edit: { func: openEditOperation, width: 120 },
+    delete: { func: openDeleteOperation, width: 120 },
   };
 
   return (
@@ -75,27 +78,32 @@ const MetaData = () => {
           deleteMetaData={metaData.type === "delete" ? true : false}
         />
       </Dialog>
-      <div className={classes.addBtnContainer}>
-        <Tooltip2 content={<span>Dashboard</span>}>
-          <Button
-            className={classes.btnStyle}
-            icon="home"
-            onClick={() => navigate("/dashboard")}
-          />
-        </Tooltip2>
-        <Tooltip2 content={<span>Admin Panel</span>}>
-          <Button
-            className={classes.btnStyle}
-            icon="person"
-            onClick={() => navigate("/admin-panel")}
-          />
-        </Tooltip2>
-        <Button className={classes.btnStyle} onClick={openAddOperation}>
-          Add MetaData
-        </Button>
+      <div className={classes.header}>
+        <div>
+          <Tooltip2 content={<span>Dashboard</span>}>
+            <Button
+              className={classes.btnStyle}
+              icon="home"
+              onClick={() => navigate("/dashboard")}
+            />
+          </Tooltip2>
+          <Tooltip2 content={<span>Admin Panel</span>}>
+            <Button
+              className={classes.btnStyle}
+              icon="person"
+              onClick={() => navigate("/admin-panel")}
+            />
+          </Tooltip2>
+          <Button className={classes.btnStyle} onClick={openAddOperation}>
+            Add MetaData
+          </Button>
+        </div>
+        <div className={classes.title}>
+          <h1>Risk Object Meta Data</h1>
+        </div>
+        <div></div>
       </div>
 
-      <h1>Risk Object Meta Data</h1>
       <div className={classes.tableContainer}>
         <Table
           width={"100%"}
@@ -104,7 +112,7 @@ const MetaData = () => {
           columns={columns.map((column) => ({
             field: column.value,
             resizable: true,
-            width: column.width
+            width: column.width,
           }))}
           tableFullWidth={true}
           operations={operations}
@@ -115,7 +123,6 @@ const MetaData = () => {
 };
 
 export default MetaData;
-
 
 /*
               window.data.associations?.[0]

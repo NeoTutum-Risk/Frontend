@@ -42,7 +42,7 @@ export const SideNavigator = () => {
           </Tooltip2>
         )}
 
-        {menuOpen && <H3 className={styles.userName}>user name</H3>}
+        {menuOpen && <H3 className={styles.userName}>{user === "SHA" ? "super user": "normal user"}</H3>}
       </div>
 
       {menuOpen && (
