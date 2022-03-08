@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import { userState } from '../../store/user'
 import styles from './styles.module.scss'
+import logo from "../../images/logo.png"
 
 export const Auth = () => {
   const [user, setUser] = useRecoilState(userState)
@@ -23,7 +24,7 @@ export const Auth = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className='bp3-heading'>NeoTutum</h1>
+      <img style={{height: "9.5rem"}} src={logo} alt="logo" />
       <Card>
         <form className={styles.form} onSubmit={onSubmit}>
           <FormGroup label='User' labelFor='user-input'>

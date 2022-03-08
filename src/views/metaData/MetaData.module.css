@@ -1,20 +1,25 @@
 .metaDataContainer {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  background-color: #e1e8ed;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .addBtnContainer {
-    position: absolute;
-    top: 26px;
-    left: 15px;
+  position: absolute;
+  top: 26px;
+  left: 15px;
 }
 
 .tableContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100rem;
-    width: 75%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 85%;
+  width: 85%;
+}
+
+.btnStyle {
+  margin: 0 3px;
 }

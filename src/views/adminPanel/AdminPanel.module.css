@@ -1,0 +1,26 @@
+.adminPanelContainer {
+    background-color: #e1e8ed;
+    height: 100vh;
+}
+
+.addBtnContainer {
+    position: absolute;
+    top: 26px;
+    left: 15px;
+}
+
+.cardsContainer{ 
+    display: flex;
+    justify-content: center;
+    width: 60%;
+}
+
+.cardStyle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 15rem;
+    margin: 0 2rem;
+    background-color: rgb(238, 238, 238) !important;
+}

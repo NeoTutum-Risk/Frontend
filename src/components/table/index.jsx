@@ -19,6 +19,7 @@ export const Table = ({
   columns = [],
   paginationPageSize = 10,
   operations = {},
+  tableFullWidth = false,
 }) => {
   console.log("table", data, columns);
   const gridRef = useRef();
@@ -30,7 +31,9 @@ export const Table = ({
     gridRef.current.columnApi.getAllColumns().forEach((column) => {
       allColumnIds.push(column.getId());
     });
-    gridRef.current.columnApi.autoSizeColumns(allColumnIds, false);
+    tableFullWidth
+      ? gridRef.current.api.sizeColumnsToFit()
+      : gridRef.current.columnApi.autoSizeColumns(allColumnIds, false);
   }, []);
 
   useEffect(() => {
@@ -53,9 +56,11 @@ export const Table = ({
   const EditOperator = (field) => {
     return (
       <button
-      onClick={() =>
-        operations.hasOwnProperty("edit") ? operations.edit(field.field.data.id) : {}
-      }
+        onClick={() =>
+          operations.hasOwnProperty("edit")
+            ? operations.edit.func(field.field.data.id)
+            : {}
+        }
       >
         Edit
       </button>
@@ -66,7 +71,9 @@ export const Table = ({
     return (
       <button
         onClick={() =>
-          operations.hasOwnProperty("view") ? operations.view(field.field.data.id) : {}
+          operations.hasOwnProperty("view")
+            ? operations.view.func(field.field.data.id)
+            : {}
         }
       >
         View
@@ -78,7 +85,9 @@ export const Table = ({
     return (
       <button
         onClick={() =>
-          operations.hasOwnProperty("delete") ? operations.delete(field.field.data.id) : {}
+          operations.hasOwnProperty("delete")
+            ? operations.delete.func(field.field.data.id)
+            : {}
         }
       >
         Delete
@@ -104,35 +113,36 @@ export const Table = ({
             filter={column.filter ?? true}
             resizable={column.resizable ?? true}
             suppressSizeToFit={column.suppressSizeToFit ?? true}
+            width={column.width}
           />
         ))}
         {operations.hasOwnProperty("view") && (
           <AgGridColumn
-            key="viewoperator"
-            field="View Operator"
-            cellRendererFramework={(field) => (
-              <ViewOperator field={field} />
-            )}
+            key="viewOperator"
+            field="viewOperator"
+            resizable={true}
+            width={operations.view.width}
+            cellRendererFramework={(field) => <ViewOperator field={field} />}
           />
         )}
 
         {operations.hasOwnProperty("edit") && (
           <AgGridColumn
-            key="editoperator"
-            field="Edit Operator"
-            cellRendererFramework={(field) => (
-              <EditOperator field={field} />
-            )}
+            key="editOperator"
+            field="editOperator"
+            resizable={true}
+            width={operations.edit.width}
+            cellRendererFramework={(field) => <EditOperator field={field} />}
           />
         )}
 
         {operations.hasOwnProperty("delete") && (
           <AgGridColumn
-            key="deleteoperator"
-            field="Delete Operator"
-            cellRendererFramework={(field) => (
-              <DeleteOperator field={field} />
-            )}
+            key="deleteOperator"
+            field="deleteOperator"
+            resizable={true}
+            width={operations.delete.width}
+            cellRendererFramework={(field) => <DeleteOperator field={field} />}
           />
         )}
       </AgGridReact>

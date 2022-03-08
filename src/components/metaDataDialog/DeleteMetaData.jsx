@@ -30,11 +30,13 @@ const DeleteMetaData = () => {
     setOpenDialog(!openDialog);
   };
 
-  const handleDeletion = () => {
-    deleteMetaData(metaData.id).then((res) => {
+  const handleDeletion = async () => {
+    const res = await deleteMetaData(metaData.id);
+
+    if (res.status === 200) {
       closeDialog();
       setLoadList(!loadList);
-    });
+    }
   };
 
   return (

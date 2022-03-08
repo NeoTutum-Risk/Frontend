@@ -1,5 +1,5 @@
 import { Button, Dialog } from "@blueprintjs/core";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import MetaDataDialog from "../../components/metaDataDialog";
 import { Table } from "../../components/table";
 import { getMetaData } from "../../services";
@@ -11,8 +11,10 @@ import {
 import { useRecoilState, useRecoilValue } from "recoil";
 import { getMetaDataL2Util } from "../../utils/getMetaDataLevel2";
 import classes from "./MetaData.module.css";
+import { Tooltip2 } from "@blueprintjs/popover2";
+import { useNavigate } from "react-router-dom";
 
-const columns = ["id", "name", "metaDataLevel2s"];
+const columns = [{value: "id", width: 100},{value: "name", width: 260}, {value: "metaDataLevel2s", width: 700}];
 
 const MetaData = () => {
   const [metaDataList, setMetaDataList] = useState([]);
@@ -20,6 +22,27 @@ const MetaData = () => {
   const [metaData, setMetaData] = useRecoilState(metaDataState);
   const loadList = useRecoilValue(metaDataLoadState);
 
+  const navigate = useNavigate();
+
+  const initialLoading = useCallback(async () => {
+    const res = await getMetaData();
+
+    if (res.status === 201) {
+      const { data } = res.data;
+
+      // getting all the data from the api but extracting the metadatalevel2's names in an array without there attributes
+      const preparedData = data.map((item) => ({
+        ...item,
+        metaDataLevel2s: getMetaDataL2Util(item.metaDataLevel2s),
+      }));
+
+      setMetaDataList(preparedData);
+    }
+  }, [setMetaData]);
+
+  useEffect(() => {
+    initialLoading();
+  }, [initialLoading, loadList]);
 
   const openEditOperation = (id) => {
     setOpenDialog(true);
@@ -39,24 +62,11 @@ const MetaData = () => {
     setMetaData({ ...metaData, type: "add" });
   };
 
+
   const operations = {
-    edit: openEditOperation,
-    delete: openDeleteOperation,
+    edit: {func: openEditOperation, width: 120},
+    delete: {func: openDeleteOperation, width:120},
   };
-
-  useEffect(() => {
-    getMetaData().then((res) => {
-      const { data: dataList } = res.data;
-      const metaDataList = [];
-
-      dataList.forEach((data) => {
-        data.metaDataLevel2s = getMetaDataL2Util(data.metaDataLevel2s);
-        metaDataList.push({ ...data });
-      });
-
-      setMetaDataList(dataList);
-    });
-  }, [loadList]);
 
   return (
     <div className={classes.metaDataContainer}>
@@ -66,18 +76,37 @@ const MetaData = () => {
         />
       </Dialog>
       <div className={classes.addBtnContainer}>
-        <Button onClick={openAddOperation}>Add MetaData</Button>
+        <Tooltip2 content={<span>Dashboard</span>}>
+          <Button
+            className={classes.btnStyle}
+            icon="home"
+            onClick={() => navigate("/dashboard")}
+          />
+        </Tooltip2>
+        <Tooltip2 content={<span>Admin Panel</span>}>
+          <Button
+            className={classes.btnStyle}
+            icon="person"
+            onClick={() => navigate("/admin-panel")}
+          />
+        </Tooltip2>
+        <Button className={classes.btnStyle} onClick={openAddOperation}>
+          Add MetaData
+        </Button>
       </div>
 
-      <h1>Meta Data</h1>
+      <h1>Risk Object Meta Data</h1>
       <div className={classes.tableContainer}>
         <Table
           width={"100%"}
           height={"100%"}
           data={metaDataList}
-          columns={columns.map((value) => ({
-            field: value,
+          columns={columns.map((column) => ({
+            field: column.value,
+            resizable: true,
+            width: column.width
           }))}
+          tableFullWidth={true}
           operations={operations}
         />
       </div>
@@ -86,3 +115,12 @@ const MetaData = () => {
 };
 
 export default MetaData;
+
+
+/*
+              window.data.associations?.[0]
+                ? Object.keys(window.data.associations?.[0]).map((key) => ({
+                    field: key,
+                  }))
+                : []
+*/

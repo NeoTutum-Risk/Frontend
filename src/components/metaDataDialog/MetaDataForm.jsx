@@ -36,33 +36,28 @@ const MetaDataForm = () => {
     setOpenDialog(!openDialog);
   };
 
-  const submitData = () => {
-    const l2 =
-      typeof metaData.l2 === "string" && metaData.l2.length
-        ? metaData.l2.split(",")
-        : [];
+  const submitData = async () => {
+    let l2 = metaData.l2;
+    if (typeof l2 === "string") {
+      l2 = l2.length ? l2.split(",") : [];
+    }
+
     const data = { name: metaData.name, level2Names: l2 };
 
+    let res;
+
     if (metaData.type === "edit") {
-      updateMetaData(metaData.id, data)
-        .then((res) => {
-          closeDialog();
-          setLoadList(!loadList);
-        })
-        .catch((err) => {
-          closeDialog();
-          setLoadList(!loadList);
-        });
+      res = await updateMetaData(metaData.id, data);
+      if (res.status === 200) {
+        closeDialog();
+        setLoadList(!loadList);
+      }
     } else if (metaData.type === "add") {
-      addMetaData(data)
-        .then((res) => {
-          closeDialog();
-          setLoadList(!loadList);
-        })
-        .catch((err) => {
-          closeDialog();
-          setLoadList(!loadList);
-        });
+      res = await addMetaData(data);
+      if (res.status === 200) {
+        closeDialog();
+        setLoadList(!loadList);
+      }
     }
   };
 
