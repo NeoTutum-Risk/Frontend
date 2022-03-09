@@ -7,9 +7,16 @@ import { AddPortfolio } from "./addPortfolio";
 import { AddReferenceGroup } from "./addRefrenceGroup";
 import { ReferenceGroups } from "./referenceGroups";
 import { Portfolios } from "./portfolios";
+import { useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { userState } from "../../../store/user";
 
 export const SideNavigator = () => {
   const [menuOpen, setMenuOpen] = useState(true);
+
+  const user = useRecoilValue(userState);
+
+  const navigate = useNavigate();
   return (
     <div
       style={menuOpen ? { minWidth: "250px" } : {}}
@@ -25,7 +32,17 @@ export const SideNavigator = () => {
             onClick={() => setMenuOpen((prev) => !prev)}
           />
         </Tooltip2>
-        {menuOpen && <H3 className={styles.userName}>user name</H3>}
+        {(menuOpen && user === "SHA") && (
+          <Tooltip2 content={<span>Admin Panel</span>}>
+            <Button
+              icon="person"
+              small
+              onClick={() => navigate("/admin-panel")}
+            />
+          </Tooltip2>
+        )}
+
+        {menuOpen && <H3 className={styles.userName}>{user === "SHA" ? "super user": "normal user"}</H3>}
       </div>
 
       {menuOpen && (

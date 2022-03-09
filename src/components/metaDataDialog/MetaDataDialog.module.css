@@ -1,0 +1,31 @@
+.deleteDialogContainer {
+    height: 15rem;
+    padding: 2rem 3rem 0 3rem;
+}
+
+.btnContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 3rem;
+}
+
+.mainBtn {
+    margin-left: 1rem;
+}
+
+
+.formContainer {
+    height: 20rem;
+    padding: 3rem 3rem 0 3rem;
+}
+
+.l2FormGroup {
+    height: 7rem;
+    max-height: 7rem;
+}
+
+.l2TextArea {
+    width: 100%;
+    min-height: 2.5rem;
+    max-height: 7rem;
+}

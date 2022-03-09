@@ -1,0 +1,47 @@
+.adminPanelContainer {
+  background-color: #e1e8ed;
+  height: 100vh;
+}
+
+.headerContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.header {
+  display: flex;
+  width: 60%;
+
+  align-items: center;
+}
+
+.header div {
+  flex: 1;
+}
+
+.title {
+  text-align: center;
+}
+
+.bodyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cardsContainer {
+  display: flex;
+  justify-content: center;
+  width: 60%;
+}
+
+.cardStyle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 15rem;
+  margin: 0 2rem;
+  background-color: rgb(238, 238, 238) !important;
+}

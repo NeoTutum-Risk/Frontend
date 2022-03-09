@@ -16,7 +16,11 @@ export const DataWindow = ({
       onCollapse={onCollapse}
       onRestore={onResotre}
       onTypeChange={onTypeChange}
-      title={window.data.type==="Level Data"?window.data.levelName:window.data.type}
+      title={
+        window.data.type === "Level Data"
+          ? window.data.levelName
+          : window.data.type
+      }
       collapseState={collapseState}
       icon="th"
     >
