@@ -46,7 +46,10 @@ export const Table = ({
       );
       //.indexOf(elementSelector);
       if (selectedElementIndex && selectedElementIndex > -1) {
-        gridRef.current.api.getRowNode(selectedElementIndex).setSelected(true);
+        if(gridRef.current.api.getRowNode(selectedElementIndex)){
+          gridRef.current.api.getRowNode(selectedElementIndex).setSelected(true);
+        }
+        
       }
     } else {
       gridRef.current.api.deselectAll();

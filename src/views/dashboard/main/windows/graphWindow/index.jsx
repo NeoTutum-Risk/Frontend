@@ -7,7 +7,8 @@ import { platformState } from "../../../../../store/portfolios";
 import { elementSelectorState } from "../../../../../store/elementSelector";
 import { showDangerToaster } from "../../../../../utils/toaster";
 import { Window } from "../window";
-
+import { windowsState } from "../../../../../store/windows";
+import { getBpmnSequenceFlows, getBpmnEntities } from "../../../../../services";
 export const GraphWindow = ({
   onClose,
   onCollapse,
@@ -16,6 +17,7 @@ export const GraphWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [windows, setWindows] = useRecoilState(windowsState);
   const [bpmn, setbpmn] = useRecoilState(platformState(window.data.id));
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveLoading, setAutoSaveLoading] = useState(false);
@@ -29,7 +31,7 @@ export const GraphWindow = ({
       if (type === "process") {
         setElementSelector(null);
       } else {
-        setElementSelector({ elementId, type,fileId: window.data.id });
+        setElementSelector({ elementId, type, fileId: window.data.id });
       }
       console.log({ elementId, type, fileId: window.data.id });
     },
@@ -53,6 +55,45 @@ export const GraphWindow = ({
       }
     },
     [window]
+  );
+
+  const handleOnChange = useCallback(
+    async (data) => {
+      console.log(windows);
+      setbpmn({ xml: data, changed: !autoSave });
+      if (autoSave) {
+        saveBpmn(data);
+      }
+      const sequenceFlows = await getBpmnSequenceFlows();
+      const entities = await getBpmnEntities();
+
+      setWindows((prev) => {
+        return prev.map((window) => {
+          if (window.data.type === "BPMN SequenceFlows") {
+            return {
+              ...window,
+              data: {
+                type: "BPMN SequenceFlows",
+                sequenceFlows: sequenceFlows.data.data,
+              },
+            };
+          }
+
+          if (window.data.type === "BPMN Entities") {
+            return {
+              ...window,
+              data: {
+                type: "BPMN Entities",
+                entities: entities.data.data,
+              },
+            };
+          }
+
+          return window
+        });
+      });
+    },
+    [autoSave, saveBpmn, setbpmn,setWindows,windows]
   );
 
   return (
@@ -79,12 +120,7 @@ export const GraphWindow = ({
     >
       <Bpmn
         xml={bpmn.xml ?? window.data.fileData}
-        onChange={(data) => {
-          setbpmn({ xml: data, changed: !autoSave });
-          if (autoSave) {
-            saveBpmn(data);
-          }
-        }}
+        onChange={handleOnChange}
         onClick={(data) => elementSelectorHandler(data)}
       />
     </Window>
