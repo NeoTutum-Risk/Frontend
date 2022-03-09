@@ -65,10 +65,12 @@ export const updateBpmnStatus = ({ id, status, fileData }) =>
     ...(status === 'changed' && { fileData, ...xmlParser(fileData) }),
   })
 
-  export const getSpecificMetaData = (id) => serviceProvider(`metaDataLevel1/${id}`)
+  export const getSpecificMetaData = (id) => serviceProvider(`metaDataLevel1/${id}`);
 
-  export const deleteMetaData = (id) => serviceProvider.delete(`/metaDataLevel1/${id}`)
+  export const deleteMetaData = (id) => serviceProvider.delete(`/metaDataLevel1/${id}`);
 
-  export const addMetaData = (data) => serviceProvider.post(`/metaDataLevel1`, data)
+  export const addMetaData = (data) => serviceProvider.post(`/metaDataLevel1`, data);
   
-  export const updateMetaData = (id, data) => serviceProvider.put(`/metaDataLevel1/${id}`, data)
+  export const updateMetaData = (id, data) => serviceProvider.put(`/metaDataLevel1/${id}`, data);
+
+  export const updateDataObject = (id, data) => serviceProvider.put(`/dataObjects/status/${id}`,data);

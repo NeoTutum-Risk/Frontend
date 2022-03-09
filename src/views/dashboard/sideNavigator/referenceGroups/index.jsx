@@ -24,7 +24,7 @@ import {
   getMetaDataL2,
   getDataObject,
 } from "../../../../services";
-import { addDataObject } from "../../../../services";
+import { addDataObject, updateDataObject } from "../../../../services";
 import {
   showDangerToaster,
   showSuccessToaster,
@@ -32,7 +32,7 @@ import {
 } from "../../../../utils/toaster";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
-
+import { mapStatusToIcon } from "../../../../utils/mapStatusToIcon";
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -46,6 +46,7 @@ export const ReferenceGroups = () => {
   const [referenceGroupsNodes, setReferenceGroupsNodes] = useState(null);
   const [referenceGroupContextMenu, setReferenceGroupContextMenu] =
     useState(null);
+  const [dataObjectContextMenu, setDataObjectContextMenu] = useState(null);
   const [metaData, setMetaData] = useState([]);
   const [metaDataL2, setMetaDataL2] = useState([]);
   const [dataObjectType, setDataObjectType] = useState(null);
@@ -89,6 +90,7 @@ export const ReferenceGroups = () => {
 
   useOnClickOutsideContextMenu(() => {
     setReferenceGroupContextMenu(null);
+    setDataObjectContextMenu(null);
   });
 
   const clearData = useCallback(() => {
@@ -103,6 +105,36 @@ export const ReferenceGroups = () => {
     setDataObjectLevelsInput,
   ]);
 
+  const onDataObjectStateChange = useCallback(
+    async ({ status, dataObjectId, referenceGroupId }) => {
+      try {
+        const response = await updateDataObject(dataObjectId, {
+          status: status,
+        });
+        setReferenceGroups((prev) => ({
+          ...prev,
+          data: prev.data.map((rGroup) => {
+            if (rGroup.id !== referenceGroupId) {
+              return rGroup;
+            } else {
+              return {
+                ...rGroup,
+                dataObjects: rGroup.dataObjects.map((object) =>
+                  object.id === dataObjectId
+                    ? { ...object, status: response.data.data.status }
+                    : object
+                ),
+              };
+            }
+          }),
+        }));
+        showSuccessToaster(`${status} successfully`);
+      } catch (error) {
+        showDangerToaster(error?.response?.data?.msg ?? error.message);
+      }
+    },
+    [setReferenceGroups]
+  );
   useEffect(() => {
     fetchMetaData();
     fetchMetaDataL2();
@@ -471,6 +503,7 @@ export const ReferenceGroups = () => {
   const newDataObject = (id) => {
     setReferenceGroupPopOverOpenId(id);
     setReferenceGroupContextMenu(null);
+    setDataObjectContextMenu(null);
   };
   useEffect(() => {
     setReferenceGroupsNodes((prev) =>
@@ -508,15 +541,88 @@ export const ReferenceGroups = () => {
             ? rGroup.dataObjects.map((dataObject) => {
                 return {
                   id: dataObject.id,
-                  label:
-                    metaData.find(
-                      (item) =>
-                        item.id === dataObject.metaDataLevel2.metaDataLevel1Id
-                    )?.name +
-                    "." +
-                    dataObject.metaDataLevel2.name,
+                  label: (
+                    <Popover2
+                      isOpen={dataObject?.id === dataObjectContextMenu}
+                      content={
+                        <Menu>
+                          <MenuItem
+                            key={Math.random() * 5000}
+                            textClassName="target_menu"
+                            icon="upload"
+                            text="commit"
+                            onClick={() => {
+                              setDataObjectContextMenu(null);
+                              onDataObjectStateChange({
+                                dataObjectId: dataObject.id,
+                                status: "commit",
+                                referenceGroupId: dataObject.referenceGroupId,
+                              });
+                            }}
+                          />
+                          <MenuItem
+                            key={Math.random() * 5000}
+                            textClassName="target_menu"
+                            icon="upload"
+                            text="change"
+                            onClick={() => {
+                              setDataObjectContextMenu(null);
+                              onDataObjectStateChange({
+                                dataObjectId: dataObject.id,
+                                status: "change",
+                                referenceGroupId: dataObject.referenceGroupId,
+                              });
+                            }}
+                          />
+                          <MenuItem
+                            key={Math.random() * 5000}
+                            textClassName="target_menu"
+                            icon="upload"
+                            text="close"
+                            onClick={() => {
+                              setDataObjectContextMenu(null);
+                              onDataObjectStateChange({
+                                dataObjectId: dataObject.id,
+                                status: "close",
+                                referenceGroupId: dataObject.referenceGroupId,
+                              });
+                            }}
+                          />
+                          <MenuItem
+                            key={Math.random() * 5000}
+                            textClassName="target_menu"
+                            icon="upload"
+                            text="archive"
+                            onClick={() => {
+                              setDataObjectContextMenu(null);
+                              onDataObjectStateChange({
+                                dataObjectId: dataObject.id,
+                                status: "archive",
+                                referenceGroupId: dataObject.referenceGroupId,
+                              });
+                            }}
+                          />
+                        </Menu>
+                      }
+                    >
+                      {metaData.find(
+                        (item) =>
+                          item.id === dataObject.metaDataLevel2.metaDataLevel1Id
+                      )?.name +
+                        "." +
+                        dataObject.metaDataLevel2.name}
+                    </Popover2>
+                  ),
                   icon: "diagram-tree",
                   type: "dataObject",
+                  secondaryLabel: (
+                    <Tooltip2 content={dataObject.status}>
+                      <Icon
+                        style={{ marginLeft: 16 }}
+                        icon={mapStatusToIcon(dataObject.status)}
+                      />
+                    </Tooltip2>
+                  ),
                 };
               })
             : [],
@@ -528,7 +634,9 @@ export const ReferenceGroups = () => {
     referenceGroupPopOverOpenId,
     referenceGroups.data,
     dataObjectPopOverContent,
-    metaData
+    metaData,
+    dataObjectContextMenu,
+    onDataObjectStateChange,
   ]);
 
   const onNodeCollapse = useCallback(
@@ -561,8 +669,13 @@ export const ReferenceGroups = () => {
 
   const onNodeContextMenu = useCallback((nodeData, _, e) => {
     e.preventDefault();
-    setReferenceGroupContextMenu(nodeData.id);
-    // console.log(referenceGroupContextMenu);
+    if (nodeData.type === "dataObject") {
+      setDataObjectContextMenu(nodeData.id);
+    } else {
+      setReferenceGroupContextMenu(nodeData.id);
+    }
+
+    // console.log("context",nodeData);
   }, []);
 
   const onNodeClick = useCallback(
