@@ -46,8 +46,8 @@ export const ReferenceGroups = () => {
   const [referenceGroupsNodes, setReferenceGroupsNodes] = useState(null);
   const [referenceGroupContextMenu, setReferenceGroupContextMenu] =
     useState(null);
-  const [metaData, setMetaData] = useState(null);
-  const [metaDataL2, setMetaDataL2] = useState(null);
+  const [metaData, setMetaData] = useState([]);
+  const [metaDataL2, setMetaDataL2] = useState([]);
   const [dataObjectType, setDataObjectType] = useState(null);
   const [dataObjectLevels, setDataObjectLevels] = useState(1);
   const [dataObjectLevelsInput, setDataObjectLevelsInput] = useState([]);
@@ -382,7 +382,7 @@ export const ReferenceGroups = () => {
       referenceGroupPopOverOpenId,
       setReferenceGroups,
       dataObjectLevels,
-      metaDataL2
+      metaDataL2,
     ]
   );
 
@@ -508,7 +508,13 @@ export const ReferenceGroups = () => {
             ? rGroup.dataObjects.map((dataObject) => {
                 return {
                   id: dataObject.id,
-                  label: dataObject.metaDataLevel2.name,
+                  label:
+                    metaData.find(
+                      (item) =>
+                        item.id === dataObject.metaDataLevel2.metaDataLevel1Id
+                    )?.name +
+                    "." +
+                    dataObject.metaDataLevel2.name,
                   icon: "diagram-tree",
                   type: "dataObject",
                 };
@@ -522,6 +528,7 @@ export const ReferenceGroups = () => {
     referenceGroupPopOverOpenId,
     referenceGroups.data,
     dataObjectPopOverContent,
+    metaData
   ]);
 
   const onNodeCollapse = useCallback(
