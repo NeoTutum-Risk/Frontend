@@ -32,7 +32,7 @@ export const SideNavigator = () => {
             onClick={() => setMenuOpen((prev) => !prev)}
           />
         </Tooltip2>
-        {(menuOpen && user === "SHA") && (
+        {(menuOpen && user === "Admin") && (
           <Tooltip2 content={<span>Admin Panel</span>}>
             <Button
               icon="person"
@@ -42,7 +42,7 @@ export const SideNavigator = () => {
           </Tooltip2>
         )}
 
-        {menuOpen && <H3 className={styles.userName}>{user === "SHA" ? "super user": "normal user"}</H3>}
+        {menuOpen && <H3 className={styles.userName}>{user === "Admin" ? "super user": "normal user"}</H3>}
       </div>
 
       {menuOpen && (
