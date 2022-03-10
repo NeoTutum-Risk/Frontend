@@ -154,6 +154,7 @@ export const FlowChart = ({ graph, dataObjectId }) => {
 
   return (
     <Xwrapper>
+      <div id="Arrowscontainer" style={{overflow:"hidden"}}>
       {edges.map((edge) => (
         <Xarrow
           path="smooth"
@@ -164,19 +165,35 @@ export const FlowChart = ({ graph, dataObjectId }) => {
           SVGcanvasStyle={{ zIndex: -1000000 }}
         />
       ))}
+      </div>
+      
+      <TransformWrapper
+        initialScale={1}
+        initialPositionX={200}
+        initialPositionY={100}
+        doubleClick={true}
+      >
+        <TransformComponent>
+        
+          <svg
+            viewBox="0 0 1000 1000"
+            width={490}
+            height={355}
+            onClick={handleClick}
+          >
+            {graph.nodes.map((node) => (
+              <DataElement
+                data={node}
+                elementSelection={elementSelection}
+                showContext={showContext}
+                selectedElements={selectedElements}
+              />
+            ))}
 
-      <svg viewBox="0 0 500 400" width={490} height={355} onClick={handleClick}>
-        {graph.nodes.map((node) => (
-          <DataElement
-            data={node}
-            elementSelection={elementSelection}
-            showContext={showContext}
-            selectedElements={selectedElements}
-          />
-        ))}
-
-        {contextMenu.show && <ConnetionContext data={contextMenu} />}
-      </svg>
+            {contextMenu.show && <ConnetionContext data={contextMenu} />}
+          </svg>
+        </TransformComponent>
+      </TransformWrapper>
     </Xwrapper>
   );
 };
