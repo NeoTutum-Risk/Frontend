@@ -127,7 +127,7 @@ export const Main = () => {
 
   return (
     <SortableList
-    pressDelay={500}
+      pressDelay={500}
       axis="xy"
       items={windows}
       onSortEnd={onSortEnd}
