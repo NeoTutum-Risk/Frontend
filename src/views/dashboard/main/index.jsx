@@ -1,13 +1,16 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
 import { Async } from "../../../components/asyncHOC";
 import { windowsState } from "../../../store/windows";
 import styles from "../styles.module.scss";
 import { DataWindow } from "./windows/dataWindow";
 import { GraphWindow } from "./windows/graphWindow";
-import {FlowChartWindow} from "./windows/flowChartWindow";
+import { FlowChartWindow } from "./windows/flowChartWindow";
 import { CollapsedWindow } from "./windows/collapsedWindow";
 import { CollapsePanel } from "./collapsePanel";
+import { SortableContainer, SortableElement } from "react-sortable-hoc";
+import { arrayMoveImmutable } from "array-move";
+
 export const Main = () => {
   const [windows, setWindows] = useRecoilState(windowsState);
 
@@ -18,6 +21,8 @@ export const Main = () => {
       ),
     [setWindows]
   );
+
+  console.log(windows);
 
   const windowCollapseHandler = useCallback(
     (id) =>
@@ -45,61 +50,87 @@ export const Main = () => {
     [setWindows]
   );
 
-  return (
-    <div className={styles.mainContainer}>
-      <Async>
-        {windows.map((window) => (
-          <>
-            {window.type === "bpmn" && window.collapse === false && (
-              <GraphWindow
-                key={window.id}
-                window={window}
-                onClose={() => windowCloseHandler(window.id)}
-                onCollapse={() => windowCollapseHandler(window.id)}
-                onRestore={() => windowRestoreHandler(window.id)}
-              />
-            )}
-            {window.type === "data" && window.collapse === false && (
-              <DataWindow
-                key={window.id}
-                window={window}
-                onClose={() => windowCloseHandler(window.id)}
-                onCollapse={() => windowCollapseHandler(window.id)}
-                onRestore={() => windowRestoreHandler(window.id)}
-              />
-            )}
-            {window.type === "flowchart" && window.collapse === false && (
-              <FlowChartWindow
-                key={window.id}
-                window={window}
-                onClose={() => windowCloseHandler(window.id)}
-                onCollapse={() => windowCollapseHandler(window.id)}
-                onRestore={() => windowRestoreHandler(window.id)}
-              />
-            )}
-          </>
-        ))}
-      </Async>
-      <CollapsePanel key="collapsePanel">
-        {windows.map((window) => (
-          <>
-            {window.collapse === true && (
-              <CollapsedWindow
-                key={window.id}
-                window={window}
-                title={
-                  window.type === "bpmn"
-                    ? window.data.fileName
-                    : window.data.type
-                }
-                onClose={() => windowCloseHandler(window.id)}
-                onCollapse={() => windowCollapseHandler(window.id)}
-                onRestore={() => windowRestoreHandler(window.id)}
-              />
-            )}
-          </>
-        ))}
-      </CollapsePanel>
+  // handles the arrangment of the new order of the elements list after the DnD happened
+  const onSortEnd = ({ oldIndex, newIndex }) => {
+    setWindows(arrayMoveImmutable(windows, oldIndex, newIndex));
+  };
+
+  // to display each element
+  const SortableItem = SortableElement(({ value: window }) => (
+    <div>
+      {window.type === "bpmn" && window.collapse === false && (
+        <GraphWindow
+          key={window.id}
+          window={window}
+          onClose={() => windowCloseHandler(window.id)}
+          onCollapse={() => windowCollapseHandler(window.id)}
+          onRestore={() => windowRestoreHandler(window.id)}
+        />
+      )}
+      {window.type === "data" && window.collapse === false && (
+        <DataWindow
+          key={window.id}
+          window={window}
+          onClose={() => windowCloseHandler(window.id)}
+          onCollapse={() => windowCollapseHandler(window.id)}
+          onRestore={() => windowRestoreHandler(window.id)}
+        />
+      )}
+      {window.type === "flowchart" && window.collapse === false && (
+        <FlowChartWindow
+          key={window.id}
+          window={window}
+          onClose={() => windowCloseHandler(window.id)}
+          onCollapse={() => windowCollapseHandler(window.id)}
+          onRestore={() => windowRestoreHandler(window.id)}
+        />
+      )}
     </div>
+  ));
+
+  // to display the array of element
+  const SortableList = SortableContainer(({ items }) => {
+    return (
+      <div className={styles.mainContainer}>
+        <Async>
+          {items.map((window, index) => (
+            <SortableItem
+              key={`item-${window.id}`}
+              index={index}
+              value={window}
+            />
+          ))}
+        </Async>
+        <CollapsePanel key="collapsePanel">
+          {items.map((window) => (
+            <>
+              {window.collapse === true && (
+                <CollapsedWindow
+                  key={window.id}
+                  window={window}
+                  title={
+                    window.type === "bpmn"
+                      ? window.data.fileName
+                      : window.data.type
+                  }
+                  onClose={() => windowCloseHandler(window.id)}
+                  onCollapse={() => windowCollapseHandler(window.id)}
+                  onRestore={() => windowRestoreHandler(window.id)}
+                />
+              )}
+            </>
+          ))}
+        </CollapsePanel>
+      </div>
+    );
+  });
+
+  return (
+    <SortableList
+    pressDelay={500}
+      axis="xy"
+      items={windows}
+      onSortEnd={onSortEnd}
+    />
   );
 };
