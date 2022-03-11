@@ -9,6 +9,7 @@ import {
   removeNewElementsConnection,
 } from "../../services";
 export const FlowChart = ({ graph, dataObjectId }) => {
+  const updateXarrow = useXarrow();
   const [selectedElements, setSelectedElements] = useState([]);
 
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
@@ -152,33 +153,33 @@ export const FlowChart = ({ graph, dataObjectId }) => {
     setContextMenu((prev) => ({ ...prev, show: false }));
   }, []);
 
+  const handleZoomPanPinch = setInterval(updateXarrow,100)
+
   return (
     <Xwrapper>
-      <div id="Arrowscontainer" style={{overflow:"hidden"}}>
-      {edges.map((edge) => (
-        <Xarrow
-          path="smooth"
-          curveness={0.2}
-          strokeWidth={1}
-          start={String(edge.sourceId)}
-          end={String(edge.targetId)}
-          SVGcanvasStyle={{ zIndex: -1000000 }}
-        />
-      ))}
-      </div>
-      
       <TransformWrapper
         initialScale={1}
-        initialPositionX={200}
-        initialPositionY={100}
-        doubleClick={true}
+        minScale={1}
+        maxScale={1.8}
+        // initialPositionX={200}
+        // initialPositionY={100}
+        doubleClick={{ disabled: true }}
+        onZoom={updateXarrow}
+        onZoomStop={console.log("stop zooming")}
+        onPinching={updateXarrow}
+        onPinchingStop={handleZoomPanPinch}
+        onPanning={updateXarrow}
+        onPanningStop={console.log("stop panning")}
       >
-        <TransformComponent>
         
+        <TransformComponent
+          wrapperStyle={{ width: "100%", height: "100%" }}
+          contentStyle={{ width: "100%", height: "250%" }}
+          
+        >
+          
           <svg
-            viewBox="0 0 1000 1000"
-            width={490}
-            height={355}
+            width={"100%"}
             onClick={handleClick}
           >
             {graph.nodes.map((node) => (
@@ -193,6 +194,16 @@ export const FlowChart = ({ graph, dataObjectId }) => {
             {contextMenu.show && <ConnetionContext data={contextMenu} />}
           </svg>
         </TransformComponent>
+        {edges.map((edge) => (
+            <Xarrow
+              path="smooth"
+              curveness={0.2}
+              strokeWidth={1}
+              start={String(edge.sourceId)}
+              end={String(edge.targetId)}
+              SVGcanvasStyle={{ overflow: "hidden" }}
+            />
+          ))}
       </TransformWrapper>
     </Xwrapper>
   );

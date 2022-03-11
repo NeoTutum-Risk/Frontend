@@ -8,8 +8,8 @@ export const DataElement = ({ data, elementSelection, showContext,selectedElemen
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
     active: false,
-    cy: data.y + 10,
-    cx: data.x + 100 * data.level_value,
+    cy: data.y + 20,
+    cx: (data.x+200) + 100 * data.level_value,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -76,8 +76,8 @@ export const DataElement = ({ data, elementSelection, showContext,selectedElemen
       e.preventDefault();
       showContext({
         ...data,
-        y: data.y + 10,
-        x: data.x + 100 * data.level_value,
+        y: data.y + 20,
+        x: (data.x+200) + 100 * data.level_value,
       });
       // console.log("cm", data);
     },
