@@ -10,6 +10,7 @@ import { CollapsedWindow } from "./windows/collapsedWindow";
 import { CollapsePanel } from "./collapsePanel";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { arrayMoveImmutable } from "array-move";
+import { Fragment } from "react";
 
 export const Main = () => {
   const [windows, setWindows] = useRecoilState(windowsState);
@@ -22,7 +23,9 @@ export const Main = () => {
     [setWindows]
   );
 
-  console.log(windows);
+  // cancel draggable event if the window tab isnt the one that is being dragged
+  const cancelDraggable = (e) =>
+    e.target.getAttribute("name") !== "draggable-tab" ? true : false;
 
   const windowCollapseHandler = useCallback(
     (id) =>
@@ -57,35 +60,32 @@ export const Main = () => {
 
   // to display each element
   const SortableItem = SortableElement(({ value: window }) => (
-    <div>
-      {window.type === "bpmn" && window.collapse === false && (
-        <GraphWindow
-          key={window.id}
-          window={window}
-          onClose={() => windowCloseHandler(window.id)}
-          onCollapse={() => windowCollapseHandler(window.id)}
-          onRestore={() => windowRestoreHandler(window.id)}
-        />
-      )}
-      {window.type === "data" && window.collapse === false && (
-        <DataWindow
-          key={window.id}
-          window={window}
-          onClose={() => windowCloseHandler(window.id)}
-          onCollapse={() => windowCollapseHandler(window.id)}
-          onRestore={() => windowRestoreHandler(window.id)}
-        />
-      )}
-      {window.type === "flowchart" && window.collapse === false && (
-        <FlowChartWindow
-          key={window.id}
-          window={window}
-          onClose={() => windowCloseHandler(window.id)}
-          onCollapse={() => windowCollapseHandler(window.id)}
-          onRestore={() => windowRestoreHandler(window.id)}
-        />
-      )}
-    </div>
+    <>
+        {window.type === "bpmn" && window.collapse === false && (
+          <GraphWindow
+            window={window}
+            onClose={() => windowCloseHandler(window.id)}
+            onCollapse={() => windowCollapseHandler(window.id)}
+            onRestore={() => windowRestoreHandler(window.id)}
+          />
+        )}
+        {window.type === "data" && window.collapse === false && (
+          <DataWindow
+            window={window}
+            onClose={() => windowCloseHandler(window.id)}
+            onCollapse={() => windowCollapseHandler(window.id)}
+            onRestore={() => windowRestoreHandler(window.id)}
+          />
+        )}
+        {window.type === "flowchart" && window.collapse === false && (
+          <FlowChartWindow
+            window={window}
+            onClose={() => windowCloseHandler(window.id)}
+            onCollapse={() => windowCollapseHandler(window.id)}
+            onRestore={() => windowRestoreHandler(window.id)}
+          />
+        )}
+    </>
   ));
 
   // to display the array of element
@@ -127,7 +127,7 @@ export const Main = () => {
 
   return (
     <SortableList
-      pressDelay={500}
+      shouldCancelStart={cancelDraggable}
       axis="xy"
       items={windows}
       onSortEnd={onSortEnd}
