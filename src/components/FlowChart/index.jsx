@@ -158,8 +158,8 @@ export const FlowChart = ({ graph, dataObjectId }) => {
   return (
     <Xwrapper>
       <TransformWrapper
-        initialScale={1}
-        minScale={1}
+        initialScale={.5}
+        minScale={.5}
         maxScale={1.8}
         // initialPositionX={200}
         // initialPositionY={100}
