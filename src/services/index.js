@@ -74,3 +74,5 @@ export const updateBpmnStatus = ({ id, status, fileData }) =>
   export const updateMetaData = (id, data) => serviceProvider.put(`/metaDataLevel1/${id}`, data);
 
   export const updateDataObject = (id, data) => serviceProvider.put(`/dataObjects/status/${id}`,data);
+
+  export const getDataObjectElement = (id) => serviceProvider(`dataObjects/elements/${id}`);

@@ -4,14 +4,18 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { getDataObjectConnections } from "../../services";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { windowsState } from "../../store/windows";
 import {
   addNewElementsConnection,
   removeNewElementsConnection,
+  getDataObjectElement,
+  getDataObject
 } from "../../services";
-export const FlowChart = ({ graph, dataObjectId }) => {
+export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
   const updateXarrow = useXarrow();
   const [selectedElements, setSelectedElements] = useState([]);
-
+  const [windows, setWindows] = useRecoilState(windowsState);
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
 
   const [edges, setEdges] = useState([]);
@@ -30,21 +34,63 @@ export const FlowChart = ({ graph, dataObjectId }) => {
     async (option) => {
       console.log(option, selectedElements);
       if (option === "Connect") {
+        const sourceElement =
+          selectedElements[0].level_value < selectedElements[1].level_value
+            ? selectedElements[0]
+            : selectedElements[1];
+
+        const targetElement =
+          selectedElements[1].level_value > selectedElements[0].level_value
+            ? selectedElements[1]
+            : selectedElements[0];
         const payload = {
-          sourceId:
-            selectedElements[0].level_value < selectedElements[1].level_value
-              ? selectedElements[0].id
-              : selectedElements[1].id,
-          targetId:
-            selectedElements[1].level_value > selectedElements[0].level_value
-              ? selectedElements[1].id
-              : selectedElements[0].id,
+          sourceId: sourceElement.id,
+          targetId: targetElement.id,
         };
         const response = await addNewElementsConnection(payload);
         // if(response.status===200){
+        // onNetworkChange({
+        //   sourceId: sourceElement,
+        //   targetId: targetElement,
+        //   option: "connect",
+        // });
+        const changedElement = await getDataObjectElement(sourceElement.id);
+        const dataObject = await getDataObject(dataObjectId);
+        setWindows((prev) => {
+          return prev.map((window) => {
+            if (window.data.levelDataObject === dataObjectId) {
+              return {
+                ...window,
+                data: {
+                  ...window.data,
+                  levelData: window.data.levelData.map((element) => {
+                    if (element.id === sourceElement.id) {
+                      return { ...element, ConnectedTo: changedElement.data.data.dataObjectConnections.reduce((con, acc) => {
+                        const returned = (con += ` ${
+                          dataObject.data.data.dataObjectLevels
+                            .flat()
+                            .map((level) => level.dataObjectElements)
+                            .flat()
+                            .find((item) => item.id === acc.targetId).label
+                        }`);
+                        console.log("reduce", returned);
+                        return returned;
+                      }, "") };
+                    } else {
+                      return element;
+                    }
+                  }),
+                },
+              };
+            } else {
+              return window;
+            }
+          });
+        });
         console.log("new connection", response.data.data);
         setEdges((prev) => [...prev, response.data.data]);
         setSelectedElements([]);
+
         // }
         // console.log(response);
       } else if (option === "Disconnect") {
@@ -65,8 +111,42 @@ export const FlowChart = ({ graph, dataObjectId }) => {
         });
 
         setEdges((prev) => prev.filter((edge) => edge.id !== connection.id));
+        const changedElement = await getDataObjectElement(sourceId);
+        const dataObject = await getDataObject(dataObjectId);
+        setWindows((prev) => {
+          return prev.map((window) => {
+            if (window.data.levelDataObject === dataObjectId) {
+              return {
+                ...window,
+                data: {
+                  ...window.data,
+                  levelData: window.data.levelData.map((element) => {
+                    if (element.id === sourceId) {
+                      return { ...element, ConnectedTo: changedElement.data.data.dataObjectConnections.reduce((con, acc) => {
+                        const returned = (con += ` ${
+                          dataObject.data.data.dataObjectLevels
+                            .flat()
+                            .map((level) => level.dataObjectElements)
+                            .flat()
+                            .find((item) => item.id === acc.targetId).label
+                        }`);
+                        console.log("reduce", returned);
+                        return returned;
+                      }, "") };
+                    } else {
+                      return element;
+                    }
+                  }),
+                },
+              };
+            } else {
+              return window;
+            }
+          });
+        });
         setSelectedElements([]);
         console.log(connection, response);
+        // onNetworkChange({ sourceId, targetId, option: "disconnect" });
       }
     },
     [selectedElements, edges]
@@ -153,35 +233,33 @@ export const FlowChart = ({ graph, dataObjectId }) => {
     setContextMenu((prev) => ({ ...prev, show: false }));
   }, []);
 
-  const handleZoomPanPinch = setInterval(updateXarrow,100)
+  const handleZoomPanPinch = useCallback(() => {
+    updateXarrow();
+    setTimeout(updateXarrow, 300);
+    console.log("ZOOMPANPINCH");
+  }, [updateXarrow]);
 
   return (
     <Xwrapper>
       <TransformWrapper
-        initialScale={.5}
-        minScale={.5}
+        initialScale={0.5}
+        minScale={0.5}
         maxScale={1.8}
         // initialPositionX={200}
         // initialPositionY={100}
         doubleClick={{ disabled: true }}
         onZoom={updateXarrow}
-        onZoomStop={console.log("stop zooming")}
+        onZoomStop={handleZoomPanPinch}
         onPinching={updateXarrow}
         onPinchingStop={handleZoomPanPinch}
         onPanning={updateXarrow}
-        onPanningStop={console.log("stop panning")}
+        onPanningStop={handleZoomPanPinch}
       >
-        
         <TransformComponent
           wrapperStyle={{ width: "100%", height: "100%" }}
-          contentStyle={{ width: "100%", height: "250%" }}
-          
+          contentStyle={{ width: "250%", height: "250%" }}
         >
-          
-          <svg
-            width={"100%"}
-            onClick={handleClick}
-          >
+          <svg width={"100%"} onClick={handleClick}>
             {graph.nodes.map((node) => (
               <DataElement
                 data={node}
@@ -195,15 +273,15 @@ export const FlowChart = ({ graph, dataObjectId }) => {
           </svg>
         </TransformComponent>
         {edges.map((edge) => (
-            <Xarrow
-              path="smooth"
-              curveness={0.2}
-              strokeWidth={1}
-              start={String(edge.sourceId)}
-              end={String(edge.targetId)}
-              SVGcanvasStyle={{ overflow: "hidden" }}
-            />
-          ))}
+          <Xarrow
+            path="smooth"
+            curveness={0.2}
+            strokeWidth={1}
+            start={String(edge.sourceId)}
+            end={String(edge.targetId)}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+          />
+        ))}
       </TransformWrapper>
     </Xwrapper>
   );

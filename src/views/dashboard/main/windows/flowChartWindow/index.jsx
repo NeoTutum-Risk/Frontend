@@ -51,7 +51,7 @@ export const FlowChartWindow = ({
   }, [getEdges]);
   // console.log(preparedNodes);
   const onNetworkChange = useCallback(async (data) => {
-    const { sourceId, targetId, name } = data;
+    const { sourceId, targetId, option } = data;
     if (!sourceId || !targetId) {
       // console.log(data);
       return;

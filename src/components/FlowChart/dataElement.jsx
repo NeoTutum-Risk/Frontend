@@ -3,7 +3,7 @@ import "./dataElement.css";
 import { Tooltip } from "./dataElementTooltip";
 import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
 export const DataElement = ({ data, elementSelection, showContext,selectedElements }) => {
-  console.log(`element rerendered ${data.id}`)
+  // console.log(`element rerendered ${data.id}`)
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
@@ -96,7 +96,6 @@ export const DataElement = ({ data, elementSelection, showContext,selectedElemen
     },
     [tooltipTimer]
   );
-
   return (
     <>
       <g
