@@ -236,6 +236,8 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
 
   const handleZoomPanPinch = useCallback(() => {
     updateXarrow();
+    setTimeout(updateXarrow, 0);
+    setTimeout(updateXarrow, 100);
     setTimeout(updateXarrow, 300);
     setTimeout(updateXarrow, 500);
     console.log("ZOOMPANPINCH");

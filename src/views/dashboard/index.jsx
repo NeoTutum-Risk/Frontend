@@ -1,5 +1,6 @@
 import { Main } from './main'
 import { SideNavigator } from './sideNavigator'
+import { CollapsePanel } from './main/collapsePanel'
 import styles from './styles.module.scss'
 
 export const Dashboard = () => {
@@ -7,6 +8,7 @@ export const Dashboard = () => {
     <div className={styles.container}>
       <SideNavigator />
       <Main />
+      <CollapsePanel />
     </div>
   )
 }

@@ -30,7 +30,7 @@ import {
   showWarningToaster,
 } from "../../../../utils/toaster";
 import { xmlParser } from "../../../../utils/xmlParser";
-
+import { windowDefault } from "../../../../constants";
 export const Portfolios = () => {
   const [portfolios, setPortfolios] = useRecoilState(protfoliosState);
   const [nodes, setNodes] = useState(null);
@@ -98,7 +98,18 @@ export const Portfolios = () => {
       setWindows((prevWindows) =>
         prevWindows.find((window) => window.data.id === data.id)
           ? prevWindows
-          : [{ type, data, id: generateID(), collapse: false }, ...prevWindows]
+          : [
+              {
+                type,
+                data,
+                id: generateID(),
+                collapse: false,
+                width: windowDefault.width,
+                height: windowDefault.height,
+                maximized: false
+              },
+              ...prevWindows,
+            ]
       );
     },
     [setWindows]

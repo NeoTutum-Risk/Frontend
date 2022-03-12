@@ -10,7 +10,7 @@ import {
 } from "../../../../services";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
-
+import { windowDefault } from "../../../../constants";
 export const AddWindowsButton = ({ data }) => {
   const [isLoading, setIsLoading] = useState(false);
   const setWindowsState = useSetRecoilState(windowsState);
@@ -24,6 +24,9 @@ export const AddWindowsButton = ({ data }) => {
         type: "data",
         data: { type: "BPMN Associations", associations: data.data },
         collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
       },
       ...prevWindows,
     ]);
@@ -40,6 +43,9 @@ export const AddWindowsButton = ({ data }) => {
         type: "data",
         data: { type: "BPMN Entities", entities: data.data },
         collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
       },
       ...prevWindows,
     ]);
@@ -56,6 +62,9 @@ export const AddWindowsButton = ({ data }) => {
         type: "data",
         data: { type: "BPMN SequenceFlows", sequenceFlows: data.data },
         collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
       },
       ...prevWindows,
     ]);
@@ -71,6 +80,9 @@ export const AddWindowsButton = ({ data }) => {
         type: "data",
         data: { type: "Lanes", lanes: data.data },
         collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
       },
       ...prevWindows,
     ]);
@@ -120,13 +132,16 @@ export const AddWindowsButton = ({ data }) => {
             })),
           },
           collapse: false,
+          width: windowDefault.width,
+          height: windowDefault.height,
+          maximized: false,
         },
         ...prevWindows,
       ]);
       setIsLoading(false);
       console.log(levelData);
     },
-    [data.data.dataObjectLevels, setWindowsState]
+    [data.data.dataObjectLevels, setWindowsState,data.data.id]
   );
 
   return (

@@ -33,6 +33,7 @@ import {
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import { mapStatusToIcon } from "../../../../utils/mapStatusToIcon";
+import {windowDefault} from "../../../../constants";
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -697,6 +698,9 @@ export const ReferenceGroups = () => {
                 data: nodeData.data.data,
                 id: generateID(),
                 collapse: false,
+                width: windowDefault.width,
+                height: windowDefault.height,
+                maximized: false
               },
               ...prevWindows,
             ]

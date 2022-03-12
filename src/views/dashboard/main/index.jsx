@@ -52,12 +52,12 @@ export const Main = () => {
 
   // handles the arrangment of the new order of the elements list after the DnD happened
   const onSortEnd = ({ oldIndex, newIndex }) => {
-    setWindows(arrayMoveImmutable(windows, oldIndex, newIndex));
+    setWindows(arrayMoveImmutable(windows.filter(window=>!window.collapse), oldIndex, newIndex));
   };
 
   // to display each element
   const SortableItem = SortableElement(({ value: window }) => (
-    <div>
+    <>
       {window.type === "bpmn" && window.collapse === false && (
         <GraphWindow
           key={window.id}
@@ -85,7 +85,7 @@ export const Main = () => {
           onRestore={() => windowRestoreHandler(window.id)}
         />
       )}
-    </div>
+    </>
   ));
 
   // to display the array of element
@@ -93,7 +93,7 @@ export const Main = () => {
     return (
       <div className={styles.mainContainer}>
         <Async>
-          {items.map((window, index) => (
+          {items.filter(window=>!window.collapse).map((window, index) => (
             <SortableItem
               key={`item-${window.id}`}
               index={index}
@@ -101,26 +101,9 @@ export const Main = () => {
             />
           ))}
         </Async>
-        <CollapsePanel key="collapsePanel">
-          {items.map((window) => (
-            <>
-              {window.collapse === true && (
-                <CollapsedWindow
-                  key={window.id}
-                  window={window}
-                  title={
-                    window.type === "bpmn"
-                      ? window.data.fileName
-                      : window.data.type
-                  }
-                  onClose={() => windowCloseHandler(window.id)}
-                  onCollapse={() => windowCollapseHandler(window.id)}
-                  onRestore={() => windowRestoreHandler(window.id)}
-                />
-              )}
-            </>
-          ))}
-        </CollapsePanel>
+        {/* <CollapsePanel key="collapsePanel">
+          
+        </CollapsePanel> */}
       </div>
     );
   });

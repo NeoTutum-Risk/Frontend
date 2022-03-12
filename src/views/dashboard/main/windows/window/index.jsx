@@ -142,15 +142,47 @@ export const Window = ({
     },
     [setWindows]
   );
+
+  const handleWindowResize = useCallback((delta) => {
+    setWindows((prev) =>
+      prev.map((storedWindow) => {
+        if (storedWindow.id === window.id) {
+          return {
+            ...storedWindow,
+            width: storedWindow.width + delta.width,
+            height: storedWindow.height + delta.height,
+          };
+        } else {
+          return storedWindow;
+        }
+      })
+    );
+  },[setWindows,window.id]);
+
+  const handleMaximize = useCallback(()=>{
+    setWindows((prev) =>
+      prev.map((storedWindow) => {
+        if (storedWindow.id === window.id) {
+          return {
+            ...storedWindow,
+            maximized:!storedWindow.maximized
+          };
+        } else {
+          return storedWindow;
+        }
+      })
+    );
+  },[setWindows,window.id])
   return (
     <Resizable
       className={
-        isMaximize ? styles.windowContainerMax : styles.windowContainer
+        window.maximized ? styles.windowContainerMax : styles.windowContainer
       }
-      width={500}
-      height={400}
+      width={window.width}
+      height={window.height}
       minWidth={500}
       minHeight={320}
+      onResizeStop={(e, d, r, delta) => handleWindowResize(delta)}
     >
       <Card
         className={`${styles.windowCard} `}
@@ -236,12 +268,10 @@ export const Window = ({
               />
             </Tooltip2>
             <Tooltip2
-              content={<span>{isMaximize ? "minimize" : "maximize"}</span>}
+              content={<span>{window.maximized ? "minimize" : "maximize"}</span>}
             >
               <Button
-                onClick={() =>
-                  setIsMaximize((prevIsMaximize) => !prevIsMaximize)
-                }
+                onClick={handleMaximize}
                 icon={isMaximize ? "minimize" : "maximize"}
                 small
                 intent={Intent.PRIMARY}
