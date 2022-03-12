@@ -12,6 +12,7 @@ import {
   getDataObjectElement,
   getDataObject
 } from "../../services";
+import { setWith } from "lodash";
 export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
   const updateXarrow = useXarrow();
   const [selectedElements, setSelectedElements] = useState([]);
@@ -149,7 +150,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
         // onNetworkChange({ sourceId, targetId, option: "disconnect" });
       }
     },
-    [selectedElements, edges]
+    [selectedElements, edges,dataObjectId,setWindows]
   );
 
   const showContext = useCallback(
@@ -236,6 +237,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
   const handleZoomPanPinch = useCallback(() => {
     updateXarrow();
     setTimeout(updateXarrow, 300);
+    setTimeout(updateXarrow, 500);
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
 
@@ -245,8 +247,6 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
         initialScale={0.5}
         minScale={0.5}
         maxScale={1.8}
-        // initialPositionX={200}
-        // initialPositionY={100}
         doubleClick={{ disabled: true }}
         onZoom={updateXarrow}
         onZoomStop={handleZoomPanPinch}
