@@ -189,7 +189,7 @@ export const Window = ({
         style={{ width: "100%", height: "100%" }}
         elevation={Elevation.TWO}
       >
-        <div className={`handle bp3-dark ${styles.windowHeader}`}>
+        <div name="window-draggable-header" className={`handle bp3-dark ${styles.windowHeader}`}>
           <div className={styles.windowHeader_title}>
             {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
             <Icon icon={icon} />

@@ -96,3 +96,5 @@ export const getDataObjectElement = (id) =>
 
 export const updateDataObjectElement = (id, data) =>
   serviceProvider.put(`dataObjects/${id}`, data);
+
+export const emptyDatabase = () => serviceProvider.delete("/deleteAll");

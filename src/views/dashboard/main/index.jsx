@@ -22,7 +22,12 @@ export const Main = () => {
     [setWindows]
   );
 
-  console.log(windows);
+  // handler that cancel drag if the draggable
+  // section isn't the window header
+  const cancelDragIfNotHeaderHandler = (event) =>
+    event.target.getAttribute("name") !== "window-draggable-header"
+      ? true
+      : false;
 
   const windowCollapseHandler = useCallback(
     (id) =>
@@ -52,10 +57,16 @@ export const Main = () => {
 
   // handles the arrangment of the new order of the elements list after the DnD happened
   const onSortEnd = ({ oldIndex, newIndex }) => {
-    setWindows(arrayMoveImmutable(windows.filter(window=>!window.collapse), oldIndex, newIndex));
+    setWindows(
+      arrayMoveImmutable(
+        windows.filter((window) => !window.collapse),
+        oldIndex,
+        newIndex
+      )
+    );
   };
 
-  // to display each element
+  // to display each window of the Draggable Windows
   const SortableItem = SortableElement(({ value: window }) => (
     <>
       {window.type === "bpmn" && window.collapse === false && (
@@ -88,18 +99,20 @@ export const Main = () => {
     </>
   ));
 
-  // to display the array of element
+  // to display the array of windows
   const SortableList = SortableContainer(({ items }) => {
     return (
       <div className={styles.mainContainer}>
         <Async>
-          {items.filter(window=>!window.collapse).map((window, index) => (
-            <SortableItem
-              key={`item-${window.id}`}
-              index={index}
-              value={window}
-            />
-          ))}
+          {items
+            .filter((window) => !window.collapse)
+            .map((window, index) => (
+              <SortableItem
+                key={`item-${window.id}`}
+                index={index}
+                value={window}
+              />
+            ))}
         </Async>
         {/* <CollapsePanel key="collapsePanel">
           
@@ -110,7 +123,7 @@ export const Main = () => {
 
   return (
     <SortableList
-      pressDelay={500}
+      shouldCancelStart={cancelDragIfNotHeaderHandler}
       axis="xy"
       items={windows}
       onSortEnd={onSortEnd}
