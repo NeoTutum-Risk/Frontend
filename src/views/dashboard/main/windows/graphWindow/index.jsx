@@ -64,7 +64,8 @@ export const GraphWindow = ({
       if (autoSave) {
         saveBpmn(data);
       }
-      const sequenceFlows = await getBpmnSequenceFlows();
+      setTimeout(async () => {
+        const sequenceFlows = await getBpmnSequenceFlows();
       const entities = await getBpmnEntities();
 
       setWindows((prev) => {
@@ -92,6 +93,8 @@ export const GraphWindow = ({
           return window
         });
       });
+      }, 500);
+      
     },
     [autoSave, saveBpmn, setbpmn,setWindows,windows]
   );

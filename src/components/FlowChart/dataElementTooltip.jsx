@@ -4,7 +4,7 @@ export const Tooltip = ({ x, y, data }) => {
     <g >
       <rect
         height={60}
-        width={250}
+        width={300}
         rx={10}
         x={x}
         y={y}

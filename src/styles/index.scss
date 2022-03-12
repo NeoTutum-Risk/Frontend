@@ -1,14 +1,14 @@
-@import '~normalize.css';
-@import '~@blueprintjs/core/lib/css/blueprint.css';
-@import '~@blueprintjs/icons/lib/css/blueprint-icons.css';
-@import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
-@import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
-@import '~@blueprintjs/table/lib/css/table-modern.css';
+@import "~normalize.css";
+@import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+@import "~@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+@import "~@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+@import "~@blueprintjs/table/lib/css/table-modern.css";
 // @import '~@blueprintjs/datetime/lib/css/blueprint-datetime.css';
-@import '~bpmn-js/dist/assets/diagram-js.css';
-@import '~bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
-@import '~diagram-js-minimap/assets/diagram-js-minimap.css';
-@import '~react-resizable/css/styles.css';
+@import "~bpmn-js/dist/assets/diagram-js.css";
+@import "~bpmn-js/dist/assets/bpmn-font/css/bpmn.css";
+@import "~diagram-js-minimap/assets/diagram-js-minimap.css";
+@import "~react-resizable/css/styles.css";
 
 html,
 body,
@@ -40,21 +40,23 @@ body,
   display: none;
 }
 
-.djs-container{
-  overflow:"visible"
+.djs-container {
+  overflow: visible !important;
 }
-.djs-palette{
+.djs-palette {
   position: absolute;
   transform: translate(-100px, 0%);
-  left:calc(2px);
-  top:2px;
+  left: calc(2px);
+  top: 2px;
   // background:#EBEEFF;
   border-radius: 6px;
-  border:1px solid #555;
+  border: 1px solid #555;
   zoom: 0.8;
   -moz-transform: scale(0.8);
 }
-
-.ag-root-wrapper{
+.djs-palette.two-column.open {
+  width: 100px;
+}
+.ag-root-wrapper {
   padding-bottom: 10px !important;
 }

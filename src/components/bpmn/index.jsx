@@ -60,9 +60,6 @@ export const Bpmn = memo(({ xml = "", onChange, onClick }) => {
       })
     );
 
-    document.getElementsByClassName("djs-container")[0].style.overflow =
-      "visible";
-
     return () => {
       modelerRef.current = null;
     };

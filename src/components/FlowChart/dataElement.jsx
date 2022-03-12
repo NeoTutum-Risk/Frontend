@@ -1,15 +1,21 @@
 import { useCallback, useState } from "react";
 import "./dataElement.css";
 import { Tooltip } from "./dataElementTooltip";
-import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
-export const DataElement = ({ data, elementSelection, showContext,selectedElements }) => {
-  console.log(`element rerendered ${data.id}`)
+import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
+import { updateDataObjectElement } from "../../services";
+export const DataElement = ({
+  data,
+  elementSelection,
+  showContext,
+  selectedElements,
+}) => {
+  // console.log(`element rerendered ${data.id}`)
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
     active: false,
-    cy: data.y + 10,
-    cx: data.x + 100 * data.level_value,
+    cy: data.y + 20,
+    cx: data.x + 200 + 100 * data.level_value,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -45,9 +51,15 @@ export const DataElement = ({ data, elementSelection, showContext,selectedElemen
     },
     [drag.active]
   );
-
+  const updateLocation = useCallback(async () => {
+    const updateElementPosition = await updateDataObjectElement(data.id, {
+      x: drag.cx - 200 - 100 * data.level_value,
+      y: drag.cy - 20,
+    });
+    console.log(updateElementPosition);
+  }, [data.id,data.level_value, drag.cx, drag.cy]);
   const endDrag = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
       setDrag((prev) => ({ ...prev, active: false }));
       clearTimeout(tooltipTimer);
@@ -62,13 +74,18 @@ export const DataElement = ({ data, elementSelection, showContext,selectedElemen
       e.preventDefault();
       if (e.detail !== 2) return;
       console.log("Selecting ....");
-      elementSelection(data, selectedElements.find((element) => element.id === data.id)?false:true);
+      elementSelection(
+        data,
+        selectedElements.find((element) => element.id === data.id)
+          ? false
+          : true
+      );
       // setActive((prev) => {
-        
+
       //   return !prev;
       // });
     },
-    [/*setActive,*/ elementSelection, data,selectedElements]
+    [/*setActive,*/ elementSelection, data, selectedElements]
   );
 
   const handleContext = useCallback(
@@ -76,8 +93,8 @@ export const DataElement = ({ data, elementSelection, showContext,selectedElemen
       e.preventDefault();
       showContext({
         ...data,
-        y: data.y + 10,
-        x: data.x + 100 * data.level_value,
+        y: data.y + 20,
+        x: data.x + 200 + 100 * data.level_value,
       });
       // console.log("cm", data);
     },
@@ -96,20 +113,25 @@ export const DataElement = ({ data, elementSelection, showContext,selectedElemen
     },
     [tooltipTimer]
   );
-
   return (
     <>
       <g
         onClick={handleClick}
         onPointerDown={startDrag}
         onPointerMove={handleDragging}
-        onPointerUp={endDrag}
+        onPointerUp={(e) => {
+          endDrag(e);
+          updateLocation();
+        }}
         onPointerLeave={endDrag}
         onContextMenu={handleContext}
         onMouseOver={handleMouseOver}
-        className={selectedElements.find((element) => element.id === data.id) ? "activeCircleElement" : "circleElement"}
+        className={
+          selectedElements.find((element) => element.id === data.id)
+            ? "activeCircleElement"
+            : "circleElement"
+        }
         id={data.id}
-        
       >
         {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
         {/* <circle r={25} cy={drag.cy} cx={drag.cx} /> */}

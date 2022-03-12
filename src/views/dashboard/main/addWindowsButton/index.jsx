@@ -10,8 +10,7 @@ import {
 } from "../../../../services";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
-import styles from "../../styles.module.scss";
-
+import { windowDefault } from "../../../../constants";
 export const AddWindowsButton = ({ data }) => {
   const [isLoading, setIsLoading] = useState(false);
   const setWindowsState = useSetRecoilState(windowsState);
@@ -25,6 +24,9 @@ export const AddWindowsButton = ({ data }) => {
         type: "data",
         data: { type: "BPMN Associations", associations: data.data },
         collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
       },
       ...prevWindows,
     ]);
@@ -41,6 +43,9 @@ export const AddWindowsButton = ({ data }) => {
         type: "data",
         data: { type: "BPMN Entities", entities: data.data },
         collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
       },
       ...prevWindows,
     ]);
@@ -57,6 +62,9 @@ export const AddWindowsButton = ({ data }) => {
         type: "data",
         data: { type: "BPMN SequenceFlows", sequenceFlows: data.data },
         collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
       },
       ...prevWindows,
     ]);
@@ -72,6 +80,9 @@ export const AddWindowsButton = ({ data }) => {
         type: "data",
         data: { type: "Lanes", lanes: data.data },
         collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
       },
       ...prevWindows,
     ]);
@@ -90,26 +101,47 @@ export const AddWindowsButton = ({ data }) => {
           data: {
             type: "Level Data",
             levelName: levelData.name,
+            levelDataObject: data.data.id,
             levelData: levelData.dataObjectElements.map((element) => ({
-              ...element,
+              id: element.id,
+              label: element.label,
+              levelId: element.levelId,
+              name: element.name,
+              status: element.status,
               ConnectedTo:
                 element.dataObjectConnections.length > 0
                   ? element.dataObjectConnections.reduce((con, acc) => {
-                    const returned = con += ` ${acc.targetId}`
-                    console.log("reduce",returned);
+                      console.log(
+                        "elements",
+                        data.data.dataObjectLevels
+                          .flat()
+                          .map((level) => level.dataObjectElements)
+                          .flat()
+                      );
+                      const returned = (con += ` ${
+                        data.data.dataObjectLevels
+                          .flat()
+                          .map((level) => level.dataObjectElements)
+                          .flat()
+                          .find((item) => item.id === acc.targetId).label
+                      }`);
+                      console.log("reduce", returned);
                       return returned;
                     }, "")
                   : "",
             })),
           },
           collapse: false,
+          width: windowDefault.width,
+          height: windowDefault.height,
+          maximized: false,
         },
         ...prevWindows,
       ]);
       setIsLoading(false);
       console.log(levelData);
     },
-    [data.data.dataObjectLevels, setWindowsState]
+    [data.data.dataObjectLevels, setWindowsState,data.data.id]
   );
 
   return (
