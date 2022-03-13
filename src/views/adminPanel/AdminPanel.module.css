@@ -45,3 +45,9 @@
   margin: 0 2rem;
   background-color: rgb(238, 238, 238) !important;
 }
+
+.emptyDatabase {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
