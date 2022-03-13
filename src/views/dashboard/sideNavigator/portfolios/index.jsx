@@ -475,6 +475,7 @@ export const Portfolios = () => {
         updatePlatform({ file: EMPTY_BPMN, bpmnId: data.data.id });
         addNewWindow({ type: "bpmn", data: data.data });
         showSuccessToaster(`New bpmn graph added successfully`);
+        setIsAddServiceLoading(false);
       } catch (error) {
         setElmentToPlatformNameError(error.message);
         showDangerToaster(error.message);
