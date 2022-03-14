@@ -50,13 +50,8 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
           targetId: targetElement.id,
         };
         const response = await addNewElementsConnection(payload);
-        // if(response.status===200){
-        // onNetworkChange({
-        //   sourceId: sourceElement,
-        //   targetId: targetElement,
-        //   option: "connect",
-        // });
-        const changedElement = await getDataObjectElement(sourceElement.id);
+        
+       /* const changedElement = await getDataObjectElement(sourceElement.id);
         const dataObject = await getDataObject(dataObjectId);
         setWindows((prev) => {
           return prev.map((window) => {
@@ -88,7 +83,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
               return window;
             }
           });
-        });
+        });*/
         console.log("new connection", response.data.data);
         setEdges((prev) => [...prev, response.data.data]);
         setSelectedElements([]);
@@ -113,7 +108,8 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
         });
 
         setEdges((prev) => prev.filter((edge) => edge.id !== connection.id));
-        const changedElement = await getDataObjectElement(sourceId);
+
+        /*const changedElement = await getDataObjectElement(sourceId);
         const dataObject = await getDataObject(dataObjectId);
         setWindows((prev) => {
           return prev.map((window) => {
@@ -145,7 +141,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
               return window;
             }
           });
-        });
+        });*/
         setSelectedElements([]);
         console.log(connection, response);
         // onNetworkChange({ sourceId, targetId, option: "disconnect" });
