@@ -18,6 +18,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
   const [selectedElements, setSelectedElements] = useState([]);
   const [windows, setWindows] = useRecoilState(windowsState);
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
+  const [nodes,setNodes]= useState([]);
 
   const [edges, setEdges] = useState([]);
 
@@ -59,7 +60,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
         const dataObject = await getDataObject(dataObjectId);
         setWindows((prev) => {
           return prev.map((window) => {
-            if (window.data.levelDataObject === dataObjectId) {
+            if (window.data.levelDataObject === dataObjectId && window.type==="data") {
               return {
                 ...window,
                 data: {
@@ -116,7 +117,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
         const dataObject = await getDataObject(dataObjectId);
         setWindows((prev) => {
           return prev.map((window) => {
-            if (window.data.levelDataObject === dataObjectId) {
+            if (window.data.levelDataObject === dataObjectId  && window.type==="data") {
               return {
                 ...window,
                 data: {

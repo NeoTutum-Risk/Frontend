@@ -99,6 +99,7 @@ export const ReferenceGroups = () => {
     setDataObjectType(null);
     setDataObjectLevels(1);
     setDataObjectLevelsInput([]);
+    setIsLoading(false);
   }, [
     setReferenceGroupPopOverOpenId,
     setDataObjectType,
@@ -367,10 +368,10 @@ export const ReferenceGroups = () => {
             };
           }),
         };
-        console.log("payload", payload);
+        
         const response = await addDataObject(payload);
-
-        if (response.data.error) {
+        console.log("payload", payload,response,response.status);
+        if (response.data.error && response.status!==200) {
           showDangerToaster(
             `Error Creating Data Object: ${response.data.error}`
           );

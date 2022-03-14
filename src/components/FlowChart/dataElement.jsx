@@ -93,12 +93,12 @@ export const DataElement = ({
       e.preventDefault();
       showContext({
         ...data,
-        y: data.y + 20,
-        x: data.x + 200 + 100 * data.level_value,
+        y: drag.cy,
+        x: drag.cx,
       });
       // console.log("cm", data);
     },
-    [showContext, data]
+    [showContext,drag, data]
   );
 
   const handleMouseOver = useCallback(
@@ -148,10 +148,10 @@ export const DataElement = ({
       </g>
       {showTooltip && !drag.active && (
         <Tooltip
-          x={drag.cx}
-          y={drag.cy}
-          tx={drag.cx + 15}
-          ty={drag.cy + 15}
+          x={drag.cx+ 200 + 100 * data.level_value}
+          y={drag.cy+ 20}
+          tx={drag.cx + 15+ 200 + 100 * data.level_value}
+          ty={drag.cy + 15+ 20}
           data={{
             description: data.description,
             name: data.name,
