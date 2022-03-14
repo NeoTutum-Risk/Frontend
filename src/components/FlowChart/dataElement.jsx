@@ -148,10 +148,10 @@ export const DataElement = ({
       </g>
       {showTooltip && !drag.active && (
         <Tooltip
-          x={drag.cx+ 200 + 100 * data.level_value}
-          y={drag.cy+ 20}
-          tx={drag.cx + 15+ 200 + 100 * data.level_value}
-          ty={drag.cy + 15+ 20}
+          x={drag.cx}
+          y={drag.cy}
+          tx={drag.cx}
+          ty={drag.cy}
           data={{
             description: data.description,
             name: data.name,
