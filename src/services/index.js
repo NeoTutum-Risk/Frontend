@@ -26,6 +26,12 @@ export const addNewPortfolio = (data) =>
 export const addNewPlatform = (data) =>
   serviceProvider.post("/platforms", data);
 
+export const addNewRiskAssessment = (data) =>
+  serviceProvider.post("/riskAssessments", data);
+
+export const addNewRiskObject = (data) =>
+  serviceProvider.post("/riskObjects", data);
+
 export const addNewElementsConnection = (data) =>
   serviceProvider.post("/dataObjectConnections", data);
 

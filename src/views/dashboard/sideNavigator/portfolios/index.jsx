@@ -8,6 +8,7 @@ import {
   Menu,
   MenuItem,
   Tree,
+  HTMLSelect,
 } from "@blueprintjs/core";
 import { Classes, Popover2, Tooltip2 } from "@blueprintjs/popover2";
 import cloneDeep from "lodash/cloneDeep";
@@ -17,11 +18,16 @@ import { EMPTY_BPMN } from "../../../../constants";
 import {
   addNewBpmn,
   addNewPlatform,
+  addNewRiskAssessment,
   addServiceChain,
   archiveBpmn,
   updateBpmnStatus,
 } from "../../../../services";
-import { platformState, protfoliosState } from "../../../../store/portfolios";
+import {
+  platformState,
+  protfoliosState,
+} from "../../../../store/portfolios";
+import { referenceGroupsState } from "../../../../store/referenceGroups";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import {
@@ -32,6 +38,9 @@ import {
 import { xmlParser } from "../../../../utils/xmlParser";
 import { windowDefault } from "../../../../constants";
 export const Portfolios = () => {
+  const [serviceChainAction, setServiceChainAction] = useState(null);
+  const [referenceGroups, setReferenceGroups] =
+    useRecoilState(referenceGroupsState);
   const [portfolios, setPortfolios] = useRecoilState(protfoliosState);
   const [nodes, setNodes] = useState(null);
   const [portfolioPopOver, setPortfolioPopOver] = useState(null);
@@ -43,6 +52,11 @@ export const Portfolios = () => {
   const [isAddServiceLoading, setIsAddServiceLoading] = useState(false);
   const [newPlatformName, setNewPlatformName] = useState(null);
   const [newPlatformNameError, setNewPlatformNameError] = useState(null);
+  const [newRiskAssessmentName, setNewRiskAssessmentName] = useState(null);
+  const [riskAssessmentReferenceGroupId, setRiskAssessmentReferenceGroupId] =
+    useState(null);
+  const [newRiskAssessmentNameError, setNewRiskAssessmentNameError] =
+    useState(null);
   const [serviceChainPopOver, setServiceChainPopOver] = useState(null);
   const [serviceChainPopOverOpenId, setServiceChainPopOverOpenId] =
     useState(null);
@@ -106,7 +120,7 @@ export const Portfolios = () => {
                 collapse: false,
                 width: windowDefault.width,
                 height: windowDefault.height,
-                maximized: false
+                maximized: false,
               },
               ...prevWindows,
             ]
@@ -292,6 +306,80 @@ export const Portfolios = () => {
     [newPlatformName, serviceChainPopOver, setPortfolios]
   );
 
+  const addRiskAssessment = useCallback(
+    async (event) => {
+      event.preventDefault();
+
+      if (!newRiskAssessmentName) {
+        return setNewRiskAssessmentNameError("Name is required");
+      }
+
+      try {
+        setIsAddServiceLoading(true);
+        setNewRiskAssessmentNameError(null);
+
+        const { data } = await addNewRiskAssessment({
+          name: newRiskAssessmentName,
+          referenceGroupId: riskAssessmentReferenceGroupId,
+          serviceChainId: serviceChainPopOver.serviceChainId,
+        });
+
+        setPortfolios((prevPortfolios) => ({
+          ...prevPortfolios,
+          data: prevPortfolios.data.map((portfolio) =>
+            portfolio.id === serviceChainPopOver.portfolioId
+              ? {
+                  ...portfolio,
+                  serviceChains:
+                    portfolio?.serviceChains.map((serviceChain) =>
+                      serviceChainPopOver.serviceChainId === serviceChain.id
+                        ? {
+                            ...serviceChain,
+                            riskAssessments: serviceChain?.riskAssessments
+                              ? [data.data, ...serviceChain.riskAssessments]
+                              : [data.data],
+                          }
+                        : serviceChain
+                    ) ?? [],
+                }
+              : portfolio
+          ),
+        }));
+
+        setIsAddServiceLoading(false);
+        setServiceChainPopOverOpenId(null);
+        setServiceChainAction(null);
+        setNewRiskAssessmentName(null);
+        setRiskAssessmentReferenceGroupId(null);
+        setNodes((prevNodes) =>
+          setNodeAttribute(
+            prevNodes,
+            [
+              serviceChainPopOver.portfolioIdx,
+              serviceChainPopOver.serviceChainIdx,
+            ],
+            "isExpanded",
+            true
+          )
+        );
+
+        showSuccessToaster(
+          `${newRiskAssessmentName} has been successfully created`
+        );
+      } catch (error) {
+        setNewRiskAssessmentNameError(error.message);
+        showDangerToaster(error.message);
+        setIsAddServiceLoading(false);
+      }
+    },
+    [
+      newRiskAssessmentName,
+      riskAssessmentReferenceGroupId,
+      serviceChainPopOver,
+      setPortfolios,
+    ]
+  );
+
   const ServiceChainPopOverContent = useMemo(
     () => (
       <div key="text3">
@@ -372,7 +460,13 @@ export const Portfolios = () => {
       portfolioId,
       portfolioIdx,
       serviceChainIdx,
+      action,
     }) => {
+      if (action === "platform") {
+        setServiceChainAction("platform");
+      } else if (action === "risk") {
+        setServiceChainAction("risk");
+      }
       setNewPlatformName(null);
       setNewPlatformNameError(null);
       setServiceChainPopOver({
@@ -543,6 +637,84 @@ export const Portfolios = () => {
       </div>
     ),
     [addPlatform, isAddServiceLoading, newPlatformNameError]
+  );
+
+  const riskAssessmentPopOverContent = useMemo(
+    () => (
+      <div key="text2">
+        <H5>New Risk Assessment</H5>
+        <form onSubmit={addRiskAssessment}>
+          <FormGroup
+            label="Name"
+            labelInfo="(required)"
+            intent={newRiskAssessmentNameError ? Intent.DANGER : Intent.NONE}
+            helperText={newRiskAssessmentNameError}
+            labelFor="newRiskAssessmentName1"
+          >
+            <InputGroup
+              required
+              id="newRiskAssessmentName1"
+              onChange={(event) => {
+                setNewRiskAssessmentNameError(false);
+                setNewRiskAssessmentName(event.target.value);
+              }}
+            />
+          </FormGroup>
+          <FormGroup
+            label="Type"
+            labelInfo="(required)"
+            intent={false ? Intent.DANGER : Intent.NONE}
+            // helperText="Error"
+            labelFor="Type"
+          >
+            <HTMLSelect
+              onChange={(e) =>
+                setRiskAssessmentReferenceGroupId(Number(e.target.value))
+              }
+            >
+              <option selected disabled>
+                Select Reference Group
+              </option>
+              {referenceGroups ? (
+                referenceGroups.data.map((data) => {
+                  return <option value={data.id}>{data.name}</option>;
+                })
+              ) : (
+                <option>Loading Data</option>
+              )}
+            </HTMLSelect>
+          </FormGroup>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: 15,
+            }}
+          >
+            <Button
+              className={Classes.POPOVER2_DISMISS}
+              disabled={isAddServiceLoading}
+              style={{ marginRight: 10 }}
+              onClick={() => {
+                setNewRiskAssessmentNameError(false);
+                setServiceChainPopOverOpenId(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              loading={isAddServiceLoading}
+              intent={Intent.SUCCESS}
+              className={Classes.POPOVER2_DISMISS}
+            >
+              Add
+            </Button>
+          </div>
+        </form>
+      </div>
+    ),
+    [addRiskAssessment,referenceGroups, isAddServiceLoading, newRiskAssessmentNameError]
   );
 
   const BpmnPopOverContent = useMemo(
@@ -735,19 +907,7 @@ export const Portfolios = () => {
                       })
                     }
                   />
-                  <MenuItem
-                    textClassName="target_menu"
-                    icon="plus"
-                    text="New Risk Assessment"
-                    onClick={() =>
-                      onPortfolioMenuClick({
-                        portfolioId: portfolio.id,
-                        type: "New Risk Assessment",
-                        portfolio,
-                        portfolioIdx,
-                      })
-                    }
-                  />
+
                   <MenuItem
                     textClassName="target_menu"
                     icon="plus"
@@ -809,7 +969,11 @@ export const Portfolios = () => {
             label: (
               <Popover2
                 popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
-                content={PlatformPopOverContent}
+                content={
+                  serviceChainAction === "platform" && serviceChainAction
+                    ? PlatformPopOverContent
+                    : riskAssessmentPopOverContent
+                }
                 isOpen={serviceChain.id === serviceChainPopOverOpenId}
               >
                 <Popover2
@@ -826,6 +990,22 @@ export const Portfolios = () => {
                             portfolioId: portfolio.id,
                             portfolioIdx,
                             serviceChainIdx,
+                            action: "platform",
+                          })
+                        }
+                      />
+                      <MenuItem
+                        textClassName="target_menu"
+                        icon="plus"
+                        text="New Risk Assessment"
+                        onClick={() =>
+                          onServiceChainMenuClick({
+                            serviceChain,
+                            serviceChainId: serviceChain.id,
+                            portfolioId: portfolio.id,
+                            portfolioIdx,
+                            serviceChainIdx,
+                            action: "risk",
                           })
                         }
                       />
@@ -839,7 +1019,14 @@ export const Portfolios = () => {
             ),
             nodeData: { type: "serviceChain", data: serviceChain },
             childNodes:
-              serviceChain?.platforms?.map((platform, platformIdx) => ({
+            (serviceChain?.riskAssessments?.map((riskAssessment, riskAssessmentIdx)=>({
+              id:riskAssessment.id,
+              label:riskAssessment.name,
+              icon:"derive-column",
+              nodeData: { type:"risk assessment", data: riskAssessment }
+              
+            }))??[]).concat
+              (serviceChain?.platforms?.map((platform, platformIdx) => ({
                 id: platform.id,
                 hasCaret: platform?.bpmnFiles?.length > 0,
                 icon: "application",
@@ -991,7 +1178,7 @@ export const Portfolios = () => {
                       </Popover2>
                     ),
                   })) ?? [],
-              })) ?? [],
+              })) ?? []),
           })) ?? [],
       }))
     );
@@ -1014,15 +1201,23 @@ export const Portfolios = () => {
     bpmnContextMenu,
     onBpmnStateChange,
     onBpmnArchive,
+    riskAssessmentPopOverContent,
+    serviceChainAction
   ]);
 
   const onNodeClick = useCallback(
     (node, nodePath) => {
-      if (node.nodeData.type !== "bpmn") return;
+      if (node.nodeData.type === "bpmn"){
+        addNewWindow({ type: "bpmn", data: node.nodeData.data });
+      }else if(node.nodeData.type === "risk assessment"){
+        addNewWindow({ type: "risk", data: node.nodeData.data });
+      }else{
+        return;
+      } 
 
       // setNodes(setNodesAttribute(nodes, 'isSelected', false))
       // setNodes(setNodeAttribute(nodes, nodePath, 'isSelected', true))
-      addNewWindow({ type: "bpmn", data: node.nodeData.data });
+      
     },
     [addNewWindow]
   );
