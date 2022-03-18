@@ -1,9 +1,12 @@
-import { windowsState } from "../../../../store/windows";
+import { windowsIds, windowsState } from "../../../../store/windows";
 import { useRecoilState } from "recoil";
-import {CollapsedWindow} from "../windows/collapsedWindow";
 import { useCallback } from "react";
+import CollapseWindowWrapper from "../../../../components/CollapseWindowWrapper";
 export const CollapsePanel = ({children}) => {
   const [windows, setWindows] = useRecoilState(windowsState);
+  const [windowsIdsList, setWindowsIdsList] = useRecoilState(windowsIds)
+
+
   const panelStyle = {
     position: "fixed",
     bottom: 10,
@@ -17,6 +20,7 @@ export const CollapsePanel = ({children}) => {
     paddingRight:"5px",
     
   };
+  /*
   const windowRestoreHandler = useCallback(
     (id) =>
       setWindows((prevWindows) => [
@@ -28,22 +32,12 @@ export const CollapsePanel = ({children}) => {
       ]),
     [setWindows]
   );
+  */
   return <div style={panelStyle}>
-    {windows.map((window) => (
-            <>
-              {window.collapse === true && (
-                <CollapsedWindow
-                  key={window.id}
-                  window={window}
-                  title={
-                    window.type === "bpmn"
-                      ? window.data.fileName
-                      : window.data.type
-                  }
-                  onRestore={() => windowRestoreHandler(window.id)}
-                />
-              )}
-            </>
+    {windowsIdsList.map((windowId) => (
+      <CollapseWindowWrapper
+      windowId={windowId}
+      />
           ))}
   </div>;
 };

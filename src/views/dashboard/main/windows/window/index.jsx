@@ -25,8 +25,8 @@ import {
   showWarningToaster,
   showDangerToaster,
 } from "../../../../../utils/toaster";
-import { windowsState } from "../../../../../store/windows";
-import { useRecoilState } from "recoil";
+import { windowAtom, windowsIds } from "../../../../../store/windows";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { useCallback } from "react";
 export const Window = ({
   icon,
@@ -37,21 +37,32 @@ export const Window = ({
   headerAdditionalContent = null,
   window,
 }) => {
-  const [windows, setWindows] = useRecoilState(windowsState);
+  //const [windows, setWindows] = useRecoilState(windowsState);
+  const [windowsIdsList, setWindowsIdsList] = useRecoilState(windowsIds)
+  const setWindow = useSetRecoilState(windowAtom(window.id))
   const [isMaximize, setIsMaximize] = useState(false);
   const [changeTypeLoading, setChangeTypeLoading] = useState(false);
 
+  console.log(window)
+
   const windowLocationHandler = useCallback(
     (id, location) => {
-      const windowIndex = windows.map((window) => window.id).indexOf(id);
-      const windowsLength = windows.length;
+      //const windowIndex = windows.map((window) => window.id).indexOf(id);
+      const windowIndex = windowsIdsList.map(windowId => windowId).indexOf(id);
+      console.log(windowIndex)
+      //const windowsLength = windows.length;
+      const windowsLength = windowsIdsList.length;
       if (location === "left" && windowIndex === 0) return;
       if (location === "right" && windowIndex === windowsLength - 1) return;
-      const windowData = windows[windowIndex];
+      //const windowData = windows[windowIndex];
+      const windowData = windowsIdsList[windowIndex];
       switch (location) {
         case "left":
           const leftIndex = windowIndex - 1;
-          const leftData = windows[leftIndex];
+          //const leftData = windows[leftIndex];
+          const leftData = windowsIdsList[leftIndex];
+          
+          /*
           setWindows((prevWindows) => {
             return prevWindows.map((window, index) => {
               if (index !== windowIndex && index !== leftIndex) {
@@ -67,11 +78,31 @@ export const Window = ({
               return {};
             });
           });
+          */
+
+          setWindowsIdsList(prevWindowsIds => {
+            return prevWindowsIds.map((windowId, index) => {
+              if (index !== windowIndex && index !== leftIndex) {
+                return windowId;
+              }
+              if (index === windowIndex) {
+                return leftData;
+              }
+              if (index === leftIndex) {
+                return windowData;
+              }
+
+              return "";
+            });
+          })
           break;
 
         case "right":
           const rightIndex = windowIndex + 1;
-          const rightData = windows[rightIndex];
+          //const rightData = windows[rightIndex];
+          const rightData = windowsIdsList[rightIndex];
+
+          /*
           setWindows((prevWindows) => {
             return prevWindows.map((window, index) => {
               if (index !== windowIndex && index !== rightIndex) {
@@ -87,13 +118,31 @@ export const Window = ({
               return {};
             });
           });
+          */
+
+
+          setWindowsIdsList(prevWindowsIds => {
+            return prevWindowsIds.map((windowId, index) => {
+              if (index !== windowIndex && index !== rightIndex) {
+                return windowId;
+              }
+              if (index === windowIndex) {
+                return rightData;
+              }
+              if (index === rightIndex) {
+                return windowData;
+              }
+
+              return {};
+            });
+          })
           break;
 
         default:
           return;
       }
     },
-    [setWindows, windows]
+    [/*setWindows, windows*/ setWindowsIdsList, window, windowsIdsList]
   );
 
   const windowTypeHandler = useCallback(
@@ -125,6 +174,7 @@ export const Window = ({
           default:
             showWarningToaster(`Worng Type Selection`);
         }
+        /*
         setWindows((prevWindows) =>
           prevWindows.map((window) => {
             if (window.id !== id) {
@@ -133,17 +183,20 @@ export const Window = ({
               return { ...window, type: "data", data: dataObject };
             }
           })
-        );
+        );*/
+
+        setWindow({...window, type: "data", data: dataObject})
         setChangeTypeLoading(false);
       } catch (error) {
         showDangerToaster(`Can't Change Window Type: ${error}`);
         setChangeTypeLoading(false);
       }
     },
-    [setWindows]
+    [/*setWindows*/ setWindow, window]
   );
 
   const handleWindowResize = useCallback((delta) => {
+    /*
     setWindows((prev) =>
       prev.map((storedWindow) => {
         if (storedWindow.id === window.id) {
@@ -157,9 +210,16 @@ export const Window = ({
         }
       })
     );
-  },[setWindows,window.id]);
+    */
+   setWindow({
+     ...window,
+     width: window.width + delta.width,
+     height: window.height + delta.height
+    })
+  },[/*setWindows,window.id*/ setWindow, window]);
 
   const handleMaximize = useCallback(()=>{
+    /*
     setWindows((prev) =>
       prev.map((storedWindow) => {
         if (storedWindow.id === window.id) {
@@ -172,7 +232,12 @@ export const Window = ({
         }
       })
     );
-  },[setWindows,window.id])
+    */
+   setWindow({
+     ...window,
+    maximized: !window.maximized
+  })
+  },[/*setWindows,window.id*/ setWindow, window])
   return (
     <Resizable
       className={

@@ -1,13 +1,17 @@
 import { Intent, Spinner, Switch } from "@blueprintjs/core";
 import { useCallback, useState } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import { Bpmn } from "../../../../../components/bpmn";
 import { updateBpmnStatus } from "../../../../../services";
 import { platformState } from "../../../../../store/portfolios";
 import { elementSelectorState } from "../../../../../store/elementSelector";
 import { showDangerToaster } from "../../../../../utils/toaster";
 import { Window } from "../window";
-import { windowsState } from "../../../../../store/windows";
+import {
+  windowAtom,
+  windowsIds,
+  windowsState,
+} from "../../../../../store/windows";
 import { getBpmnSequenceFlows, getBpmnEntities } from "../../../../../services";
 export const GraphWindow = ({
   onClose,
@@ -57,6 +61,40 @@ export const GraphWindow = ({
     [window]
   );
 
+  /**
+   * when we do any changes to the graph it will update any table of type BPMN Sequence or BPMN Entities
+   * */ 
+  const setOtherWindows = useRecoilCallback(
+    ({ set, snapshot }) =>
+      async (sequenceFlows, entities) => {
+        const windowsIdsList = await snapshot.getPromise(windowsIds);
+        for (const windowId of windowsIdsList) {
+          const window = await snapshot.getPromise(windowAtom(windowId));
+
+          if (window.data.type === "BPMN SequenceFlows") {
+            set(windowAtom(windowId), {
+              ...window,
+              data: {
+                type: "BPMN SequenceFlows",
+                sequenceFlows: sequenceFlows.data.data,
+              },
+            });
+          }
+
+          if (window.data.type === "BPMN Entities") {
+            set(windowAtom(windowId), {
+              ...window,
+              data: {
+                type: "BPMN Entities",
+                entities: entities.data.data,
+              },
+            });
+          }
+        }
+      },
+    []
+  );
+
   const handleOnChange = useCallback(
     async (data) => {
       console.log(windows);
@@ -66,37 +104,40 @@ export const GraphWindow = ({
       }
       setTimeout(async () => {
         const sequenceFlows = await getBpmnSequenceFlows();
-      const entities = await getBpmnEntities();
+        const entities = await getBpmnEntities();
+        
+        setOtherWindows(sequenceFlows, entities);
 
-      setWindows((prev) => {
-        return prev.map((window) => {
-          if (window.data.type === "BPMN SequenceFlows") {
-            return {
-              ...window,
-              data: {
-                type: "BPMN SequenceFlows",
-                sequenceFlows: sequenceFlows.data.data,
-              },
-            };
-          }
+        /*
+        setWindows((prev) => {
+          return prev.map((window) => {
+            if (window.data.type === "BPMN SequenceFlows") {
+              return {
+                ...window,
+                data: {
+                  type: "BPMN SequenceFlows",
+                  sequenceFlows: sequenceFlows.data.data,
+                },
+              };
+            }
 
-          if (window.data.type === "BPMN Entities") {
-            return {
-              ...window,
-              data: {
-                type: "BPMN Entities",
-                entities: entities.data.data,
-              },
-            };
-          }
+            if (window.data.type === "BPMN Entities") {
+              return {
+                ...window,
+                data: {
+                  type: "BPMN Entities",
+                  entities: entities.data.data,
+                },
+              };
+            }
 
-          return window
+            return window;
+          });
         });
-      });
+        */
       }, 500);
-      
     },
-    [autoSave, saveBpmn, setbpmn,setWindows,windows]
+    [autoSave, saveBpmn, setbpmn, /*setWindows*/ windows, setOtherWindows]
   );
 
   return (
