@@ -115,8 +115,8 @@ export const Portfolios = () => {
       height: windowDefault.height,
       maximized: false
     }
-    set(windowsIds, (prev) => [id, ...prev])
     set(windowAtom(id), windowData)
+    set(windowsIds, (prev) => [id, ...prev])
   }, [])
 
   const addNewWindow = useCallback(

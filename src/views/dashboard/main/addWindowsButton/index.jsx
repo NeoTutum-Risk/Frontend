@@ -30,9 +30,8 @@ export const AddWindowsButton = ({ data }) => {
           height: windowDefault.height,
           maximized: false,
         };
-        console.log(windowData)
-        set(windowsIds, (prev) => [id, ...prev])
         set(windowAtom(id), windowData)
+        set(windowsIds, (prev) => [id, ...prev])
         setIsLoading(false);
       },
     []
@@ -74,8 +73,9 @@ export const AddWindowsButton = ({ data }) => {
           height: windowDefault.height,
           maximized: false,
         };
-        set(windowsIds, (prev) => [id, ...prev]);
-        set(windowAtom(id), windowData);
+        set(windowAtom(id), windowData)
+        set(windowsIds, (prev) => [id, ...prev])
+        setIsLoading(false);
       },
     []
   );
@@ -116,8 +116,9 @@ export const AddWindowsButton = ({ data }) => {
           height: windowDefault.height,
           maximized: false,
         };
-        set(windowsIds, (prev) => [id, ...prev]);
-        set(windowAtom(id), windowData);
+        set(windowAtom(id), windowData)
+        set(windowsIds, (prev) => [id, ...prev])
+        setIsLoading(false);
       },
     []
   );
@@ -157,8 +158,9 @@ export const AddWindowsButton = ({ data }) => {
           height: windowDefault.height,
           maximized: false,
         };
-        set(windowsIds, (prev) => [id, ...prev]);
-        set(windowAtom(id), windowData);
+        set(windowAtom(id), windowData)
+        set(windowsIds, (prev) => [id, ...prev])
+        setIsLoading(false);
       },
     []
   );
@@ -231,8 +233,8 @@ export const AddWindowsButton = ({ data }) => {
           height: windowDefault.height,
           maximized: false,
         };
-        set(windowsIds, (prev) => [id, ...prev]);
-        set(windowAtom(id), windowData);
+        set(windowAtom(id), windowData)
+        set(windowsIds, (prev) => [id, ...prev])
       },
     []
   );
