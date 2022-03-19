@@ -30,14 +30,18 @@ import {
   showSuccessToaster,
   showWarningToaster,
 } from "../../../../utils/toaster";
-import { windowsState } from "../../../../store/windows";
+import {
+  windowAtom,
+  windowsIds,
+  windowsState,
+} from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import { mapStatusToIcon } from "../../../../utils/mapStatusToIcon";
-import {windowDefault} from "../../../../constants";
+import { windowDefault } from "../../../../constants";
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState([]);
-  const setWindows = useSetRecoilState(windowsState);
+  //const setWindows = useSetRecoilState(windowsState);
   const [referenceGroups, setReferenceGroups] =
     useRecoilState(referenceGroupsState);
   const [referenceGroupPopOverOpenId, setReferenceGroupPopOverOpenId] =
@@ -368,10 +372,10 @@ export const ReferenceGroups = () => {
             };
           }),
         };
-        
+
         const response = await addDataObject(payload);
-        console.log("payload", payload,response,response.status);
-        if (response.data.error && response.status!==200) {
+        console.log("payload", payload, response, response.status);
+        if (response.data.error && response.status !== 200) {
           showDangerToaster(
             `Error Creating Data Object: ${response.data.error}`
           );
@@ -680,12 +684,51 @@ export const ReferenceGroups = () => {
     // console.log("context",nodeData);
   }, []);
 
+  /**
+   * set the new window where window.data.id equals nodeData.data.data.id and window.type equals flowchart
+   */
+  const setNewWindow = useRecoilCallback(
+    ({ set, snapshot }) =>
+      async (nodeData) => {
+        const getWindowsIdsList = await snapshot.getPromise(windowsIds);
+        // flag if found window then don't do any changes if not found then add the new window
+        let foundWindow = false;
+        for (const windowId of getWindowsIdsList) {
+          const window = await snapshot.getPromise(windowAtom(windowId));
+
+          if (window.data.id === nodeData.data.data.id && window.type === "flowchart") {
+            foundWindow = true;
+            break;
+          }
+        }
+
+        if(!foundWindow){
+          const id = generateID();
+          const windowData = {
+            type: "flowchart",
+            data: nodeData.data.data,
+            id,
+            collapse: false,
+            width: windowDefault.width,
+            height: windowDefault.height,
+            maximized: false
+          };
+          set(windowAtom(id), windowData)
+          set(windowsIds, (prev) => [id, ...prev])
+        }
+        return;
+      },
+    []
+  );
+
   const onNodeClick = useCallback(
     async (node) => {
       console.log(node);
       if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
 
+      setNewWindow(nodeData);
+      /*
       setWindows((prevWindows) =>
         prevWindows.find(
           (window) =>
@@ -701,13 +744,14 @@ export const ReferenceGroups = () => {
                 collapse: false,
                 width: windowDefault.width,
                 height: windowDefault.height,
-                maximized: false
+                maximized: false,
               },
               ...prevWindows,
             ]
       );
+      */
     },
-    [setWindows]
+    [/*setWindows,*/ setNewWindow]
   );
 
   console.log(referenceGroupsNodes, referenceGroups);
