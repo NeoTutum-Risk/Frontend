@@ -6,8 +6,7 @@ import styles from "../styles.module.scss";
 import { DataWindow } from "./windows/dataWindow";
 import { GraphWindow } from "./windows/graphWindow";
 import { FlowChartWindow } from "./windows/flowChartWindow";
-import { CollapsedWindow } from "./windows/collapsedWindow";
-import { CollapsePanel } from "./collapsePanel";
+import { RiskAssessmentWindow } from "./windows/riskAssessmentWindow";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { arrayMoveImmutable } from "array-move";
 
@@ -89,6 +88,15 @@ export const Main = () => {
       )}
       {window.type === "flowchart" && window.collapse === false && (
         <FlowChartWindow
+          key={window.id}
+          window={window}
+          onClose={() => windowCloseHandler(window.id)}
+          onCollapse={() => windowCollapseHandler(window.id)}
+          onRestore={() => windowRestoreHandler(window.id)}
+        />
+      )}
+      {window.type === "risk" && window.collapse === false && (
+        <RiskAssessmentWindow
           key={window.id}
           window={window}
           onClose={() => windowCloseHandler(window.id)}

@@ -104,3 +104,9 @@ export const updateDataObjectElement = (id, data) =>
   serviceProvider.put(`dataObjects/${id}`, data);
 
 export const emptyDatabase = () => serviceProvider.delete("/deleteAll");
+
+export const getRiskAssessment = (id) => serviceProvider(`/riskAssessments/${id}`);
+
+export const addRiskObjectProperties = (id,data) => serviceProvider.put(`/riskObjectProperties/${id}`,data);
+
+export const getRiskAssessmentTable = (id) => serviceProvider(`/riskAssessments/table/${id}`);

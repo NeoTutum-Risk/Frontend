@@ -19,7 +19,7 @@ export const DataWindow = ({
       title={
         window.data.type === "Level Data"
           ? window.data.levelName
-          : window.data.type
+          : window.data.type === "riskTable"? window.data.name + " Data": window.data.type
       }
       collapseState={collapseState}
       icon="th"
@@ -89,6 +89,20 @@ export const DataWindow = ({
             columns={
               window.data.levelData?.[0]
                 ? Object.keys(window.data.levelData?.[0]).map((key) => ({
+                    field: key,
+                  }))
+                : []
+            }
+          />
+        )}
+        {window.data.type === "riskTable" && (
+          <Table
+            width={"100%"}
+            height={"100%"}
+            data={window.data.riskTable}
+            columns={
+              window.data.riskTable?.[0]
+                ? Object.keys(window.data.riskTable?.[0]).map((key) => ({
                     field: key,
                   }))
                 : []

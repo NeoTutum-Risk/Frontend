@@ -7,6 +7,7 @@ import {
   getBpmnEntities,
   getBpmnLanes,
   getBpmnSequenceFlows,
+  getRiskAssessmentTable
 } from "../../../../services";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
@@ -14,6 +15,25 @@ import { windowDefault } from "../../../../constants";
 export const AddWindowsButton = ({ data }) => {
   const [isLoading, setIsLoading] = useState(false);
   const setWindowsState = useSetRecoilState(windowsState);
+
+  const onRiskAssessmentTable = useCallback(async (id,name) => {
+    setIsLoading(true);
+    const { data } = await getRiskAssessmentTable(id);
+    setWindowsState((prevWindows) => [
+      {
+        id: generateID(),
+        type: "data",
+        data: { type: "riskTable",name, riskTable: data.data },
+        collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
+      },
+      ...prevWindows,
+    ]);
+
+    setIsLoading(false);
+  }, [setWindowsState]);
 
   const onAssociationsClick = useCallback(async () => {
     setIsLoading(true);
@@ -141,7 +161,7 @@ export const AddWindowsButton = ({ data }) => {
       setIsLoading(false);
       console.log(levelData);
     },
-    [data.data.dataObjectLevels, setWindowsState,data.data.id]
+    [data.data.dataObjectLevels, setWindowsState, data.data.id]
   );
 
   return (
@@ -161,6 +181,12 @@ export const AddWindowsButton = ({ data }) => {
                 />
               ))}
             </>
+          ) : data.type === "risk" ? (
+            <MenuItem
+              icon="th"
+              text={data.data.name}
+              onClick={() => onRiskAssessmentTable(data.data.id,data.data.name)}
+            />
           ) : (
             <>
               <MenuItem
