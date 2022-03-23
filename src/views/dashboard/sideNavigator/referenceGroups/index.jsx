@@ -24,7 +24,7 @@ import {
   getMetaDataL2,
   getDataObject,
 } from "../../../../services";
-import { addDataObject, updateDataObject } from "../../../../services";
+import { addDataObject, updateDataObject,updateReferenceGroupStatus } from "../../../../services";
 import {
   showDangerToaster,
   showSuccessToaster,
@@ -113,6 +113,10 @@ export const ReferenceGroups = () => {
         const response = await updateDataObject(dataObjectId, {
           status: status,
         });
+        if(status==="commit"){
+          const updateRGStatus = await updateReferenceGroupStatus(referenceGroupId,{status:"commit"});
+        
+        }
         setReferenceGroups((prev) => ({
           ...prev,
           data: prev.data.map((rGroup) => {

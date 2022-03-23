@@ -143,36 +143,39 @@ export const Window = ({
     [setWindows]
   );
 
-  const handleWindowResize = useCallback((delta) => {
-    setWindows((prev) =>
-      prev.map((storedWindow) => {
-        if (storedWindow.id === window.id) {
-          return {
-            ...storedWindow,
-            width: storedWindow.width + delta.width,
-            height: storedWindow.height + delta.height,
-          };
-        } else {
-          return storedWindow;
-        }
-      })
-    );
-  },[setWindows,window.id]);
+  const handleWindowResize = useCallback(
+    (delta) => {
+      setWindows((prev) =>
+        prev.map((storedWindow) => {
+          if (storedWindow.id === window.id) {
+            return {
+              ...storedWindow,
+              width: storedWindow.width + delta.width,
+              height: storedWindow.height + delta.height,
+            };
+          } else {
+            return storedWindow;
+          }
+        })
+      );
+    },
+    [setWindows, window.id]
+  );
 
-  const handleMaximize = useCallback(()=>{
+  const handleMaximize = useCallback(() => {
     setWindows((prev) =>
       prev.map((storedWindow) => {
         if (storedWindow.id === window.id) {
           return {
             ...storedWindow,
-            maximized:!storedWindow.maximized
+            maximized: !storedWindow.maximized,
           };
         } else {
           return storedWindow;
         }
       })
     );
-  },[setWindows,window.id])
+  }, [setWindows, window.id]);
   return (
     <Resizable
       className={
@@ -189,13 +192,18 @@ export const Window = ({
         style={{ width: "100%", height: "100%" }}
         elevation={Elevation.TWO}
       >
-        <div name="window-draggable-header" className={`handle bp3-dark ${styles.windowHeader}`}>
+        <div
+          name="window-draggable-header"
+          className={`handle bp3-dark ${styles.windowHeader}`}
+        >
           <div className={styles.windowHeader_title}>
             {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
             <Icon icon={icon} />
             <div className="bp3-ui-text">{title}</div>
           </div>
-          {window.type === "flowchart" || window.type === "risk" || window.data.type==="riskTable" ||
+          {window.type === "flowchart" ||
+          window.type === "risk" ||
+          window.data.type === "riskTable" ||
           (window.type === "data" && window.data.levelName) ? null : (
             <Popover2
               content={
@@ -240,7 +248,8 @@ export const Window = ({
 
           {headerAdditionalContent}
           <ButtonGroup>
-            {(window.type === "data" && window.data.levelName) || window.data.type==="riskTable"? null : (
+            {(window.type === "data" && window.data.levelName) ||
+            window.data.type === "riskTable" ? null : (
               <AddWindowsButton data={window} />
             )}
             <Tooltip2 content={<span>Move To left</span>}>
@@ -268,7 +277,9 @@ export const Window = ({
               />
             </Tooltip2>
             <Tooltip2
-              content={<span>{window.maximized ? "minimize" : "maximize"}</span>}
+              content={
+                <span>{window.maximized ? "minimize" : "maximize"}</span>
+              }
             >
               <Button
                 onClick={handleMaximize}
