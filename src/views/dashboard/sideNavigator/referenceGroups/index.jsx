@@ -222,7 +222,7 @@ export const ReferenceGroups = () => {
                 row[2],
                 Number(row[2])
               );
-              if (
+              /*if (
                 !(
                   Number.isInteger(Number(row[0])) &&
                   Number.isInteger(Number(row[2]))
@@ -232,7 +232,7 @@ export const ReferenceGroups = () => {
                   `CSV row#${index + 1} column#1 and column#3 must be integers`
                 );
                 csvError = true;
-              }
+              }*/
             }
           });
           console.log(results.data);
