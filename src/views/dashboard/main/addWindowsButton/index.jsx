@@ -216,14 +216,14 @@ export const AddWindowsButton = ({ data }) => {
             <>
               <MenuItem
                 icon="th"
-                text={data.data.name}
+                text="Risk Assessment Data"
                 onClick={() =>
                   onRiskAssessmentTable(data.data.id, data.data.name)
                 }
               />
               <MenuItem
                 icon="th"
-                text={data.data.name}
+                text="Physical Objects Data"
                 onClick={() =>
                   onRiskAssessmentPhysicalTable(data.data.id, data.data.name)
                 }
