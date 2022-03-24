@@ -6,7 +6,7 @@ export const DraggableBox = ({ data , position,handleContextMenu }) => {
   const updateXarrow = useXarrow();
   const [pos,setPos] = useState({x:position.x,y:position.y-50});
   return (
-    <Draggable onDrag={updateXarrow} onStop={updateXarrow}>
+    <Draggable onDrag={updateXarrow} onStop={(e)=>console.log(e)}>
       <div
       onContextMenu={handleContextMenu}
         id={data.id}
@@ -21,8 +21,8 @@ export const DraggableBox = ({ data , position,handleContextMenu }) => {
           display: "flex",
           justifyContent: "center",
           position:"relative",
-          top:pos.y,
-          left:pos.x
+          // top:pos.y,
+          // left:pos.x
         }}
       >
         {data.name}

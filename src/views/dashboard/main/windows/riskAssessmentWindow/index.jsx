@@ -10,13 +10,20 @@ import {
   H5,
   FormGroup,
   InputGroup,
-  Button
+  Button,
 } from "@blueprintjs/core";
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
-import { getRiskAssessment, addRiskObjectProperties } from "../../../../../services";
-import { showDangerToaster, showSuccessToaster } from "../../../../../utils/toaster";
+import {
+  getRiskAssessment,
+  addRiskObjectProperties,
+  addRiskConnection,
+} from "../../../../../services";
+import {
+  showDangerToaster,
+  showSuccessToaster,
+} from "../../../../../utils/toaster";
 import { Window } from "../window";
 import { RiskAssessment } from "../../../../../components/riskAssessment";
 export const RiskAssessmentWindow = ({
@@ -27,11 +34,8 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
-  const [isServiceLoading, setIsServiceLoading]=useState(false);
-  const [newRiskObjectVal1, setNewRiskObjectVal1]=useState(null);
-  const [newRiskObjectVal1Error, setNewRiskObjectVal1Error]=useState(false);
-  const [newRiskObjectVal2, setNewRiskObjectVal2]=useState(null);
-  const [newRiskObjectVal2Error, setNewRiskObjectVal2Error]=useState(false);
+  const [isServiceLoading, setIsServiceLoading] = useState(false);
+  const [selectedElements, setSelectedElements] = useState([]);
   const [contextMenu, setContextMenu] = useState({
     active: false,
     type: "",
@@ -41,29 +45,50 @@ export const RiskAssessmentWindow = ({
   });
   const [riskObjects, setRiskObjects] = useState([]);
   const [metaData, setMetaData] = useState([]);
+  const [connections, setConnections] = useState([]);
   const riskAssessmentData = useCallback(async () => {
     const response = await getRiskAssessment(window.data.id);
     if (response.status === 200) {
       setRiskObjects(response.data.data.riskObjects);
+      setConnections(response.data.data.riskConnections);
       setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
     } else {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
     }
   }, [window.data.id]);
 
-  const contextMenuAction = useCallback(async (path) => {
-    try{
-      setContextMenu((prev) => ({ ...prev, type: "loading"}));
-      const response = await addRiskObjectProperties(contextMenu.element,{dataObjectElements:path});
-      if(response.status===200){
-        setContextMenu({
-          active: false,
-          type: "",
-          x: 0,
-          y: 0,
-          element: null,
+  const contextMenuAction = useCallback(
+    async (path) => {
+      try {
+        setContextMenu((prev) => ({ ...prev, type: "loading" }));
+        const response = await addRiskObjectProperties(contextMenu.element, {
+          dataObjectElements: path,
         });
-      }else{
+        if (response.status === 200) {
+          setContextMenu({
+            active: false,
+            type: "",
+            x: 0,
+            y: 0,
+            element: null,
+          });
+        } else {
+          setContextMenu({
+            active: false,
+            type: "",
+            x: 0,
+            y: 0,
+            element: null,
+          });
+        }
+        showSuccessToaster(
+          `Successfully Added Properties to Risk Object ${contextMenu.element}`
+        );
+      } catch (er) {
+        showDangerToaster(
+          `Failed Adding Properties to Risk Object ${contextMenu.element}`
+        );
+        showDangerToaster(er);
         setContextMenu({
           active: false,
           type: "",
@@ -72,23 +97,33 @@ export const RiskAssessmentWindow = ({
           element: null,
         });
       }
-      showSuccessToaster(`Successfully Added Properties to Risk Object ${contextMenu.element}`);
-    }catch(er){
-      showDangerToaster(`Failed Adding Properties to Risk Object ${contextMenu.element}`);
-      showDangerToaster(er);
-      setContextMenu({
-        active: false,
-        type: "",
-        x: 0,
-        y: 0,
-        element: null,
-      });
-    }
-    
+    },
+    [contextMenu.element]
+  );
 
-    
-  }, [contextMenu.element]);
-
+  const handleConnection = useCallback(
+    async (data) => {
+      if (data.type === "connect") {
+        let payload = {
+          sourceRef: selectedElements[0].id,
+          targetRef: selectedElements[1].id,
+          riskAssessmentId: window.data.id,
+        };
+        setContextMenu({
+          active: false,
+          type: "",
+          x: 0,
+          y: 0,
+          element: null,
+        });
+        const response = await addRiskConnection(payload);
+        riskAssessmentData();
+        
+        console.log(payload);
+      }
+    },
+    [window.data.id, selectedElements, riskAssessmentData]
+  );
   useEffect(() => {
     riskAssessmentData();
   }, [riskAssessmentData]);
@@ -130,20 +165,28 @@ export const RiskAssessmentWindow = ({
     async (e) => {
       e.preventDefault();
       console.log(e);
+      let type;
+      if (selectedElements.length === 0) {
+        type = "context";
+      } else if (selectedElements.length === 2) {
+        type = "connection";
+      } else if (selectedElements.length > 2) {
+        type = "grouping";
+      } else {
+        type = "object";
+      }
       setContextMenu((prev) => ({
         active: true,
-        type: "context",
-        x: e.target.offsetLeft + 50,
-        y: e.target.offsetTop + 70,
-        element: Number(e.target.id),
+        type,
+        x: e.nativeEvent.layerX + 20,
+        y: e.nativeEvent.layerY + 50,
+        element: Number(e.target.parentElement.id),
       }));
     },
-    [setContextMenu]
+    [setContextMenu, selectedElements]
   );
 
-  const addPhysicalObjectLookup = useCallback(async()=>{
-
-  },[])
+  const addPhysicalObjectLookup = useCallback(async () => {}, []);
   return (
     <>
       <Window
@@ -157,26 +200,31 @@ export const RiskAssessmentWindow = ({
         collapseState={collapseState}
         title={window.data.name}
       >
-        {(contextMenu.active && contextMenu.type==="loading") && (
-        <div key='text' style={{
-          zIndex: 10000000000,
-          position: "absolute",
-          backgroundColor: "#30404D",
-          color:"white",
-          top: "25%",
-          left: "25%",
-          padding:"10px",
-          borderRadius:"2px"
-        }}>
-        <H5 style={{color:"white"}}>Add Physical Object Properties</H5>
-        
-      </div>
-      )}
+        {contextMenu.active && contextMenu.type === "loading" && (
+          <div
+            key="text"
+            style={{
+              zIndex: 10000000000,
+              position: "absolute",
+              backgroundColor: "#30404D",
+              color: "white",
+              top: "25%",
+              left: "25%",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>Add Physical Object Properties</H5>
+          </div>
+        )}
         <RiskAssessment
           objects={riskObjects}
           metaData={metaData}
           riskAssessmentId={window.data.id}
           handleContextMenu={handleContextMenu}
+          selectedElements={selectedElements}
+          setSelectedElements={setSelectedElements}
+          connections={connections}
         />
       </Window>
       <div
@@ -193,7 +241,15 @@ export const RiskAssessmentWindow = ({
           <Menu className={` ${Classes.ELEVATION_1}`}>{menu}</Menu>
         )}
 
-
+        {contextMenu.active && contextMenu.type === "connection" && (
+          <Menu className={` ${Classes.ELEVATION_1}`}>
+            <MenuItem
+              text="Connect"
+              onClick={() => handleConnection({ type: "connect" })}
+            />
+            <MenuItem disabled text="Disconnect" />
+          </Menu>
+        )}
       </div>
     </>
   );

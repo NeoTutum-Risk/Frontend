@@ -111,4 +111,10 @@ export const addRiskObjectProperties = (id,data) => serviceProvider.put(`/riskOb
 
 export const getRiskAssessmentTable = (id) => serviceProvider(`/riskAssessments/table/${id}`);
 
+export const getRiskAssessmentPhysicalTable  = (id) => serviceProvider(`/riskAssessments/physical/${id}`);
+
 export const updateReferenceGroupStatus = (id,data) => serviceProvider.put(`/referenceGroups/${id}`,data);
+
+export const updateRiskObjectPosition = (riskAssessmenId,id, data) => serviceProvider.put(`/riskObjects/${riskAssessmenId}/${id}`, data);
+
+export const addRiskConnection = (data) => serviceProvider.post(`/riskConnections`,data);
