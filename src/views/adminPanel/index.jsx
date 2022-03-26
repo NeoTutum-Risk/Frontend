@@ -14,15 +14,13 @@ const AdminPanel = () => {
     try {
       const res = await emptyDatabase();
 
-      if(res.status === 201) {
-        showSuccessToaster('database have been successfully emptied')
+      if (res.status === 201) {
+        showSuccessToaster("database have been successfully emptied");
+      } else {
+        showDangerToaster("there was an error");
       }
-      else {
-        showDangerToaster('there was an error')
-      }
-
     } catch (err) {
-      showDangerToaster(err.message)
+      showDangerToaster(err.message);
     }
   };
 
@@ -64,8 +62,12 @@ const AdminPanel = () => {
             <h1>Risk Object Meta Data</h1>
           </Card>
 
-          <Card className={classes.cardStyle} interactive={true}>
-            <h1>Admin Option</h1>
+          <Card
+            className={classes.cardStyle}
+            interactive={true}
+            onClick={() => navigate("/look-up")}
+          >
+            <h1>Look-up</h1>
           </Card>
 
           <Card className={classes.cardStyle} interactive={true}>

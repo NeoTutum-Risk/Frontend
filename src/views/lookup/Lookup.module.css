@@ -1,0 +1,61 @@
+.metaDataContainer {
+    background-color: #e1e8ed;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .header {
+      display: flex;
+      width: 85%;
+      align-items: center;
+  }
+  
+  .header div {
+      flex: 1;
+  }
+  
+  .title {
+      text-align: center;
+  }
+  
+  .fileTableContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20rem;
+    width: 85%;
+    margin-bottom: 1.5rem;
+  }
+
+  .tableContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 18rem;
+    width: 85%;
+  }
+  
+  .btnStyle {
+    margin: 0 3px;
+  }
+
+  .filesContainer {
+    width: 85%;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .cardStyle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 10rem;
+    min-height: 5rem;
+    height: 5rem;
+    margin: .5rem .5rem;
+    background-color: rgb(238, 238, 238) !important;
+  }
