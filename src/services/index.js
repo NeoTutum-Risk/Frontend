@@ -116,3 +116,8 @@ export const updateReferenceGroupStatus = (id,data) => serviceProvider.put(`/ref
 export const UploadLookupFile = (data) => serviceProvider.post('/lookup', data);
 
 export const getAllLookup = () => serviceProvider('/lookup');
+export const getRiskAssessmentPhysicalTable  = (id) => serviceProvider(`/riskAssessments/physical/${id}`);
+
+export const updateRiskObjectPosition = (riskAssessmenId,id, data) => serviceProvider.put(`/riskObjects/${riskAssessmenId}/${id}`, data);
+
+export const addRiskConnection = (data) => serviceProvider.post(`/riskConnections`,data);
