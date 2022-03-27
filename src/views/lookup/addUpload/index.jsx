@@ -21,7 +21,7 @@ import {
 import classes from "../Lookup.module.css";
 import Papa from "papaparse";
 
-export const AddUpload = ({loading, setLoading}) => {
+export const AddUpload = ({ loading, setLoading }) => {
   const [newPortfolioNameError, setNewPortfolioNameError] = useState(null);
   const [newPortfolioName, setNewPortfolioName] = useState(null);
   const [isAddPortfolioLoading, setIsAddPortfolioLoading] = useState(false);
@@ -52,22 +52,22 @@ export const AddUpload = ({loading, setLoading}) => {
         setNewPortfolioNameError(null);
         setNewPortfolioName(null);
 
-        const lookupRows = dataObjectLevelsInput[0].levelData.data
+        const lookupRows = dataObjectLevelsInput[0].levelData.data;
 
-        if(!xType || !yType || !dataObjectType || lookupRows.length === 0){
-          showDangerToaster('all the fields should be filled')
-          return
+        if (!xType || !yType || !dataObjectType || lookupRows.length === 0) {
+          showDangerToaster("all the fields should be filled");
+          return;
         }
 
         const { data } = await UploadLookupFile({
           metaDataLevel2Id: dataObjectType,
           x: xType,
           y: yType,
-          lookupRows
+          lookupRows,
         });
 
-        setIsPopOverOpen(false)
-        setLoading(!loading)
+        setIsPopOverOpen(false);
+        setLoading(!loading);
 
         showSuccessToaster(`file has been successfully created`);
       } catch (error) {
@@ -78,7 +78,6 @@ export const AddUpload = ({loading, setLoading}) => {
     },
     [newPortfolioName, setPortfolios, dataObjectLevelsInput]
   );
-
 
   const csvFileParser = (e, i) => {
     const files = e.target.files;
@@ -218,7 +217,9 @@ export const AddUpload = ({loading, setLoading}) => {
           // helperText="Error"
           labelFor="Type"
         >
-          <HTMLSelect onChange={(e) => setDataObjectType(Number(e.target.value))}>
+          <HTMLSelect
+            onChange={(e) => setDataObjectType(Number(e.target.value))}
+          >
             <option selected disabled>
               Select Data Object Type
             </option>
@@ -237,8 +238,8 @@ export const AddUpload = ({loading, setLoading}) => {
               <option>Loading Data</option>
             )}
           </HTMLSelect>
-</FormGroup>
-          <FormGroup
+        </FormGroup>
+        <FormGroup
           label="X"
           labelInfo="(required)"
           intent={false ? Intent.DANGER : Intent.NONE}
@@ -264,9 +265,9 @@ export const AddUpload = ({loading, setLoading}) => {
               <option>Loading Data</option>
             )}
           </HTMLSelect>
-          </FormGroup>
+        </FormGroup>
 
-          <FormGroup
+        <FormGroup
           label="Y"
           labelInfo="(required)"
           intent={false ? Intent.DANGER : Intent.NONE}
@@ -330,15 +331,14 @@ export const AddUpload = ({loading, setLoading}) => {
       popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
       content={csvFileContentForm}
     >
-      <Tooltip2 usePortal={false} content={<span>Upload CSV File</span>}>
-        <Button
-          icon="upload"
-          className={classes.btnStyle}
-          small
-          onClick={() => setIsPopOverOpen(true)}
-          intent={Intent.SUCCESS}
-        />
-      </Tooltip2>
+      <Button
+        icon="upload"
+        className={classes.btnStyle}
+        onClick={() => setIsPopOverOpen(true)}
+        intent={Intent.SUCCESS}
+      >
+        Upload CSV File
+      </Button>
     </Popover2>
   );
 };

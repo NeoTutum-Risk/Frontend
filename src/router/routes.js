@@ -17,18 +17,6 @@ const routes = [
     path: "/",
   },
   {
-    element: <AdminPanel />,
-    path: "/admin-panel",
-  },
-  {
-    element: <MetaData />,
-    path: "/meta-data",
-  },
-  {
-    element: <Lookup />,
-    path: "/look-up",
-  },
-  {
     element: <Dashboard />,
     path: "dashboard",
   },

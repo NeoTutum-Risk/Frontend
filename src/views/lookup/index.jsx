@@ -58,20 +58,6 @@ const Lookup = () => {
     <div className={classes.metaDataContainer}>
       <div className={classes.header}>
         <div>
-          <Tooltip2 content={<span>Dashboard</span>}>
-            <Button
-              className={classes.btnStyle}
-              icon="home"
-              onClick={() => navigate("/dashboard")}
-            />
-          </Tooltip2>
-          <Tooltip2 content={<span>Admin Panel</span>}>
-            <Button
-              className={classes.btnStyle}
-              icon="person"
-              onClick={() => navigate("/admin-panel")}
-            />
-          </Tooltip2>
           <AddUpload setLoading={setLoading} loading={loading} />
         </div>
         <div className={classes.title}>
