@@ -121,3 +121,15 @@ export const getRiskAssessmentPhysicalTable  = (id) => serviceProvider(`/riskAss
 export const updateRiskObjectPosition = (riskAssessmenId,id, data) => serviceProvider.put(`/riskObjects/${riskAssessmenId}/${id}`, data);
 
 export const addRiskConnection = (data) => serviceProvider.post(`/riskConnections`,data);
+
+export const deleteRiskConnection = (id) => serviceProvider.delete(`/riskConnections/${id}`);
+
+export const addRiskAssessmentGroup = (data) => serviceProvider.post(`/riskObjectGroups`,data);
+
+export const updateRiskAssessmentGroup = (id, data) => serviceProvider.put(`/riskObjectGroups/${id}`,data);
+
+export const deleteRiskAssessmentGroup = (id) => serviceProvider.delete(`/riskObjectGroups/${id}`);
+
+export const addRiskTemplate = (data) => serviceProvider.post(`/riskTemplates`,data);
+
+export const addGroupFromTemplate = (data) => serviceProvider.post(`/riskTemplates/createRiskObjectGroup`,data);
