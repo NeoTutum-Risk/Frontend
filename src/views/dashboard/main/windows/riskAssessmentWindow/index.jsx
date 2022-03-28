@@ -11,6 +11,7 @@ import {
   FormGroup,
   InputGroup,
   Button,
+  HTMLSelect,
 } from "@blueprintjs/core";
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
@@ -21,7 +22,9 @@ import {
   addRiskConnection,
   addRiskAssessmentGroup,
   addNewRiskObject,
-  addRiskTemplate
+  addRiskTemplate,
+  getTemplates,
+  addGroupFromTemplate,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -29,6 +32,7 @@ import {
 } from "../../../../../utils/toaster";
 import { Window } from "../window";
 import { RiskAssessment } from "../../../../../components/riskAssessment";
+import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
 export const RiskAssessmentWindow = ({
   onClose,
   onCollapse,
@@ -59,6 +63,26 @@ export const RiskAssessmentWindow = ({
   const [metaData, setMetaData] = useState([]);
   const [connections, setConnections] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [importTemplateId, setImportTemplateId] = useState(null);
+  const [importTemplateName, setImportTemplateName] = useState(null);
+  const [importTemplateNameError, setImportTemplateNameError] = useState(null);
+  const [importTemplateIdError, setImportTemplateIdError] = useState(null);
+  const [templates, setTemplates] = useState([]);
+
+  const fetchTemplates = useCallback(async () => {
+    try {
+      const response = await getTemplates();
+      if (response.status === 201) {
+        setTemplates(response.data.data);
+      } else {
+        showDangerToaster(`Error Fetching Templates`);
+      }
+    } catch (error) {
+      showDangerToaster(`Error Fetching Templates ${error}`);
+    }
+  }, []);
+
+
 
   const riskAssessmentData = useCallback(async () => {
     const response = await getRiskAssessment(window.data.id);
@@ -215,48 +239,23 @@ export const RiskAssessmentWindow = ({
     [setContextMenu, selectedElements]
   );
 
-  const handleRiskViewContext = useCallback(
-    async (e) => {
-      e.preventDefault();
-      console.log(e);
-      if (!contextMenu.active) {
-        setContextMenu((prev) => ({
-          active: true,
-          type: "create",
-          x: e.nativeEvent.layerX + 20,
-          y: e.nativeEvent.layerY + 50,
-          element: Number(e.target.parentElement.id),
-        }));
-      }
-    },
-    [contextMenu.active]
-  );
-  const addNewTemplate = useCallback(
-    async () => {
+  const addNewTemplate = useCallback(async () => {
+    const payload = {
+      riskGroupId: contextMenu.element,
+      name: templateName,
+    };
 
-        const payload = {
-          riskGroupId : contextMenu.element,
-          name: templateName,
-        };
-
-        const response = await addRiskTemplate(payload);
-        setContextMenu({
-          active: false,
-          type: "",
-          x: 0,
-          y: 0,
-          element: null,
-        });
-        setTimeout(riskAssessmentData, 100);
-        // const redraw = await riskAssessmentData();
-
-    },
-    [
-      riskAssessmentData,
-      contextMenu,
-      templateName,
-    ]
-  );
+    const response = await addRiskTemplate(payload);
+    setContextMenu({
+      active: false,
+      type: "",
+      x: 0,
+      y: 0,
+      element: null,
+    });
+    setTimeout(riskAssessmentData, 100);
+    // const redraw = await riskAssessmentData();
+  }, [riskAssessmentData, contextMenu, templateName]);
 
   const handleGrouping = useCallback(
     async (data) => {
@@ -315,6 +314,14 @@ export const RiskAssessmentWindow = ({
         };
 
         const response = await addNewRiskObject(payload);
+        if (response.status === 201) {
+          const newObject = { ...response.data.data };
+          newObject["position.x"] =
+            response.data.data.riskObjectsPositions[0].x;
+          newObject["position.y"] =
+            response.data.data.riskObjectsPositions[0].y;
+          setRiskObjects((prev) => [...prev, newObject]);
+        }
         setIsServiceLoading(false);
         resetContext();
         setObjectName(null);
@@ -328,6 +335,38 @@ export const RiskAssessmentWindow = ({
       }
     },
     [contextMenu, window.data.id, objectName, objectType, resetContext]
+  );
+
+  const createGroupFromTemplate = useCallback(
+    async (e) => {
+      e.preventDefault();
+      try {
+        const payload = {
+          riskAssessmentId: window.data.id,
+          riskTemplateId: importTemplateId,
+          name: importTemplateName,
+          x: contextMenu.x,
+          y: contextMenu.y,
+        };
+        const response = await addGroupFromTemplate(payload);
+        resetContext();
+        setImportTemplateId(null);
+        setImportTemplateIdError(null);
+        setImportTemplateName(null);
+        setImportTemplateNameError(null);
+      } catch (error) {}
+    },
+    [
+      window.data.id,
+      importTemplateId,
+      importTemplateName,
+      contextMenu,
+      setImportTemplateId,
+      setImportTemplateIdError,
+      setImportTemplateName,
+      setImportTemplateNameError,
+      resetContext
+    ]
   );
   return (
     <>
@@ -421,19 +460,19 @@ export const RiskAssessmentWindow = ({
           </Menu>
         )}
 
-        {contextMenu.active && contextMenu.type === "template" && (
+        {/* {contextMenu.active && contextMenu.type === "template" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             <MenuItem
               text="Create Template"
               onClick={() => {
                 setContextMenu((prev) => ({
                   ...prev,
-                  type: "create template",
+                  type: "import template",
                 }));
               }}
             />
           </Menu>
-        )}
+        )} */}
 
         {contextMenu.active && contextMenu.type === "create" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
@@ -461,10 +500,10 @@ export const RiskAssessmentWindow = ({
             <MenuItem
               text="Import Template"
               onClick={() => {
-                setObjectType("Model");
+                fetchTemplates();
                 setContextMenu((prev) => ({
                   ...prev,
-                  type: "create object",
+                  type: "import template",
                 }));
               }}
             />
@@ -534,7 +573,7 @@ export const RiskAssessmentWindow = ({
           </div>
         )}
 
-{contextMenu.active && contextMenu.type === "create template" && (
+        {contextMenu.active && contextMenu.type === "create template" && (
           <div
             key="text3"
             style={{
@@ -711,6 +750,88 @@ export const RiskAssessmentWindow = ({
                     setObjectName(null);
                     setObjectNameError(null);
                     setObjectType(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                  // onClick={addPortfolio}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {contextMenu.active && contextMenu.type === "import template" && (
+          <div
+            key="text"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>Import Group Template</H5>
+            <form onSubmit={createGroupFromTemplate}>
+              <FormGroup
+                label="Name"
+                labelInfo="(required)"
+                intent={importTemplateNameError ? Intent.DANGER : Intent.NONE}
+                helperText={importTemplateNameError}
+                labelFor="importTemplateName"
+              >
+                <InputGroup
+                  required
+                  id="importTemplateName"
+                  onChange={(event) => {
+                    setImportTemplateNameError(null);
+                    setImportTemplateName(event.target.value);
+                  }}
+                />
+              </FormGroup>
+              <FormGroup
+                label="Type"
+                labelInfo="(required)"
+                intent={false ? Intent.DANGER : Intent.NONE}
+                // helperText="Error"
+                labelFor="Type"
+              >
+                <HTMLSelect
+                  onChange={(e) => setImportTemplateId(Number(e.target.value))}
+                >
+                  <option selected disabled>
+                    Select Template
+                  </option>
+                  {templates.length > 0 ? (
+                    templates.map((template) => (
+                      <option value={template.id}>{template.name}</option>
+                    ))
+                  ) : (
+                    <option>No Templates Avilable</option>
+                  )}
+                </HTMLSelect>
+              </FormGroup>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    resetContext();
+                    setImportTemplateNameError(null);
+                    setImportTemplateName(null);
+                    setImportTemplateId(null);
                   }}
                 >
                   Cancel

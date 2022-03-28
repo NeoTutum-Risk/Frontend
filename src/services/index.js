@@ -130,3 +130,5 @@ export const deleteRiskAssessmentGroup = (id) => serviceProvider.delete(`/riskOb
 export const addRiskTemplate = (data) => serviceProvider.post(`/riskTemplates`,data);
 
 export const addGroupFromTemplate = (data) => serviceProvider.post(`/riskTemplates/createRiskObjectGroup`,data);
+
+export const getTemplates = () => serviceProvider(`/riskTemplates`);
