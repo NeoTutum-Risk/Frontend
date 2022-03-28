@@ -460,19 +460,19 @@ export const RiskAssessmentWindow = ({
           </Menu>
         )}
 
-        {/* {contextMenu.active && contextMenu.type === "template" && (
+        {contextMenu.active && contextMenu.type === "template" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             <MenuItem
               text="Create Template"
               onClick={() => {
                 setContextMenu((prev) => ({
                   ...prev,
-                  type: "import template",
+                  type: "create template",
                 }));
               }}
             />
           </Menu>
-        )} */}
+        )}
 
         {contextMenu.active && contextMenu.type === "create" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
