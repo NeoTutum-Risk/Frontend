@@ -25,7 +25,7 @@ import {
   addRiskTemplate,
   getTemplates,
   addGroupFromTemplate,
-  updateRiskObjectPosition
+  updateRiskObjectPosition,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -388,20 +388,36 @@ export const RiskAssessmentWindow = ({
         enabled: !elementEnable,
       }
     );
-    if(response.status===200){
-        setRiskObjects(prev=>prev.map(object=>{
-          if(object.id===contextMenu.element){
-            const updatedObject = {...object};
-            updatedObject['position.enabled']=!elementEnable;
+    if (response.status === 200) {
+      setRiskObjects((prev) =>
+        prev.map((object) => {
+          if (object.id === contextMenu.element) {
+            const updatedObject = { ...object };
+            updatedObject["position.enabled"] = !elementEnable;
             return updatedObject;
-          }else{
+          } else {
             return object;
           }
-        }));
-        resetContext();
+        })
+      );
 
+      setGroups((prev) =>
+        prev.map((group) => ({
+          ...group,
+          elements: group.elements.map((object) => {
+            if (object.id === contextMenu.element) {
+              const updatedObject = { ...object };
+              updatedObject["position.enabled"] = !elementEnable;
+              return updatedObject;
+            } else {
+              return object;
+            }
+          }),
+        }))
+      );
+      resetContext();
     }
-  }, [window.data.id, contextMenu.element,elementEnable,resetContext]);
+  }, [window.data.id, contextMenu.element, elementEnable, resetContext]);
 
   return (
     <>
@@ -457,12 +473,15 @@ export const RiskAssessmentWindow = ({
       >
         {contextMenu.active && contextMenu.type === "context" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
-            {elementEnable ?menu:null}
-            
+            {elementEnable ? menu : null}
+
             {elementEnable ? (
-              <><MenuDivider /><MenuItem text="Disable" onClick={updateElementStatus}/></>
+              <>
+                <MenuDivider />
+                <MenuItem text="Disable" onClick={updateElementStatus} />
+              </>
             ) : (
-              <MenuItem text="Enable" onClick={updateElementStatus}/>
+              <MenuItem text="Enable" onClick={updateElementStatus} />
             )}
           </Menu>
         )}
