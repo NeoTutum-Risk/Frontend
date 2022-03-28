@@ -25,6 +25,7 @@ import {
   addRiskTemplate,
   getTemplates,
   addGroupFromTemplate,
+  updateRiskObjectPosition
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -41,6 +42,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [elementEnable, setElementEnable] = useState(true);
   const [groupName, setGroupName] = useState(null);
   const [groupNameError, setGroupNameError] = useState(null);
   const [templateName, setTemplateName] = useState(null);
@@ -81,8 +83,6 @@ export const RiskAssessmentWindow = ({
       showDangerToaster(`Error Fetching Templates ${error}`);
     }
   }, []);
-
-
 
   const riskAssessmentData = useCallback(async () => {
     const response = await getRiskAssessment(window.data.id);
@@ -207,12 +207,21 @@ export const RiskAssessmentWindow = ({
   });
 
   const handleContextMenu = useCallback(
-    async (e) => {
+    async (e, data) => {
       e.preventDefault();
-      console.log(e);
+      if (data["position.enabled"]) {
+        setElementEnable(true);
+      } else {
+        setElementEnable(false);
+      }
+      console.log("rx", e, data);
       let type, id;
+      let x = e.nativeEvent.layerX + 20;
+      let y = e.nativeEvent.layerY + 50;
       if (e.target.id === "svg") {
         type = "create";
+        x = e.nativeEvent.layerX;
+        y = e.nativeEvent.layerY;
       } else if (e.target.id.split("-").length === 2) {
         type = "template";
         id = e.target.id.split("-")[1];
@@ -231,8 +240,8 @@ export const RiskAssessmentWindow = ({
       setContextMenu((prev) => ({
         active: true,
         type,
-        x: e.nativeEvent.layerX + 20,
-        y: e.nativeEvent.layerY + 50,
+        x,
+        y,
         element: id ? Number(id) : Number(e.target.parentElement.id),
       }));
     },
@@ -366,9 +375,34 @@ export const RiskAssessmentWindow = ({
       setImportTemplateIdError,
       setImportTemplateName,
       setImportTemplateNameError,
-      resetContext
+      resetContext,
+      riskAssessmentData,
     ]
   );
+
+  const updateElementStatus = useCallback(async () => {
+    const response = await updateRiskObjectPosition(
+      window.data.id,
+      contextMenu.element,
+      {
+        enabled: !elementEnable,
+      }
+    );
+    if(response.status===200){
+        setRiskObjects(prev=>prev.map(object=>{
+          if(object.id===contextMenu.element){
+            const updatedObject = {...object};
+            updatedObject['position.enabled']=!elementEnable;
+            return updatedObject;
+          }else{
+            return object;
+          }
+        }));
+        resetContext();
+
+    }
+  }, [window.data.id, contextMenu.element,elementEnable,resetContext]);
+
   return (
     <>
       <Window
@@ -422,7 +456,15 @@ export const RiskAssessmentWindow = ({
         }}
       >
         {contextMenu.active && contextMenu.type === "context" && (
-          <Menu className={` ${Classes.ELEVATION_1}`}>{menu}</Menu>
+          <Menu className={` ${Classes.ELEVATION_1}`}>
+            {elementEnable ?menu:null}
+            
+            {elementEnable ? (
+              <><MenuDivider /><MenuItem text="Disable" onClick={updateElementStatus}/></>
+            ) : (
+              <MenuItem text="Enable" onClick={updateElementStatus}/>
+            )}
+          </Menu>
         )}
 
         {contextMenu.active && contextMenu.type === "connection" && (
@@ -801,7 +843,7 @@ export const RiskAssessmentWindow = ({
                 labelInfo="(required)"
                 intent={false ? Intent.DANGER : Intent.NONE}
                 // helperText="Error"
-                labelFor="Type"
+                labelFor="Template"
               >
                 <HTMLSelect
                   onChange={(e) => setImportTemplateId(Number(e.target.value))}

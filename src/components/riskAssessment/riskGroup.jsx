@@ -170,7 +170,7 @@ export const RiskGroup = ({
           updateLocation();
         }}
         onPointerLeave={endDrag}
-        onContextMenu={handleContextMenu}
+        onContextMenu={(e)=>handleContextMenu(e,data)}
         onMouseOver={handleMouseOver}
         className={
           selectedElements.find((element) => element.id === data.id)

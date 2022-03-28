@@ -1,4 +1,4 @@
-import { Icon, IconSize,Intent} from "@blueprintjs/core";
+import { Icon, IconSize, Intent } from "@blueprintjs/core";
 import { useCallback, useState } from "react";
 import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
@@ -13,7 +13,7 @@ export const RiskElement = ({
   index,
   riskAssessmentId,
   expanded,
-  expandPosition
+  expandPosition,
 }) => {
   // console.log(`element rerendered ${data.id}`)
   const updateXarrow = useXarrow();
@@ -64,11 +64,11 @@ export const RiskElement = ({
       {
         x: Math.round(drag.cx - 50 - 75 * index),
         y: Math.round(drag.cy + 50),
-        enabled: 1,
+        enabled: data["position.enabled"],
       }
     );
     console.log(updateElementPosition);
-  }, [riskAssessmentId, data.id, drag.cx, drag.cy, index]);
+  }, [riskAssessmentId, data, drag.cx, drag.cy, index]);
   const endDrag = useCallback(
     async (e) => {
       e.preventDefault();
@@ -84,6 +84,7 @@ export const RiskElement = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
+      if (!data["position.enabled"]) return;
       console.log("Selecting ....");
       elementSelection(
         data,
@@ -135,7 +136,7 @@ export const RiskElement = ({
           updateLocation();
         }}
         onPointerLeave={endDrag}
-        onContextMenu={handleContextMenu}
+        onContextMenu={(e) => handleContextMenu(e, data)}
         onMouseOver={handleMouseOver}
         className={
           selectedElements.find((element) => element.id === data.id)
@@ -156,15 +157,30 @@ export const RiskElement = ({
         )}
         {expanded && (
           <>
-            <ellipse cy={drag.cy} cx={drag.cx} rx={55} ry={20} />
+            <ellipse
+              fill-opacity={data["position.enabled"] ? "1" : ".3"}
+              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
+              cy={drag.cy}
+              cx={drag.cx}
+              rx={55}
+              ry={20}
+            />
             <text
               x={drag.cx}
               y={drag.cy}
               textAnchor="middle"
               strokeWidth="2px"
               dy=".3em"
+              fill-opacity={data["position.enabled"] ? "1" : ".3"}
+              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
+              // fill={data[position.enabled]?"":"#d3d3d3"}
             >
-              {data.type==="physical"?`📄`:data.type==="virtual"?`📑`:`📝`} {data.name}
+              {data.type === "physical"
+                ? `📄`
+                : data.type === "virtual"
+                ? `📑`
+                : `📝`}{" "}
+              {data.name}
             </text>
           </>
         )}
