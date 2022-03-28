@@ -11,8 +11,8 @@ import { lookupListState, lookupTableState } from "../../store/lookup";
 
 const columns = [
   { value: "id", width: 100 },
-  { value: "PoC", width: 260 },
-  { value: "PoD", width: 300 },
+  { value: "x", width: 260 },
+  { value: "y", width: 300 },
   { value: "value", width: 150 },
   { value: "criteria", width: 250 },
   { value: "probability", width: 200 },
@@ -20,16 +20,13 @@ const columns = [
 
 const filesColumns = [
   { value: "id" },
+  { value: "tableName" }
 ];
 
 const Lookup = () => {
   const [loading, setLoading] = useState(false);
   const [lookupList, setLookupList] = useRecoilState(lookupListState);
   const [lookupTable, setLookupTable] = useRecoilState(lookupTableState);
-
-  console.log(lookupList)
-
-  const navigate = useNavigate();
 
   const initialLoading = useCallback(async () => {
     const res = await getAllLookup();
