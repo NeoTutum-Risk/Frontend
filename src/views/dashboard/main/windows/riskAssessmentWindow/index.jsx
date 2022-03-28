@@ -215,9 +215,10 @@ export const RiskAssessmentWindow = ({
         } else {
           setElementEnable(false);
         }
-      }else{
-        setElementEnable(false);
       }
+      // else{
+      //   setElementEnable(false);
+      // }
       
       console.log("rx", e, data);
       let type, id;
@@ -863,7 +864,7 @@ export const RiskAssessmentWindow = ({
                 />
               </FormGroup>
               <FormGroup
-                label="Type"
+                label="Template"
                 labelInfo="(required)"
                 intent={false ? Intent.DANGER : Intent.NONE}
                 // helperText="Error"
