@@ -209,19 +209,24 @@ export const RiskAssessmentWindow = ({
   const handleContextMenu = useCallback(
     async (e, data) => {
       e.preventDefault();
-      if (data["position.enabled"]) {
-        setElementEnable(true);
-      } else {
+      if(data){
+        if (data["position.enabled"]) {
+          setElementEnable(true);
+        } else {
+          setElementEnable(false);
+        }
+      }else{
         setElementEnable(false);
       }
+      
       console.log("rx", e, data);
       let type, id;
       let x = e.nativeEvent.layerX + 20;
       let y = e.nativeEvent.layerY + 50;
       if (e.target.id === "svg") {
         type = "create";
-        x = e.nativeEvent.layerX;
-        y = e.nativeEvent.layerY;
+        x = e.nativeEvent.layerX+ 20;
+        y = e.nativeEvent.layerY + 50;
       } else if (e.target.id.split("-").length === 2) {
         type = "template";
         id = e.target.id.split("-")[1];
