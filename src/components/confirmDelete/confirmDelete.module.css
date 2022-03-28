@@ -1,0 +1,18 @@
+.modalContainer {
+    padding: 0 1.5rem;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.deleteBtn {
+    margin-left: 1rem;
+}
+
+.confirmText {
+    font-size: 16px;
+    color: grey
+}

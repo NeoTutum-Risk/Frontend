@@ -1,4 +1,4 @@
-import { H3, H4, Button } from "@blueprintjs/core";
+import { H3, H4, Button, Dialog } from "@blueprintjs/core";
 import { Popover2, Tooltip2 } from "@blueprintjs/popover2";
 import { useState } from "react";
 import { Async } from "../../../components/asyncHOC";
@@ -7,22 +7,87 @@ import { AddPortfolio } from "./addPortfolio";
 import { AddReferenceGroup } from "./addRefrenceGroup";
 import { ReferenceGroups } from "./referenceGroups";
 import { Portfolios } from "./portfolios";
-import { useNavigate } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { userState } from "../../../store/user";
+import AdminSidebar from "./adminSidebar";
+import { activeAdminPanelState, showAdminState } from "../../../store/admin";
+import { emptyDatabase } from "../../../services";
+import { showDangerToaster, showSuccessToaster } from "../../../utils/toaster";
+import ConfirmDelete from "../../../components/confirmDelete";
 
 export const SideNavigator = () => {
   const [menuOpen, setMenuOpen] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const user = useRecoilValue(userState);
+  const [showAdmin, setShowAdmin] = useRecoilState(showAdminState);
+  const setActiveAdminPanel = useSetRecoilState(activeAdminPanelState)
 
-  const navigate = useNavigate();
+  /**
+   * handles the open of the dialog for confirmation of emptying database
+   */
+  const openDialogHandler = () => {
+    setOpenDialog(true);
+  };
+
+  /**
+   * handler that triggers the empty database in the backend on click
+   */
+  const emptyDatabaseHandler = async () => {
+    try {
+      const res = await emptyDatabase();
+
+      if (res.status === 201) {
+        showSuccessToaster("database have been successfully emptied");
+      } else {
+        showDangerToaster("there was an error");
+      }
+    } catch (err) {
+      showDangerToaster(err.message);
+    }
+  };
+
+  /**
+   * handle on-click of the cancel dialog button
+   */
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  /**
+   * handle the confirmation of the confirm dialog button
+   */
+  const handleConfirm = () => {
+    emptyDatabaseHandler();
+    handleCloseDialog();
+  };
+
+  /**
+   * handle admin open
+   */
+  const handleAdminOpen = () => {
+    setShowAdmin(true);
+    setActiveAdminPanel(null);
+  }
+
   return (
     <div
       style={menuOpen ? { minWidth: "250px" } : {}}
       className={`${styles.sideNavigatorContainer} bp3-dark`}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+      <Dialog shouldReturnFocusOnClose={false} isOpen={openDialog}>
+        <ConfirmDelete
+          handleCloseDialog={handleCloseDialog}
+          handleConfirm={handleConfirm}
+        />
+      </Dialog>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: showAdmin ? "10px" : "20px",
+        }}
+      >
         <Tooltip2
           content={<span>{menuOpen ? "Collapse Menu" : "Expand Menu"}</span>}
         >
@@ -32,39 +97,68 @@ export const SideNavigator = () => {
             onClick={() => setMenuOpen((prev) => !prev)}
           />
         </Tooltip2>
-        {(menuOpen && user === "Admin") && (
+        {menuOpen && !showAdmin && (
           <Tooltip2 content={<span>Admin Panel</span>}>
+            <Button icon="person" small onClick={handleAdminOpen} />
+          </Tooltip2>
+        )}
+
+        {menuOpen && showAdmin && (
+          <Tooltip2 content={<span>Dashboard</span>}>
+            <Button icon="home" small onClick={() => setShowAdmin(false)} />
+          </Tooltip2>
+        )}
+
+        {menuOpen && showAdmin && (
+          <Tooltip2 content={<span>Empty Database</span>}>
             <Button
-              icon="person"
+              icon="trash"
+              intent="danger"
               small
-              onClick={() => navigate("/admin-panel")}
+              onClick={openDialogHandler}
             />
           </Tooltip2>
         )}
 
-        {menuOpen && <H3 className={styles.userName}>{user === "Admin" ? "super user": "normal user"}</H3>}
+        {menuOpen && (
+          <H3 className={styles.userName}>
+            {user === "Admin" ? "super user" : "normal user"}
+          </H3>
+        )}
       </div>
 
       {menuOpen && (
         <>
-          <div className={styles.tree}>
-            <div className={styles.addPortfolio}>
-              <H4>Reference Groups</H4>
-              <AddReferenceGroup />
+          {!showAdmin && (
+            <>
+              <div className={styles.tree}>
+                <div className={styles.addPortfolio}>
+                  <H4>Reference Groups</H4>
+                  <AddReferenceGroup />
+                </div>
+                <Async>
+                  <ReferenceGroups />
+                </Async>
+              </div>
+              <div className={styles.tree}>
+                <div className={styles.addPortfolio}>
+                  <H4>Portfolios</H4>
+                  <AddPortfolio />
+                </div>
+                <Async>
+                  <Portfolios />
+                </Async>
+              </div>
+            </>
+          )}
+          {showAdmin && (
+            <div className={styles.tree}>
+              <div className={styles.addPortfolio}>
+                <H4>Admin</H4>
+              </div>
+              <AdminSidebar />
             </div>
-            <Async>
-              <ReferenceGroups />
-            </Async>
-          </div>
-          <div className={styles.tree}>
-            <div className={styles.addPortfolio}>
-              <H4>Portfolios</H4>
-              <AddPortfolio />
-            </div>
-            <Async>
-              <Portfolios />
-            </Async>
-          </div>
+          )}
         </>
       )}
     </div>

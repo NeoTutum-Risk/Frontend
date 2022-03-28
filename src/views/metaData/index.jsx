@@ -15,9 +15,9 @@ import { Tooltip2 } from "@blueprintjs/popover2";
 import { useNavigate } from "react-router-dom";
 
 const columns = [
-  { value: "id", width: 100 },
-  { value: "name", width: 260 },
-  { value: "metaDataLevel2s", width: 700 },
+  { value: "id", width: 55 },
+  { value: "name", width: 200 },
+  { value: "metaDataLevel2s", width: 680 },
 ];
 
 const MetaData = () => {
@@ -67,8 +67,8 @@ const MetaData = () => {
   };
 
   const operations = {
-    edit: { func: openEditOperation, width: 120 },
-    delete: { func: openDeleteOperation, width: 120 },
+    edit: { func: openEditOperation, width: 110 },
+    delete: { func: openDeleteOperation, width: 110 },
   };
 
   return (
@@ -80,21 +80,7 @@ const MetaData = () => {
       </Dialog>
       <div className={classes.header}>
         <div>
-          <Tooltip2 content={<span>Dashboard</span>}>
-            <Button
-              className={classes.btnStyle}
-              icon="home"
-              onClick={() => navigate("/dashboard")}
-            />
-          </Tooltip2>
-          <Tooltip2 content={<span>Admin Panel</span>}>
-            <Button
-              className={classes.btnStyle}
-              icon="person"
-              onClick={() => navigate("/admin-panel")}
-            />
-          </Tooltip2>
-          <Button className={classes.btnStyle} onClick={openAddOperation}>
+          <Button intent="success" className={classes.btnStyle} onClick={openAddOperation}>
             Add MetaData
           </Button>
         </div>
