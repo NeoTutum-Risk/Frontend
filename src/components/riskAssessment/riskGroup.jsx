@@ -148,20 +148,19 @@ export const RiskGroup = ({
             }
           </g>
         ))} */}
-      {
-        data.elements.map((object, index) => (
-          <RiskElement
-            expanded={expanded}
-            handleContextMenu={handleContextMenu}
-            selectedElements={selectedElements}
-            elementSelection={elementSelection}
-            index={index}
-            data={object}
-            riskAssessmentId={riskAssessmentId}
-            position={{x:object['position.x'],y:object['position.y']}}
-            expandPosition={{x:drag.cx,y:drag.cy}}
-          />
-        ))}
+      {data.elements.map((object, index) => (
+        <RiskElement
+          expanded={expanded}
+          handleContextMenu={handleContextMenu}
+          selectedElements={selectedElements}
+          elementSelection={elementSelection}
+          index={index}
+          data={object}
+          riskAssessmentId={riskAssessmentId}
+          position={{ x: object["position.x"], y: object["position.y"] }}
+          expandPosition={{ x: drag.cx, y: drag.cy }}
+        />
+      ))}
       <g
         onClick={handleClick}
         onPointerDown={startDrag}
@@ -182,7 +181,13 @@ export const RiskGroup = ({
         id={data.id}
       >
         {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
-        <circle r={35} cy={drag.cy} cx={drag.cx} id={`group-${data.id}`}/>
+        <circle
+          strokeDasharray={expanded ? 5 : 0}
+          r={35}
+          cy={drag.cy}
+          cx={drag.cx}
+          id={`group-${data.id}`}
+        />
         {/* <ellipse
           cy={drag.cy}
           cx={drag.cx}

@@ -1,3 +1,4 @@
+import { Icon, IconSize,Intent} from "@blueprintjs/core";
 import { useCallback, useState } from "react";
 import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
@@ -155,7 +156,7 @@ export const RiskElement = ({
         )}
         {expanded && (
           <>
-            <ellipse cy={drag.cy} cx={drag.cx} rx={50} ry={20} />
+            <ellipse cy={drag.cy} cx={drag.cx} rx={55} ry={20} />
             <text
               x={drag.cx}
               y={drag.cy}
@@ -163,7 +164,7 @@ export const RiskElement = ({
               strokeWidth="2px"
               dy=".3em"
             >
-              {data.name}
+              {data.type==="physical"?`📄`:data.type==="virtual"?`📑`:`📝`} {data.name}
             </text>
           </>
         )}

@@ -354,6 +354,7 @@ export const RiskAssessmentWindow = ({
         setImportTemplateIdError(null);
         setImportTemplateName(null);
         setImportTemplateNameError(null);
+        riskAssessmentData();
       } catch (error) {}
     },
     [
