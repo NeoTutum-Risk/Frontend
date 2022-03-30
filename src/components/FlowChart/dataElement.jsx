@@ -128,8 +128,8 @@ export const DataElement = ({
         onMouseOver={handleMouseOver}
         className={
           selectedElements.find((element) => element.id === data.id)
-            ? "activeCircleElement"
-            : "circleElement"
+            ? "fcactiveCircleElement"
+            : "fccircleElement"
         }
         id={data.id}
       >
