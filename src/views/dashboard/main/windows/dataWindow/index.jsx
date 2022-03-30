@@ -19,7 +19,7 @@ export const DataWindow = ({
       title={
         window.data.type === "Level Data"
           ? window.data.levelName
-          : window.data.type === "riskTable"? window.data.name + " Data": window.data.type === "riskPhysicalTable"? window.data.name + " Physical RO": window.data.type
+          : window.data.type === "riskTable"? window.data.name + " Data": window.data.type === "riskPhysicalTable"? window.data.name + " Physical RO":  window.data.type
       }
       collapseState={collapseState}
       icon="th"

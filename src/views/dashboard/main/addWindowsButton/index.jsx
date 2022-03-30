@@ -1,7 +1,7 @@
 import { Button, Menu, MenuItem } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import React, { useCallback, useState } from "react";
-import { useSetRecoilState } from "recoil";
+import { useSetRecoilState,useRecoilState } from "recoil";
 import {
   getBpmnAssociations,
   getBpmnEntities,
@@ -9,31 +9,62 @@ import {
   getBpmnSequenceFlows,
   getRiskAssessmentTable,
   getRiskAssessmentPhysicalTable,
+  getRiskObjectProperties
 } from "../../../../services";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import { windowDefault } from "../../../../constants";
+import {objectSelectorState} from "../../../../store/objectSelector"
+
 export const AddWindowsButton = ({ data }) => {
+
+  const [selectedObjects, setSelectedObjects] = useRecoilState(objectSelectorState);
+
   const [isLoading, setIsLoading] = useState(false);
   const setWindowsState = useSetRecoilState(windowsState);
+
+  const onRiskObjectProperties = useCallback(async ()=>{
+    setIsLoading(true);
+    const ids = selectedObjects.map(object=>object.id);
+    const payload = {ids:[...new Set([...ids])]};
+    const response = await getRiskObjectProperties(payload);
+    setWindowsState((prevWindows) => [
+      {
+        id: generateID(),
+        type: "data",
+        data: { type: "riskTable", name:"Risk Object(s) Properties", riskTable: response.data.data },
+        collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
+      },
+      ...prevWindows,
+    ]);
+
+    setIsLoading(false);
+  },[selectedObjects,setWindowsState]);
 
   const onRiskAssessmentPhysicalTable = useCallback(
     async (id, name) => {
       setIsLoading(true);
       const { data } = await getRiskAssessmentPhysicalTable(id);
       const preparedData = data.data.map((object) => {
-        console.log("properties",object.riskObjectProperties)
+        console.log("properties", object.riskObjectProperties);
         return {
           id: object.id,
-          name:object.name,
+          name: object.name,
           bpmnDataObjectId: object.bpmnDataObjectId,
           fileId: object.fileId,
-          riskObjectProperties:object?.riskObjectProperties?object.riskObjectProperties.reduce((con, acc) => {
-            const returned = (con += ` ${acc.metaDataLevel2Id}-${acc.dataObjectElementId}`);
-            return returned;
-          }, ""):null
+          riskObjectProperties: object?.riskObjectProperties
+            ? object.riskObjectProperties.reduce((con, acc) => {
+                const returned =
+                  (con += ` ${acc.metaDataLevel2Id}-${acc.dataObjectElementId}`);
+                return returned;
+              }, "")
+            : null,
         };
       });
+
       setWindowsState((prevWindows) => [
         {
           id: generateID(),
@@ -227,6 +258,11 @@ export const AddWindowsButton = ({ data }) => {
                 onClick={() =>
                   onRiskAssessmentPhysicalTable(data.data.id, data.data.name)
                 }
+              />
+              <MenuItem
+                icon="th"
+                text="Risk Objects Properties"
+                onClick={onRiskObjectProperties}
               />
             </>
           ) : (

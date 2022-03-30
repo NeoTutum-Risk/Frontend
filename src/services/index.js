@@ -135,3 +135,5 @@ export const addRiskTemplate = (data) => serviceProvider.post(`/riskTemplates`,d
 export const addGroupFromTemplate = (data) => serviceProvider.post(`/riskTemplates/createRiskObjectGroup`,data);
 
 export const getTemplates = () => serviceProvider(`/riskTemplates`);
+
+export const getRiskObjectProperties = (data) => serviceProvider.post(`/riskObjects/properties`,data);

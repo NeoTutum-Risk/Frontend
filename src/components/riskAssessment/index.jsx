@@ -4,7 +4,8 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
 import { RiskGroup } from "./riskGroup";
 import { useCallback, useState } from "react";
-
+import {objectSelectorState} from "../../store/objectSelector";
+import { useRecoilState } from "recoil";
 export const RiskAssessment = ({
   objects,
   groups,
@@ -14,8 +15,9 @@ export const RiskAssessment = ({
   setSelectedElements,
   connections,
   onContext,
-  resetContext
+  resetContext,
 }) => {
+  const [selectedObjects,setSelectedObjects]=useRecoilState(objectSelectorState);
   const elementSelection = useCallback(
     (elementData, state) => {
       console.log(elementData, state);
@@ -24,13 +26,21 @@ export const RiskAssessment = ({
         setSelectedElements((prev) => {
           return [...new Set([...prev, elementData])];
         });
+        setSelectedObjects((prev) => {
+          return [...new Set([...prev, elementData])];
+        });
+
+        console.log("store",selectedObjects);
       } else {
         setSelectedElements((prev) =>
           prev.filter((element) => element.id !== elementData.id)
         );
+        setSelectedObjects((prev) =>
+          prev.filter((element) => element.id !== elementData.id)
+        );
       }
     },
-    [setSelectedElements]
+    [setSelectedElements, setSelectedObjects,selectedObjects]
   );
   const updateXarrow = useXarrow();
   const handleZoomPanPinch = useCallback(() => {
@@ -59,7 +69,12 @@ export const RiskAssessment = ({
           wrapperStyle={{ width: "250%", height: "100%" }}
           contentStyle={{ width: "250%", height: "250%" }}
         >
-          <svg width={"200%"} onContextMenu={handleContextMenu} onClick={resetContext} id="svg">
+          <svg
+            width={"200%"}
+            onContextMenu={handleContextMenu}
+            onClick={resetContext}
+            id="svg"
+          >
             <defs>
               <pattern
                 id="smallGrid"

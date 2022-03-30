@@ -50,7 +50,7 @@ export const CollapsedWindow = (
         <div className={styles.windowHeader_title}>
           <Icon icon={icon} />
           <div className="bp3-ui-text" style={{ marginRight: "5px" }}>
-            {collapsedTitle}
+            {title?title:collapsedTitle}
           </div>
         </div>
 
