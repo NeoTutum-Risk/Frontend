@@ -14,6 +14,7 @@ export const RiskAssessment = ({
   setSelectedElements,
   connections,
   onContext,
+  resetContext
 }) => {
   const elementSelection = useCallback(
     (elementData, state) => {
@@ -58,7 +59,7 @@ export const RiskAssessment = ({
           wrapperStyle={{ width: "250%", height: "100%" }}
           contentStyle={{ width: "250%", height: "250%" }}
         >
-          <svg width={"200%"} onContextMenu={handleContextMenu} id="svg">
+          <svg width={"200%"} onContextMenu={handleContextMenu} onClick={resetContext} id="svg">
             <defs>
               <pattern
                 id="smallGrid"

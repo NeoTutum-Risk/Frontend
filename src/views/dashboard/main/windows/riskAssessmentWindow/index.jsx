@@ -464,6 +464,7 @@ export const RiskAssessmentWindow = ({
           selectedElements={selectedElements}
           setSelectedElements={setSelectedElements}
           connections={connections}
+          resetContext={resetContext}
           // onContext={handleRiskViewContext}
         />
       </Window>
