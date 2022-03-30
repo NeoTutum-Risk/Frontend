@@ -110,7 +110,7 @@ export const Main = () => {
   // to display the array of windows
   const SortableList = SortableContainer(({ items }) => {
     return (
-      <div className={styles.mainContainer}>
+      <div className={styles.mainContainer} id="mainContainer">
         <Async>
           {items
             .filter((window) => !window.collapse)

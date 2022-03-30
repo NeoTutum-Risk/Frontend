@@ -230,11 +230,9 @@ export const RiskAssessmentWindow = ({
       console.log("rx", e, data);
       let type, id;
       const rect = document
-        .getElementsByClassName("styles_mainContainer__EqXOx")[0]
+        .querySelector("#mainContainer")
         .getBoundingClientRect();
-      const scrollDiv = document.getElementsByClassName(
-        "styles_mainContainer__EqXOx"
-      )[0];
+      const scrollDiv = document.querySelector("#mainContainer");
       console.log("scroll", scrollDiv.scrollTop);
       const contextX = e.pageX - rect.left;
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
