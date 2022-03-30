@@ -1,4 +1,12 @@
-import { Icon, IconSize, Intent } from "@blueprintjs/core";
+import physical from "./tag.svg";
+import virtual from "./modal.svg";
+import model from "./modal-filled.svg";
+import hexagon from "./shapes/hexagon.svg";
+import eightgon from "./shapes/eightgon.svg";
+import fivegon from "./shapes/fivegon.svg";
+import hexagonactive from "./shapes/hexagonactive.svg";
+import eightgonactive from "./shapes/eightgonactive.svg";
+import fivegonactive from "./shapes/fivegonactive.svg";
 import { useCallback, useState } from "react";
 import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
@@ -157,14 +165,53 @@ export const RiskElement = ({
         )}
         {expanded && (
           <>
-            <ellipse
+            {data.type === "physical" ? (
+              <image
+                fill="#d3d3d3"
+                textAnchor="middle"
+                href={!selectedElements.find((element) => element.id === data.id)
+                  ? hexagon
+                  : hexagonactive}
+                x={drag.cx - 42.5}
+                y={drag.cy - 42.5}
+                height="85px"
+                width="85px"
+              />
+            ) : data.type === "virtual" ? (
+              <image
+                fill="#d3d3d3"
+                textAnchor="middle"
+                href={!selectedElements.find((element) => element.id === data.id)
+                  ? eightgon
+                  : eightgonactive}
+                x={drag.cx - 42.5}
+                y={drag.cy - 42.5}
+                height="85px"
+                width="85px"
+              />
+            ) : (
+              <image
+                fill="#d3d3d3"
+                textAnchor="middle"
+                href={!selectedElements.find((element) => element.id === data.id)
+                  ? fivegon
+                  : fivegonactive}
+                x={drag.cx - 42.5}
+                y={drag.cy - 42.5}
+                height="85px"
+                width="85px"
+              />
+            )}
+
+            {/* <ellipse
               fill-opacity={data["position.enabled"] ? "1" : ".3"}
               stroke-opacity={data["position.enabled"] ? "1" : ".3"}
               cy={drag.cy}
               cx={drag.cx}
               rx={55}
-              ry={20}
-            />
+              ry={30}
+            /> */}
+
             <text
               x={drag.cx}
               y={drag.cy}
@@ -175,11 +222,6 @@ export const RiskElement = ({
               stroke-opacity={data["position.enabled"] ? "1" : ".3"}
               // fill={data[position.enabled]?"":"#d3d3d3"}
             >
-              {data.type === "physical"
-                ? `📄`
-                : data.type === "virtual"
-                ? `📑`
-                : `📝`}{" "}
               {data.name}
             </text>
           </>

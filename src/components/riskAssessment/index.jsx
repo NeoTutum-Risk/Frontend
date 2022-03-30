@@ -59,6 +59,37 @@ export const RiskAssessment = ({
           contentStyle={{ width: "250%", height: "250%" }}
         >
           <svg width={"200%"} onContextMenu={handleContextMenu} id="svg">
+            <defs>
+              <pattern
+                id="smallGrid"
+                width="8"
+                height="8"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 8 0 L 0 0 0 8"
+                  fill="none"
+                  stroke="gray"
+                  stroke-width="0.1"
+                />
+              </pattern>
+              <pattern
+                id="grid"
+                width="80"
+                height="80"
+                patternUnits="userSpaceOnUse"
+              >
+                <rect width="80" height="80" fill="url(#smallGrid)" />
+                <path
+                  d="M 80 0 L 0 0 0 80"
+                  fill="none"
+                  stroke="gray"
+                  stroke-width=".3"
+                />
+              </pattern>
+            </defs>
+
+            <rect width="100%" height="100%" fill="url(#grid)" />
             {objects.length > 0
               ? objects.map((object, index) => (
                   <RiskElement
@@ -94,19 +125,18 @@ export const RiskAssessment = ({
                   />
                 ))
               : null}
- 
           </svg>
         </TransformComponent>
         {connections.map((edge) => (
           <Xarrow
-            path="smooth"
+            path="straight"
             curveness={0.2}
-            strokeWidth={1}
+            strokeWidth={1.5}
             // headShape={"arrow"}
             // tailShape={"arrow"}
             // headSize={7}
             // tailSize={7}
-            labels={{middle: edge.name}}
+            labels={{ middle: edge.name }}
             start={String(edge.sourceRef)}
             end={String(edge.targetRef)}
             SVGcanvasStyle={{ overflow: "hidden" }}

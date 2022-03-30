@@ -175,7 +175,7 @@ export const RiskGroup = ({
         className={
           selectedElements.find((element) => element.id === data.id)
             ? "activeCircleElement"
-            : "circleElement"
+            : "groupElement"
         }
         type="group"
         id={data.id}
@@ -183,7 +183,7 @@ export const RiskGroup = ({
         {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
         <circle
           strokeDasharray={expanded ? 5 : 0}
-          r={35}
+          r={40}
           cy={drag.cy}
           cx={drag.cx}
           id={`group-${data.id}`}
@@ -195,6 +195,7 @@ export const RiskGroup = ({
           ry={20}
         /> */}
         <text
+        fill="black"
           x={drag.cx}
           y={drag.cy}
           textAnchor="middle"

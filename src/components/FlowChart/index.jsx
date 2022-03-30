@@ -244,7 +244,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
     <Xwrapper>
       <TransformWrapper
         initialScale={0.5}
-        minScale={0.5}
+        minScale={0.1}
         maxScale={1.8}
         doubleClick={{ disabled: true }}
         onZoom={updateXarrow}
@@ -255,10 +255,10 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
         onPanningStop={handleZoomPanPinch}
       >
         <TransformComponent
-          wrapperStyle={{ width: "100%", height: "100%" }}
-          contentStyle={{ width: "250%", height: "250%" }}
+          wrapperStyle={{ width: "100%", height: "400%" }}
+          contentStyle={{ width: "250%", height: "400%" }}
         >
-          <svg width={"100%"} onClick={handleClick}>
+          <svg width={"100%"} height= {"200%"} onClick={handleClick}>
             {graph.nodes.map((node) => (
               <DataElement
                 data={node}

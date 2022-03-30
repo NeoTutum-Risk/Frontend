@@ -7,7 +7,7 @@
 }
 
 .activeCircleElement text {
-  fill: rgb(11, 47, 165);
+  fill: rgb(255, 255, 255);
   cursor: pointer;
   font-weight: bold;
 }
@@ -21,6 +21,17 @@
 }
 
 .circleElement text {
-  fill: rgb(93, 149, 151);
+  fill: white;
   cursor: pointer;
+}
+
+.groupElement text {
+  fill: rgb(11, 47, 165);
+  cursor: pointer;
+}
+
+.groupElement circle {
+  fill: #fff;
+  stroke: rgba(77, 77, 77, 0.849);
+  stroke-width: 2px;
 }
