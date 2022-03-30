@@ -224,7 +224,7 @@ export const RiskAssessmentWindow = ({
       let type, id;
       let x = e.nativeEvent.layerX + 20;
       let y = e.nativeEvent.layerY + 50;
-      if (e.target.id === "svg") {
+      if (e.target.id === "svg" || e.target.nodeName==="rect") {
         type = "create";
         x = e.nativeEvent.layerX+ 20;
         y = e.nativeEvent.layerY + 50;
