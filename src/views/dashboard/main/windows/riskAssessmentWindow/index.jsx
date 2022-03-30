@@ -59,6 +59,8 @@ export const RiskAssessmentWindow = ({
     type: "",
     x: 0,
     y: 0,
+    contextX: 0,
+    contextY: 0,
     element: null,
   });
   const [riskObjects, setRiskObjects] = useState([]);
@@ -110,6 +112,8 @@ export const RiskAssessmentWindow = ({
             type: "",
             x: 0,
             y: 0,
+            contextX: 0,
+            contextY: 0,
             element: null,
           });
         } else {
@@ -118,6 +122,8 @@ export const RiskAssessmentWindow = ({
             type: "",
             x: 0,
             y: 0,
+            contextX: 0,
+            contextY: 0,
             element: null,
           });
         }
@@ -134,6 +140,8 @@ export const RiskAssessmentWindow = ({
           type: "",
           x: 0,
           y: 0,
+          contextX: 0,
+          contextY: 0,
           element: null,
         });
       }
@@ -155,6 +163,8 @@ export const RiskAssessmentWindow = ({
           type: "",
           x: 0,
           y: 0,
+          contextX: 0,
+          contextY: 0,
           element: null,
         });
         const response = await addRiskConnection(payload);
@@ -222,10 +232,14 @@ export const RiskAssessmentWindow = ({
       const rect = document
         .getElementsByClassName("styles_mainContainer__EqXOx")[0]
         .getBoundingClientRect();
-      // const x = e.pageX - rect.left;
-      // const y = e.pageY - rect.top;
-      let x = e.nativeEvent.layerX + 20;
-      let y = e.nativeEvent.layerY + 50;
+      const scrollDiv = document.getElementsByClassName(
+        "styles_mainContainer__EqXOx"
+      )[0];
+      console.log("scroll", scrollDiv.scrollTop);
+      const contextX = e.pageX - rect.left;
+      const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
+      let x = e.nativeEvent.layerX;
+      let y = e.nativeEvent.layerY;
       if (e.target.id === "svg" || e.target.nodeName === "rect") {
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
@@ -250,6 +264,8 @@ export const RiskAssessmentWindow = ({
         type,
         x,
         y,
+        contextX,
+        contextY,
         element: id ? Number(id) : Number(e.target.parentElement.id),
       }));
     },
@@ -268,6 +284,8 @@ export const RiskAssessmentWindow = ({
       type: "",
       x: 0,
       y: 0,
+      contextX: 0,
+      contextY: 0,
       element: null,
     });
     setTimeout(riskAssessmentData, 100);
@@ -291,6 +309,8 @@ export const RiskAssessmentWindow = ({
           type: "",
           x: 0,
           y: 0,
+          contextX: 0,
+          contextY: 0,
           element: null,
         });
         setSelectedElements([]);
@@ -313,6 +333,8 @@ export const RiskAssessmentWindow = ({
       type: "",
       x: 0,
       y: 0,
+      contextX: 0,
+      contextY: 0,
       element: null,
     });
   }, []);
@@ -477,8 +499,8 @@ export const RiskAssessmentWindow = ({
           zIndex: 10000000000,
           fontSize: "10px",
           position: "absolute",
-          top: contextMenu.y,
-          left: contextMenu.x,
+          top: contextMenu.contextY,
+          left: contextMenu.contextX,
         }}
       >
         {contextMenu.active && contextMenu.type === "context" && (
