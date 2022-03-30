@@ -209,25 +209,27 @@ export const RiskAssessmentWindow = ({
   const handleContextMenu = useCallback(
     async (e, data) => {
       e.preventDefault();
-      if(data){
+      if (data) {
         if (data["position.enabled"]) {
           setElementEnable(true);
         } else {
           setElementEnable(false);
         }
       }
-      // else{
-      //   setElementEnable(false);
-      // }
-      
+
       console.log("rx", e, data);
       let type, id;
+      const rect = document
+        .getElementsByClassName("styles_mainContainer__EqXOx")[0]
+        .getBoundingClientRect();
+      // const x = e.pageX - rect.left;
+      // const y = e.pageY - rect.top;
       let x = e.nativeEvent.layerX + 20;
       let y = e.nativeEvent.layerY + 50;
-      if (e.target.id === "svg" || e.target.nodeName==="rect") {
+      if (e.target.id === "svg" || e.target.nodeName === "rect") {
         type = "create";
-        x = e.nativeEvent.layerX+ 20;
-        y = e.nativeEvent.layerY + 50;
+        // x = e.nativeEvent.layerX+ 20;
+        // y = e.nativeEvent.layerY + 50;
       } else if (e.target.id.split("-").length === 2) {
         type = "template";
         id = e.target.id.split("-")[1];
@@ -326,6 +328,7 @@ export const RiskAssessmentWindow = ({
           x: contextMenu.x,
           y: contextMenu.y,
           riskAssessmentId: window.data.id,
+          enabled: true,
         };
 
         const response = await addNewRiskObject(payload);
