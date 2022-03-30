@@ -224,6 +224,18 @@ export const RiskElement = ({
             >
               {data.name}
             </text>
+            <text
+              x={drag.cx}
+              y={drag.cy+28}
+              textAnchor="middle"
+              strokeWidth="2px"
+              dy=".3em"
+              fill-opacity={data["position.enabled"] ? "1" : ".3"}
+              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
+              // fill={data[position.enabled]?"":"#d3d3d3"}
+            >
+              {data.id}
+            </text>
           </>
         )}
       </g>
