@@ -31,7 +31,7 @@ import {
   showDangerToaster,
   showSuccessToaster,
 } from "../../../../../utils/toaster";
-import {objectSelectorState} from "../../../../../store/objectSelector";
+import { objectSelectorState } from "../../../../../store/objectSelector";
 import { Window } from "../window";
 import { RiskAssessment } from "../../../../../components/riskAssessment";
 import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
@@ -55,7 +55,8 @@ export const RiskAssessmentWindow = ({
   const [objectName, setObjectName] = useState(null);
   const [isServiceLoading, setIsServiceLoading] = useState(false);
   const [selectedElements, setSelectedElements] = useState([]);
-  const [selectedObjects, setSelectedObjects] = useRecoilState(objectSelectorState);
+  const [selectedObjects, setSelectedObjects] =
+    useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
     active: false,
     type: "",
@@ -177,7 +178,13 @@ export const RiskAssessmentWindow = ({
         console.log(payload);
       }
     },
-    [window.data.id, selectedElements, setConnections, linkName,setSelectedObjects]
+    [
+      window.data.id,
+      selectedElements,
+      setConnections,
+      linkName,
+      setSelectedObjects,
+    ]
   );
 
   useEffect(() => {
@@ -326,7 +333,7 @@ export const RiskAssessmentWindow = ({
       selectedElements,
       contextMenu,
       groupName,
-      setSelectedObjects
+      setSelectedObjects,
     ]
   );
 
@@ -363,6 +370,7 @@ export const RiskAssessmentWindow = ({
             response.data.data.riskObjectsPositions[0].x;
           newObject["position.y"] =
             response.data.data.riskObjectsPositions[0].y;
+          newObject["position.enabled"] = true;
           setRiskObjects((prev) => [...prev, newObject]);
         }
         setIsServiceLoading(false);

@@ -19,8 +19,8 @@ export const RiskGroup = ({
   const [expanded, setExpanded] = useState(data.expanded);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y - 50,
-    cx: position.x + 50 + 75 * index,
+    cy: position.y - 50 >= 40 ? position.y - 50 : 40,
+    cx: position.x + 50 + 75 * index >= 40 ? position.x + 50 + 75 * index : 40,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -59,6 +59,13 @@ export const RiskGroup = ({
   );
 
   const updateLocation = useCallback(async () => {
+    if(drag.cx<40){
+      setDrag(prev=>({...prev,cx:40}));
+    }
+
+    if(drag.cy<40){
+      setDrag(prev=>({...prev,cy:40}));
+    }
     updateXarrow();
     const updateElementPosition = await updateRiskAssessmentGroup(data.id, {
       x: Math.round(drag.cx - 50 - 75 * index),
@@ -170,7 +177,7 @@ export const RiskGroup = ({
           updateLocation();
         }}
         onPointerLeave={endDrag}
-        onContextMenu={(e)=>handleContextMenu(e,data)}
+        onContextMenu={(e) => handleContextMenu(e, data)}
         onMouseOver={handleMouseOver}
         className={
           selectedElements.find((element) => element.id === data.id)
@@ -195,7 +202,7 @@ export const RiskGroup = ({
           ry={20}
         /> */}
         <text
-        fill="black"
+          fill="black"
           x={drag.cx}
           y={drag.cy}
           textAnchor="middle"

@@ -23,14 +23,14 @@ export const RiskElement = ({
   expanded,
   expandPosition,
 }) => {
-  console.log(`element ${data.id}`)
-  console.log(`element rerendered ${data.id}`)
+  // console.log(`element ${data.id}`);
+  // console.log(`element rerendered ${data.id}`);
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y - 50>0?position.y - 50:40,
-    cx: position.x + 50 + 75 * index>0?position.x + 50 + 75 * index:40,
+    cy: position.y - 50 >= 40 ? position.y - 50 : 40,
+    cx: position.x + 50 + 75 * index >= 40 ? position.x + 50 + 75 * index : 40,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -67,12 +67,23 @@ export const RiskElement = ({
     [drag.active]
   );
   const updateLocation = useCallback(async () => {
+    // console.log("new position",drag.cx, drag.cy);
+    if(drag.cx<40){
+      setDrag(prev=>({...prev,cx:40}));
+    }
+
+    if(drag.cy<40){
+      setDrag(prev=>({...prev,cy:40}));
+    }
+
+    const x = Math.round(drag.cx - 50 - 75 * index);
+    const y = Math.round(drag.cy + 50);
     const updateElementPosition = await updateRiskObjectPosition(
       riskAssessmentId,
       data.id,
       {
-        x: Math.round(drag.cx - 50 - 75 * index),
-        y: Math.round(drag.cy + 50),
+        x,
+        y,
         enabled: data["position.enabled"],
       }
     );
@@ -158,8 +169,8 @@ export const RiskElement = ({
         {!expanded && (
           <circle
             r={35}
-            cy={expandPosition.y+index*5}
-            cx={expandPosition.x+index*5}
+            cy={expandPosition.y + index * 5}
+            cx={expandPosition.x + index * 5}
             fill-opacity="0"
             stroke-opacity="0"
           />
@@ -170,9 +181,11 @@ export const RiskElement = ({
               <image
                 fill="#d3d3d3"
                 textAnchor="middle"
-                href={!selectedElements.find((element) => element.id === data.id)
-                  ? hexagon
-                  : hexagonactive}
+                href={
+                  !selectedElements.find((element) => element.id === data.id)
+                    ? hexagon
+                    : hexagonactive
+                }
                 x={drag.cx - 42.5}
                 y={drag.cy - 42.5}
                 height="85px"
@@ -182,9 +195,11 @@ export const RiskElement = ({
               <image
                 fill="#d3d3d3"
                 textAnchor="middle"
-                href={!selectedElements.find((element) => element.id === data.id)
-                  ? eightgon
-                  : eightgonactive}
+                href={
+                  !selectedElements.find((element) => element.id === data.id)
+                    ? eightgon
+                    : eightgonactive
+                }
                 x={drag.cx - 42.5}
                 y={drag.cy - 42.5}
                 height="85px"
@@ -194,9 +209,11 @@ export const RiskElement = ({
               <image
                 fill="#d3d3d3"
                 textAnchor="middle"
-                href={!selectedElements.find((element) => element.id === data.id)
-                  ? fivegon
-                  : fivegonactive}
+                href={
+                  !selectedElements.find((element) => element.id === data.id)
+                    ? fivegon
+                    : fivegonactive
+                }
                 x={drag.cx - 42.5}
                 y={drag.cy - 42.5}
                 height="85px"
@@ -227,7 +244,7 @@ export const RiskElement = ({
             </text>
             <text
               x={drag.cx}
-              y={drag.cy+28}
+              y={drag.cy + 28}
               textAnchor="middle"
               strokeWidth="2px"
               dy=".3em"
