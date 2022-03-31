@@ -255,10 +255,10 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
         onPanningStop={handleZoomPanPinch}
       >
         <TransformComponent
-          wrapperStyle={{ width: "100%", height: "400%" }}
-          contentStyle={{ width: "250%", height: "400%" }}
+          wrapperStyle={{ width: "600%", height: "600%" }}
+          contentStyle={{ width: "600%", height: "600%" }}
         >
-          <svg width={"100%"} height= {"200%"} onClick={handleClick}>
+          <svg width={"600%"} height= {"600%"} onClick={handleClick}>
             {graph.nodes.map((node) => (
               <DataElement
                 data={node}
