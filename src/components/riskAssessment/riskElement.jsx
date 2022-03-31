@@ -23,13 +23,14 @@ export const RiskElement = ({
   expanded,
   expandPosition,
 }) => {
-  // console.log(`element rerendered ${data.id}`)
+  console.log(`element ${data.id}`)
+  console.log(`element rerendered ${data.id}`)
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y - 50,
-    cx: position.x + 50 + 75 * index,
+    cy: position.y - 50>0?position.y - 50:40,
+    cx: position.x + 50 + 75 * index>0?position.x + 50 + 75 * index:40,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -157,8 +158,8 @@ export const RiskElement = ({
         {!expanded && (
           <circle
             r={35}
-            cy={expandPosition.y}
-            cx={expandPosition.x}
+            cy={expandPosition.y+index*5}
+            cx={expandPosition.x+index*5}
             fill-opacity="0"
             stroke-opacity="0"
           />
