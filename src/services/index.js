@@ -94,6 +94,10 @@ export const addMetaData = (data) =>
 export const updateMetaData = (id, data) =>
   serviceProvider.put(`/metaDataLevel1/${id}`, data);
 
+export const addMetaDataLevel2 = (data) => serviceProvider.post(`/metaDataLevel1/metaDataLevel2`, data);
+
+export const updateMetaDataLevel2 = (id, data) => serviceProvider.put(`/metaDataLevel1/metaDataLevel2/${id}`, data)
+
 export const updateDataObject = (id, data) =>
   serviceProvider.put(`/dataObjects/status/${id}`, data);
 
