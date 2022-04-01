@@ -41,7 +41,7 @@ export const Tooltip = ({ x, y, data }) => {
         x={Number(x) + 15}
         y={Number(y) + 15}
       >
-        Level Id: {data.level_id}
+       Level Id: {data.level_id}
       </text>
       <text
         stroke="#000000"

@@ -1,31 +1,29 @@
 import { DataElement } from "./dataElement";
 import { ConnetionContext } from "./connectionContext";
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState,useMemo } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { getDataObjectConnections } from "../../services";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { windowsState } from "../../store/windows";
 import {
   addNewElementsConnection,
   removeNewElementsConnection,
-  getDataObjectElement,
-  getDataObject
 } from "../../services";
-import { setWith } from "lodash";
-export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
+export const FlowChart = ({ graph }) => {
+
+  console.log("flow rerendered");
   const updateXarrow = useXarrow();
   const [selectedElements, setSelectedElements] = useState([]);
-  const [windows, setWindows] = useRecoilState(windowsState);
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
-  const [nodes,setNodes]= useState([]);
-
+  const [nodes, setNodes] = useState(graph.nodes);
+  // const [nodes,setNodes] = useState()
   const [edges, setEdges] = useState([]);
 
   const getEdges = useCallback(async () => {
     const response = await getDataObjectConnections();
     setEdges(response.data.data);
-    // console.log(response.data.data);
+    
   }, []);
 
   useEffect(() => {
@@ -50,8 +48,8 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
           targetId: targetElement.id,
         };
         const response = await addNewElementsConnection(payload);
-        
-       /* const changedElement = await getDataObjectElement(sourceElement.id);
+
+        /* const changedElement = await getDataObjectElement(sourceElement.id);
         const dataObject = await getDataObject(dataObjectId);
         setWindows((prev) => {
           return prev.map((window) => {
@@ -147,7 +145,7 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
         // onNetworkChange({ sourceId, targetId, option: "disconnect" });
       }
     },
-    [selectedElements, edges,dataObjectId,setWindows]
+    [selectedElements, edges]
   );
 
   const showContext = useCallback(
@@ -233,10 +231,10 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
 
   const handleZoomPanPinch = useCallback(() => {
     updateXarrow();
-    setTimeout(updateXarrow, 0);
+    // setTimeout(updateXarrow, 0);
     setTimeout(updateXarrow, 100);
-    setTimeout(updateXarrow, 300);
-    setTimeout(updateXarrow, 500);
+    setTimeout(updateXarrow, 400);
+    // setTimeout(updateXarrow, 500);
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
 
@@ -258,17 +256,18 @@ export const FlowChart = ({ graph, onNetworkChange, dataObjectId }) => {
           wrapperStyle={{ width: "600%", height: "600%" }}
           contentStyle={{ width: "600%", height: "600%" }}
         >
-          <svg width={"600%"} height= {"600%"} onClick={handleClick}>
-            {graph.nodes.map((node) => (
+          <svg width={"600%"} height={"600%"} onClick={handleClick}>
+            {nodes.map((node) => (
               <DataElement
                 data={node}
                 elementSelection={elementSelection}
                 showContext={showContext}
                 selectedElements={selectedElements}
+                setNodes={setNodes}
               />
             ))}
 
-            {contextMenu.show && <ConnetionContext data={contextMenu} />}
+            {contextMenu.show && <ConnetionContext data={contextMenu} setSelectedElements={setSelectedElements} />}
           </svg>
         </TransformComponent>
         {edges.map((edge) => (

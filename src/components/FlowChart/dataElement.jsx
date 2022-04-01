@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./dataElement.css";
 import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
@@ -8,8 +8,9 @@ export const DataElement = ({
   elementSelection,
   showContext,
   selectedElements,
+  setNodes,
 }) => {
-  // console.log(`element rerendered ${data.id}`)
+  // console.log(`element rerendered ${data.id} ${data.x}  ${data.y}`);
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
@@ -18,6 +19,30 @@ export const DataElement = ({
     cx: data.x + 200 + 100 * data.level_value,
     offset: {},
   });
+
+  const updateLocation = useCallback(async () => {
+    const updateElementPosition = await updateDataObjectElement(data.id, {
+      x: drag.cx - 200 - 100 * data.level_value,
+      y: drag.cy - 20,
+    });
+    
+    console.log(updateElementPosition);
+  }, [data.id, data.level_value, drag.cx, drag.cy]);
+
+  useEffect(() => {
+    
+
+    if (selectedElements.find((element) => element.id === data.id)) {
+      setDrag((prev) => ({
+        ...prev,
+        cy: data.y + 20,
+        cx: data.x + 200 + 100 * data.level_value,
+      }));
+       updateLocation();
+    }
+
+  }, [data.x, data.y,data.level_value,data.id,selectedElements,updateLocation]);
+
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipTimer, setTooltipTimer] = useState(null);
 
@@ -47,17 +72,53 @@ export const DataElement = ({
           cy: prev.cy - (prev.offset.y - y),
           cx: prev.cx - (prev.offset.x - x),
         }));
+
+        if (selectedElements.find((element) => element.id === data.id)) {
+          setNodes((prev) =>
+            prev.map((dataElement) => {
+              if (
+                selectedElements.find(
+                  (element2) => element2.id === dataElement.id
+                )
+              ) {
+                return {
+                  ...dataElement,
+                  x: dataElement.x - (drag.offset.x - x),
+                  y: dataElement.y - (drag.offset.y - y),
+                };
+              } else {
+                return dataElement;
+              }
+            })
+          );
+        }else{
+          setNodes((prev) =>
+            prev.map((dataElement) => {
+              if (dataElement.id===data.id) {
+                return {
+                  ...dataElement,
+                  x: dataElement.x - (drag.offset.x - x),
+                  y: dataElement.y - (drag.offset.y - y),
+                };
+              } else {
+                return dataElement;
+              }
+            })
+          );
+        }
+
       }
     },
-    [drag.active]
+    [
+      drag.active,
+      data.id,
+      selectedElements,
+      drag.offset.y,
+      drag.offset.x,
+      setNodes,
+    ]
   );
-  const updateLocation = useCallback(async () => {
-    const updateElementPosition = await updateDataObjectElement(data.id, {
-      x: drag.cx - 200 - 100 * data.level_value,
-      y: drag.cy - 20,
-    });
-    console.log(updateElementPosition);
-  }, [data.id,data.level_value, drag.cx, drag.cy]);
+ 
   const endDrag = useCallback(
     async (e) => {
       e.preventDefault();
@@ -98,7 +159,7 @@ export const DataElement = ({
       });
       // console.log("cm", data);
     },
-    [showContext,drag, data]
+    [showContext, drag, data]
   );
 
   const handleMouseOver = useCallback(
