@@ -1,4 +1,4 @@
-export const ConnetionContext = ({ data, setSelectedElements }) => {
+export const ConnetionContext = ({ data, updateAndDeselect }) => {
   console.log("cc", data);
   return (
     <>
@@ -24,7 +24,7 @@ export const ConnetionContext = ({ data, setSelectedElements }) => {
         {data.option}
       </text>
     </g>
-    <g style={{ cursor: "pointer" }}  onClick={()=>setSelectedElements([])}>
+    <g style={{ cursor: "pointer" }}  onClick={updateAndDeselect}>
       <rect
         height={20}
         width={data.option === "Connect" ? 70 : 140}

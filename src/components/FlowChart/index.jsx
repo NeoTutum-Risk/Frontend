@@ -9,6 +9,7 @@ import { windowsState } from "../../store/windows";
 import {
   addNewElementsConnection,
   removeNewElementsConnection,
+  updateDataObjectElement
 } from "../../services";
 export const FlowChart = ({ graph }) => {
 
@@ -238,6 +239,19 @@ export const FlowChart = ({ graph }) => {
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
 
+  const updateAndDeselect = useCallback(()=>{
+    let updatableElement,updateElementPosition;
+    selectedElements.forEach(async(element)=>{
+      updatableElement= nodes.find(item=>item.id===element.id);
+       updateElementPosition = await updateDataObjectElement(updatableElement.id, {
+        x: updatableElement.x,
+        y: updatableElement.y,
+      });
+    });
+
+    setSelectedElements([]);
+  },[selectedElements,nodes])
+
   return (
     <Xwrapper>
       <TransformWrapper
@@ -267,7 +281,7 @@ export const FlowChart = ({ graph }) => {
               />
             ))}
 
-            {contextMenu.show && <ConnetionContext data={contextMenu} setSelectedElements={setSelectedElements} />}
+            {contextMenu.show && <ConnetionContext data={contextMenu} updateAndDeselect={updateAndDeselect} />}
           </svg>
         </TransformComponent>
         {edges.map((edge) => (

@@ -31,7 +31,6 @@ export const DataElement = ({
 
   useEffect(() => {
     
-
     if (selectedElements.find((element) => element.id === data.id)) {
       setDrag((prev) => ({
         ...prev,
