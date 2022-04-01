@@ -12,6 +12,7 @@ import {
   InputGroup,
   Button,
   HTMLSelect,
+  TextArea
 } from "@blueprintjs/core";
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
@@ -52,6 +53,8 @@ export const RiskAssessmentWindow = ({
   const [linkNameError, setLinkNameError] = useState(null);
   const [objectType, setObjectType] = useState(null);
   const [objectNameError, setObjectNameError] = useState(null);
+  const [objectDescription, setObjectDescription] = useState(null);
+  const [objectDescriptionError, setObjectDescriptionError] = useState(null);
   const [objectName, setObjectName] = useState(null);
   const [isServiceLoading, setIsServiceLoading] = useState(false);
   const [selectedElements, setSelectedElements] = useState([]);
@@ -357,6 +360,7 @@ export const RiskAssessmentWindow = ({
         const payload = {
           type: objectType.toLowerCase(),
           name: objectName,
+          description: objectDescription,
           x: contextMenu.x,
           y: contextMenu.y,
           riskAssessmentId: window.data.id,
@@ -837,6 +841,22 @@ export const RiskAssessmentWindow = ({
                   onChange={(event) => {
                     setObjectNameError(null);
                     setObjectName(event.target.value);
+                  }}
+                />
+              </FormGroup>
+              <FormGroup
+                label="Description"
+                labelInfo="(required)"
+                intent={objectDescriptionError ? Intent.DANGER : Intent.NONE}
+                helperText={objectDescriptionError}
+                labelFor="newObjectDescription"
+              >
+                <TextArea
+                  required
+                  id="newObjectDescription"
+                  onChange={(event) => {
+                    setObjectDescriptionError(null);
+                    setObjectDescription(event.target.value);
                   }}
                 />
               </FormGroup>

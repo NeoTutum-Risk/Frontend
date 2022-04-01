@@ -1,4 +1,4 @@
-import { Intent, Spinner, Switch, Menu, MenuItem, H5,FormGroup,InputGroup,Button } from "@blueprintjs/core";
+import { Intent, Spinner, Switch, Menu, MenuItem, H5,FormGroup,InputGroup,Button,TextArea } from "@blueprintjs/core";
 import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
@@ -25,6 +25,8 @@ export const GraphWindow = ({
   const [newPhysicalObjectNameError, setNewPhysicalObjectNameError] = useState(null);
   const [newPhysicalObjectName,setNewPhysicalObjectName] = useState(null);
   const [isAddPhysicalObjectLoading,setIsAddPhysicalObjectLoading] = useState(false);
+  const [objectDescription, setObjectDescription] = useState(null);
+  const [objectDescriptionError, setObjectDescriptionError] = useState(null);
   const [contextMenu, setContextMenu] = useState({
     active: false,
     type:"",
@@ -142,6 +144,7 @@ export const GraphWindow = ({
         fileId:window.data.id,
         type:"physical",
         name:newPhysicalObjectName,
+        description:objectDescription,
         level:0,
       }
   
@@ -228,6 +231,22 @@ export const GraphWindow = ({
               }}
             />
           </FormGroup>
+          <FormGroup
+                label="Description"
+                labelInfo="(required)"
+                intent={objectDescriptionError ? Intent.DANGER : Intent.NONE}
+                helperText={objectDescriptionError}
+                labelFor="newObjectDescription"
+              >
+                <TextArea
+                  required
+                  id="newObjectDescription"
+                  onChange={(event) => {
+                    setObjectDescriptionError(null);
+                    setObjectDescription(event.target.value);
+                  }}
+                />
+              </FormGroup>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 15 }}>
             <Button
               className={Classes.POPOVER2_DISMISS}

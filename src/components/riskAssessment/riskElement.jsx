@@ -1,6 +1,4 @@
-import physical from "./tag.svg";
-import virtual from "./modal.svg";
-import model from "./modal-filled.svg";
+import {Tooltip} from "./dataElementTooltip";
 import hexagon from "./shapes/hexagon.svg";
 import eightgon from "./shapes/eightgon.svg";
 import fivegon from "./shapes/fivegon.svg";
@@ -257,7 +255,7 @@ export const RiskElement = ({
           </>
         )}
       </g>
-      {/* {showTooltip && !drag.active && (
+      {showTooltip && !drag.active && (
         <Tooltip
           x={drag.cx}
           y={drag.cy}
@@ -265,12 +263,9 @@ export const RiskElement = ({
           ty={drag.cy}
           data={{
             description: data.description,
-            name: data.name,
-            level_id: data.level_id,
-            level_name: data.level_name,
           }}
         />
-      )} */}
+      )}
     </>
   );
 };
