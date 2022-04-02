@@ -97,7 +97,7 @@ export const RiskAssessmentWindow = ({
     if (response.status === 200) {
       console.log(response.data.data);
       setRiskObjects(response.data.data.riskObjects);
-      setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
+      // setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
       setGroups(response.data.data.riskGroups);
       setConnections(response.data.data.riskConnections);
     } else {
