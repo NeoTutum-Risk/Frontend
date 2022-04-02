@@ -240,13 +240,11 @@ export const RiskAssessmentWindow = ({
         }
       }
 
-      console.log("rx", e, data);
-      let type, id;
+      let type, id,element;
       const rect = document
         .querySelector("#mainContainer")
         .getBoundingClientRect();
       const scrollDiv = document.querySelector("#mainContainer");
-      console.log("scroll", scrollDiv.scrollTop);
       const contextX = e.pageX - rect.left;
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
       let x = e.nativeEvent.layerX;
@@ -259,6 +257,9 @@ export const RiskAssessmentWindow = ({
         type = "template";
         id = e.target.id.split("-")[1];
       } else {
+        // if (e.target.id.split("-").length === 3){
+        //   id = e.target.id.split("-")[3];
+        // }
         if (selectedElements.length === 0) {
           type = "context";
         } else if (selectedElements.length === 2) {
@@ -269,7 +270,9 @@ export const RiskAssessmentWindow = ({
           type = "object";
         }
       }
+      element=id ? Number(id) : Number(e.target.parentElement.id.split("-")[2]);
 
+      console.log(type,e.target.parentElement.id,element);
       setContextMenu((prev) => ({
         active: true,
         type,
@@ -277,7 +280,7 @@ export const RiskAssessmentWindow = ({
         y,
         contextX,
         contextY,
-        element: id ? Number(id) : Number(e.target.parentElement.id),
+        element,
       }));
     },
     [setContextMenu, selectedElements]

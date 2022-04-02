@@ -161,7 +161,7 @@ export const RiskElement = ({
             ? "activeCircleElement"
             : "circleElement"
         }
-        id={data.id}
+        id={`R-${riskAssessmentId}-${data.id}`}
       >
         {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
         {!expanded && (

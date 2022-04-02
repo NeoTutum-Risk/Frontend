@@ -153,8 +153,8 @@ export const RiskAssessment = ({
             // headSize={7}
             // tailSize={7}
             labels={{ middle:<div>{edge.name}</div>  }}
-            start={String(edge.sourceRef)}
-            end={String(edge.targetRef)}
+            start={String("R-"+riskAssessmentId+"-"+edge.sourceRef)}
+            end={String("R-"+riskAssessmentId+"-"+edge.targetRef)}
             SVGcanvasStyle={{ overflow: "hidden" }}
           />
         ))}
@@ -166,7 +166,7 @@ export const RiskAssessment = ({
                   path="smooth"
                   curveness={0.2}
                   strokeWidth={1}
-                  start={String(element.id)}
+                  start={String("R-"+riskAssessmentId+"-"+element.id)}
                   dashness={{ strokeLen: 5, nonStrokeLen: 5, animation: -1 }}
                   animation={1}
                   headShape={"circle"}
