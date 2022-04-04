@@ -483,7 +483,7 @@ export const RiskAssessmentWindow = ({
         collapseState={collapseState}
         title={window.data.name}
       >
-        {contextMenu.active && contextMenu.type === "loading" && (
+        {contextMenu.active && contextMenu.type === "loading...." && (
           <div
             key="text"
             style={{
