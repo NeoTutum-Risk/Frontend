@@ -20,6 +20,7 @@ export const RiskElement = ({
   riskAssessmentId,
   expanded,
   expandPosition,
+  groupId
 }) => {
   // console.log(`element ${data.id}`);
   // console.log(`element rerendered ${data.id}`);
@@ -27,8 +28,8 @@ export const RiskElement = ({
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y - 50 >= 40 ? position.y - 50 : 40,
-    cx: position.x + 50 + 75 * index >= 40 ? position.x + 50 + 75 * index : 40,
+    cy: position.y - 50 >= 60 ? position.y - 50 : 60,
+    cx: position.x + 50 + 75 * index >= 60 ? position.x + 50 + 75 * index : 60,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -66,12 +67,12 @@ export const RiskElement = ({
   );
   const updateLocation = useCallback(async () => {
     // console.log("new position",drag.cx, drag.cy);
-    if (drag.cx < 40) {
-      setDrag((prev) => ({ ...prev, cx: 40 }));
+    if (drag.cx < 60) {
+      setDrag((prev) => ({ ...prev, cx: 60 }));
     }
 
-    if (drag.cy < 40) {
-      setDrag((prev) => ({ ...prev, cy: 40 }));
+    if (drag.cy < 60) {
+      setDrag((prev) => ({ ...prev, cy: 60 }));
     }
 
     const x = Math.round(drag.cx - 50 - 75 * index);
@@ -184,10 +185,10 @@ export const RiskElement = ({
                     ? hexagon
                     : hexagonactive
                 }
-                x={drag.cx - 42.5}
-                y={drag.cy - 42.5}
-                height="85px"
-                width="85px"
+                x={drag.cx - 60}
+                y={drag.cy - 60}
+                height="125px"
+                width="125px"
               />
             ) : data.type === "virtual" ? (
               <image
@@ -198,10 +199,10 @@ export const RiskElement = ({
                     ? eightgon
                     : eightgonactive
                 }
-                x={drag.cx - 42.5}
-                y={drag.cy - 42.5}
-                height="85px"
-                width="85px"
+                x={drag.cx - 60}
+                y={drag.cy - 60}
+                height="120px"
+                width="120px"
               />
             ) : (
               <image
@@ -212,10 +213,10 @@ export const RiskElement = ({
                     ? fivegon
                     : fivegonactive
                 }
-                x={drag.cx - 42.5}
-                y={drag.cy - 42.5}
-                height="85px"
-                width="85px"
+                x={drag.cx - 60}
+                y={drag.cy - 60}
+                height="120px"
+                width="120px"
               />
             )}
 
@@ -236,9 +237,20 @@ export const RiskElement = ({
               dy=".3em"
               fill-opacity={data["position.enabled"] ? "1" : ".3"}
               stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-              // fill={data[position.enabled]?"":"#d3d3d3"}
             >
               {data.name}
+            </text>
+            <text
+              x={drag.cx}
+              y={drag.cy-22.5}
+              textAnchor="middle"
+              strokeWidth="2px"
+              dy=".3em"
+              fill="black"
+              fill-opacity={data["position.enabled"] ? "1" : ".3"}
+              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
+            >
+              {groupId>0?Number(groupId-2000000):null}
             </text>
             <text
               x={drag.cx}
@@ -248,7 +260,6 @@ export const RiskElement = ({
               dy=".3em"
               fill-opacity={data["position.enabled"] ? "1" : ".3"}
               stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-              // fill={data[position.enabled]?"":"#d3d3d3"}
             >
               {data.id}
             </text>

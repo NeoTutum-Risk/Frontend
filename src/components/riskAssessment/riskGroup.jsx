@@ -166,6 +166,7 @@ export const RiskGroup = ({
           riskAssessmentId={riskAssessmentId}
           position={{ x: object["position.x"], y: object["position.y"] }}
           expandPosition={{ x: drag.cx, y: drag.cy }}
+          groupId={data.id}
         />
       ))}
       <g
@@ -212,6 +213,16 @@ export const RiskGroup = ({
         >
           {data.name}
         </text>
+        <text
+              x={drag.cx}
+              y={drag.cy-22.5}
+              textAnchor="middle"
+              strokeWidth="2px"
+              dy=".3em"
+              fill="black"
+            >
+              {Number(data.id-2000000)}
+            </text>
       </g>
 
       {/* {showTooltip && !drag.active && (
