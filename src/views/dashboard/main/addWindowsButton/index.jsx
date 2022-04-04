@@ -28,6 +28,7 @@ export const AddWindowsButton = ({ data }) => {
     const ids = selectedObjects.map(object=>object.id);
     const payload = {ids:[...new Set([...ids])]};
     const response = await getRiskObjectProperties(payload);
+    setSelectedObjects([]);
     setWindowsState((prevWindows) => [
       {
         id: generateID(),
