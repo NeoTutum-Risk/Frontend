@@ -1,4 +1,4 @@
-import {Tooltip} from "./dataElementTooltip";
+import { Tooltip } from "./dataElementTooltip";
 import hexagon from "./shapes/hexagon.svg";
 import eightgon from "./shapes/eightgon.svg";
 import fivegon from "./shapes/fivegon.svg";
@@ -66,12 +66,12 @@ export const RiskElement = ({
   );
   const updateLocation = useCallback(async () => {
     // console.log("new position",drag.cx, drag.cy);
-    if(drag.cx<40){
-      setDrag(prev=>({...prev,cx:40}));
+    if (drag.cx < 40) {
+      setDrag((prev) => ({ ...prev, cx: 40 }));
     }
 
-    if(drag.cy<40){
-      setDrag(prev=>({...prev,cy:40}));
+    if (drag.cy < 40) {
+      setDrag((prev) => ({ ...prev, cy: 40 }));
     }
 
     const x = Math.round(drag.cx - 50 - 75 * index);
@@ -167,8 +167,8 @@ export const RiskElement = ({
         {!expanded && (
           <circle
             r={35}
-            cy={expandPosition.y }
-            cx={expandPosition.x }
+            cy={expandPosition.y}
+            cx={expandPosition.x}
             fill-opacity="0"
             stroke-opacity="0"
           />

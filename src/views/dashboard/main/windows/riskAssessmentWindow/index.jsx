@@ -203,10 +203,11 @@ export const RiskAssessmentWindow = ({
       ) : object.path ? (
         <MenuItem
           text={object.name}
+          htmlTitle={object.description?object.description:null}
           onClick={() => contextMenuAction(object.path)}
         />
       ) : (
-        <MenuItem text={object.name} />
+        <MenuItem text={object.name}/>
       );
     },
     [contextMenuAction]

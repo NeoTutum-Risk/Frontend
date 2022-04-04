@@ -879,6 +879,7 @@ export const Portfolios = () => {
   useEffect(() => {
     setNodes((prevNodes) =>
       portfolios.data.map((portfolio, portfolioIdx) => ({
+        key:portfolio.id,
         id: portfolio.id,
         hasCaret: portfolio?.serviceChains?.length > 0,
         icon: "folder-close",
