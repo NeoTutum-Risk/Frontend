@@ -384,15 +384,17 @@ export const RiskAssessmentWindow = ({
         resetContext();
         setObjectName(null);
         setObjectType(null);
+        setObjectDescription(null);
       } catch (er) {
         setIsServiceLoading(false);
         showDangerToaster(`Unable to Create Risk Object ${er}`);
         resetContext();
         setObjectName(null);
         setObjectType(null);
+        setObjectDescription(null);
       }
     },
-    [contextMenu, window.data.id, objectName, objectType, resetContext]
+    [contextMenu, window.data.id, objectName, objectType, resetContext,objectDescription]
   );
 
   const createGroupFromTemplate = useCallback(
@@ -878,6 +880,8 @@ export const RiskAssessmentWindow = ({
                     setObjectName(null);
                     setObjectNameError(null);
                     setObjectType(null);
+                    setObjectDescriptionError(null);
+                    setObjectDescription(null);
                   }}
                 >
                   Cancel
