@@ -158,7 +158,7 @@ export const RiskAssessment = ({
             SVGcanvasStyle={{ overflow: "hidden" }}
           />
         ))}
-        {groups.length > 0
+        {/* {groups.length > 0
           ? groups.map((group, index) =>
               group.elements.map((element) => (
                 <Xarrow
@@ -179,7 +179,7 @@ export const RiskAssessment = ({
                 />
               ))
             )
-          : null}
+          : null} */}
       </TransformWrapper>
     </Xwrapper>
   );

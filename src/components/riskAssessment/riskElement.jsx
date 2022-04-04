@@ -167,8 +167,8 @@ export const RiskElement = ({
         {!expanded && (
           <circle
             r={35}
-            cy={expandPosition.y + index * 5}
-            cx={expandPosition.x + index * 5}
+            cy={expandPosition.y }
+            cx={expandPosition.x }
             fill-opacity="0"
             stroke-opacity="0"
           />
