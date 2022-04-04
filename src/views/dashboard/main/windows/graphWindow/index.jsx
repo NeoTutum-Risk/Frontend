@@ -163,7 +163,7 @@ export const GraphWindow = ({
       showDangerToaster(`Unable to Create Risk Object ${er}`);
     }
     
-  },[contextMenu.element,window.data.id,newPhysicalObjectName])
+  },[contextMenu.element,window.data.id,newPhysicalObjectName,objectDescription])
   return (
     <Window
       title={window.data.fileName}

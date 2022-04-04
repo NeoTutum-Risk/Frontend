@@ -197,7 +197,7 @@ export const RiskAssessmentWindow = ({
   const getChildren = useCallback(
     (object) => {
       return object?.children.length > 0 ? (
-        <MenuItem MenuItem text={object.name}>
+        <MenuItem  MenuItem text={object.name}>
           {object.children.map((subObject) => getChildren(subObject))}
         </MenuItem>
       ) : object.path ? (
@@ -330,7 +330,7 @@ export const RiskAssessmentWindow = ({
         });
         setSelectedElements([]);
         setSelectedObjects([]);
-        setTimeout(riskAssessmentData, 100);
+        setTimeout(riskAssessmentData, 500);
         // const redraw = await riskAssessmentData();
       }
     },
