@@ -65,10 +65,27 @@ export const RiskAssessment = ({
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
       >
+{connections.map((edge) => (
+          <Xarrow
+            path="straight"
+            curveness={0.2}
+            strokeWidth={1.5}
+            // headShape={"arrow"}
+            // tailShape={"arrow"}
+            // headSize={7}
+            // tailSize={7}
+            labels={{ middle:<div style={{display:(!true?"none":"inline")}}>{edge.name}</div>  }}
+            start={String("R-"+riskAssessmentId+"-"+edge.sourceRef)}
+            end={String("R-"+riskAssessmentId+"-"+edge.targetRef)}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+          />
+        ))}
         <TransformComponent
           wrapperStyle={{ width: "250%", height: "100%" }}
           contentStyle={{ width: "250%", height: "250%" }}
         >
+
+
           <svg
             width={"200%"}
             onContextMenu={handleContextMenu}
@@ -143,21 +160,7 @@ export const RiskAssessment = ({
               : null}
           </svg>
         </TransformComponent>
-        {connections.map((edge) => (
-          <Xarrow
-            path="straight"
-            curveness={0.2}
-            strokeWidth={1.5}
-            // headShape={"arrow"}
-            // tailShape={"arrow"}
-            // headSize={7}
-            // tailSize={7}
-            labels={{ middle:<div>{edge.name}</div>  }}
-            start={String("R-"+riskAssessmentId+"-"+edge.sourceRef)}
-            end={String("R-"+riskAssessmentId+"-"+edge.targetRef)}
-            SVGcanvasStyle={{ overflow: "hidden" }}
-          />
-        ))}
+        
         {/* {groups.length > 0
           ? groups.map((group, index) =>
               group.elements.map((element) => (

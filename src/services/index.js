@@ -122,7 +122,7 @@ export const UploadLookupFile = (data) => serviceProvider.post('/lookup', data);
 export const getAllLookup = () => serviceProvider('/lookup');
 export const getRiskAssessmentPhysicalTable  = (id) => serviceProvider(`/riskAssessments/physical/${id}`);
 
-export const updateRiskObjectPosition = (riskAssessmenId,id, data) => serviceProvider.put(`/riskObjects/${riskAssessmenId}/${id}`, data);
+export const updateRiskObjectPosition = (riskAssessmenId,id, data) => serviceProvider.put(`/riskObjects/positions/${riskAssessmenId}/${id}`, data);
 
 export const addRiskConnection = (data) => serviceProvider.post(`/riskConnections`,data);
 
@@ -141,3 +141,7 @@ export const addGroupFromTemplate = (data) => serviceProvider.post(`/riskTemplat
 export const getTemplates = () => serviceProvider(`/riskTemplates`);
 
 export const getRiskObjectProperties = (data) => serviceProvider.post(`/riskObjects/properties`,data);
+
+export const updateRiskObject = (id,data) => serviceProvider.put(`/riskObjects/edit/${id}`,data);
+
+export const getRiskObject = (id) => serviceProvider(`/riskObjects/${id}`);

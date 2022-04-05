@@ -12,7 +12,7 @@ import {
   InputGroup,
   Button,
   HTMLSelect,
-  TextArea
+  TextArea,
 } from "@blueprintjs/core";
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
@@ -27,6 +27,8 @@ import {
   getTemplates,
   addGroupFromTemplate,
   updateRiskObjectPosition,
+  updateRiskObject,
+  getRiskObject,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -69,6 +71,7 @@ export const RiskAssessmentWindow = ({
     contextY: 0,
     element: null,
   });
+  const [editElement, setEditElement] = useState(null);
   const [riskObjects, setRiskObjects] = useState([]);
   const [metaData, setMetaData] = useState([]);
   const [connections, setConnections] = useState([]);
@@ -197,17 +200,17 @@ export const RiskAssessmentWindow = ({
   const getChildren = useCallback(
     (object) => {
       return object?.children.length > 0 ? (
-        <MenuItem  MenuItem text={object.name}>
+        <MenuItem MenuItem text={object.name}>
           {object.children.map((subObject) => getChildren(subObject))}
         </MenuItem>
       ) : object.path ? (
         <MenuItem
           text={object.name}
-          htmlTitle={object.description?object.description:null}
+          htmlTitle={object.description ? object.description : null}
           onClick={() => contextMenuAction(object.path)}
         />
       ) : (
-        <MenuItem text={object.name}/>
+        <MenuItem text={object.name} />
       );
     },
     [contextMenuAction]
@@ -241,7 +244,7 @@ export const RiskAssessmentWindow = ({
         }
       }
 
-      let type, id,element;
+      let type, id, element;
       const rect = document
         .querySelector("#mainContainer")
         .getBoundingClientRect();
@@ -271,9 +274,11 @@ export const RiskAssessmentWindow = ({
           type = "object";
         }
       }
-      element=id ? Number(id) : Number(e.target.parentElement.id.split("-")[2]);
+      element = id
+        ? Number(id)
+        : Number(e.target.parentElement.id.split("-")[2]);
 
-      console.log(type,e.target.parentElement.id,element);
+      console.log(type, e.target.parentElement.id, element);
       setContextMenu((prev) => ({
         active: true,
         type,
@@ -354,6 +359,9 @@ export const RiskAssessmentWindow = ({
       contextY: 0,
       element: null,
     });
+    setObjectName(null);
+    setObjectDescription(null);
+    setEditElement(null);
   }, []);
 
   const addRiskObject = useCallback(
@@ -361,32 +369,42 @@ export const RiskAssessmentWindow = ({
       e.preventDefault();
       try {
         setIsServiceLoading(true);
-        const payload = {
-          type: objectType.toLowerCase(),
-          name: objectName,
-          description: objectDescription,
-          x: contextMenu.x,
-          y: contextMenu.y,
-          riskAssessmentId: window.data.id,
-          enabled: true,
-        };
+        const payload = editElement
+          ? { name: objectName, description: objectDescription }
+          : {
+              type: objectType.toLowerCase(),
+              name: objectName,
+              description: objectDescription,
+              x: contextMenu.x,
+              y: contextMenu.y,
+              riskAssessmentId: window.data.id,
+              enabled: true,
+            };
 
-        const response = await addNewRiskObject(payload);
-        if (response.status === 201) {
-          const newObject = { ...response.data.data };
-          newObject["position.x"] =
-            response.data.data.riskObjectsPositions[0].x;
-          newObject["position.y"] =
-            response.data.data.riskObjectsPositions[0].y;
-          newObject["position.enabled"] = true;
-          setRiskObjects((prev) => [...prev, newObject]);
+        if (editElement) {
+          const response = await updateRiskObject(editElement,payload);
+          riskAssessmentData();
+        } else {
+          const response = await addNewRiskObject(payload);
+          if (response.status === 201) {
+            const newObject = { ...response.data.data };
+            newObject["position.x"] =
+              response.data.data.riskObjectsPositions[0].x;
+            newObject["position.y"] =
+              response.data.data.riskObjectsPositions[0].y;
+            newObject["position.enabled"] = true;
+            setRiskObjects((prev) => [...prev, newObject]);
+          }
         }
+
+        setEditElement(null);
         setIsServiceLoading(false);
         resetContext();
         setObjectName(null);
         setObjectType(null);
         setObjectDescription(null);
       } catch (er) {
+        setEditElement(null);
         setIsServiceLoading(false);
         showDangerToaster(`Unable to Create Risk Object ${er}`);
         resetContext();
@@ -395,7 +413,15 @@ export const RiskAssessmentWindow = ({
         setObjectDescription(null);
       }
     },
-    [contextMenu, window.data.id, objectName, objectType, resetContext,objectDescription]
+    [
+      editElement,
+      contextMenu,
+      window.data.id,
+      objectName,
+      objectType,
+      resetContext,
+      objectDescription,
+    ]
   );
 
   const createGroupFromTemplate = useCallback(
@@ -431,6 +457,19 @@ export const RiskAssessmentWindow = ({
       riskAssessmentData,
     ]
   );
+
+  const updateElementData = useCallback(async () => {
+    setEditElement(contextMenu.element);
+    const riskObject = await getRiskObject(contextMenu.element);
+    if (riskObject.status === 200) {
+      const { name, description } = riskObject.data.data;
+      console.log(name, description);
+      setObjectName(name);
+      setObjectDescription(description);
+      setContextMenu((prev) => ({ ...prev, type: "create object" }));
+    }
+    // const object =
+  }, [contextMenu.element]);
 
   const updateElementStatus = useCallback(async () => {
     const response = await updateRiskObjectPosition(
@@ -528,9 +567,10 @@ export const RiskAssessmentWindow = ({
           <Menu className={` ${Classes.ELEVATION_1}`}>
             {elementEnable ? menu : null}
 
+            <MenuDivider />
+            <MenuItem text="Edit" onClick={updateElementData} />
             {elementEnable ? (
               <>
-                <MenuDivider />
                 <MenuItem text="Disable" onClick={updateElementStatus} />
               </>
             ) : (
@@ -832,7 +872,7 @@ export const RiskAssessmentWindow = ({
               borderRadius: "2px",
             }}
           >
-            <H5 style={{ color: "white" }}>Add New {objectType} Object</H5>
+            <H5 style={{ color: "white" }}>{editElement? `Edit Element ${editElement}`  : `Add New ${objectType} Object`}</H5>
             <form onSubmit={addRiskObject}>
               <FormGroup
                 label="Name"
@@ -844,6 +884,7 @@ export const RiskAssessmentWindow = ({
                 <InputGroup
                   required
                   id="newObjectName"
+                  value={objectName}
                   onChange={(event) => {
                     setObjectNameError(null);
                     setObjectName(event.target.value);
@@ -859,6 +900,7 @@ export const RiskAssessmentWindow = ({
               >
                 <TextArea
                   required
+                  value={objectDescription}
                   id="newObjectDescription"
                   onChange={(event) => {
                     setObjectDescriptionError(null);
@@ -883,6 +925,7 @@ export const RiskAssessmentWindow = ({
                     setObjectType(null);
                     setObjectDescriptionError(null);
                     setObjectDescription(null);
+                    setEditElement(null);
                   }}
                 >
                   Cancel
@@ -893,7 +936,7 @@ export const RiskAssessmentWindow = ({
                   intent={Intent.SUCCESS}
                   // onClick={addPortfolio}
                 >
-                  Add
+                  {editElement?"Update" :"Add"}
                 </Button>
               </div>
             </form>

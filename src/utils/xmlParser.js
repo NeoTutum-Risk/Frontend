@@ -17,7 +17,7 @@ export const xmlParser = content => {
     bpmnSequenceFlows: [],
     bpmnLanes: [],
   }
-
+  
   processArray.forEach(process => {
     fullObject.bpmnSequenceFlows.push(arrayFilter(process.children, 'sequenceflow'))
     fullObject.bpmnAssociations.push(arrayFilter(process.children, 'association'))
