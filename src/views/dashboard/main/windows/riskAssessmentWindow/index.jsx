@@ -29,6 +29,7 @@ import {
   updateRiskObjectPosition,
   updateRiskObject,
   getRiskObject,
+  deleteRiskConnection
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -60,6 +61,7 @@ export const RiskAssessmentWindow = ({
   const [objectName, setObjectName] = useState(null);
   const [isServiceLoading, setIsServiceLoading] = useState(false);
   const [selectedElements, setSelectedElements] = useState([]);
+  const [selectedConnection,setSelectedConnection] = useState(null);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -102,7 +104,7 @@ export const RiskAssessmentWindow = ({
       setRiskObjects(response.data.data.riskObjects);
       setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
       setGroups(response.data.data.riskGroups);
-      setConnections(response.data.data.riskConnections);
+      setConnections(response.data.data.riskConnections.filter(connection=>connection.status!=="deleted"));
     } else {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
     }
@@ -220,7 +222,7 @@ export const RiskAssessmentWindow = ({
     return (
       <MenuItem text={l1.name}>
         {l1.metaDataLevel2.map((l2) => {
-          console.log(l2);
+          // console.log(l2);
           return (
             <MenuItem text={l2.name}>
               {l2.dataObjects[0]?.children
@@ -421,6 +423,7 @@ export const RiskAssessmentWindow = ({
       objectType,
       resetContext,
       objectDescription,
+      riskAssessmentData
     ]
   );
 
@@ -510,6 +513,42 @@ export const RiskAssessmentWindow = ({
     }
   }, [window.data.id, contextMenu.element, elementEnable, resetContext]);
 
+  useEffect(()=>{
+    
+    let connection;
+    if(selectedElements.length===2){
+      console.log("selected",selectedElements[0].id,selectedElements[1].id,connections)
+      const first = connections.find(connection=>connection.sourceRef===selectedElements[0].id && connection.targetRef===selectedElements[1].id);
+      console.log("first",first);
+      if(first){
+        connection=first;
+      }else{
+        const second = connections.find(connection=>connection.sourceRef===selectedElements[1].id && connection.targetRef===selectedElements[0].id);
+        console.log("second",second);
+        if(second){
+        connection=second;
+      }
+      }
+      console.log("selected",connection)
+      if(connection){
+        setSelectedConnection(connection.id);
+      }else{
+        setSelectedConnection(null);
+      }
+
+
+    }else{
+      setSelectedConnection(null);
+    }
+  },[selectedElements,connections]);
+
+  const handleDisconnect = useCallback(async ()=>{
+   const response = await deleteRiskConnection(selectedConnection);
+   resetContext();
+   setConnections(prev=>prev.filter(connection=>connection.id!==selectedConnection));
+   setSelectedConnection(null);
+  },[selectedConnection,resetContext]);
+
   return (
     <>
       <Window
@@ -582,6 +621,7 @@ export const RiskAssessmentWindow = ({
         {contextMenu.active && contextMenu.type === "connection" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             <MenuItem
+            disabled={selectedConnection?true:false}
               text="Connect"
               onClick={() => {
                 setContextMenu((prev) => ({
@@ -590,7 +630,7 @@ export const RiskAssessmentWindow = ({
                 }));
               }}
             />
-            <MenuItem disabled text="Disconnect" />
+            <MenuItem onClick={handleDisconnect} disabled={selectedConnection?false:true} text="Disconnect" />
             <MenuDivider />
             <MenuItem
               text="Group"
