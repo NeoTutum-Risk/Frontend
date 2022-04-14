@@ -4,7 +4,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
 import { RiskGroup } from "./riskGroup";
 import { useCallback, useState } from "react";
-import {objectSelectorState} from "../../store/objectSelector";
+import { objectSelectorState } from "../../store/objectSelector";
 import { useRecoilState } from "recoil";
 export const RiskAssessment = ({
   objects,
@@ -17,7 +17,8 @@ export const RiskAssessment = ({
   onContext,
   resetContext,
 }) => {
-  const [selectedObjects,setSelectedObjects]=useRecoilState(objectSelectorState);
+  const [selectedObjects, setSelectedObjects] =
+    useRecoilState(objectSelectorState);
   const elementSelection = useCallback(
     (elementData, state) => {
       console.log(elementData, state);
@@ -30,7 +31,7 @@ export const RiskAssessment = ({
           return [...new Set([...prev, elementData])];
         });
 
-        console.log("store",selectedObjects);
+        console.log("store", selectedObjects);
       } else {
         setSelectedElements((prev) =>
           prev.filter((element) => element.id !== elementData.id)
@@ -40,7 +41,7 @@ export const RiskAssessment = ({
         );
       }
     },
-    [setSelectedElements, setSelectedObjects,selectedObjects]
+    [setSelectedElements, setSelectedObjects, selectedObjects]
   );
   const updateXarrow = useXarrow();
   const handleZoomPanPinch = useCallback(() => {
@@ -65,7 +66,7 @@ export const RiskAssessment = ({
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
       >
-{connections.map((edge) => (
+        {connections.map((edge) => (
           <Xarrow
             path="straight"
             curveness={0.2}
@@ -74,9 +75,15 @@ export const RiskAssessment = ({
             // tailShape={"arrow"}
             // headSize={7}
             // tailSize={7}
-            labels={{ middle:<div style={{display:(!true?"none":"inline")}}>{edge.name}</div>  }}
-            start={String("R-"+riskAssessmentId+"-"+edge.sourceRef)}
-            end={String("R-"+riskAssessmentId+"-"+edge.targetRef)}
+            labels={{
+              middle: (
+                <div style={{ display: !true ? "none" : "inline" }}>
+                  {edge.name}
+                </div>
+              ),
+            }}
+            start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
+            end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
             SVGcanvasStyle={{ overflow: "hidden" }}
           />
         ))}
@@ -84,8 +91,6 @@ export const RiskAssessment = ({
           wrapperStyle={{ width: "250%", height: "100%" }}
           contentStyle={{ width: "250%", height: "250%" }}
         >
-
-
           <svg
             width={"200%"}
             onContextMenu={handleContextMenu}
@@ -152,15 +157,15 @@ export const RiskAssessment = ({
                     data={group}
                     riskAssessmentId={riskAssessmentId}
                     position={{
-                      x: group.x,
-                      y: group.y,
+                      x: group.currentX,
+                      y: group.currentY,
                     }}
                   />
                 ))
               : null}
           </svg>
         </TransformComponent>
-        
+
         {/* {groups.length > 0
           ? groups.map((group, index) =>
               group.elements.map((element) => (

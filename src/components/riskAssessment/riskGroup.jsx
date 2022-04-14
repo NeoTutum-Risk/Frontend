@@ -16,7 +16,7 @@ export const RiskGroup = ({
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
-  const [expanded, setExpanded] = useState(data.expanded);
+  const [expanded, setExpanded] = useState(data.currentExpanded);
   const [drag, setDrag] = useState({
     active: false,
     cy: position.y - 50 >= 40 ? position.y - 50 : 40,
@@ -67,17 +67,17 @@ export const RiskGroup = ({
       setDrag(prev=>({...prev,cy:40}));
     }
     updateXarrow();
-    const updateElementPosition = await updateRiskAssessmentGroup(data.id, {
+    const updateElementPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
       x: Math.round(drag.cx - 50 - 75 * index),
       y: Math.round(drag.cy + 50),
-      expanded: data.expanded,
+      expanded: data.currentExpanded,
     });
 
     console.log(updateElementPosition);
-  }, [data.id, drag.cx, drag.cy, index, data.expanded, updateXarrow]);
+  }, [data.id, drag.cx, drag.cy, index, data.currentExpanded, riskAssessmentId,updateXarrow]);
 
   const updateExpanded = useCallback(async () => {
-    const updateElementPosition = await updateRiskAssessmentGroup(data.id, {
+    const updateElementPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
       x: Math.round(drag.cx - 50 - 75 * index),
       y: Math.round(drag.cy + 50),
       expanded: !expanded,
@@ -87,7 +87,7 @@ export const RiskGroup = ({
     updateXarrow();
     setInterval(updateXarrow, 200);
     console.log(updateElementPosition);
-  }, [data.id, drag.cx, drag.cy, index, expanded, updateXarrow]);
+  }, [data.id, drag.cx, drag.cy, index, expanded, updateXarrow,riskAssessmentId]);
 
   const endDrag = useCallback(
     async (e) => {
@@ -106,26 +106,9 @@ export const RiskGroup = ({
       if (e.detail !== 2) return;
       console.log("Selecting ....");
       updateExpanded();
-      // setActive((prev) => {
-
-      //   return !prev;
-      // });
     },
-    [/*setActive,*/ updateExpanded]
+    [updateExpanded]
   );
-
-  // const handleContext = useCallback(
-  //   (e) => {
-  //     e.preventDefault();
-  //     showContext({
-  //       ...data,
-  //       y: drag.cy,
-  //       x: drag.cx,
-  //     });
-  //     // console.log("cm", data);
-  //   },
-  //   [showContext,drag, data]
-  // );
 
   const handleMouseOver = useCallback(
     (e) => {
