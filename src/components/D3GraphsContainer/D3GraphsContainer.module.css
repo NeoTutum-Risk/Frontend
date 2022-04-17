@@ -1,0 +1,22 @@
+.mainContainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    background-color: #e1e8ed;
+    position: relative;
+    overflow: auto;
+    flex-grow: 15;
+    flex-shrink: 2;
+    background-image: url("../../images/logo.png");
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    background-size: 500px;
+  }
+
+  .graphContainer {
+      display: grid;
+      grid-template-columns: repeat(2, 50%);
+      grid-template-rows: repeat(2, 50%);
+      height: 100%;
+      width: 100%;
+  }
