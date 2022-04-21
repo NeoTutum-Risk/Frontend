@@ -147,3 +147,5 @@ export const updateRiskObject = (id,data) => serviceProvider.put(`/riskObjects/e
 export const getRiskObject = (id) => serviceProvider(`/riskObjects/${id}`);
 
 export const getAllPortfolios = () => serviceProvider('/portfolios');
+
+export const getRiskAssessmentIfExist = (id) => serviceProvider(`/platData/${id}`)
