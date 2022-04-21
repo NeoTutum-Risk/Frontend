@@ -6,6 +6,7 @@ import { Dashboard } from "../views/dashboard";
 import Lookup from "../views/lookup";
 import MetaData from "../views/metaData";
 import { NotFound } from "../views/notFound";
+import SelectRiskAssessment from "../views/SelectRiskAssessment";
 
 export const Routes = () => {
   const element = useRoutes(routes);
@@ -24,6 +25,10 @@ const routes = [
   {
     element: <D3Graphs />,
     path: "d3-graphs"
+  },
+  {
+    element: <SelectRiskAssessment />,
+    path: "select-risk-assessment"
   },
   { path: "*", element: <NotFound /> },
 ];
