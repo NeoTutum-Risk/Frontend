@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import D3ConnectedScatter from "../D3ConnectedScatter";
 import D3DrillDown from "../D3DrillDown";
-import D3HeatMap from "../D3HeatMap";
+import D3HeatMapDummy from "../D3HeatMapDummy";
 import D3TreeMap from "../D3TreeMap";
 import classes from "./D3GraphsContainer.module.css";
 import {
@@ -58,7 +58,7 @@ const D3GraphsContainer = () => {
   return (
     <div className={classes.mainContainer}>
       <div className={classes.graphContainer}>
-        <D3HeatMap
+        <D3HeatMapDummy
           heatmapDummyData={heatmapDummyData}
           continentDummyData={continentDummyData}
           setSelectedPlatforms={setSelectedPlatforms}

@@ -1,27 +1,24 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapDummyData, xLabels, yLabels, rules, defaultHexColorCode, axis}) => {
+const D3HeatMapDummy = ({continentDummyData, setSelectedPlatforms, heatmapDummyData, xLabels, yLabels, rules, defaultHexColorCode}) => {
     const svgRef = useRef(null);
 
-    console.log(displayedCellData)
-
     const handleShownContenents = (heatmapData) => {
-      const resultArrLength = displayedCellData.filter(
-        (cellData) => 
-          cellData[axis.xAxis] === heatmapData[axis.xAxis] && cellData[axis.yAxis] === heatmapData[axis.yAxis]
+      const resultArrLength = continentDummyData.filter(
+        (continent) => continent.value === `${heatmapData.variable}-${heatmapData.group}`
       ).length;
   
       return resultArrLength === 0 ? null : resultArrLength;
     };
   
-    const handleSelectedDisplayCell = (selectedHeatmapData) => {
-      const result = displayedCellData.filter(
+    const handleSelectedPlatform = (selectedHeatmapData) => {
+      const platforms = continentDummyData.filter(
         //(continent) => continent.value === selectedHeatmapData.value
-        (cellData) => cellData[axis.xAxis] === selectedHeatmapData[axis.xAxis] && cellData[axis.yAxis] === selectedHeatmapData[axis.xAxis]
+        (continent) => continent.value === `${selectedHeatmapData.variable}-${selectedHeatmapData.group}`
       );
-      if (result.length !== 0) {
-        setSelectedPlatforms(result)
+      if (platforms.length !== 0) {
+        setSelectedPlatforms(platforms)
       }
     };
   
@@ -76,10 +73,10 @@ const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapDummyData, x
         .classed("bar", true)
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
-        .attr("x", (data) => x(data[axis.xAxis]))
-        .attr("y", (data) => y(data[axis.yAxis]))
+        .attr("x", (data) => x(data.group))
+        .attr("y", (data) => y(data.variable))
         .style("fill", (data) => handleColor(data.value))
-        .on("click", (event) => handleSelectedDisplayCell(event.target.__data__));
+        .on("click", (event) => handleSelectedPlatform(event.target.__data__));
   
       chart
         .selectAll(".label")
@@ -87,15 +84,15 @@ const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapDummyData, x
         .enter()
         .append("text")
         .text((data) => handleShownContenents(data))
-        .attr("x", (data) => x(data[axis.xAxis]) + x.bandwidth() / 2)
-        .attr("y", (data) => y(data[axis.yAxis]) + y.bandwidth() / 2)
+        .attr("x", (data) => x(data.group) + x.bandwidth() / 2)
+        .attr("y", (data) => y(data.variable) + y.bandwidth() / 2)
         .attr("text-anchor", "middle")
         .attr("cursor", "pointer")
         .classed("label", true)
-        .on("click", (event) => handleSelectedDisplayCell(event.target.__data__));
-    }, [displayedCellData]);
+        .on("click", (event) => handleSelectedPlatform(event.target.__data__));
+    }, []);
   
     return <svg ref={svgRef} />;
 }
 
-export default D3HeatMap
+export default D3HeatMapDummy
