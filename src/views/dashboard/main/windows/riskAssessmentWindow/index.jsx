@@ -29,7 +29,10 @@ import {
   updateRiskObjectPosition,
   updateRiskObject,
   getRiskObject,
-  deleteRiskConnection
+  deleteRiskConnection,
+  getGroups,
+  importGroup,
+  updateRiskAssessmentGroup,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -61,7 +64,7 @@ export const RiskAssessmentWindow = ({
   const [objectName, setObjectName] = useState(null);
   const [isServiceLoading, setIsServiceLoading] = useState(false);
   const [selectedElements, setSelectedElements] = useState([]);
-  const [selectedConnection,setSelectedConnection] = useState(null);
+  const [selectedConnection, setSelectedConnection] = useState(null);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -73,11 +76,13 @@ export const RiskAssessmentWindow = ({
     contextY: 0,
     element: null,
   });
+  const [globalGroups, setGlobalGroups] = useState([]);
   const [editElement, setEditElement] = useState(null);
   const [riskObjects, setRiskObjects] = useState([]);
   const [metaData, setMetaData] = useState([]);
   const [connections, setConnections] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [importGroupId, setImportGroupId] = useState(null);
   const [importTemplateId, setImportTemplateId] = useState(null);
   const [importTemplateName, setImportTemplateName] = useState(null);
   const [importTemplateNameError, setImportTemplateNameError] = useState(null);
@@ -97,6 +102,17 @@ export const RiskAssessmentWindow = ({
     }
   }, []);
 
+  const getGlobalGroups = useCallback(async () => {
+    const response = await getGroups();
+    if (response.status === 201) {
+      setGlobalGroups(
+        response.data.data.filter(group=>group.shared).map((group) => ({ id: group.id, name: group.name }))
+      );
+    } else {
+      showDangerToaster(`Error Retrieving Global Groups Data`);
+    }
+  }, []);
+
   const riskAssessmentData = useCallback(async () => {
     const response = await getRiskAssessment(window.data.id);
     if (response.status === 200) {
@@ -104,11 +120,16 @@ export const RiskAssessmentWindow = ({
       setRiskObjects(response.data.data.riskObjects);
       setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
       setGroups(response.data.data.riskGroups);
-      setConnections(response.data.data.riskConnections.filter(connection=>connection.status!=="deleted"));
+      setConnections(
+        response.data.data.riskConnections.filter(
+          (connection) => connection.status !== "deleted"
+        )
+      );
     } else {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
     }
-  }, [window.data.id]);
+    getGlobalGroups();
+  }, [window.data.id, getGlobalGroups]);
 
   const contextMenuAction = useCallback(
     async (path) => {
@@ -384,7 +405,7 @@ export const RiskAssessmentWindow = ({
             };
 
         if (editElement) {
-          const response = await updateRiskObject(editElement,payload);
+          const response = await updateRiskObject(editElement, payload);
           riskAssessmentData();
         } else {
           const response = await addNewRiskObject(payload);
@@ -423,7 +444,7 @@ export const RiskAssessmentWindow = ({
       objectType,
       resetContext,
       objectDescription,
-      riskAssessmentData
+      riskAssessmentData,
     ]
   );
 
@@ -513,41 +534,90 @@ export const RiskAssessmentWindow = ({
     }
   }, [window.data.id, contextMenu.element, elementEnable, resetContext]);
 
-  useEffect(()=>{
-    
+  useEffect(() => {
     let connection;
-    if(selectedElements.length===2){
-      console.log("selected",selectedElements[0].id,selectedElements[1].id,connections)
-      const first = connections.find(connection=>connection.sourceRef===selectedElements[0].id && connection.targetRef===selectedElements[1].id);
-      console.log("first",first);
-      if(first){
-        connection=first;
-      }else{
-        const second = connections.find(connection=>connection.sourceRef===selectedElements[1].id && connection.targetRef===selectedElements[0].id);
-        console.log("second",second);
-        if(second){
-        connection=second;
+    if (selectedElements.length === 2) {
+      console.log(
+        "selected",
+        selectedElements[0].id,
+        selectedElements[1].id,
+        connections
+      );
+      const first = connections.find(
+        (connection) =>
+          connection.sourceRef === selectedElements[0].id &&
+          connection.targetRef === selectedElements[1].id
+      );
+      console.log("first", first);
+      if (first) {
+        connection = first;
+      } else {
+        const second = connections.find(
+          (connection) =>
+            connection.sourceRef === selectedElements[1].id &&
+            connection.targetRef === selectedElements[0].id
+        );
+        console.log("second", second);
+        if (second) {
+          connection = second;
+        }
       }
-      }
-      console.log("selected",connection)
-      if(connection){
+      console.log("selected", connection);
+      if (connection) {
         setSelectedConnection(connection.id);
-      }else{
+      } else {
         setSelectedConnection(null);
       }
-
-
-    }else{
+    } else {
       setSelectedConnection(null);
     }
-  },[selectedElements,connections]);
+  }, [selectedElements, connections]);
 
-  const handleDisconnect = useCallback(async ()=>{
-   const response = await deleteRiskConnection(selectedConnection);
-   resetContext();
-   setConnections(prev=>prev.filter(connection=>connection.id!==selectedConnection));
-   setSelectedConnection(null);
-  },[selectedConnection,resetContext]);
+  const handleDisconnect = useCallback(async () => {
+    const response = await deleteRiskConnection(selectedConnection);
+    resetContext();
+    setConnections((prev) =>
+      prev.filter((connection) => connection.id !== selectedConnection)
+    );
+    setSelectedConnection(null);
+  }, [selectedConnection, resetContext]);
+
+  const importSharedGroup = useCallback(async () => {
+    const payload = {
+      riskAssessmentId: window.data.id,
+      riskGroupId: importGroupId,
+      x: contextMenu.x,
+      y: contextMenu.y,
+    };
+
+    const response = await importGroup(payload);
+    resetContext();
+    setImportGroupId(null);
+    riskAssessmentData();
+  }, [
+    contextMenu.x,
+    contextMenu.y,
+    importGroupId,
+    window.data.id,
+    resetContext,
+    riskAssessmentData,
+  ]);
+
+  const handleShareGroup = useCallback(async () => {
+    const response = await updateRiskAssessmentGroup(
+      contextMenu.element,
+      window.data.id,
+      { shared: 1 }
+    );
+
+    if(response.status===201){
+      showSuccessToaster(`Group #${contextMenu.element} is Shared Successfully`);
+      resetContext();
+    riskAssessmentData();
+    }else{
+      showDangerToaster(`Error Sharing Group #${contextMenu.element}: ${response.data.error}`)
+    }
+  }, [window.data.id, contextMenu.element, resetContext, riskAssessmentData]);
 
   return (
     <>
@@ -621,7 +691,7 @@ export const RiskAssessmentWindow = ({
         {contextMenu.active && contextMenu.type === "connection" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             <MenuItem
-            disabled={selectedConnection?true:false}
+              disabled={selectedConnection ? true : false}
               text="Connect"
               onClick={() => {
                 setContextMenu((prev) => ({
@@ -630,7 +700,11 @@ export const RiskAssessmentWindow = ({
                 }));
               }}
             />
-            <MenuItem onClick={handleDisconnect} disabled={selectedConnection?false:true} text="Disconnect" />
+            <MenuItem
+              onClick={handleDisconnect}
+              disabled={selectedConnection ? false : true}
+              text="Disconnect"
+            />
             <MenuDivider />
             <MenuItem
               text="Group"
@@ -666,6 +740,8 @@ export const RiskAssessmentWindow = ({
                 }));
               }}
             />
+
+            <MenuItem text="Share Group" onClick={handleShareGroup} />
           </Menu>
         )}
 
@@ -699,6 +775,16 @@ export const RiskAssessmentWindow = ({
                 setContextMenu((prev) => ({
                   ...prev,
                   type: "import template",
+                }));
+              }}
+            />
+            <MenuItem
+              text="Import Shared Group"
+              onClick={() => {
+                fetchTemplates();
+                setContextMenu((prev) => ({
+                  ...prev,
+                  type: "import group",
                 }));
               }}
             />
@@ -912,7 +998,11 @@ export const RiskAssessmentWindow = ({
               borderRadius: "2px",
             }}
           >
-            <H5 style={{ color: "white" }}>{editElement? `Edit Element ${editElement}`  : `Add New ${objectType} Object`}</H5>
+            <H5 style={{ color: "white" }}>
+              {editElement
+                ? `Edit Element ${editElement}`
+                : `Add New ${objectType} Object`}
+            </H5>
             <form onSubmit={addRiskObject}>
               <FormGroup
                 label="Name"
@@ -976,7 +1066,7 @@ export const RiskAssessmentWindow = ({
                   intent={Intent.SUCCESS}
                   // onClick={addPortfolio}
                 >
-                  {editElement?"Update" :"Add"}
+                  {editElement ? "Update" : "Add"}
                 </Button>
               </div>
             </form>
@@ -1048,6 +1138,70 @@ export const RiskAssessmentWindow = ({
                     setImportTemplateNameError(null);
                     setImportTemplateName(null);
                     setImportTemplateId(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                  // onClick={addPortfolio}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {contextMenu.active && contextMenu.type === "import group" && (
+          <div
+            key="text"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>Import Shared Group</H5>
+            <form onSubmit={(e)=>{e.preventDefault(); importSharedGroup();}}>
+              <FormGroup
+                label="Group"
+                labelInfo="(required)"
+                intent={false ? Intent.DANGER : Intent.NONE}
+                // helperText="Error"
+                labelFor="Group"
+              >
+                <HTMLSelect
+                  onChange={(e) => setImportGroupId(Number(e.target.value))}
+                >
+                  <option selected disabled>
+                    Select Group
+                  </option>
+                  {globalGroups.length > 0 ? (
+                    globalGroups.map((group) => (
+                      <option value={group.id}>{group.name}</option>
+                    ))
+                  ) : (
+                    <option>No Groups are Avilable</option>
+                  )}
+                </HTMLSelect>
+              </FormGroup>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    resetContext();
+                    setImportGroupId(null);
                   }}
                 >
                   Cancel
