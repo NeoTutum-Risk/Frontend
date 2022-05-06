@@ -13,7 +13,6 @@ export const RiskGroup = ({
   index,
   riskAssessmentId,
   updateXarrow,
-  setFirstContext,
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -60,59 +59,35 @@ export const RiskGroup = ({
   );
 
   const updateLocation = useCallback(async () => {
-    if (drag.cx < 40) {
-      setDrag((prev) => ({ ...prev, cx: 40 }));
+    if(drag.cx<40){
+      setDrag(prev=>({...prev,cx:40}));
     }
 
-    if (drag.cy < 40) {
-      setDrag((prev) => ({ ...prev, cy: 40 }));
+    if(drag.cy<40){
+      setDrag(prev=>({...prev,cy:40}));
     }
     updateXarrow();
-    const updateElementPosition = await updateRiskAssessmentGroup(
-      data.id,
-      riskAssessmentId,
-      {
-        x: Math.round(drag.cx - 50 - 75 * index),
-        y: Math.round(drag.cy + 50),
-        expanded: data.currentExpanded,
-      }
-    );
+    const updateElementPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
+      x: Math.round(drag.cx - 50 - 75 * index),
+      y: Math.round(drag.cy + 50),
+      expanded: data.currentExpanded,
+    });
 
     console.log(updateElementPosition);
-  }, [
-    data.id,
-    drag.cx,
-    drag.cy,
-    index,
-    data.currentExpanded,
-    riskAssessmentId,
-    updateXarrow,
-  ]);
+  }, [data.id, drag.cx, drag.cy, index, data.currentExpanded, riskAssessmentId,updateXarrow]);
 
   const updateExpanded = useCallback(async () => {
-    const updateElementPosition = await updateRiskAssessmentGroup(
-      data.id,
-      riskAssessmentId,
-      {
-        x: Math.round(drag.cx - 50 - 75 * index),
-        y: Math.round(drag.cy + 50),
-        expanded: !expanded,
-      }
-    );
+    const updateElementPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
+      x: Math.round(drag.cx - 50 - 75 * index),
+      y: Math.round(drag.cy + 50),
+      expanded: !expanded,
+    });
 
     setExpanded((prev) => !prev);
     updateXarrow();
     setInterval(updateXarrow, 200);
     console.log(updateElementPosition);
-  }, [
-    data.id,
-    drag.cx,
-    drag.cy,
-    index,
-    expanded,
-    updateXarrow,
-    riskAssessmentId,
-  ]);
+  }, [data.id, drag.cx, drag.cy, index, expanded, updateXarrow,riskAssessmentId]);
 
   const endDrag = useCallback(
     async (e) => {
@@ -165,7 +140,6 @@ export const RiskGroup = ({
         ))} */}
       {data.elements.map((object, index) => (
         <RiskElement
-          setFirstContext={setFirstContext}
           expanded={expanded}
           handleContextMenu={handleContextMenu}
           selectedElements={selectedElements}
@@ -178,7 +152,6 @@ export const RiskGroup = ({
           groupId={data.id}
         />
       ))}
-
       <g
         onClick={handleClick}
         onPointerDown={startDrag}
@@ -224,15 +197,15 @@ export const RiskGroup = ({
           {data.name}
         </text>
         <text
-          x={drag.cx}
-          y={drag.cy - 22.5}
-          textAnchor="middle"
-          strokeWidth="2px"
-          dy=".3em"
-          fill="black"
-        >
-          {Number(data.id - 2000000)}
-        </text>
+              x={drag.cx}
+              y={drag.cy-22.5}
+              textAnchor="middle"
+              strokeWidth="2px"
+              dy=".3em"
+              fill="black"
+            >
+              {Number(data.id-2000000)}
+            </text>
       </g>
 
       {/* {showTooltip && !drag.active && (

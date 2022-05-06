@@ -3,7 +3,7 @@ import { DraggableBox } from "./draggableBox";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
 import { RiskGroup } from "./riskGroup";
-import { useCallback, useState, Fragment } from "react";
+import { useCallback, useState } from "react";
 import { objectSelectorState } from "../../store/objectSelector";
 import { useRecoilState } from "recoil";
 export const RiskAssessment = ({
@@ -16,9 +16,7 @@ export const RiskAssessment = ({
   connections,
   onContext,
   resetContext,
-  setFirstContext,
 }) => {
-  console.log("index",typeof setFirstContext);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const elementSelection = useCallback(
@@ -55,14 +53,8 @@ export const RiskAssessment = ({
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
   return (
-    <div
-      style={{ overflow: "auto", height: "100%", width: "100%" }}
-      onScroll={updateXarrow}
-      onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
-      onClick={resetContext}
-    >
-      <Xwrapper>
-        {/* <TransformWrapper
+    <Xwrapper>
+      <TransformWrapper
         initialScale={1}
         minScale={0.5}
         maxScale={1.8}
@@ -73,8 +65,7 @@ export const RiskAssessment = ({
         onPinchingStop={handleZoomPanPinch}
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
-      > */}
-
+      >
         {connections.map((edge) => (
           <Xarrow
             path="straight"
@@ -96,18 +87,17 @@ export const RiskAssessment = ({
             SVGcanvasStyle={{ overflow: "hidden" }}
           />
         ))}
-
-        {/* <TransformComponent
+        <TransformComponent
           wrapperStyle={{ width: "250%", height: "100%" }}
           contentStyle={{ width: "250%", height: "250%" }}
-        > */}
-        {/* <svg
+        >
+          <svg
             width={"200%"}
             onContextMenu={handleContextMenu}
             onClick={resetContext}
             id="svg"
-          > */}
-        {/* <defs>
+          >
+            <defs>
               <pattern
                 id="smallGrid"
                 width="8"
@@ -135,72 +125,70 @@ export const RiskAssessment = ({
                   stroke-width=".3"
                 />
               </pattern>
-            </defs> */}
+            </defs>
 
-        {/* <TransformWrapper
-          initialScale={1}
-          initialPositionX={200}
-          initialPositionY={100}
-        >
-          {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
-            <Fragment>
-              <div className="tools">
-                <button onClick={() => zoomIn()}>+</button>
-                <button onClick={() => zoomOut()}>-</button>
-                <button onClick={() => resetTransform()}>x</button>
-              </div>
-              <TransformComponent> */}
+            <rect width="100%" height="100%" fill="url(#grid)" />
+            {objects.length > 0
+              ? objects.map((object, index) => (
+                  <RiskElement
+                    expanded={true}
+                    handleContextMenu={handleContextMenu}
+                    selectedElements={selectedElements}
+                    elementSelection={elementSelection}
+                    index={index}
+                    data={object}
+                    riskAssessmentId={riskAssessmentId}
+                    position={{
+                      x: object["position.x"],
+                      y: object["position.y"],
+                    }}
+                  />
+                ))
+              : null}
 
-        {/* <rect width="100%" height="100%" fill="url(#grid)" /> */}
-        {objects.length > 0
-          ? objects.map((object, index) => (
-              <RiskElement
-                
-                setFirstContext={setFirstContext}
-                expanded={true}
-                handleContextMenu={handleContextMenu}
-                selectedElements={selectedElements}
-                elementSelection={elementSelection}
-                index={index}
-                data={object}
-                riskAssessmentId={riskAssessmentId}
-                position={{
-                  x: object["position.x"],
-                  y: object["position.y"],
-                }}
-              />
-            ))
-          : null}
+            {groups.length > 0
+              ? groups.map((group, index) => (
+                  <RiskGroup
+                    updateXarrow={updateXarrow}
+                    handleContextMenu={handleContextMenu}
+                    selectedElements={selectedElements}
+                    elementSelection={elementSelection}
+                    index={index}
+                    data={group}
+                    riskAssessmentId={riskAssessmentId}
+                    position={{
+                      x: group.currentX,
+                      y: group.currentY,
+                    }}
+                  />
+                ))
+              : null}
+          </svg>
+        </TransformComponent>
 
-        {groups.length > 0
-          ? groups.map((group, index) => (
-              <RiskGroup
-              setFirstContext={setFirstContext}
-                updateXarrow={updateXarrow}
-                handleContextMenu={handleContextMenu}
-                selectedElements={selectedElements}
-                elementSelection={elementSelection}
-                index={index}
-                data={group}
-                riskAssessmentId={riskAssessmentId}
-                position={{
-                  x: group.currentX,
-                  y: group.currentY,
-                }}
-              />
-            ))
-          : null}
-
-        {/* </svg> */}
-
-        {/* </TransformComponent>
-            </Fragment>
-          )}
-        </TransformWrapper> */}
-
-        {/* </TransformComponent>
-      </TransformWrapper> */}
-      </Xwrapper>
-    </div>
+        {/* {groups.length > 0
+          ? groups.map((group, index) =>
+              group.elements.map((element) => (
+                <Xarrow
+                  color="#e07a5f"
+                  path="smooth"
+                  curveness={0.2}
+                  strokeWidth={1}
+                  start={String("R-"+riskAssessmentId+"-"+element.id)}
+                  dashness={{ strokeLen: 5, nonStrokeLen: 5, animation: -1 }}
+                  animation={1}
+                  headShape={"circle"}
+                  tailShape={"circle"}
+                  headSize={3}
+                  tailSize={3}
+                  // animateDrawing={true}
+                  end={String(group.id)}
+                  SVGcanvasStyle={{ overflow: "hidden" }}
+                />
+              ))
+            )
+          : null} */}
+      </TransformWrapper>
+    </Xwrapper>
   );
 };

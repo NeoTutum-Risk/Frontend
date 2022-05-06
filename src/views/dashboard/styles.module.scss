@@ -51,8 +51,8 @@
 }
 
 .windowContainerMax {
-  width: 100% !important;
-  height: 100% !important;
+  width: 98.5% !important;
+  height: calc(97% - 35px)  !important;
   position: absolute !important;
   margin: 0px !important;
   margin-left: 0.15% !important;
@@ -100,6 +100,14 @@
   width: 100%;
   height: 100%;
   overflow: hidden !important;
+  position: relative !important;
+}
+
+.windowBodyScroll {
+  padding: 5px;
+  width: 100%;
+  height: 100%;
+  overflow: auto !important;
   position: relative !important;
 }
 
