@@ -50,6 +50,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [firstContext,setFirstContext] = useState("main");
   const [elementEnable, setElementEnable] = useState(true);
   const [groupName, setGroupName] = useState(null);
   const [groupNameError, setGroupNameError] = useState(null);
@@ -256,10 +257,15 @@ export const RiskAssessmentWindow = ({
     );
   });
 
+  // console.log(menu);
+
   const handleContextMenu = useCallback(
+    
     async (e, data) => {
+      
       e.preventDefault();
-      if (data) {
+      console.log(data,data["position.enabled"]);
+      if (data && !data.from) {
         if (data["position.enabled"]) {
           setElementEnable(true);
         } else {
@@ -276,12 +282,13 @@ export const RiskAssessmentWindow = ({
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
       let x = e.nativeEvent.layerX;
       let y = e.nativeEvent.layerY;
-      if (e.target.id === "svg" || e.target.nodeName === "rect") {
+      if (data.from==="main" && firstContext==="main") {
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
         // y = e.nativeEvent.layerY + 50;
       } else if (e.target.id.split("-").length === 2) {
         type = "template";
+        setFirstContext("template");
         id = e.target.id.split("-")[1];
       } else {
         // if (e.target.id.split("-").length === 3){
@@ -289,12 +296,16 @@ export const RiskAssessmentWindow = ({
         // }
         if (selectedElements.length === 0) {
           type = "context";
+          setFirstContext("context");
         } else if (selectedElements.length === 2) {
           type = "connection";
+          setFirstContext("connection");
         } else if (selectedElements.length > 2) {
           type = "grouping";
+          setFirstContext("grouping");
         } else {
           type = "object";
+          setFirstContext("object");
         }
       }
       element = id
@@ -311,8 +322,9 @@ export const RiskAssessmentWindow = ({
         contextY,
         element,
       }));
+      
     },
-    [setContextMenu, selectedElements]
+    [setContextMenu, selectedElements,firstContext]
   );
 
   const addNewTemplate = useCallback(async () => {
@@ -659,6 +671,7 @@ export const RiskAssessmentWindow = ({
           setSelectedElements={setSelectedElements}
           connections={connections}
           resetContext={resetContext}
+          setFirstContext={setFirstContext}
           // onContext={handleRiskViewContext}
         />
       </Window>

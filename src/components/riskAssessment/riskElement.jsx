@@ -1,15 +1,13 @@
-import { Tooltip } from "./dataElementTooltip";
-import hexagon from "./shapes/hexagon.svg";
-import eightgon from "./shapes/eightgon.svg";
-import fivegon from "./shapes/fivegon.svg";
-import hexagonactive from "./shapes/hexagonactive.svg";
-import eightgonactive from "./shapes/eightgonactive.svg";
-import fivegonactive from "./shapes/fivegonactive.svg";
+import { ClosedEitor } from "./closedEditor";
+import { OpenFace } from "./openFace";
+import { ClosedFace } from "./closedFace";
+import { Rnd } from "react-rnd";
+import Resizable from "react-resizable-box";
 import { useCallback, useState } from "react";
 import "./dataElement.css";
-// import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { updateRiskObjectPosition } from "../../services";
+import Draggable from "react-draggable";
 export const RiskElement = ({
   data,
   elementSelection,
@@ -20,10 +18,13 @@ export const RiskElement = ({
   riskAssessmentId,
   expanded,
   expandPosition,
-  groupId
+  setFirstContext,
+  groupId,
 }) => {
   // console.log(`element ${data.id}`);
   // console.log(`element rerendered ${data.id}`);
+  const [face, setFace] = useState(true);
+  const [editor, setEditor] = useState(false);
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
@@ -144,139 +145,50 @@ export const RiskElement = ({
     },
     [tooltipTimer]
   );
+
   return (
-    <>
-      <g
+    <Rnd
+      id={`R-${riskAssessmentId}-${data.id}`}
+      key={`R-${riskAssessmentId}-${data.id}`}
+      default={{
+        x: drag.cx,
+        y: drag.cy,
+        width: 220,
+        height: 145,
+      }}
+      minWidth={220}
+      minHeight={145}
+      bounds="window"
+      onDrag={updateXarrow}
+      onResize={updateXarrow}
+    >
+      <div
+      onMouseLeave={()=>setFirstContext("main")}
+      onMouseEnter={()=>setFirstContext("element")}
+        onContextMenu={(e) => {e.preventDefault(); handleContextMenu(e, data)}}
+        title={data.description}
         onClick={handleClick}
-        onPointerDown={startDrag}
-        onPointerMove={handleDragging}
-        onPointerUp={(e) => {
-          endDrag(e);
-          updateLocation();
+        className="risk-object-container"
+        style={{
+          border: selectedElements.find((element) => element.id === data.id)
+            ? "5px solid rgb(89, 199, 209)"
+            : "5px solid rgb(89, 117, 209)",
+          borderRadius: "15px",
+          backgroundColor: "white",
+          padding: "5px",
         }}
-        onPointerLeave={endDrag}
-        onContextMenu={(e) => handleContextMenu(e, data)}
-        onMouseOver={handleMouseOver}
-        className={
-          selectedElements.find((element) => element.id === data.id)
-            ? "activeCircleElement"
-            : "circleElement"
-        }
-        id={`R-${riskAssessmentId}-${data.id}`}
       >
-        {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
-        {!expanded && (
-          <circle
-            r={35}
-            cy={expandPosition.y}
-            cx={expandPosition.x}
-            fill-opacity="0"
-            stroke-opacity="0"
+        {face && <OpenFace data={data} groupId={groupId} setFace={setFace} />}
+        {!face && (
+          <ClosedFace
+            data={data}
+            groupId={groupId}
+            setFace={setFace}
+            setEditor={setEditor}
           />
         )}
-        {expanded && (
-          <>
-            {data.type === "physical" ? (
-              <image
-                fill="#d3d3d3"
-                textAnchor="middle"
-                href={
-                  !selectedElements.find((element) => element.id === data.id)
-                    ? hexagon
-                    : hexagonactive
-                }
-                x={drag.cx - 60}
-                y={drag.cy - 60}
-                height="125px"
-                width="125px"
-              />
-            ) : data.type === "virtual" ? (
-              <image
-                fill="#d3d3d3"
-                textAnchor="middle"
-                href={
-                  !selectedElements.find((element) => element.id === data.id)
-                    ? eightgon
-                    : eightgonactive
-                }
-                x={drag.cx - 60}
-                y={drag.cy - 60}
-                height="120px"
-                width="120px"
-              />
-            ) : (
-              <image
-                fill="#d3d3d3"
-                textAnchor="middle"
-                href={
-                  !selectedElements.find((element) => element.id === data.id)
-                    ? fivegon
-                    : fivegonactive
-                }
-                x={drag.cx - 60}
-                y={drag.cy - 60}
-                height="120px"
-                width="120px"
-              />
-            )}
-
-            {/* <ellipse
-              fill-opacity={data["position.enabled"] ? "1" : ".3"}
-              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-              cy={drag.cy}
-              cx={drag.cx}
-              rx={55}
-              ry={30}
-            /> */}
-
-            <text
-              x={drag.cx}
-              y={drag.cy}
-              textAnchor="middle"
-              strokeWidth="2px"
-              dy=".3em"
-              fill-opacity={data["position.enabled"] ? "1" : ".3"}
-              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-            >
-              {data.name}
-            </text>
-            <text
-              x={drag.cx}
-              y={drag.cy-22.5}
-              textAnchor="middle"
-              strokeWidth="2px"
-              dy=".3em"
-              fill="black"
-              fill-opacity={data["position.enabled"] ? "1" : ".3"}
-              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-            >
-              {groupId>0?Number(groupId-2000000):null}
-            </text>
-            <text
-              x={drag.cx}
-              y={drag.cy + 28}
-              textAnchor="middle"
-              strokeWidth="2px"
-              dy=".3em"
-              fill-opacity={data["position.enabled"] ? "1" : ".3"}
-              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-            >
-              {data.id}
-            </text>
-          </>
-        )}
-      </g>
-      {showTooltip && !drag.active && (
-        <Tooltip
-          x={drag.cx}
-          y={drag.cy}
-          tx={drag.cx}
-          ty={drag.cy}
-          data={{
-            description: data.description,
-          }}
-        />
-      )}
-    </>
+      </div>
+      {editor && <ClosedEitor />}
+    </Rnd>
   );
 };
