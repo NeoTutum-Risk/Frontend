@@ -198,7 +198,7 @@ export const RiskElement = ({
       </div>
     </Rnd>
     {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>
-      {editor && <ClosedEitor />}
+      {true && <ClosedEitor />}
     </div> */}
     </>
   );

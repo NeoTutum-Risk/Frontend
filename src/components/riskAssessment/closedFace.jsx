@@ -10,8 +10,8 @@ export const ClosedFace = ({
   setEditor,
   editRiskObject,
 }) => {
-  const [viewedAttribute, setViewedAttribute] = useState(null);
-  const [activeAttribute, setActiveAttribute] = useState(null);
+  const [viewedAttribute, setViewedAttribute] = useState(data.statement);
+  const [activeAttribute, setActiveAttribute] = useState("S");
   const [edit, setEdit] = useState(false);
   const [editingValue, setEditingValue] = useState(null);
   const [usingService,setUsingService]=useState(false);
@@ -165,6 +165,7 @@ export const ClosedFace = ({
         {edit ? (
           <TextArea
             fill={true}
+            growVertically={true}
             onChange={(e) => setEditingValue(e.target.value)}
             value={editingValue}
           ></TextArea>

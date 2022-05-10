@@ -24,8 +24,8 @@ export const RiskGroup = ({
   const [expanded, setExpanded] = useState(data.currentExpanded);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y - 50 >= 40 ? position.y - 50 : 40,
-    cx: position.x + 50 + 75 * index >= 40 ? position.x + 50 + 75 * index : 40,
+    cy: position.y  >= 0 ? position.y  : 0,
+    cx: position.x  >= 0 ? position.x  : 0,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -64,20 +64,22 @@ export const RiskGroup = ({
 
   const updateLocation = useCallback(async (e,d) => {
     setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }))
-    if (drag.cx < 40) {
-      setDrag((prev) => ({ ...prev, cx: 40 }));
+    if (d.x < 0) {
+      setDrag((prev) => ({ ...prev, cx: 0 }));
+      d.x=0;
     }
 
-    if (drag.cy < 40) {
-      setDrag((prev) => ({ ...prev, cy: 40 }));
+    if (d.y < 0) {
+      setDrag((prev) => ({ ...prev, cy: 0 }));
+      d.y=0;
     }
     updateXarrow();
     const updateElementPosition = await updateRiskAssessmentGroup(
       data.id,
       riskAssessmentId,
       {
-        x: Math.round(drag.cx - 50 - 75 * index),
-        y: Math.round(drag.cy + 50),
+        x: Math.round(d.x),
+        y: Math.round(d.y),
         expanded: data.currentExpanded,
       }
     );
@@ -85,9 +87,6 @@ export const RiskGroup = ({
     console.log(updateElementPosition);
   }, [
     data.id,
-    drag.cx,
-    drag.cy,
-    index,
     data.currentExpanded,
     riskAssessmentId,
     updateXarrow,
@@ -98,8 +97,8 @@ export const RiskGroup = ({
       data.id,
       riskAssessmentId,
       {
-        x: Math.round(drag.cx - 50 - 75 * index),
-        y: Math.round(drag.cy + 50),
+        x: Math.round(drag.cx),
+        y: Math.round(drag.cy),
         expanded: !expanded,
       }
     );
@@ -112,7 +111,6 @@ export const RiskGroup = ({
     data.id,
     drag.cx,
     drag.cy,
-    index,
     expanded,
     updateXarrow,
     riskAssessmentId,
@@ -202,9 +200,7 @@ export const RiskGroup = ({
           console.log(e, d);
           updateXarrow();
         }}
-        onDragStop={(e, d) => {
-          setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
-        }}
+        onDragStop={(e, d) => updateLocation(e, d)}
         onResize={updateXarrow}
       >
         <div
@@ -232,62 +228,6 @@ export const RiskGroup = ({
           <span>{data.id - 2000000}</span>
         </div>
       </Rnd>
-
-      <g
-        onClick={handleClick}
-        onPointerDown={startDrag}
-        onPointerMove={handleDragging}
-        onPointerUp={(e) => {
-          endDrag(e);
-          updateLocation();
-        }}
-        onPointerLeave={endDrag}
-        onContextMenu={(e) => handleContextMenu(e, data)}
-        onMouseOver={handleMouseOver}
-        className={
-          selectedElements.find((element) => element.id === data.id)
-            ? "activeCircleElement"
-            : "groupElement"
-        }
-        type="group"
-        id={data.id}
-      >
-        {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
-        <circle
-          strokeDasharray={expanded ? 5 : 0}
-          r={40}
-          cy={drag.cy}
-          cx={drag.cx}
-          id={`group-${data.id}`}
-        />
-        {/* <ellipse
-          cy={drag.cy}
-          cx={drag.cx}
-          rx={50}
-          ry={20}
-        /> */}
-        <text
-          fill="black"
-          x={drag.cx}
-          y={drag.cy}
-          textAnchor="middle"
-          strokeWidth="2px"
-          dy=".3em"
-          id={`group-${data.id}`}
-        >
-          {data.name}
-        </text>
-        <text
-          x={drag.cx}
-          y={drag.cy - 22.5}
-          textAnchor="middle"
-          strokeWidth="2px"
-          dy=".3em"
-          fill="black"
-        >
-          {Number(data.id - 2000000)}
-        </text>
-      </g>
 
       {/* {showTooltip && !drag.active && (
         <Tooltip
