@@ -3,7 +3,7 @@ import { OpenFace } from "./openFace";
 import { ClosedFace } from "./closedFace";
 import { Rnd } from "react-rnd";
 import Resizable from "react-resizable-box";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import "./dataElement.css";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { updateRiskObjectPosition } from "../../services";
@@ -20,6 +20,8 @@ export const RiskElement = ({
   expandPosition,
   setFirstContext,
   groupId,
+  editRiskObject,
+  closedFace
 }) => {
   // console.log(`element ${data.id}`);
   // console.log(`element rerendered ${data.id}`);
@@ -35,6 +37,10 @@ export const RiskElement = ({
   });
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipTimer, setTooltipTimer] = useState(null);
+
+  useEffect(()=>{
+    setFace(!closedFace);
+  },[closedFace])
 
   const startDrag = useCallback((e) => {
     console.log("Drag Start");
@@ -147,6 +153,7 @@ export const RiskElement = ({
   );
 
   return (
+    <>
     <Rnd
       id={`R-${riskAssessmentId}-${data.id}`}
       key={`R-${riskAssessmentId}-${data.id}`}
@@ -166,7 +173,7 @@ export const RiskElement = ({
       onMouseLeave={()=>setFirstContext("main")}
       onMouseEnter={()=>setFirstContext("element")}
         onContextMenu={(e) => {e.preventDefault(); handleContextMenu(e, data)}}
-        title={data.description}
+        // title={data.description}
         onClick={handleClick}
         className="risk-object-container"
         style={{
@@ -179,8 +186,9 @@ export const RiskElement = ({
         }}
       >
         {face && <OpenFace data={data} groupId={groupId} setFace={setFace} />}
-        {!face && (
+        {!face  && (
           <ClosedFace
+          editRiskObject={editRiskObject}
             data={data}
             groupId={groupId}
             setFace={setFace}
@@ -188,7 +196,10 @@ export const RiskElement = ({
           />
         )}
       </div>
-      {editor && <ClosedEitor />}
     </Rnd>
+    {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>
+      {editor && <ClosedEitor />}
+    </div> */}
+    </>
   );
 };

@@ -5,6 +5,7 @@ export const OpenFace = ({ data, groupId, setFace }) => {
         <div
           className="risk-object-inner-column"
           onClick={() => setFace((prev) => !prev)}
+          title={data.description}
         >
           <span
             style={{ position: "relative", top: "35%" }}

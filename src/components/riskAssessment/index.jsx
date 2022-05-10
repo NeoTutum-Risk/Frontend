@@ -17,8 +17,10 @@ export const RiskAssessment = ({
   onContext,
   resetContext,
   setFirstContext,
+  editRiskObject,
+  closedFace
 }) => {
-  console.log("index",typeof setFirstContext);
+  // console.log("index",typeof setFirstContext);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const elementSelection = useCallback(
@@ -56,7 +58,7 @@ export const RiskAssessment = ({
   }, [updateXarrow]);
   return (
     <div
-      style={{ overflow: "auto", height: "100%", width: "100%" }}
+      style={{ overflow: "auto", height: "100%", width: "100%",position:"relative" }}
       onScroll={updateXarrow}
       onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
       onClick={resetContext}
@@ -168,6 +170,8 @@ export const RiskAssessment = ({
                   x: object["position.x"],
                   y: object["position.y"],
                 }}
+                editRiskObject={editRiskObject}
+                closedFace={closedFace}
               />
             ))
           : null}
@@ -187,6 +191,8 @@ export const RiskAssessment = ({
                   x: group.currentX,
                   y: group.currentY,
                 }}
+                editRiskObject={editRiskObject}
+                closedFace={closedFace}
               />
             ))
           : null}

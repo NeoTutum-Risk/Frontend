@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
 import { RiskElement } from "./riskElement";
+import { Rnd } from "react-rnd";
+import { Button } from "@blueprintjs/core";
 import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
@@ -14,6 +16,8 @@ export const RiskGroup = ({
   riskAssessmentId,
   updateXarrow,
   setFirstContext,
+  editRiskObject,
+  closedFace,
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -41,25 +45,25 @@ export const RiskGroup = ({
   }, []);
 
   const handleDragging = useCallback(
-    (e) => {
-      e.preventDefault();
-      updateXarrow();
-      if (drag.active) {
-        const bbox = e.target.getBoundingClientRect();
-        const x = e.clientX - bbox.left;
-        const y = e.clientY - bbox.top;
-
-        setDrag((prev) => ({
-          ...prev,
-          cy: prev.cy - (prev.offset.y - y),
-          cx: prev.cx - (prev.offset.x - x),
-        }));
-      }
+    (e, d) => {
+      // e.preventDefault();
+      // updateXarrow();
+      // if (drag.active) {
+      //   const bbox = e.target.getBoundingClientRect();
+      //   const x = e.clientX - bbox.left;
+      //   const y = e.clientY - bbox.top;
+      //   setDrag((prev) => ({
+      //     ...prev,
+      //     cy: prev.cy - (prev.offset.y - y),
+      //     cx: prev.cx - (prev.offset.x - x),
+      //   }));
+      // }
     },
     [drag.active, updateXarrow]
   );
 
-  const updateLocation = useCallback(async () => {
+  const updateLocation = useCallback(async (e,d) => {
+    setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }))
     if (drag.cx < 40) {
       setDrag((prev) => ({ ...prev, cx: 40 }));
     }
@@ -163,21 +167,71 @@ export const RiskGroup = ({
             }
           </g>
         ))} */}
-      {data.elements.map((object, index) => (
-        <RiskElement
-          setFirstContext={setFirstContext}
-          expanded={expanded}
-          handleContextMenu={handleContextMenu}
-          selectedElements={selectedElements}
-          elementSelection={elementSelection}
-          index={index}
-          data={object}
-          riskAssessmentId={riskAssessmentId}
-          position={{ x: object["position.x"], y: object["position.y"] }}
-          expandPosition={{ x: drag.cx, y: drag.cy }}
-          groupId={data.id}
-        />
-      ))}
+      {expanded &&
+        data.elements.map((object, index) => (
+          <RiskElement
+            setFirstContext={setFirstContext}
+            expanded={expanded}
+            handleContextMenu={handleContextMenu}
+            selectedElements={selectedElements}
+            elementSelection={elementSelection}
+            index={index}
+            data={object}
+            riskAssessmentId={riskAssessmentId}
+            position={{ x: object["position.x"], y: object["position.y"] }}
+            expandPosition={{ x: drag.cx, y: drag.cy }}
+            groupId={data.id}
+            editRiskObject={editRiskObject}
+            closedFace={closedFace}
+          />
+        ))}
+
+      <Rnd
+        id={`group-${data.id}`}
+        key={`group-${data.id}`}
+        default={{
+          x: drag.cx,
+          y: drag.cy,
+          width: 150,
+          height: 150,
+        }}
+        minWidth={100}
+        minHeight={75}
+        bounds="window"
+        onDrag={(e, d) => {
+          console.log(e, d);
+          updateXarrow();
+        }}
+        onDragStop={(e, d) => {
+          setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
+        }}
+        onResize={updateXarrow}
+      >
+        <div
+          onMouseLeave={() => setFirstContext("main")}
+          onMouseEnter={() => setFirstContext("group")}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            handleContextMenu(e, data);
+          }}
+          // title={data.description}
+          onClick={handleClick}
+          className="risk-object-container"
+          style={{
+            border: !expanded
+              ? "5px solid rgb(56	142	142	)"
+              : "5px dashed rgb(56	142	142	)",
+            borderRadius: "150px",
+            backgroundColor: "white",
+            padding: "5px",
+            textAlign: "center",
+            display: "flex",
+          }}
+        >
+          <span>{data.name}</span>
+          <span>{data.id - 2000000}</span>
+        </div>
+      </Rnd>
 
       <g
         onClick={handleClick}

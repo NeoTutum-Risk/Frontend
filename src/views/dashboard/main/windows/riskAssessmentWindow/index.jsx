@@ -89,6 +89,7 @@ export const RiskAssessmentWindow = ({
   const [importTemplateNameError, setImportTemplateNameError] = useState(null);
   const [importTemplateIdError, setImportTemplateIdError] = useState(null);
   const [templates, setTemplates] = useState([]);
+  const [closedFace,setClosedFace]= useState(false);
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -244,7 +245,6 @@ export const RiskAssessmentWindow = ({
     return (
       <MenuItem text={l1.name}>
         {l1.metaDataLevel2.map((l2) => {
-          // console.log(l2);
           return (
             <MenuItem text={l2.name}>
               {l2.dataObjects[0]?.children
@@ -398,6 +398,15 @@ export const RiskAssessmentWindow = ({
     setObjectDescription(null);
     setEditElement(null);
   }, []);
+
+  const editRiskObject = useCallback(async (id,payload,groupId)=>{
+    console.log("main",payload);
+    const response = await updateRiskObject(id, payload);
+    if(response.status===200){
+      riskAssessmentData();
+    }
+    return "Done";
+  },[])
 
   const addRiskObject = useCallback(
     async (e) => {
@@ -672,6 +681,8 @@ export const RiskAssessmentWindow = ({
           connections={connections}
           resetContext={resetContext}
           setFirstContext={setFirstContext}
+          editRiskObject={editRiskObject}
+          closedFace={closedFace}
           // onContext={handleRiskViewContext}
         />
       </Window>
@@ -800,6 +811,14 @@ export const RiskAssessmentWindow = ({
                   type: "import group",
                 }));
               }}
+            />
+            <MenuDivider />
+            <MenuItem
+              text={closedFace?"Show Open Faces":"Show Closed Faces"}
+              onClick={()=>{setClosedFace(prev=>!prev);setContextMenu((prev) => ({
+                ...prev,
+                type: null,
+              }));}}
             />
           </Menu>
         )}
