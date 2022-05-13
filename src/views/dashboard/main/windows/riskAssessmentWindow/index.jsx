@@ -406,7 +406,7 @@ export const RiskAssessmentWindow = ({
       riskAssessmentData();
     }
     return "Done";
-  },[])
+  },[riskAssessmentData])
 
   const addRiskObject = useCallback(
     async (e) => {

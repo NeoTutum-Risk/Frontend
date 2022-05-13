@@ -1,7 +1,4 @@
-import {
-  Button,
-  TextArea,
-} from "@blueprintjs/core";
+import { Button, TextArea } from "@blueprintjs/core";
 import { useState, useCallback } from "react";
 export const ClosedFace = ({
   data,
@@ -14,7 +11,7 @@ export const ClosedFace = ({
   const [activeAttribute, setActiveAttribute] = useState("S");
   const [edit, setEdit] = useState(false);
   const [editingValue, setEditingValue] = useState(null);
-  const [usingService,setUsingService]=useState(false);
+  const [usingService, setUsingService] = useState(false);
 
   const handleAttributeClick = useCallback((view, active) => {
     console.log(view, active);
@@ -44,16 +41,21 @@ export const ClosedFace = ({
       case "CFM":
         payload = { causeFailureMechanism: editingValue };
         break;
+      case "D":
+        payload = { description: editingValue };
+        break;
+      case "N":
+        payload = { name: editingValue };
+        break;
       default:
     }
     // console.log(data.id,payload);
     const response = await editRiskObject(data.id, payload, groupId);
-    if(response==="Done"){
+    if (response === "Done") {
       setViewedAttribute(editingValue);
       resetFace();
     }
     setUsingService(false);
-    
   }, [
     activeAttribute,
     editingValue,
@@ -76,7 +78,12 @@ export const ClosedFace = ({
         <Button small={true} intent="primary">
           {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
         </Button>
-        <Button small={true} intent="primary">
+        <Button
+          small={true}
+          intent="primary"
+          active={activeAttribute === "N"}
+          onClick={() => handleAttributeClick(data.name, "N")}
+        >
           {data.name}
         </Button>
       </div>
@@ -118,6 +125,15 @@ export const ClosedFace = ({
           }
         >
           CFM
+        </Button>
+        <Button
+          fill={true}
+          title="Description"
+          small={true}
+          active={activeAttribute === "D"}
+          onClick={() => handleAttributeClick(data.description, "D")}
+        >
+          D
         </Button>
         {!edit ? (
           <Button
@@ -164,14 +180,14 @@ export const ClosedFace = ({
       >
         {edit ? (
           <TextArea
-          className="panningDisabled pinchDisabled"
+            className="panningDisabled pinchDisabled"
             fill={true}
             growVertically={true}
             onChange={(e) => setEditingValue(e.target.value)}
             value={editingValue}
           ></TextArea>
         ) : (
-          <span style={{ overflow: "auto" }}>{viewedAttribute}</span>
+          <span style={{ overflow: "auto",height:"100%" }}>{viewedAttribute}</span>
         )}
       </div>
     </>
