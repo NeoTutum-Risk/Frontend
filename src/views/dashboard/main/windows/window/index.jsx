@@ -298,7 +298,7 @@ export const Window = ({
             </Tooltip2>
           </ButtonGroup>
         </div>
-        <div className={window.type==="risk"?styles.windowBodyScroll:styles.windowBody}>{children}</div>
+        <div className={window.type==="risk0"?styles.windowBodyScroll:styles.windowBody}>{children}</div>
       </Card>
     </Resizable>
   );

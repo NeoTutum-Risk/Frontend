@@ -65,7 +65,7 @@ export const ClosedFace = ({
 
   return (
     <>
-      <div className="risk-object-closed-header">
+      <div className="risk-object-closed-header panningDisabled">
         <Button
           small={true}
           intent="primary"
@@ -80,7 +80,7 @@ export const ClosedFace = ({
           {data.name}
         </Button>
       </div>
-      <div className="risk-object-closed-header">
+      <div className="risk-object-closed-header panningDisabled">
         <Button
           fill={true}
           title="Statement"
@@ -158,7 +158,7 @@ export const ClosedFace = ({
         )}
       </div>
       <div
-        className="risk-object-closed-body"
+        className="risk-object-closed-body panningDisabled"
         style={{ backgroundColor: "lightsteelblue" }}
         onClick={() => setEditor((prev) => !prev)}
       >

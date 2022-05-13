@@ -18,6 +18,7 @@ export const RiskGroup = ({
   setFirstContext,
   editRiskObject,
   closedFace,
+  scale
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -181,6 +182,7 @@ export const RiskGroup = ({
             groupId={data.id}
             editRiskObject={editRiskObject}
             closedFace={closedFace}
+            scale={scale}
           />
         ))}
 
@@ -202,6 +204,7 @@ export const RiskGroup = ({
         }}
         onDragStop={(e, d) => updateLocation(e, d)}
         onResize={updateXarrow}
+        scale={scale}
       >
         <div
           onMouseLeave={() => setFirstContext("main")}
@@ -212,7 +215,7 @@ export const RiskGroup = ({
           }}
           // title={data.description}
           onClick={handleClick}
-          className="risk-object-container"
+          className="risk-object-container panningDisabled"
           style={{
             border: !expanded
               ? "5px solid rgb(56	142	142	)"

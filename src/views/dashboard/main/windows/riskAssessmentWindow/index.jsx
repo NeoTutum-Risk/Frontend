@@ -89,7 +89,7 @@ export const RiskAssessmentWindow = ({
   const [importTemplateNameError, setImportTemplateNameError] = useState(null);
   const [importTemplateIdError, setImportTemplateIdError] = useState(null);
   const [templates, setTemplates] = useState([]);
-  const [closedFace,setClosedFace]= useState(false);
+  const [closedFace,setClosedFace]= useState(true);
 
   const fetchTemplates = useCallback(async () => {
     try {

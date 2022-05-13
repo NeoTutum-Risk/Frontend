@@ -21,7 +21,8 @@ export const RiskElement = ({
   setFirstContext,
   groupId,
   editRiskObject,
-  closedFace
+  closedFace,
+  scale,
 }) => {
   // console.log(`element ${data.id}`);
   // console.log(`element rerendered ${data.id}`);
@@ -31,16 +32,16 @@ export const RiskElement = ({
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y - 50 >= 60 ? position.y - 50 : 60,
-    cx: position.x + 50 + 75 * index >= 60 ? position.x + 50 + 75 * index : 60,
+    cy: position.y >= 0 ? position.y : 0,
+    cx: position.x >= 0 ? position.x : 0,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipTimer, setTooltipTimer] = useState(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     setFace(!closedFace);
-  },[closedFace])
+  }, [closedFace]);
 
   const startDrag = useCallback((e) => {
     console.log("Drag Start");
@@ -72,29 +73,35 @@ export const RiskElement = ({
     },
     [drag.active]
   );
-  const updateLocation = useCallback(async () => {
-    // console.log("new position",drag.cx, drag.cy);
-    if (drag.cx < 60) {
-      setDrag((prev) => ({ ...prev, cx: 60 }));
-    }
-
-    if (drag.cy < 60) {
-      setDrag((prev) => ({ ...prev, cy: 60 }));
-    }
-
-    const x = Math.round(drag.cx - 50 - 75 * index);
-    const y = Math.round(drag.cy + 50);
-    const updateElementPosition = await updateRiskObjectPosition(
-      riskAssessmentId,
-      data.id,
-      {
-        x,
-        y,
-        enabled: data["position.enabled"],
+  const updateLocation = useCallback(
+    async (e, d) => {
+      setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
+      if (d.x < 0) {
+        setDrag((prev) => ({ ...prev, cx: 0 }));
+        d.x = 0;
       }
-    );
-    console.log(updateElementPosition);
-  }, [riskAssessmentId, data, drag.cx, drag.cy, index]);
+
+      if (d.y < 0) {
+        setDrag((prev) => ({ ...prev, cy: 0 }));
+        d.y = 0;
+      }
+      updateXarrow();
+      // const x = Math.round(drag.cx );
+      // const y = Math.round(drag.cy);
+      const updateElementPosition = await updateRiskObjectPosition(
+        riskAssessmentId,
+        data.id,
+        {
+          x: Math.round(d.x),
+          y: Math.round(d.y),
+          enabled: data["position.enabled"],
+        }
+      );
+      console.log(updateElementPosition);
+    },
+    [riskAssessmentId, data, updateXarrow]
+  );
+
   const endDrag = useCallback(
     async (e) => {
       e.preventDefault();
@@ -154,50 +161,55 @@ export const RiskElement = ({
 
   return (
     <>
-    <Rnd
-      id={`R-${riskAssessmentId}-${data.id}`}
-      key={`R-${riskAssessmentId}-${data.id}`}
-      default={{
-        x: drag.cx,
-        y: drag.cy,
-        width: 220,
-        height: 145,
-      }}
-      minWidth={220}
-      minHeight={145}
-      bounds="window"
-      onDrag={updateXarrow}
-      onResize={updateXarrow}
-    >
-      <div
-      onMouseLeave={()=>setFirstContext("main")}
-      onMouseEnter={()=>setFirstContext("element")}
-        onContextMenu={(e) => {e.preventDefault(); handleContextMenu(e, data)}}
-        // title={data.description}
-        onClick={handleClick}
-        className="risk-object-container"
-        style={{
-          border: selectedElements.find((element) => element.id === data.id)
-            ? "5px solid rgb(89, 199, 209)"
-            : "5px solid rgb(89, 117, 209)",
-          borderRadius: "15px",
-          backgroundColor: "white",
-          padding: "5px",
+      <Rnd
+        id={`R-${riskAssessmentId}-${data.id}`}
+        key={`R-${riskAssessmentId}-${data.id}`}
+        default={{
+          x: drag.cx,
+          y: drag.cy,
+          width: 220,
+          height: 145,
         }}
+        minWidth={220}
+        minHeight={145}
+        bounds="window"
+        onDrag={updateXarrow}
+        onResize={updateXarrow}
+        scale={scale}
+        onDragStop={(e, d) => updateLocation(e, d)}
       >
-        {face && <OpenFace data={data} groupId={groupId} setFace={setFace} />}
-        {!face  && (
-          <ClosedFace
-          editRiskObject={editRiskObject}
-            data={data}
-            groupId={groupId}
-            setFace={setFace}
-            setEditor={setEditor}
-          />
-        )}
-      </div>
-    </Rnd>
-    {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>
+        <div
+          onMouseLeave={() => setFirstContext("main")}
+          onMouseEnter={() => setFirstContext("element")}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            handleContextMenu(e, data);
+          }}
+          // title={data.description}
+          onClick={handleClick}
+          className="risk-object-container panningDisabled "
+          style={{
+            border: selectedElements.find((element) => element.id === data.id)
+              ? "5px solid rgb(89, 199, 209)"
+              : "5px solid rgb(89, 117, 209)",
+            borderRadius: "15px",
+            backgroundColor: "white",
+            padding: "5px",
+          }}
+        >
+          {face && <OpenFace data={data} groupId={groupId} setFace={setFace} />}
+          {!face && (
+            <ClosedFace
+              editRiskObject={editRiskObject}
+              data={data}
+              groupId={groupId}
+              setFace={setFace}
+              setEditor={setEditor}
+            />
+          )}
+        </div>
+      </Rnd>
+      {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>
       {true && <ClosedEitor />}
     </div> */}
     </>
