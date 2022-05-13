@@ -78,6 +78,7 @@ export const RiskAssessment = ({
         onPanningStop={handleZoomPanPinch}
         panning={{ excluded: ["panningDisabled"] }}
         pinch={{ excluded: ["pinchDisabled"] }}
+        wheel={{excluded: ["wheelDisabled"]}}
       >
         {connections.map((edge) => (
           <Xarrow

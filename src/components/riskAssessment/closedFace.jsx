@@ -65,7 +65,7 @@ export const ClosedFace = ({
 
   return (
     <>
-      <div className="risk-object-closed-header panningDisabled">
+      <div className="risk-object-closed-header">
         <Button
           small={true}
           intent="primary"
@@ -80,7 +80,7 @@ export const ClosedFace = ({
           {data.name}
         </Button>
       </div>
-      <div className="risk-object-closed-header panningDisabled">
+      <div className="risk-object-closed-header">
         <Button
           fill={true}
           title="Statement"
@@ -158,12 +158,13 @@ export const ClosedFace = ({
         )}
       </div>
       <div
-        className="risk-object-closed-body panningDisabled"
+        className="risk-object-closed-body wheelDisabled panningDisabled"
         style={{ backgroundColor: "lightsteelblue" }}
         onClick={() => setEditor((prev) => !prev)}
       >
         {edit ? (
           <TextArea
+          className="panningDisabled pinchDisabled"
             fill={true}
             growVertically={true}
             onChange={(e) => setEditingValue(e.target.value)}
