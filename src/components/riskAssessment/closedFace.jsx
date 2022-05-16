@@ -7,8 +7,8 @@ export const ClosedFace = ({
   setEditor,
   editRiskObject,
 }) => {
-  const [viewedAttribute, setViewedAttribute] = useState(data.statement);
-  const [activeAttribute, setActiveAttribute] = useState("S");
+  const [viewedAttribute, setViewedAttribute] = useState(data.description);
+  const [activeAttribute, setActiveAttribute] = useState("D");
   const [edit, setEdit] = useState(false);
   const [editingValue, setEditingValue] = useState(null);
   const [usingService, setUsingService] = useState(false);
