@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import D3ConnectedScatter from "../D3ConnectedScatter";
-import D3DrillDown from "../D3DrillDown";
+import D3DrillDownDummy from "../D3DrillDownDummy";
 import D3HeatMapDummy from "../D3HeatMapDummy";
 import D3TreeMap from "../D3TreeMap";
 import classes from "./D3GraphsContainer.module.css";
@@ -68,7 +68,7 @@ const D3GraphsContainer = () => {
           defaultHexColorCode="#000000"
         />
 
-        <D3DrillDown
+        <D3DrillDownDummy
           drillDownDummyData={selectedDummyData}
           handleSelectedElements={handleSelectedElements}
         />

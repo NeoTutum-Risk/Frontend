@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 import * as d3 from "d3";
 
-const D3ConnectedScatter = ({connectedScatterDummyData}) => {
+const D3ConnectedScatter = ({graphData}) => {
     const chartContainerRef = useRef(null);
 
     useEffect(() => {
@@ -24,7 +24,7 @@ const D3ConnectedScatter = ({connectedScatterDummyData}) => {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
   
-      const dummyData = connectedScatterDummyData.map((data) => {
+      const displayData = graphData.map((data) => {
         const labelArray = data.label.split("-");
         const labelValue =
           (parseFloat(labelArray[0]) + parseFloat(labelArray[1])) / 2;
@@ -34,7 +34,7 @@ const D3ConnectedScatter = ({connectedScatterDummyData}) => {
       // Add X axis --> it is a date format
       const x = d3
         .scaleLinear()
-        .domain(d3.extent(dummyData, (d) => d.label))
+        .domain(d3.extent(displayData, (d) => d.label))
         .range([0, width]);
       chart
         .append("g")
@@ -44,14 +44,14 @@ const D3ConnectedScatter = ({connectedScatterDummyData}) => {
       // Add Y axis
       const y = d3
         .scaleLinear()
-        .domain([0, d3.max(dummyData, (d) => d.value)])
+        .domain([0, d3.max(displayData, (d) => d.value)])
         .range([height, 0]);
       chart.append("g").call(d3.axisLeft(y));
   
       // Add the line
       chart
         .append("path")
-        .datum(dummyData)
+        .datum(displayData)
         .attr("fill", "none")
         .attr("stroke", "black")
         .attr("stroke-width", 1.5)
@@ -94,13 +94,13 @@ const D3ConnectedScatter = ({connectedScatterDummyData}) => {
       chart
         .append("g")
         .selectAll("dot")
-        .data(dummyData)
+        .data(displayData)
         .join("circle")
         .attr("class", "myCircle")
         .style("z-index", 10)
         .attr("cx", (d) => x(d.label))
         .attr("cy", (d) => y(d.value))
-        .attr("r", 8)
+        .attr("r", 3)
         .attr("stroke", "#69b3a2")
         .attr("stroke-width", 3)
         .attr("fill", "white")

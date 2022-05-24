@@ -1,23 +1,11 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-const D3DrillDown = ({drillDownData, handleSelectedElements, heatmapRules}) => {
+const D3DrillDownDummy = ({drillDownDummyData, handleSelectedElements}) => {
     const svgRef = useRef(null);
-
-    console.log("drill down data: ", drillDownData)
-
-    const handleBarColor = useCallback((barIndex) => {
-      const rule = heatmapRules[barIndex]
-
-      if(rule) return rule.hexColorCode
-
-      return "black"
-    }, [heatmapRules])
 
   useEffect(() => {
     const MARGINS = { top: 20, bottom: 20 };
-
-    const drillDownKeys = Object.keys(drillDownData)
 
     const CHART_WIDTH = 600;
     const CHART_HEIGHT = 300 - MARGINS.top - MARGINS.bottom;
@@ -32,8 +20,8 @@ const D3DrillDown = ({drillDownData, handleSelectedElements, heatmapRules}) => {
 
     chartContainer.selectAll("*").remove();
 
-    x.domain(drillDownKeys.map(key => key));
-    y.domain([0, d3.max(Object.values(drillDownData), (data) => data) + 15]);
+    x.domain(drillDownDummyData.map((data) => data.region));
+    y.domain([0, d3.max(drillDownDummyData, (data) => data.value) + 15]);
 
     const chart = chartContainer.append("g");
 
@@ -45,28 +33,27 @@ const D3DrillDown = ({drillDownData, handleSelectedElements, heatmapRules}) => {
 
     chart
       .selectAll(".bar")
-      .data(drillDownKeys)
+      .data(drillDownDummyData)
       .enter()
       .append("rect")
       .classed("bar", true)
       .attr("width", x.bandwidth())
-      .attr("height", (data) => CHART_HEIGHT - y(drillDownData[data]))
-      .attr("x", (data) => x(data))
-      .attr("y", (data) => y(drillDownData[data]))
-      .attr("fill", (data, index) => handleBarColor(index))
+      .attr("height", (data) => CHART_HEIGHT - y(data.value))
+      .attr("x", (data) => x(data.region))
+      .attr("y", (data) => y(data.value))
       .on("click", (event) => handleSelectedElements(event.target.__data__));
 
     chart
       .selectAll(".label")
-      .data(drillDownKeys)
+      .data(drillDownDummyData)
       .enter()
       .append("text")
-      .text((data) => drillDownData[data])
-      .attr("x", (data) => x(data) + x.bandwidth() / 2)
-      .attr("y", (data) => y(drillDownData[data]) - 20)
+      .text((data) => data.value)
+      .attr("x", (data) => x(data.region) + x.bandwidth() / 2)
+      .attr("y", (data) => y(data.value) - 20)
       .attr("text-anchor", "middle")
       .classed("label", true);
-  }, [drillDownData, handleSelectedElements, handleBarColor]);
+  }, [drillDownDummyData]);
 
   return (
     <svg
@@ -76,4 +63,4 @@ const D3DrillDown = ({drillDownData, handleSelectedElements, heatmapRules}) => {
   );
 }
 
-export default D3DrillDown
+export default D3DrillDownDummy

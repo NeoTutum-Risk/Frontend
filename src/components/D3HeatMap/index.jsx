@@ -1,15 +1,17 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapDummyData, xLabels, yLabels, rules, defaultHexColorCode, axis}) => {
+const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapBackground, xLabels, yLabels, rules, defaultHexColorCode, axis}) => {
     const svgRef = useRef(null);
 
-    console.log(displayedCellData)
+    console.log("displayed cell data: ", displayedCellData)
+    console.log("heat map background data: ", heatmapBackground)
+    console.log("labels", {xLabels, yLabels})
 
     const handleShownContenents = (heatmapData) => {
       const resultArrLength = displayedCellData.filter(
         (cellData) => 
-          cellData[axis.xAxis] === heatmapData[axis.xAxis] && cellData[axis.yAxis] === heatmapData[axis.yAxis]
+          cellData.x === heatmapData.x && cellData.y === heatmapData.y
       ).length;
   
       return resultArrLength === 0 ? null : resultArrLength;
@@ -18,7 +20,7 @@ const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapDummyData, x
     const handleSelectedDisplayCell = (selectedHeatmapData) => {
       const result = displayedCellData.filter(
         //(continent) => continent.value === selectedHeatmapData.value
-        (cellData) => cellData[axis.xAxis] === selectedHeatmapData[axis.xAxis] && cellData[axis.yAxis] === selectedHeatmapData[axis.xAxis]
+        (cellData) => cellData.x === selectedHeatmapData.x && cellData.y === selectedHeatmapData.x
       );
       if (result.length !== 0) {
         setSelectedPlatforms(result)
@@ -70,25 +72,25 @@ const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapDummyData, x
   
       chart
         .selectAll(".bar")
-        .data(heatmapDummyData)
+        .data(heatmapBackground)
         .enter()
         .append("rect")
         .classed("bar", true)
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
-        .attr("x", (data) => x(data[axis.xAxis]))
-        .attr("y", (data) => y(data[axis.yAxis]))
+        .attr("x", (data) => x(data.x))
+        .attr("y", (data) => y(data.y))
         .style("fill", (data) => handleColor(data.value))
         .on("click", (event) => handleSelectedDisplayCell(event.target.__data__));
-  
+
       chart
         .selectAll(".label")
-        .data(heatmapDummyData)
+        .data(heatmapBackground)
         .enter()
         .append("text")
         .text((data) => handleShownContenents(data))
-        .attr("x", (data) => x(data[axis.xAxis]) + x.bandwidth() / 2)
-        .attr("y", (data) => y(data[axis.yAxis]) + y.bandwidth() / 2)
+        .attr("x", (data) => x(data.x) + x.bandwidth() / 2)
+        .attr("y", (data) => y(data.y) + y.bandwidth() / 2)
         .attr("text-anchor", "middle")
         .attr("cursor", "pointer")
         .classed("label", true)

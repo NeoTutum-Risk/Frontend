@@ -1,148 +1,41 @@
-import { Menu, MenuDivider, MenuItem, Button } from "@blueprintjs/core";
+import {
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Button,
+  Divider,
+} from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import React, { useCallback, useEffect, useState } from "react";
-import { getAllPortfolios } from "../../services";
+import {
+  getAllLookup,
+  getAllPortfolios,
+  getRiskAssessment,
+  getAllTreeMap,
+} from "../../services";
 import { RiskAssessment } from "./../../components/riskAssessment/index copy";
-import { getRiskAssessmentIfExist } from "./../../services/index";
+import {
+  getRiskAssessmentHeatMap,
+  getRiskAssessmentDrillDown,
+} from "./../../services/index";
 import D3HeatMap from "../../components/D3HeatMap";
+import D3TreeMap from "../../components/D3TreeMap";
 import { continentDummyData } from "../../components/D3GraphsContainer/dummyData";
-
-export const heatmapDummyData = [
-  {
-    controlAdequacy: "1",
-    fmodeSeverity: "1",
-    value: 1,
-  },
-  {
-    controlAdequacy: "1",
-    fmodeSeverity: "2",
-    value: 23,
-  },
-  {
-    controlAdequacy: "1",
-    fmodeSeverity: "3",
-    value: 15,
-  },
-  {
-    controlAdequacy: "1",
-    fmodeSeverity: "4",
-    value: 21,
-  },
-  {
-    controlAdequacy: "1",
-    fmodeSeverity: "5",
-    value: 13,
-  },
-  {
-    controlAdequacy: "2",
-    fmodeSeverity: "1",
-    value: 28,
-  },
-  {
-    controlAdequacy: "2",
-    fmodeSeverity: "2",
-    value: 5,
-  },
-  {
-    controlAdequacy: "2",
-    fmodeSeverity: "3",
-    value: 1,
-  },
-  {
-    controlAdequacy: "2",
-    fmodeSeverity: "4",
-    value: 3,
-  },
-  {
-    controlAdequacy: "2",
-    fmodeSeverity: "5",
-    value: 6,
-  },
-  {
-    controlAdequacy: "3",
-    fmodeSeverity: "1",
-    value: 24,
-  },
-  {
-    controlAdequacy: "3",
-    fmodeSeverity: "2",
-    value: 23,
-  },
-  {
-    controlAdequacy: "3",
-    fmodeSeverity: "3",
-    value: 53,
-  },
-  {
-    controlAdequacy: "3",
-    fmodeSeverity: "4",
-    value: 52,
-  },
-  {
-    controlAdequacy: "3",
-    fmodeSeverity: "5",
-    value: 42,
-  },
-  {
-    controlAdequacy: "4",
-    fmodeSeverity: "1",
-    value: 2,
-  },
-  {
-    controlAdequacy: "4",
-    fmodeSeverity: "2",
-    value: 7,
-  },
-  {
-    controlAdequacy: "4",
-    fmodeSeverity: "3",
-    value: 33,
-  },
-  {
-    controlAdequacy: "4",
-    fmodeSeverity: "4",
-    value: 34,
-  },
-  {
-    controlAdequacy: "4",
-    fmodeSeverity: "5",
-    value: 55,
-  },
-  {
-    controlAdequacy: "5",
-    fmodeSeverity: "1",
-    value: 4,
-  },
-  {
-    controlAdequacy: "5",
-    fmodeSeverity: "2",
-    value: 23,
-  },
-  {
-    controlAdequacy: "5",
-    fmodeSeverity: "3",
-    value: 35,
-  },
-  {
-    controlAdequacy: "5",
-    fmodeSeverity: "4",
-    value: 48,
-  },
-  {
-    controlAdequacy: "5",
-    fmodeSeverity: "5",
-    value: 66,
-  },
-];
+import D3DrillDown from "../../components/D3DrillDown";
+import { showDangerToaster } from "../../utils/toaster";
+import { data } from "vis-network";
+import { heatmapDummyData } from "./heatMapDummy";
+import D3ConnectedScatter from "../../components/D3ConnectedScatter";
+import { graphData } from "../../components/D3ConnectedScatter/D3ConnectedScatterData";
 
 const riskViewObjects = [{}];
 
 const heatmapRules = [
-  { minValue: 1, maxValue: 30, hexColorCode: "#00af50" },
-  { minValue: 31, maxValue: 60, hexColorCode: "#ffff01" },
-  { minValue: 61, maxValue: 90, hexColorCode: "#ed7d31" },
-  { minValue: 91, maxValue: 120, hexColorCode: "#f50101" },
-  { minValue: 121, maxValue: 150, hexColorCode: "#7030a0" },
+  { minValue: 1, maxValue: 1, hexColorCode: "#92d050" },
+  { minValue: 2, maxValue: 2, hexColorCode: "#ffff00" },
+  { minValue: 3, maxValue: 3, hexColorCode: "#ffc000" },
+  { minValue: 4, maxValue: 4, hexColorCode: "#ff0000" },
+  { minValue: 5, maxValue: 5, hexColorCode: "#7030a0" },
 ];
 
 const fmodeSeverityValues = {
@@ -150,182 +43,458 @@ const fmodeSeverityValues = {
   Minor: "2",
   Material: "3",
   Major: "4",
-  Severe: "5"
-}
+  Severe: "5",
+};
 
 // Labels of row and columns of heat map
+
+/*
 const heatmapXLabels = Array.from({ length: 5 }, (_, i) => (i + 1).toString());
 const heatmapYLabels = Array.from({ length: 5 }, (_, i) => (i + 1).toString());
-
-console.log(heatmapXLabels);
+*/
 
 const SelectRiskAssessment = () => {
   const [portfolios, setPortfolios] = useState([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState([]); // this is dummy currently for the component to not argue with us
-  const [selectedPortfolio, setSelectedPortfolio] = useState({
-    portfolioId: null,
+  const [metaData, setMetaData] = useState([]);
+  const [lookupData, setLookupData] = useState([]);
+  const [selectedRiskType, setSelectedRiskType] = useState("all");
+  const [treeMapState, setTreeMapState] = useState([]);
+  const [selectedLookup, setSelectedLookup] = useState({
+    propertyId: null,
     name: null,
-    serviceChains: [],
   });
-  const [selectedServiceChain, setSelectedServiceChain] = useState({
-    serviceChainId: null,
+  const [dataLevel, setDataLevel] = useState([]); // array that contains the selected risk object properties that are selected in each level
+  const [currentDataLevel, setCurrentDataLevel] = useState({
     name: null,
-    riskAssessments: [],
+    propertyId: null,
   });
   const [selectedRiskAssessment, setSelectedRiskAssessment] = useState({
     riskAssessmentId: null,
     name: null,
-    controlAdequacy: null,
-    fmodeSeverity: null,
+    heatMap: {
+      xLabels: [],
+      yLabels: [],
+      values: [],
+    },
+    drillDown: {},
   });
+  const [heatmapBackground, setHeatmapBackground] = useState(heatmapDummyData);
 
-  console.log(portfolios);
+  const riskAssessmentData = useCallback(async (riskAssessmentId) => {
+    const response = await getRiskAssessment(riskAssessmentId);
+    if (response.status === 200) {
+      setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
+    } else {
+      showDangerToaster(`Error Retrieving Risk Assessment Data`);
+    }
+  }, []);
+
+  useEffect(async () => {
+    if (
+      selectedRiskAssessment.riskAssessmentId &&
+      currentDataLevel.propertyId &&
+      dataLevel.length === 0
+    ) {
+      const { riskAssessmentId } = selectedRiskAssessment;
+
+      const lookupPropertyId = selectedLookup.propertyId;
+
+      try {
+        const riskAssessmentHeatMap = (
+          await getRiskAssessmentHeatMap({ riskAssessmentId, lookupPropertyId })
+        ).data.data;
+
+        const {
+          lookUpRowsX: xLabels,
+          lookUpRowsY: yLabels,
+          values,
+        } = riskAssessmentHeatMap;
+
+        let bgCount = 0;
+        const heatmapBgTemp = heatmapBackground.map((data, index) => {
+          const i = index % xLabels.length; // index % 5
+
+          if (i === 0 && index !== 0) bgCount++;
+
+          return { x: xLabels[bgCount], y: yLabels[i], value: data.value };
+        });
+
+        setHeatmapBackground(heatmapBgTemp);
+
+        const heatMap = {
+          xLabels,
+          yLabels,
+          values,
+        };
+
+        const dataLevelpayload = [...dataLevel, currentDataLevel];
+        setDataLevel(dataLevelpayload);
+
+        const drillDown = {
+          drillDown: {
+            riskAssessmentId,
+            dataLevel: dataLevelpayload,
+          },
+        };
+
+        const riskAssessmentDrillDown = (
+          await getRiskAssessmentDrillDown(drillDown)
+        ).data.data;
+
+        riskAssessmentData(riskAssessmentId);
+
+        setSelectedRiskAssessment({
+          ...selectedRiskAssessment,
+          heatMap,
+          drillDown: riskAssessmentDrillDown,
+        });
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+  }, [selectedRiskAssessment.riskAssessmentId, currentDataLevel.propertyId]);
 
   const initialLoading = useCallback(async () => {
-    const res = await getAllPortfolios();
+    try {
+      const portfoliosRes = await getAllPortfolios();
+      const lookupRes = await getAllLookup();
+      const treeMapRes = await getAllTreeMap();
 
-    const data = res.data.data;
+      const data = portfoliosRes.data.data;
+      const lookupResData = lookupRes.data.data;
+      const treeMapData = treeMapRes.data.data;
 
-    console.log(data);
-
-    setPortfolios(data);
+      setTreeMapState(treeMapData);
+      setPortfolios(data);
+      setLookupData(
+        lookupResData.map((lookup) => ({
+          id: lookup.metaDataLevel2Id,
+          name: lookup.tableName,
+        }))
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   }, []);
 
   useEffect(() => {
     initialLoading();
   }, [initialLoading]);
 
-  const handleSelectedPortfolio = (e) => {
-    if (selectedPortfolio.portfolioId) {
-      setSelectedServiceChain({
-        serviceChainId: null,
-        name: null,
-        riskAssessments: [],
+  // here we update the type of the current datalevel
+  const handleSelectedElements = useCallback(
+    async (type) => {
+      // if the last datalevel is the same as the new one then return
+      if (
+        dataLevel[dataLevel.length - 1].propertyId ===
+        currentDataLevel.propertyId
+      ) {
+        alert("select different risk object property");
+        return;
+      }
+
+      // push the new datalevel with the data level array to prepare to send to the back-end
+      let dlPayload = [...dataLevel, currentDataLevel];
+
+      // change the last datalevel (not the new one that we just added)'s type to the selected type
+      dlPayload[dlPayload.length - 2].type = type;
+
+      // get the riskAssessment id
+      const { riskAssessmentId } = selectedRiskAssessment;
+
+      // insert the data that the endpoint is expecting
+      const drillDown = {
+        drillDown: {
+          riskAssessmentId,
+          dataLevel: dlPayload,
+        },
+      };
+
+      try {
+        // send the data to the backend and recieve the response
+        const riskAssessmentDrillDown = (
+          await getRiskAssessmentDrillDown(drillDown)
+        ).data.data;
+
+        // riskAssessmentData(riskAssessmentId); // dont know what is the use of this line but i am afraid to remove it
+
+        // set the new drilldow data that is came from the backend
+        setSelectedRiskAssessment({
+          ...selectedRiskAssessment,
+          drillDown: riskAssessmentDrillDown,
+        });
+
+        // change the old datalevel to the new datalevel that was made
+        setDataLevel(dlPayload);
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
+    [currentDataLevel, selectedRiskAssessment, dataLevel]
+  );
+
+  const handleRiskTypeChange = async (riskType) => {
+    try {
+      const { riskAssessmentId } = selectedRiskAssessment;
+      const riskAssessmentHeatMap = (
+        await getRiskAssessmentHeatMap(
+          { riskAssessmentId },
+          riskType === "all" ? null : riskType
+        )
+      ).data.data;
+
+      const {
+        lookUpRowsX: xLabels,
+        lookUpRowsY: yLabels,
+        values,
+      } = riskAssessmentHeatMap;
+
+      let bgCount = 0;
+      const heatmapBgTemp = heatmapBackground.map((data, index) => {
+        const i = index % xLabels.length; // index % 5
+
+        if (i === 0 && index !== 0) bgCount++;
+
+        return { x: xLabels[bgCount], y: yLabels[i], value: data.value };
       });
-      setSelectedRiskAssessment({
-        riskAssessmentId: null,
-        name: null,
-        controlAdequacy: null,
-        fmodeSeverity: null,
-      });
+
+      setHeatmapBackground(heatmapBgTemp);
+
+      const heatMap = {
+        xLabels,
+        yLabels,
+        values,
+      };
+
+      setSelectedRiskAssessment({ ...selectedRiskAssessment, heatMap });
+      setSelectedRiskType(riskType);
+    } catch (error) {
+      console.log(error.message);
     }
-
-    const portfolioId = parseInt(e.currentTarget.id);
-
-    const selectedPort = portfolios.find(
-      (portfolio) => portfolio.id === portfolioId
-    );
-
-    setSelectedPortfolio({
-      portfolioId,
-      name: selectedPort.name,
-      serviceChains: selectedPort.serviceChains,
-    });
   };
 
-  const handleSelectedServiceChain = (e) => {
-    if (selectedServiceChain.serviceChainId) {
-      setSelectedRiskAssessment({
-        riskAssessmentId: null,
-        name: null,
-        controlAdequacy: null,
-        fmodeSeverity: null,
-      });
-    }
-
-    const serviceChainId = parseInt(e.currentTarget.id);
-
-    const selectedServChain = selectedPortfolio.serviceChains.find(
-      (serviceChain) => serviceChain.id === serviceChainId
+  const checkIfHasPathProperty = (object) => {
+    return object.children.find((subObject) =>
+      subObject.hasOwnProperty("path")
     );
-
-    setSelectedServiceChain({
-      serviceChainId,
-      name: selectedServChain.name,
-      riskAssessments: selectedServChain.riskAssessments,
-    });
   };
 
-  const handleSelectedRiskAssessment = async (selectedRiskAssess) => {
-    const riskAssessmentId = parseInt(selectedRiskAssess.id);
-
-    /*
-    const selectedRiskAssess = selectedServiceChain.riskAssessments.find(
-      (riskAssessment) => riskAssessment.id === riskAssessmentId
+  const getChildren = useCallback((object) => {
+    return checkIfHasPathProperty(object) ? (
+      <MenuItem
+        text={object.name}
+        htmlTitle={object.description ? object.description : null}
+        onClick={() =>
+          setCurrentDataLevel({ propertyId: object.id, name: object.name })
+        }
+      />
+    ) : object?.children.length > 0 ? (
+      <MenuItem MenuItem text={object.name}>
+        {object.children.map((subObject) => getChildren(subObject))}
+      </MenuItem>
+    ) : (
+      <MenuItem
+        text={object.name}
+        htmlTitle={object.description ? object.description : null}
+        onClick={() =>
+          setCurrentDataLevel({ propertyId: object.id, name: object.name })
+        }
+      />
     );
-    */
+  }, []);
 
-    const riskAssessment = (await getRiskAssessmentIfExist(riskAssessmentId))
-      .data.data;
-
-    setSelectedRiskAssessment({
-      riskAssessmentId,
-      name: selectedRiskAssess.name,
-      controlAdequacy: riskAssessment.controlAdequacy,
-      fmodeSeverity: fmodeSeverityValues[riskAssessment.fmodeSeverity],
-    });
+  const handleLookUpData = (id, name) => {
+    setSelectedLookup({ propertyId: id, name });
+    setCurrentDataLevel({ propertyId: id, name });
   };
+
+  const menu = (
+    <Menu>
+      {lookupData.map((lookup) => (
+        <MenuItem
+          key={lookup.id}
+          text={lookup.name}
+          onClick={() => handleLookUpData(lookup.id, lookup.name)}
+        />
+      ))}
+      {metaData.length > 0 && <Divider />}
+      {metaData.map((l1) => {
+        return (
+          <MenuItem key={l1.id} text={l1.name}>
+            {l1.metaDataLevel2.map((l2) => {
+              return (
+                <>
+                  {l2.dataObjects[0].children &&
+                  !checkIfHasPathProperty(l2.dataObjects[0]) ? (
+                    <MenuItem text={l2.name}>
+                      {l2.dataObjects[0].children.map((l1Do) =>
+                        getChildren(l1Do)
+                      )}
+                    </MenuItem>
+                  ) : (
+                    <MenuItem
+                      text={l2.name}
+                      onClick={() =>
+                        setCurrentDataLevel({
+                          propertyId: l2.id,
+                          name: l2.name,
+                        })
+                      }
+                    />
+                  )}
+                </>
+              );
+            })}
+          </MenuItem>
+        );
+      })}
+    </Menu>
+  );
 
   return (
     <div>
-      <Popover2
-        content={
-          <>
-            <Menu>
-              {portfolios.map((portfolio, index) => (
-                <div key={index}>
-                  <MenuItem id={portfolio.id} text={portfolio.name}>
-                    {portfolio.serviceChains.length === 0
-                      ? null
-                      : portfolio.serviceChains.map((serviceChain, index) => (
-                          <MenuItem key={index} text={serviceChain.name}>
-                            {serviceChain.riskAssessments.length === 0
-                              ? null
-                              : serviceChain.riskAssessments.map(
-                                  (riskAssessment, index) => (
-                                    <MenuItem
-                                      onClick={() =>
-                                        handleSelectedRiskAssessment(
-                                          riskAssessment
-                                        )
-                                      }
-                                      key={index}
-                                      text={riskAssessment.name}
-                                    />
-                                  )
-                                )}
-                          </MenuItem>
-                        ))}
-                  </MenuItem>
-                </div>
-              ))}
-            </Menu>
-          </>
-        }
-        position="bottom"
-        interactionKind="hover"
-        autoFocus={false}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "150px",
+        }}
       >
-        <Button
-          text="select platform"
-          minimal
-          large={false}
-          className="b f5 white _btn_"
-          intent="none"
-          icon="share"
-        />
-      </Popover2>
+        <Popover2
+          content={
+            <>
+              <Menu>
+                {portfolios.map((portfolio, index) => (
+                  <div key={index}>
+                    <MenuItem id={portfolio.id} text={portfolio.name}>
+                      {portfolio.serviceChains.length === 0
+                        ? null
+                        : portfolio.serviceChains.map((serviceChain, index) => (
+                            <MenuItem key={index} text={serviceChain.name}>
+                              {serviceChain.riskAssessments.length === 0
+                                ? null
+                                : serviceChain.riskAssessments.map(
+                                    (riskAssessment, index) => (
+                                      <MenuItem
+                                        onClick={() =>
+                                          setSelectedRiskAssessment({
+                                            ...selectedRiskAssessment,
+                                            riskAssessmentId: parseInt(
+                                              riskAssessment.id
+                                            ),
+                                            name: riskAssessment.name,
+                                          })
+                                        }
+                                        key={riskAssessment.id}
+                                        text={riskAssessment.name}
+                                      />
+                                    )
+                                  )}
+                            </MenuItem>
+                          ))}
+                    </MenuItem>
+                  </div>
+                ))}
+              </Menu>
+            </>
+          }
+          position="bottom"
+          interactionKind="hover"
+          autoFocus={false}
+        >
+          <Button
+            text={selectedRiskAssessment.name || "select risk assessment"}
+            minimal
+            large={false}
+            className="b f5 white _btn_"
+            intent="none"
+            icon="share"
+          />
+        </Popover2>
 
-      <D3HeatMap
-        heatmapDummyData={heatmapDummyData}
-        displayedCellData={[selectedRiskAssessment]}
-        setSelectedPlatforms={setSelectedPlatforms}
-        xLabels={heatmapXLabels}
-        yLabels={heatmapYLabels}
-        rules={heatmapRules}
-        defaultHexColorCode="#000000"
-        axis={{ xAxis: "controlAdequacy", yAxis: "fmodeSeverity" }}
-      />
+        <Popover2
+          content={
+            <>
+              <Menu>
+                <MenuItem
+                  onClick={() => handleRiskTypeChange("all")}
+                  text="All"
+                />
+                <MenuItem
+                  onClick={() => handleRiskTypeChange("plat")}
+                  text="Plat"
+                />
+                <MenuItem
+                  onClick={() => handleRiskTypeChange("physical")}
+                  text="Physical"
+                />
+                <MenuItem
+                  onClick={() => handleRiskTypeChange("virtual")}
+                  text="Virtual"
+                />
+              </Menu>
+            </>
+          }
+          position="bottom"
+          interactionKind="hover"
+          autoFocus={false}
+        >
+          <Button
+            text={selectedRiskType}
+            minimal
+            large={false}
+            className="b f5 white _btn_"
+            intent="none"
+            icon="share"
+          />
+        </Popover2>
+
+        <Popover2
+          content={menu}
+          position="bottom"
+          interactionKind="hover"
+          autoFocus={false}
+        >
+          <Button
+            text={`${
+              currentDataLevel.name
+                ? currentDataLevel.name
+                : "select risk object properties"
+            }`}
+            minimal
+            large={false}
+            className="b f5 white _btn_"
+            intent="none"
+            icon="share"
+          />
+        </Popover2>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
+        {selectedRiskAssessment.heatMap.values.length > 0 && (
+          <D3HeatMap
+            heatmapBackground={heatmapBackground}
+            displayedCellData={selectedRiskAssessment.heatMap.values}
+            setSelectedPlatforms={setSelectedPlatforms}
+            xLabels={selectedRiskAssessment.heatMap.xLabels}
+            yLabels={selectedRiskAssessment.heatMap.yLabels}
+            rules={heatmapRules}
+            defaultHexColorCode="#000000"
+            axis={{ xAxis: "controlAdequacy", yAxis: "fmodeSeverity" }}
+          />
+        )}
+
+        <D3DrillDown
+          drillDownData={selectedRiskAssessment.drillDown}
+          handleSelectedElements={handleSelectedElements}
+          heatmapRules={heatmapRules}
+        />
+
+{treeMapState.length > 0 && <D3TreeMap treeMapData={treeMapState} />}
+        <D3ConnectedScatter graphData={graphData} />
+      </div>
+
     </div>
   );
 };
