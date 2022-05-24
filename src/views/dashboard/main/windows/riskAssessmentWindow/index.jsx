@@ -50,6 +50,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [firstContext,setFirstContext] = useState("main");
   const [elementEnable, setElementEnable] = useState(true);
   const [groupName, setGroupName] = useState(null);
   const [groupNameError, setGroupNameError] = useState(null);
@@ -88,6 +89,7 @@ export const RiskAssessmentWindow = ({
   const [importTemplateNameError, setImportTemplateNameError] = useState(null);
   const [importTemplateIdError, setImportTemplateIdError] = useState(null);
   const [templates, setTemplates] = useState([]);
+  const [closedFace,setClosedFace]= useState(true);
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -243,7 +245,6 @@ export const RiskAssessmentWindow = ({
     return (
       <MenuItem text={l1.name}>
         {l1.metaDataLevel2.map((l2) => {
-          // console.log(l2);
           return (
             <MenuItem text={l2.name}>
               {l2.dataObjects[0]?.children
@@ -256,10 +257,15 @@ export const RiskAssessmentWindow = ({
     );
   });
 
+  // console.log(menu);
+
   const handleContextMenu = useCallback(
+    
     async (e, data) => {
+      
       e.preventDefault();
-      if (data) {
+      console.log(data,data["position.enabled"]);
+      if (data && !data.from) {
         if (data["position.enabled"]) {
           setElementEnable(true);
         } else {
@@ -276,12 +282,13 @@ export const RiskAssessmentWindow = ({
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
       let x = e.nativeEvent.layerX;
       let y = e.nativeEvent.layerY;
-      if (e.target.id === "svg" || e.target.nodeName === "rect") {
+      if (data.from==="main" && firstContext==="main") {
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
         // y = e.nativeEvent.layerY + 50;
       } else if (e.target.id.split("-").length === 2) {
         type = "template";
+        setFirstContext("template");
         id = e.target.id.split("-")[1];
       } else {
         // if (e.target.id.split("-").length === 3){
@@ -289,12 +296,16 @@ export const RiskAssessmentWindow = ({
         // }
         if (selectedElements.length === 0) {
           type = "context";
+          setFirstContext("context");
         } else if (selectedElements.length === 2) {
           type = "connection";
+          setFirstContext("connection");
         } else if (selectedElements.length > 2) {
           type = "grouping";
+          setFirstContext("grouping");
         } else {
           type = "object";
+          setFirstContext("object");
         }
       }
       element = id
@@ -311,8 +322,9 @@ export const RiskAssessmentWindow = ({
         contextY,
         element,
       }));
+      
     },
-    [setContextMenu, selectedElements]
+    [setContextMenu, selectedElements,firstContext]
   );
 
   const addNewTemplate = useCallback(async () => {
@@ -386,6 +398,15 @@ export const RiskAssessmentWindow = ({
     setObjectDescription(null);
     setEditElement(null);
   }, []);
+
+  const editRiskObject = useCallback(async (id,payload,groupId)=>{
+    console.log("main",payload);
+    const response = await updateRiskObject(id, payload);
+    if(response.status===200){
+      riskAssessmentData();
+    }
+    return "Done";
+  },[riskAssessmentData])
 
   const addRiskObject = useCallback(
     async (e) => {
@@ -659,6 +680,9 @@ export const RiskAssessmentWindow = ({
           setSelectedElements={setSelectedElements}
           connections={connections}
           resetContext={resetContext}
+          setFirstContext={setFirstContext}
+          editRiskObject={editRiskObject}
+          closedFace={closedFace}
           // onContext={handleRiskViewContext}
         />
       </Window>
@@ -787,6 +811,14 @@ export const RiskAssessmentWindow = ({
                   type: "import group",
                 }));
               }}
+            />
+            <MenuDivider />
+            <MenuItem
+              text={closedFace?"Show Open Faces":"Show Closed Faces"}
+              onClick={()=>{setClosedFace(prev=>!prev);setContextMenu((prev) => ({
+                ...prev,
+                type: null,
+              }));}}
             />
           </Menu>
         )}

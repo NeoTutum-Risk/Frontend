@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
 import { RiskElement } from "./riskElement";
+import { Rnd } from "react-rnd";
+import { Button } from "@blueprintjs/core";
 import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
@@ -13,14 +15,18 @@ export const RiskGroup = ({
   index,
   riskAssessmentId,
   updateXarrow,
+  setFirstContext,
+  editRiskObject,
+  closedFace,
+  scale
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
   const [expanded, setExpanded] = useState(data.currentExpanded);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y - 50 >= 40 ? position.y - 50 : 40,
-    cx: position.x + 50 + 75 * index >= 40 ? position.x + 50 + 75 * index : 40,
+    cy: position.y  >= 0 ? position.y  : 0,
+    cx: position.x  >= 0 ? position.x  : 0,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -40,54 +46,76 @@ export const RiskGroup = ({
   }, []);
 
   const handleDragging = useCallback(
-    (e) => {
-      e.preventDefault();
-      updateXarrow();
-      if (drag.active) {
-        const bbox = e.target.getBoundingClientRect();
-        const x = e.clientX - bbox.left;
-        const y = e.clientY - bbox.top;
-
-        setDrag((prev) => ({
-          ...prev,
-          cy: prev.cy - (prev.offset.y - y),
-          cx: prev.cx - (prev.offset.x - x),
-        }));
-      }
+    (e, d) => {
+      // e.preventDefault();
+      // updateXarrow();
+      // if (drag.active) {
+      //   const bbox = e.target.getBoundingClientRect();
+      //   const x = e.clientX - bbox.left;
+      //   const y = e.clientY - bbox.top;
+      //   setDrag((prev) => ({
+      //     ...prev,
+      //     cy: prev.cy - (prev.offset.y - y),
+      //     cx: prev.cx - (prev.offset.x - x),
+      //   }));
+      // }
     },
     [drag.active, updateXarrow]
   );
 
-  const updateLocation = useCallback(async () => {
-    if(drag.cx<40){
-      setDrag(prev=>({...prev,cx:40}));
+  const updateLocation = useCallback(async (e,d) => {
+    setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }))
+    if (d.x < 0) {
+      setDrag((prev) => ({ ...prev, cx: 0 }));
+      d.x=0;
     }
 
-    if(drag.cy<40){
-      setDrag(prev=>({...prev,cy:40}));
+    if (d.y < 0) {
+      setDrag((prev) => ({ ...prev, cy: 0 }));
+      d.y=0;
     }
     updateXarrow();
-    const updateElementPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
-      x: Math.round(drag.cx - 50 - 75 * index),
-      y: Math.round(drag.cy + 50),
-      expanded: data.currentExpanded,
-    });
+    const updateElementPosition = await updateRiskAssessmentGroup(
+      data.id,
+      riskAssessmentId,
+      {
+        x: Math.round(d.x),
+        y: Math.round(d.y),
+        expanded: data.currentExpanded,
+      }
+    );
 
     console.log(updateElementPosition);
-  }, [data.id, drag.cx, drag.cy, index, data.currentExpanded, riskAssessmentId,updateXarrow]);
+  }, [
+    data.id,
+    data.currentExpanded,
+    riskAssessmentId,
+    updateXarrow,
+  ]);
 
   const updateExpanded = useCallback(async () => {
-    const updateElementPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
-      x: Math.round(drag.cx - 50 - 75 * index),
-      y: Math.round(drag.cy + 50),
-      expanded: !expanded,
-    });
+    const updateElementPosition = await updateRiskAssessmentGroup(
+      data.id,
+      riskAssessmentId,
+      {
+        x: Math.round(drag.cx),
+        y: Math.round(drag.cy),
+        expanded: !expanded,
+      }
+    );
 
     setExpanded((prev) => !prev);
     updateXarrow();
     setInterval(updateXarrow, 200);
     console.log(updateElementPosition);
-  }, [data.id, drag.cx, drag.cy, index, expanded, updateXarrow,riskAssessmentId]);
+  }, [
+    data.id,
+    drag.cx,
+    drag.cy,
+    expanded,
+    updateXarrow,
+    riskAssessmentId,
+  ]);
 
   const endDrag = useCallback(
     async (e) => {
@@ -138,75 +166,71 @@ export const RiskGroup = ({
             }
           </g>
         ))} */}
-      {data.elements.map((object, index) => (
-        <RiskElement
-          expanded={expanded}
-          handleContextMenu={handleContextMenu}
-          selectedElements={selectedElements}
-          elementSelection={elementSelection}
-          index={index}
-          data={object}
-          riskAssessmentId={riskAssessmentId}
-          position={{ x: object["position.x"], y: object["position.y"] }}
-          expandPosition={{ x: drag.cx, y: drag.cy }}
-          groupId={data.id}
-        />
-      ))}
-      <g
-        onClick={handleClick}
-        onPointerDown={startDrag}
-        onPointerMove={handleDragging}
-        onPointerUp={(e) => {
-          endDrag(e);
-          updateLocation();
+      {expanded &&
+        data.elements.map((object, index) => (
+          <RiskElement
+            setFirstContext={setFirstContext}
+            expanded={expanded}
+            handleContextMenu={handleContextMenu}
+            selectedElements={selectedElements}
+            elementSelection={elementSelection}
+            index={index}
+            data={object}
+            riskAssessmentId={riskAssessmentId}
+            position={{ x: object["position.x"], y: object["position.y"] }}
+            expandPosition={{ x: drag.cx, y: drag.cy }}
+            groupId={data.id}
+            editRiskObject={editRiskObject}
+            closedFace={closedFace}
+            scale={scale}
+          />
+        ))}
+
+      <Rnd
+        id={`group-${data.id}`}
+        key={`group-${data.id}`}
+        default={{
+          x: drag.cx,
+          y: drag.cy,
+          width: 150,
+          height: 150,
         }}
-        onPointerLeave={endDrag}
-        onContextMenu={(e) => handleContextMenu(e, data)}
-        onMouseOver={handleMouseOver}
-        className={
-          selectedElements.find((element) => element.id === data.id)
-            ? "activeCircleElement"
-            : "groupElement"
-        }
-        type="group"
-        id={data.id}
+        minWidth={100}
+        minHeight={75}
+        bounds="window"
+        onDrag={(e, d) => {
+          console.log(e, d);
+          updateXarrow();
+        }}
+        onDragStop={(e, d) => updateLocation(e, d)}
+        onResize={updateXarrow}
+        scale={scale}
       >
-        {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
-        <circle
-          strokeDasharray={expanded ? 5 : 0}
-          r={40}
-          cy={drag.cy}
-          cx={drag.cx}
-          id={`group-${data.id}`}
-        />
-        {/* <ellipse
-          cy={drag.cy}
-          cx={drag.cx}
-          rx={50}
-          ry={20}
-        /> */}
-        <text
-          fill="black"
-          x={drag.cx}
-          y={drag.cy}
-          textAnchor="middle"
-          strokeWidth="2px"
-          dy=".3em"
-          id={`group-${data.id}`}
+        <div
+          onMouseLeave={() => setFirstContext("main")}
+          onMouseEnter={() => setFirstContext("group")}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            handleContextMenu(e, data);
+          }}
+          // title={data.description}
+          onClick={handleClick}
+          className="risk-object-container panningDisabled"
+          style={{
+            border: !expanded
+              ? "5px solid rgb(56	142	142	)"
+              : "5px dashed rgb(56	142	142	)",
+            borderRadius: "150px",
+            backgroundColor: "white",
+            padding: "5px",
+            textAlign: "center",
+            display: "flex",
+          }}
         >
-          {data.name}
-        </text>
-        <text
-              x={drag.cx}
-              y={drag.cy-22.5}
-              textAnchor="middle"
-              strokeWidth="2px"
-              dy=".3em"
-              fill="black"
-            >
-              {Number(data.id-2000000)}
-            </text>
-      </g>
+          <span>{data.name}</span>
+          <span>{data.id - 2000000}</span>
+        </div>
+      </Rnd>
 
       {/* {showTooltip && !drag.active && (
         <Tooltip

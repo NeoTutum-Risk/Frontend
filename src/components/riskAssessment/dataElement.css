@@ -35,3 +35,64 @@
   stroke: rgba(77, 77, 77, 0.849);
   stroke-width: 2px;
 }
+
+.riskObject {
+  border: 5px rgb(89, 117, 209) solid;
+  ;
+  width: 200px;
+  height: 100px;
+  background-color: rgb(255, 255, 255);
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  padding: 15px;
+}
+
+.risk-object-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.risk-object-inner-row {
+  height: 45%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.risk-object-closed-header {
+  height: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.risk-object-closed-body {
+  height: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.risk-object-inner-column {
+  width: 30%;
+  border: 1px solid blue;
+  height: 100%;
+  border-radius: 10px;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.risk-object-highlighted{
+  border: 5px rgb(89, 199, 209) solid;
+  /* color: aqua; */
+}

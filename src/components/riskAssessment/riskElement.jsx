@@ -1,15 +1,13 @@
-import { Tooltip } from "./dataElementTooltip";
-import hexagon from "./shapes/hexagon.svg";
-import eightgon from "./shapes/eightgon.svg";
-import fivegon from "./shapes/fivegon.svg";
-import hexagonactive from "./shapes/hexagonactive.svg";
-import eightgonactive from "./shapes/eightgonactive.svg";
-import fivegonactive from "./shapes/fivegonactive.svg";
-import { useCallback, useState } from "react";
+import { ClosedEitor } from "./closedEditor";
+import { OpenFace } from "./openFace";
+import { ClosedFace } from "./closedFace";
+import { Rnd } from "react-rnd";
+import Resizable from "react-resizable-box";
+import { useCallback, useState, useEffect } from "react";
 import "./dataElement.css";
-// import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { updateRiskObjectPosition } from "../../services";
+import Draggable from "react-draggable";
 export const RiskElement = ({
   data,
   elementSelection,
@@ -20,84 +18,55 @@ export const RiskElement = ({
   riskAssessmentId,
   expanded,
   expandPosition,
-  groupId
+  setFirstContext,
+  groupId,
+  editRiskObject,
+  closedFace,
+  scale,
 }) => {
-  // console.log(`element ${data.id}`);
-  // console.log(`element rerendered ${data.id}`);
+
+  const [face, setFace] = useState(true);
+  const [editor, setEditor] = useState(false);
   const updateXarrow = useXarrow();
-  const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y - 50 >= 60 ? position.y - 50 : 60,
-    cx: position.x + 50 + 75 * index >= 60 ? position.x + 50 + 75 * index : 60,
+    cy: position.y >= 0 ? position.y : 0,
+    cx: position.x >= 0 ? position.x : 0,
     offset: {},
   });
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipTimer, setTooltipTimer] = useState(null);
 
-  const startDrag = useCallback((e) => {
-    console.log("Drag Start");
-    e.preventDefault();
-    console.log(e);
-    const element = e.target;
-    const bbox = e.target.getBoundingClientRect();
-    const x = e.clientX - bbox.left;
-    const y = e.clientY - bbox.top;
-    element.setPointerCapture(e.pointerId);
-    setDrag((prev) => ({ ...prev, active: true, offset: { x, y } }));
-    // console.log("start drag", e.target);
-  }, []);
 
-  const handleDragging = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (drag.active) {
-        const bbox = e.target.getBoundingClientRect();
-        const x = e.clientX - bbox.left;
-        const y = e.clientY - bbox.top;
+  useEffect(() => {
+    setFace(!closedFace);
+  }, [closedFace]);
 
-        setDrag((prev) => ({
-          ...prev,
-          cy: prev.cy - (prev.offset.y - y),
-          cx: prev.cx - (prev.offset.x - x),
-        }));
+  const updateLocation = useCallback(
+    async (e, d) => {
+      setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
+      if (d.x < 0) {
+        setDrag((prev) => ({ ...prev, cx: 0 }));
+        d.x = 0;
       }
-    },
-    [drag.active]
-  );
-  const updateLocation = useCallback(async () => {
-    // console.log("new position",drag.cx, drag.cy);
-    if (drag.cx < 60) {
-      setDrag((prev) => ({ ...prev, cx: 60 }));
-    }
 
-    if (drag.cy < 60) {
-      setDrag((prev) => ({ ...prev, cy: 60 }));
-    }
-
-    const x = Math.round(drag.cx - 50 - 75 * index);
-    const y = Math.round(drag.cy + 50);
-    const updateElementPosition = await updateRiskObjectPosition(
-      riskAssessmentId,
-      data.id,
-      {
-        x,
-        y,
-        enabled: data["position.enabled"],
+      if (d.y < 0) {
+        setDrag((prev) => ({ ...prev, cy: 0 }));
+        d.y = 0;
       }
-    );
-    console.log(updateElementPosition);
-  }, [riskAssessmentId, data, drag.cx, drag.cy, index]);
-  const endDrag = useCallback(
-    async (e) => {
-      e.preventDefault();
-      setDrag((prev) => ({ ...prev, active: false }));
-      clearTimeout(tooltipTimer);
-      setTooltipTimer(null);
-      setShowTooltip(false);
+      updateXarrow();
+      const updateElementPosition = await updateRiskObjectPosition(
+        riskAssessmentId,
+        data.id,
+        {
+          x: Math.round(d.x),
+          y: Math.round(d.y),
+          enabled: data["position.enabled"],
+        }
+      );
+      console.log(updateElementPosition);
     },
-    [tooltipTimer]
+    [riskAssessmentId, data, updateXarrow]
   );
+
 
   const handleClick = useCallback(
     (e) => {
@@ -119,164 +88,61 @@ export const RiskElement = ({
     [/*setActive,*/ elementSelection, data, selectedElements]
   );
 
-  // const handleContext = useCallback(
-  //   (e) => {
-  //     e.preventDefault();
-  //     showContext({
-  //       ...data,
-  //       y: drag.cy,
-  //       x: drag.cx,
-  //     });
-  //     // console.log("cm", data);
-  //   },
-  //   [showContext,drag, data]
-  // );
+  
 
-  const handleMouseOver = useCallback(
-    (e) => {
-      if (tooltipTimer) return;
-      setTooltipTimer(
-        setTimeout(() => {
-          setShowTooltip(true);
-        }, 1000)
-      );
-      // console.log("Mouse Over");
-    },
-    [tooltipTimer]
-  );
   return (
     <>
-      <g
-        onClick={handleClick}
-        onPointerDown={startDrag}
-        onPointerMove={handleDragging}
-        onPointerUp={(e) => {
-          endDrag(e);
-          updateLocation();
-        }}
-        onPointerLeave={endDrag}
-        onContextMenu={(e) => handleContextMenu(e, data)}
-        onMouseOver={handleMouseOver}
-        className={
-          selectedElements.find((element) => element.id === data.id)
-            ? "activeCircleElement"
-            : "circleElement"
-        }
+      <Rnd
         id={`R-${riskAssessmentId}-${data.id}`}
+        key={`R-${riskAssessmentId}-${data.id}`}
+        default={{
+          x: drag.cx,
+          y: drag.cy,
+          width: 220,
+          height: 145,
+        }}
+        minWidth={220}
+        minHeight={145}
+        bounds="window"
+        onDrag={updateXarrow}
+        onResize={updateXarrow}
+        scale={scale}
+        onDragStop={(e, d) => updateLocation(e, d)}
       >
-        {/* <rect width={50} height={50} y={drag.cy-25} x={drag.cx-25} rx={10}/> */}
-        {!expanded && (
-          <circle
-            r={35}
-            cy={expandPosition.y}
-            cx={expandPosition.x}
-            fill-opacity="0"
-            stroke-opacity="0"
-          />
-        )}
-        {expanded && (
-          <>
-            {data.type === "physical" ? (
-              <image
-                fill="#d3d3d3"
-                textAnchor="middle"
-                href={
-                  !selectedElements.find((element) => element.id === data.id)
-                    ? hexagon
-                    : hexagonactive
-                }
-                x={drag.cx - 60}
-                y={drag.cy - 60}
-                height="125px"
-                width="125px"
-              />
-            ) : data.type === "virtual" ? (
-              <image
-                fill="#d3d3d3"
-                textAnchor="middle"
-                href={
-                  !selectedElements.find((element) => element.id === data.id)
-                    ? eightgon
-                    : eightgonactive
-                }
-                x={drag.cx - 60}
-                y={drag.cy - 60}
-                height="120px"
-                width="120px"
-              />
-            ) : (
-              <image
-                fill="#d3d3d3"
-                textAnchor="middle"
-                href={
-                  !selectedElements.find((element) => element.id === data.id)
-                    ? fivegon
-                    : fivegonactive
-                }
-                x={drag.cx - 60}
-                y={drag.cy - 60}
-                height="120px"
-                width="120px"
-              />
-            )}
-
-            {/* <ellipse
-              fill-opacity={data["position.enabled"] ? "1" : ".3"}
-              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-              cy={drag.cy}
-              cx={drag.cx}
-              rx={55}
-              ry={30}
-            /> */}
-
-            <text
-              x={drag.cx}
-              y={drag.cy}
-              textAnchor="middle"
-              strokeWidth="2px"
-              dy=".3em"
-              fill-opacity={data["position.enabled"] ? "1" : ".3"}
-              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-            >
-              {data.name}
-            </text>
-            <text
-              x={drag.cx}
-              y={drag.cy-22.5}
-              textAnchor="middle"
-              strokeWidth="2px"
-              dy=".3em"
-              fill="black"
-              fill-opacity={data["position.enabled"] ? "1" : ".3"}
-              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-            >
-              {groupId>0?Number(groupId-2000000):null}
-            </text>
-            <text
-              x={drag.cx}
-              y={drag.cy + 28}
-              textAnchor="middle"
-              strokeWidth="2px"
-              dy=".3em"
-              fill-opacity={data["position.enabled"] ? "1" : ".3"}
-              stroke-opacity={data["position.enabled"] ? "1" : ".3"}
-            >
-              {data.id}
-            </text>
-          </>
-        )}
-      </g>
-      {showTooltip && !drag.active && (
-        <Tooltip
-          x={drag.cx}
-          y={drag.cy}
-          tx={drag.cx}
-          ty={drag.cy}
-          data={{
-            description: data.description,
+        <div
+          onMouseLeave={() => setFirstContext("main")}
+          onMouseEnter={() => setFirstContext("element")}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            handleContextMenu(e, data);
           }}
-        />
-      )}
+          // title={data.description}
+          onClick={handleClick}
+          className="risk-object-container panningDisabled "
+          style={{
+            border: selectedElements.find((element) => element.id === data.id)
+              ? "5px solid rgb(89, 199, 209)"
+              : "5px solid rgb(89, 117, 209)",
+            borderRadius: "15px",
+            backgroundColor: "white",
+            padding: "5px",
+          }}
+        >
+          {face && <OpenFace data={data} groupId={groupId} setFace={setFace} />}
+          {!face && (
+            <ClosedFace
+              editRiskObject={editRiskObject}
+              data={data}
+              groupId={groupId}
+              setFace={setFace}
+              setEditor={setEditor}
+            />
+          )}
+        </div>
+      </Rnd>
+      {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>
+      {true && <ClosedEitor />}
+    </div> */}
     </>
   );
 };
