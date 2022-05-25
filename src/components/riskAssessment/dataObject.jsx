@@ -112,7 +112,7 @@ export const DataObject = ({
                 <td>{data.dataObjectNew.arrayDescription}</td>
               </tr>
               <tr>
-                <th>Array Demintions</th>
+                <th>Array Dimension</th>
                 <td>
                   {data.dataObjectNew.array.length} X{" "}
                   {data.dataObjectNew.array[0].length}
