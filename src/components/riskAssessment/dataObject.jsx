@@ -66,8 +66,8 @@ export const DataObject = ({
         className="risk-object-container panningDisabled "
         style={{
           border: selectedElements.find((element) => element.id === data.id)
-            ? "5px solid rgb(89, 199, 209)"
-            : "5px solid rgb(89, 117, 209)",
+            ? "5px solid #62D96B"
+            : "5px solid #1D7324",
           borderRadius: "15px",
           backgroundColor: "white",
           padding: "5px",
@@ -78,16 +78,16 @@ export const DataObject = ({
           style={{ display: "flex", justifyContent: "space-between" }}
           className="panningDisabled"
         >
-          <Button className="panningDisabled" small={true} intent="primary">
+          <Button className="panningDisabled" small={true} intent="success">
             {data.id}
           </Button>
-          <Button className="panningDisabled" small={true} intent="primary">
+          <Button className="panningDisabled" small={true} intent="success">
             {data.dataObjectNew.name}
           </Button>
-          <Button className="panningDisabled" small={true} intent="primary">
+          <Button className="panningDisabled" small={true} intent="success">
             {data.dataObjectNew.chronType}
           </Button>
-          <Button className="panningDisabled" small={true} intent="primary">
+          <Button className="panningDisabled" small={true} intent="success">
             {data.dataObjectNew.arrayName ? "Array" : "Text"}
           </Button>
         </div>

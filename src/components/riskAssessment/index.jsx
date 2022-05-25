@@ -93,6 +93,10 @@ export const RiskAssessment = ({
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
+            color="#29A634"
+            headColor="#29A634"
+            tailColor="#29A634"
+            lineColor="#29A634"
             labels={{
               middle: (
                 <div style={{ display: !true ? "none" : "inline" }}>
@@ -111,6 +115,10 @@ export const RiskAssessment = ({
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
+            color="#29A634"
+            headColor="#29A634"
+            tailColor="#29A634"
+            lineColor="#29A634"
             labels={{
               middle: (
                 <div style={{ display: !true ? "none" : "inline" }}>
