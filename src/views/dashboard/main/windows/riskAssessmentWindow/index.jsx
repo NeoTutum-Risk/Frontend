@@ -37,7 +37,7 @@ import {
   getNewDataObjects,
   addNewDataObjectInstance,
   addInstanceConnection,
-  addInstanceObjectConnection
+  addInstanceObjectConnection,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -90,10 +90,13 @@ export const RiskAssessmentWindow = ({
   const [metaData, setMetaData] = useState([]);
   const [connections, setConnections] = useState([]);
   const [instanceConnections, setInstanceConnections] = useState([]);
-  const [instanceObjectConnections, setInstanceObjectConnections] = useState([]);
+  const [instanceObjectConnections, setInstanceObjectConnections] = useState(
+    []
+  );
   const [groups, setGroups] = useState([]);
   const [importGroupId, setImportGroupId] = useState(null);
   const [importObjectId, setImportObjectId] = useState(null);
+  const [importObject, setImportObject] = useState(null);
   const [importObjectText, setImportObjectText] = useState(null);
   const [importObjectFile, setImportObjectFile] = useState(null);
   const [url, setURL] = useState(null);
@@ -144,8 +147,9 @@ export const RiskAssessmentWindow = ({
         )
       );
       setInstanceConnections(response.data.data.dataObjectsConnections);
-      setInstanceObjectConnections(response.data.data.dataObjectsRiskObjectsConnections)
-      
+      setInstanceObjectConnections(
+        response.data.data.dataObjectsRiskObjectsConnections
+      );
     } else {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
     }
@@ -247,11 +251,11 @@ export const RiskAssessmentWindow = ({
             instance = selectedElements[1];
             object = selectedElements[0];
           }
-// console.log(instance.dataObjectNew.IOtype,object);
+          // console.log(instance.dataObjectNew.IOtype,object);
           if (instance.dataObjectNew.IOtype === "Input") {
             source = instance;
             target = object;
-          }else{
+          } else {
             target = instance;
             source = object;
           }
@@ -261,7 +265,8 @@ export const RiskAssessmentWindow = ({
             targetRef: target.id,
             riskAssessmentId: window.data.id,
             name: linkName,
-            objectType:instance.dataObjectNew.IOtype==="Input"?"Input":"Output"
+            objectType:
+              instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
           };
 
           const response = await addInstanceObjectConnection(payload);
@@ -748,6 +753,7 @@ export const RiskAssessmentWindow = ({
     if (response.status === 200) {
       resetContext();
       setImportObjectId(null);
+      setImportObject(null);
       setImportObjectText(null);
       setImportObjectFile(null);
       riskAssessmentData();
@@ -1420,7 +1426,14 @@ export const RiskAssessmentWindow = ({
                 labelFor="Object"
               >
                 <HTMLSelect
-                  onChange={(e) => setImportObjectId(Number(e.target.value))}
+                  onChange={(e) => {
+                    setImportObjectId(Number(e.target.value));
+                    setImportObject(
+                      globalDataObjects.find(
+                        (object) => object.id === Number(e.target.value)
+                      )
+                    );
+                  }}
                 >
                   <option selected disabled>
                     Select Object
@@ -1434,56 +1447,60 @@ export const RiskAssessmentWindow = ({
                   )}
                 </HTMLSelect>
               </FormGroup>
-              <FormGroup
-                label="Text"
-                labelInfo="(required)"
-                labelFor="texttype"
-              >
-                <TextArea
-                  // required
-                  value={importObjectText}
-                  fill={true}
-                  id="texttype"
-                  onChange={(event) => {
-                    setImportObjectText(event.target.value);
-                  }}
-                />
-              </FormGroup>
-              <FormGroup
-                label={`Attachment`}
-                labelInfo="(required)"
-                intent={false ? Intent.DANGER : Intent.NONE}
-                labelFor="Type"
-              >
-                {}
-                <FileInput
-                  fill={true}
-                  hasSelection={importObjectFile}
-                  text={
-                    importObjectFile?.name
-                      ? importObjectFile?.name
-                      : "Choose file..."
-                  }
-                  onInputChange={(e) => {
-                    console.log(e);
-                    setImportObjectFile(e.target.files[0]);
-                  }}
-                ></FileInput>
-              </FormGroup>
-              <FormGroup
-                label="URL"
-                // labelInfo="(required)"
-                labelFor="newObjectURL"
-              >
-                <InputGroup
-                  // required
-                  id="newObjectURL"
-                  value={url}
-                  onChange={(event) => {
-                    setURL(event.target.value);
-                  }}
-                />
-              </FormGroup>
+              {importObject?.arrayName ? null : (
+                <>
+                  <FormGroup
+                    label="Text"
+                    labelInfo="(required)"
+                    labelFor="texttype"
+                  >
+                    <TextArea
+                      // required
+                      value={importObjectText}
+                      fill={true}
+                      id="texttype"
+                      onChange={(event) => {
+                        setImportObjectText(event.target.value);
+                      }}
+                    />
+                  </FormGroup>
+                  <FormGroup
+                    label={`Attachment`}
+                    labelInfo="(required)"
+                    intent={false ? Intent.DANGER : Intent.NONE}
+                    labelFor="Type"
+                  >
+                    <FileInput
+                      fill={true}
+                      hasSelection={importObjectFile}
+                      text={
+                        importObjectFile?.name
+                          ? importObjectFile?.name
+                          : "Choose file..."
+                      }
+                      onInputChange={(e) => {
+                        console.log(e);
+                        setImportObjectFile(e.target.files[0]);
+                      }}
+                    ></FileInput>
+                  </FormGroup>
+                  <FormGroup
+                    label="URL"
+                    // labelInfo="(required)"
+                    labelFor="newObjectURL"
+                  >
+                    <InputGroup
+                      // required
+                      id="newObjectURL"
+                      value={url}
+                      onChange={(event) => {
+                        setURL(event.target.value);
+                      }}
+                    />
+                  </FormGroup>
+                </>
+              )}
+
               <div
                 style={{
                   display: "flex",
