@@ -13,16 +13,22 @@ const AdminSidebar = () => {
   const sampleData = [
     {
       id: 0,
-      hasCaret: true,
+      hasCaret: false,
       label: "Risk Object Meta Data",
       name: "meta-data"
     },
     {
       id: 1,
-      hasCaret: true,
+      hasCaret: false,
       label: "Look-up",
       name: "look-up"
     },
+    {
+      id: 2,
+      hasCaret: false,
+      label: "Data Objects",
+      name: "Data Objects"
+    }
   ];
 
   const nodeHandler = (e) => {

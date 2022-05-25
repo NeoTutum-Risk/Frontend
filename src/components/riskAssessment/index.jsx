@@ -6,6 +6,7 @@ import { RiskGroup } from "./riskGroup";
 import { useCallback, useState, Fragment } from "react";
 import { objectSelectorState } from "../../store/objectSelector";
 import { useRecoilState } from "recoil";
+import { DataObject } from "./dataObject";
 export const RiskAssessment = ({
   objects,
   groups,
@@ -23,7 +24,7 @@ export const RiskAssessment = ({
   // console.log("index",typeof setFirstContext);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
-    const [globalScale,setGlobalScale]=useState(1);
+  const [globalScale, setGlobalScale] = useState(1);
   const elementSelection = useCallback(
     (elementData, state) => {
       console.log(elementData, state);
@@ -71,14 +72,18 @@ export const RiskAssessment = ({
         maxScale={5}
         doubleClick={{ disabled: true }}
         onZoom={updateXarrow}
-        onZoomStop={e=>{handleZoomPanPinch();setGlobalScale(e.state.scale);console.log(e)}}
+        onZoomStop={(e) => {
+          handleZoomPanPinch();
+          setGlobalScale(e.state.scale);
+          console.log(e);
+        }}
         onPinching={updateXarrow}
         onPinchingStop={handleZoomPanPinch}
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
         panning={{ excluded: ["panningDisabled"] }}
         pinch={{ excluded: ["pinchDisabled"] }}
-        wheel={{excluded: ["wheelDisabled"]}}
+        wheel={{ excluded: ["wheelDisabled"] }}
       >
         {connections.map((edge) => (
           <Xarrow
@@ -138,7 +143,11 @@ export const RiskAssessment = ({
                   />
                 ))
               : null}
-
+            <DataObject
+              riskAssessmentId={riskAssessmentId}
+              scale={globalScale}
+              data={{ x: "20", y: "30", id: "do1" }}
+            />
             {groups.length > 0
               ? groups.map((group, index) => (
                   <RiskGroup

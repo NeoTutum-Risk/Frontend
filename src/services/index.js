@@ -149,3 +149,9 @@ export const getRiskObject = (id) => serviceProvider(`/riskObjects/${id}`);
 export const getGroups = () => serviceProvider(`/riskObjectGroups`);
 
 export const importGroup = (data) => serviceProvider.post(`/riskGroupPositions`,data);
+
+export const getNewDataObjects = () => serviceProvider(`dataObjectNew`);
+
+export const addNewDataObjects = (data) => serviceProvider.post(`dataObjectNew`,data);
+
+export const addNewDataObjectInstance = (data) => serviceProvider.post(`dataObjectNewProperties`,data);
