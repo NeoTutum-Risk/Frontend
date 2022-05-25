@@ -155,3 +155,7 @@ export const getNewDataObjects = () => serviceProvider(`dataObjectNew`);
 export const addNewDataObjects = (data) => serviceProvider.post(`dataObjectNew`,data);
 
 export const addNewDataObjectInstance = (data) => serviceProvider.post(`dataObjectNewProperties`,data);
+
+export const addInstanceConnection = (data) => serviceProvider.post(`dataObjectNewConnections`,data);
+
+export const addInstanceObjectConnection = (data) => serviceProvider.post(`dataObjectNewRiskObjectConnections`,data);

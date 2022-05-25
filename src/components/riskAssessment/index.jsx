@@ -10,11 +10,14 @@ import { DataObject } from "./dataObject";
 export const RiskAssessment = ({
   objects,
   groups,
+  dataObjectInstances,
   riskAssessmentId,
   handleContextMenu,
   selectedElements,
   setSelectedElements,
   connections,
+  instanceConnections,
+  instanceObjectConnections,
   onContext,
   resetContext,
   setFirstContext,
@@ -85,15 +88,47 @@ export const RiskAssessment = ({
         pinch={{ excluded: ["pinchDisabled"] }}
         wheel={{ excluded: ["wheelDisabled"] }}
       >
+        {instanceConnections.map((edge) => (
+          <Xarrow
+            path="straight"
+            curveness={0.2}
+            strokeWidth={1.5}
+            labels={{
+              middle: (
+                <div style={{ display: !true ? "none" : "inline" }}>
+                  {edge.name}
+                </div>
+              ),
+            }}
+            start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
+            end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+          />
+        ))}
+
+        {instanceObjectConnections.map((edge) => (
+          <Xarrow
+            path="straight"
+            curveness={0.2}
+            strokeWidth={1.5}
+            labels={{
+              middle: (
+                <div style={{ display: !true ? "none" : "inline" }}>
+                  {edge.name}
+                </div>
+              ),
+            }}
+            start={String(edge.objectType==="Input"?"D-":"R-" + riskAssessmentId + "-" + edge.sourceRef)}
+            end={String(edge.objectType==="Input"?"R-":"D-" + riskAssessmentId + "-" + edge.targetRef)}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+          />
+        ))}
+
         {connections.map((edge) => (
           <Xarrow
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
-            // headShape={"arrow"}
-            // tailShape={"arrow"}
-            // headSize={7}
-            // tailSize={7}
             labels={{
               middle: (
                 <div style={{ display: !true ? "none" : "inline" }}>
@@ -143,11 +178,20 @@ export const RiskAssessment = ({
                   />
                 ))
               : null}
-            <DataObject
-              riskAssessmentId={riskAssessmentId}
-              scale={globalScale}
-              data={{ x: "20", y: "30", id: "do1" }}
-            />
+
+            {dataObjectInstances.length > 0
+              ? dataObjectInstances.map((dataObjectInstance) => (
+                  <DataObject
+                    riskAssessmentId={riskAssessmentId}
+                    scale={globalScale}
+                    data={dataObjectInstance}
+                    selectedElements={selectedElements}
+                    elementSelection={elementSelection}
+                    setFirstContext={setFirstContext}
+                  />
+                ))
+              : null}
+
             {groups.length > 0
               ? groups.map((group, index) => (
                   <RiskGroup

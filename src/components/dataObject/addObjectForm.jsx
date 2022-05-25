@@ -153,7 +153,7 @@ export const AddObjectForm = ({ setAddNewObjectDialog, getData }) => {
               I/O Type
             </option>
             <option value="Input">Input</option>
-            <option value="Onput">Output</option>
+            <option value="Output">Output</option>
           </HTMLSelect>
         </FormGroup>
         <FormGroup label="Name" labelInfo="(required)" labelFor="newObjectName">

@@ -35,7 +35,9 @@ import {
   importGroup,
   updateRiskAssessmentGroup,
   getNewDataObjects,
-  addNewDataObjectInstance
+  addNewDataObjectInstance,
+  addInstanceConnection,
+  addInstanceObjectConnection
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -69,6 +71,7 @@ export const RiskAssessmentWindow = ({
   const [isServiceLoading, setIsServiceLoading] = useState(false);
   const [selectedElements, setSelectedElements] = useState([]);
   const [selectedConnection, setSelectedConnection] = useState(null);
+  const [dataObjectInstances, setDataObjectInstances] = useState([]);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -86,6 +89,8 @@ export const RiskAssessmentWindow = ({
   const [riskObjects, setRiskObjects] = useState([]);
   const [metaData, setMetaData] = useState([]);
   const [connections, setConnections] = useState([]);
+  const [instanceConnections, setInstanceConnections] = useState([]);
+  const [instanceObjectConnections, setInstanceObjectConnections] = useState([]);
   const [groups, setGroups] = useState([]);
   const [importGroupId, setImportGroupId] = useState(null);
   const [importObjectId, setImportObjectId] = useState(null);
@@ -130,6 +135,7 @@ export const RiskAssessmentWindow = ({
     if (response.status === 200) {
       console.log(response.data.data);
       setRiskObjects(response.data.data.riskObjects);
+      setDataObjectInstances(response.data.data.dataObjectsNewProperties);
       setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
       setGroups(response.data.data.riskGroups);
       setConnections(
@@ -137,6 +143,9 @@ export const RiskAssessmentWindow = ({
           (connection) => connection.status !== "deleted"
         )
       );
+      setInstanceConnections(response.data.data.dataObjectsConnections);
+      setInstanceObjectConnections(response.data.data.dataObjectsRiskObjectsConnections)
+      
     } else {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
     }
@@ -196,12 +205,71 @@ export const RiskAssessmentWindow = ({
   const handleConnection = useCallback(
     async (data) => {
       if (data.type === "connect") {
-        let payload = {
-          sourceRef: selectedElements[0].id,
-          targetRef: selectedElements[1].id,
-          riskAssessmentId: window.data.id,
-          name: linkName,
-        };
+        if (
+          selectedElements[0].type !== "instance" &&
+          selectedElements[1].type !== "instance"
+        ) {
+          // console.log("risks");
+          let payload = {
+            sourceRef: selectedElements[0].id,
+            targetRef: selectedElements[1].id,
+            riskAssessmentId: window.data.id,
+            name: linkName,
+          };
+
+          const response = await addRiskConnection(payload);
+          setConnections((prev) => [...prev, response.data.data]);
+          setSelectedElements([]);
+          setSelectedObjects([]);
+          console.log(payload);
+        } else if (
+          selectedElements[0].type === "instance" &&
+          selectedElements[1].type === "instance"
+        ) {
+          let payload = {
+            sourceRef: selectedElements[0].id,
+            targetRef: selectedElements[1].id,
+            riskAssessmentId: window.data.id,
+            name: linkName,
+          };
+
+          const response = await addInstanceConnection(payload);
+          setInstanceConnections((prev) => [...prev, response.data.data]);
+          setSelectedElements([]);
+          setSelectedObjects([]);
+          console.log(payload);
+        } else {
+          let instance, object, source, target;
+          if (selectedElements[0].type === "instance") {
+            instance = selectedElements[0];
+            object = selectedElements[1];
+          } else {
+            instance = selectedElements[1];
+            object = selectedElements[0];
+          }
+// console.log(instance.dataObjectNew.IOtype,object);
+          if (instance.dataObjectNew.IOtype === "Input") {
+            source = instance;
+            target = object;
+          }else{
+            target = instance;
+            source = object;
+          }
+
+          let payload = {
+            sourceRef: source.id,
+            targetRef: target.id,
+            riskAssessmentId: window.data.id,
+            name: linkName,
+            objectType:instance.dataObjectNew.IOtype==="Input"?"Input":"Output"
+          };
+
+          const response = await addInstanceObjectConnection(payload);
+          setInstanceObjectConnections((prev) => [...prev, response.data.data]);
+          setSelectedElements([]);
+          setSelectedObjects([]);
+          console.log(payload);
+        }
         setContextMenu({
           active: false,
           type: "",
@@ -211,12 +279,6 @@ export const RiskAssessmentWindow = ({
           contextY: 0,
           element: null,
         });
-        const response = await addRiskConnection(payload);
-        // riskAssessmentData();
-        setConnections((prev) => [...prev, response.data.data]);
-        setSelectedElements([]);
-        setSelectedObjects([]);
-        console.log(payload);
       }
     },
     [
@@ -736,11 +798,14 @@ export const RiskAssessmentWindow = ({
           objects={riskObjects}
           groups={groups}
           metaData={metaData}
+          dataObjectInstances={dataObjectInstances}
           riskAssessmentId={window.data.id}
           handleContextMenu={handleContextMenu}
           selectedElements={selectedElements}
           setSelectedElements={setSelectedElements}
           connections={connections}
+          instanceConnections={instanceConnections}
+          instanceObjectConnections={instanceObjectConnections}
           resetContext={resetContext}
           setFirstContext={setFirstContext}
           editRiskObject={editRiskObject}
@@ -1399,19 +1464,26 @@ export const RiskAssessmentWindow = ({
                       ? importObjectFile?.name
                       : "Choose file..."
                   }
-                  onInputChange={(e) => {console.log(e);setImportObjectFile(e.target.files[0]);}}
+                  onInputChange={(e) => {
+                    console.log(e);
+                    setImportObjectFile(e.target.files[0]);
+                  }}
                 ></FileInput>
               </FormGroup>
-              <FormGroup label="URL" labelInfo="(required)" labelFor="newObjectURL">
-          <InputGroup
-            required
-            id="newObjectURL"
-            value={url}
-            onChange={(event) => {
-              setURL(event.target.value);
-            }}
-          />
-        </FormGroup>
+              <FormGroup
+                label="URL"
+                labelInfo="(required)"
+                labelFor="newObjectURL"
+              >
+                <InputGroup
+                  required
+                  id="newObjectURL"
+                  value={url}
+                  onChange={(event) => {
+                    setURL(event.target.value);
+                  }}
+                />
+              </FormGroup>
               <div
                 style={{
                   display: "flex",

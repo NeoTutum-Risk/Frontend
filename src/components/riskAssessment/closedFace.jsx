@@ -88,7 +88,7 @@ export const ClosedFace = ({
           {data.name}
         </Button>
       </div>
-      <div className="risk-object-closed-header">
+      <div className="risk-object-closed-header panningDisabled">
         <Button
           fill={true}
           title="Statement"
