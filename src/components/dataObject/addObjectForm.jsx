@@ -274,7 +274,7 @@ export const AddObjectForm = ({ setAddNewObjectDialog, getData }) => {
               </FormGroup>
               <FormGroup label="URL" labelInfo="(required)" labelFor="newObjectURL">
           <InputGroup
-            required
+            // required
             id="newObjectURL"
             value={url}
             onChange={(event) => {

@@ -1440,7 +1440,7 @@ export const RiskAssessmentWindow = ({
                 labelFor="texttype"
               >
                 <TextArea
-                  required
+                  // required
                   value={importObjectText}
                   fill={true}
                   id="texttype"
@@ -1472,11 +1472,11 @@ export const RiskAssessmentWindow = ({
               </FormGroup>
               <FormGroup
                 label="URL"
-                labelInfo="(required)"
+                // labelInfo="(required)"
                 labelFor="newObjectURL"
               >
                 <InputGroup
-                  required
+                  // required
                   id="newObjectURL"
                   value={url}
                   onChange={(event) => {
