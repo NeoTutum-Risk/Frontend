@@ -97,9 +97,9 @@ export const DataObject = ({
           </span>
         </div>
         <hr width="100%" color="grey" size="1" />
-        <H3 style={{ textAlign: "center" }} className="panningDisabled">
+        {/* <H3 style={{ textAlign: "center" }} className="panningDisabled">
           Data Object
-        </H3>
+        </H3> */}
         <table className="bp4-html-table-bordered panningDisabled">
           {data.dataObjectNew.arrayName ? (
             <>
@@ -121,7 +121,7 @@ export const DataObject = ({
             </>
           ) : (
             <tr>
-              <th>Text</th>
+              {/* <th>Text</th> */}
               <td>{data.textType}</td>
             </tr>
           )}

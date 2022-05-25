@@ -92,7 +92,7 @@ export const AddObjectForm = ({ setAddNewObjectDialog, getData }) => {
     clearForm
   ]);
   const clearEmpty = useCallback((results)=>{
-    if (results.data[results.data.length - 1].length === 1) {
+    if (results.data[results.data.length - 1].length === 0) {
       const lastRow = results.data.pop();
       console.log("Fixed File", results.data);
       showWarningToaster(
