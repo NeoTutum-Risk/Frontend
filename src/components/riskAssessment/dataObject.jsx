@@ -88,7 +88,7 @@ export const DataObject = ({
             {data.dataObjectNew.chronType}
           </Button>
           <Button className="panningDisabled" small={true} intent="success">
-            {data.dataObjectNew.arrayName ? "Array" : "Text"}
+            {data.dataObjectNew.IOtype}
           </Button>
         </div>
         <div className="panningDisabled">

@@ -111,6 +111,8 @@ export const RiskAssessment = ({
         ))}
 
         {instanceObjectConnections.map((edge) => (
+          (
+            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
           <Xarrow
             path="straight"
             curveness={0.2}
@@ -126,10 +128,11 @@ export const RiskAssessment = ({
                 </div>
               ),
             }}
-            start={String(edge.objectType==="Input"?"D-":"R-" + riskAssessmentId + "-" + edge.sourceRef)}
-            end={String(edge.objectType==="Input"?"R-":"D-" + riskAssessmentId + "-" + edge.targetRef)}
+            start={String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef)}
+            end={String((edge.objectType==="Input"?"R-":"D-") + riskAssessmentId + "-" + edge.targetRef)}
             SVGcanvasStyle={{ overflow: "hidden" }}
           />
+          )
         ))}
 
         {connections.map((edge) => (
