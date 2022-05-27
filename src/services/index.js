@@ -157,3 +157,12 @@ export const getRiskAssessmentHeatMap = ({riskAssessmentId, lookupPropertyId = 1
 export const getRiskAssessmentDrillDown = (data) => serviceProvider.post('/platData/drillDownCharts', data)
 
 export const getAllTreeMap = () => serviceProvider('/platData/drillDownTreeMap')
+export const getNewDataObjects = () => serviceProvider(`dataObjectNew`);
+
+export const addNewDataObjects = (data) => serviceProvider.post(`dataObjectNew`,data);
+
+export const addNewDataObjectInstance = (data) => serviceProvider.post(`dataObjectNewProperties`,data);
+
+export const addInstanceConnection = (data) => serviceProvider.post(`dataObjectNewConnections`,data);
+
+export const addInstanceObjectConnection = (data) => serviceProvider.post(`dataObjectNewRiskObjectConnections`,data);

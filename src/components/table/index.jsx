@@ -34,7 +34,7 @@ export const Table = ({
     tableFullWidth
       ? gridRef.current.api.sizeColumnsToFit()
       : gridRef.current.columnApi.autoSizeColumns(allColumnIds, false);
-  }, []);
+  }, [tableFullWidth]);
 
   useEffect(() => {
     if (elementSelector && elementSelector !== "process") {

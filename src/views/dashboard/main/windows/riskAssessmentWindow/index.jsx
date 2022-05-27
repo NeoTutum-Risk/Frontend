@@ -13,6 +13,7 @@ import {
   Button,
   HTMLSelect,
   TextArea,
+  FileInput,
 } from "@blueprintjs/core";
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
@@ -33,6 +34,10 @@ import {
   getGroups,
   importGroup,
   updateRiskAssessmentGroup,
+  getNewDataObjects,
+  addNewDataObjectInstance,
+  addInstanceConnection,
+  addInstanceObjectConnection,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -50,7 +55,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
-  const [firstContext,setFirstContext] = useState("main");
+  const [firstContext, setFirstContext] = useState("main");
   const [elementEnable, setElementEnable] = useState(true);
   const [groupName, setGroupName] = useState(null);
   const [groupNameError, setGroupNameError] = useState(null);
@@ -66,6 +71,7 @@ export const RiskAssessmentWindow = ({
   const [isServiceLoading, setIsServiceLoading] = useState(false);
   const [selectedElements, setSelectedElements] = useState([]);
   const [selectedConnection, setSelectedConnection] = useState(null);
+  const [dataObjectInstances, setDataObjectInstances] = useState([]);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -78,18 +84,28 @@ export const RiskAssessmentWindow = ({
     element: null,
   });
   const [globalGroups, setGlobalGroups] = useState([]);
+  const [globalDataObjects, setGlobalDataObjects] = useState([]);
   const [editElement, setEditElement] = useState(null);
   const [riskObjects, setRiskObjects] = useState([]);
   const [metaData, setMetaData] = useState([]);
   const [connections, setConnections] = useState([]);
+  const [instanceConnections, setInstanceConnections] = useState([]);
+  const [instanceObjectConnections, setInstanceObjectConnections] = useState(
+    []
+  );
   const [groups, setGroups] = useState([]);
   const [importGroupId, setImportGroupId] = useState(null);
+  const [importObjectId, setImportObjectId] = useState(null);
+  const [importObject, setImportObject] = useState(null);
+  const [importObjectText, setImportObjectText] = useState(null);
+  const [importObjectFile, setImportObjectFile] = useState(null);
+  const [url, setURL] = useState(null);
   const [importTemplateId, setImportTemplateId] = useState(null);
   const [importTemplateName, setImportTemplateName] = useState(null);
   const [importTemplateNameError, setImportTemplateNameError] = useState(null);
   const [importTemplateIdError, setImportTemplateIdError] = useState(null);
   const [templates, setTemplates] = useState([]);
-  const [closedFace,setClosedFace]= useState(true);
+  const [closedFace, setClosedFace] = useState(true);
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -108,7 +124,9 @@ export const RiskAssessmentWindow = ({
     const response = await getGroups();
     if (response.status === 201) {
       setGlobalGroups(
-        response.data.data.filter(group=>group.shared).map((group) => ({ id: group.id, name: group.name }))
+        response.data.data
+          .filter((group) => group.shared)
+          .map((group) => ({ id: group.id, name: group.name }))
       );
     } else {
       showDangerToaster(`Error Retrieving Global Groups Data`);
@@ -120,12 +138,17 @@ export const RiskAssessmentWindow = ({
     if (response.status === 200) {
       console.log(response.data.data);
       setRiskObjects(response.data.data.riskObjects);
+      setDataObjectInstances(response.data.data.dataObjectsNewProperties);
       setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
       setGroups(response.data.data.riskGroups);
       setConnections(
         response.data.data.riskConnections.filter(
           (connection) => connection.status !== "deleted"
         )
+      );
+      setInstanceConnections(response.data.data.dataObjectsConnections);
+      setInstanceObjectConnections(
+        response.data.data.dataObjectsRiskObjectsConnections
       );
     } else {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
@@ -186,12 +209,72 @@ export const RiskAssessmentWindow = ({
   const handleConnection = useCallback(
     async (data) => {
       if (data.type === "connect") {
-        let payload = {
-          sourceRef: selectedElements[0].id,
-          targetRef: selectedElements[1].id,
-          riskAssessmentId: window.data.id,
-          name: linkName,
-        };
+        if (
+          selectedElements[0].type !== "instance" &&
+          selectedElements[1].type !== "instance"
+        ) {
+          // console.log("risks");
+          let payload = {
+            sourceRef: selectedElements[0].id,
+            targetRef: selectedElements[1].id,
+            riskAssessmentId: window.data.id,
+            name: linkName,
+          };
+
+          const response = await addRiskConnection(payload);
+          setConnections((prev) => [...prev, response.data.data]);
+          setSelectedElements([]);
+          setSelectedObjects([]);
+          console.log(payload);
+        } else if (
+          selectedElements[0].type === "instance" &&
+          selectedElements[1].type === "instance"
+        ) {
+          let payload = {
+            sourceRef: selectedElements[0].id,
+            targetRef: selectedElements[1].id,
+            riskAssessmentId: window.data.id,
+            name: linkName,
+          };
+
+          const response = await addInstanceConnection(payload);
+          setInstanceConnections((prev) => [...prev, response.data.data]);
+          setSelectedElements([]);
+          setSelectedObjects([]);
+          console.log(payload);
+        } else {
+          let instance, object, source, target;
+          if (selectedElements[0].type === "instance") {
+            instance = selectedElements[0];
+            object = selectedElements[1];
+          } else {
+            instance = selectedElements[1];
+            object = selectedElements[0];
+          }
+          // console.log(instance.dataObjectNew.IOtype,object);
+          if (instance.dataObjectNew.IOtype === "Input") {
+            source = instance;
+            target = object;
+          } else {
+            target = instance;
+            source = object;
+          }
+
+          let payload = {
+            sourceRef: source.id,
+            targetRef: target.id,
+            riskAssessmentId: window.data.id,
+            name: linkName,
+            objectType:
+              instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
+          };
+
+          const response = await addInstanceObjectConnection(payload);
+          setInstanceObjectConnections((prev) => [...prev, response.data.data]);
+          setSelectedElements([]);
+          setSelectedObjects([]);
+          console.log(payload);
+        }
         setContextMenu({
           active: false,
           type: "",
@@ -201,12 +284,6 @@ export const RiskAssessmentWindow = ({
           contextY: 0,
           element: null,
         });
-        const response = await addRiskConnection(payload);
-        // riskAssessmentData();
-        setConnections((prev) => [...prev, response.data.data]);
-        setSelectedElements([]);
-        setSelectedObjects([]);
-        console.log(payload);
       }
     },
     [
@@ -260,11 +337,9 @@ export const RiskAssessmentWindow = ({
   // console.log(menu);
 
   const handleContextMenu = useCallback(
-    
     async (e, data) => {
-      
       e.preventDefault();
-      console.log(data,data["position.enabled"]);
+      console.log(data, data["position.enabled"]);
       if (data && !data.from) {
         if (data["position.enabled"]) {
           setElementEnable(true);
@@ -282,7 +357,7 @@ export const RiskAssessmentWindow = ({
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
       let x = e.nativeEvent.layerX;
       let y = e.nativeEvent.layerY;
-      if (data.from==="main" && firstContext==="main") {
+      if (data.from === "main" && firstContext === "main") {
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
         // y = e.nativeEvent.layerY + 50;
@@ -322,9 +397,8 @@ export const RiskAssessmentWindow = ({
         contextY,
         element,
       }));
-      
     },
-    [setContextMenu, selectedElements,firstContext]
+    [setContextMenu, selectedElements, firstContext]
   );
 
   const addNewTemplate = useCallback(async () => {
@@ -399,14 +473,17 @@ export const RiskAssessmentWindow = ({
     setEditElement(null);
   }, []);
 
-  const editRiskObject = useCallback(async (id,payload,groupId)=>{
-    console.log("main",payload);
-    const response = await updateRiskObject(id, payload);
-    if(response.status===200){
-      riskAssessmentData();
-    }
-    return "Done";
-  },[riskAssessmentData])
+  const editRiskObject = useCallback(
+    async (id, payload, groupId) => {
+      console.log("main", payload);
+      const response = await updateRiskObject(id, payload);
+      if (response.status === 200) {
+        riskAssessmentData();
+      }
+      return "Done";
+    },
+    [riskAssessmentData]
+  );
 
   const addRiskObject = useCallback(
     async (e) => {
@@ -631,14 +708,67 @@ export const RiskAssessmentWindow = ({
       { shared: 1 }
     );
 
-    if(response.status===201){
-      showSuccessToaster(`Group #${contextMenu.element} is Shared Successfully`);
+    if (response.status === 201) {
+      showSuccessToaster(
+        `Group #${contextMenu.element} is Shared Successfully`
+      );
       resetContext();
-    riskAssessmentData();
-    }else{
-      showDangerToaster(`Error Sharing Group #${contextMenu.element}: ${response.data.error}`)
+      riskAssessmentData();
+    } else {
+      showDangerToaster(
+        `Error Sharing Group #${contextMenu.element}: ${response.data.error}`
+      );
     }
   }, [window.data.id, contextMenu.element, resetContext, riskAssessmentData]);
+
+  const fetchDataObjects = useCallback(async () => {
+    const response = await getNewDataObjects();
+    if (response.status === 200) {
+      setGlobalDataObjects(response.data.data);
+    } else {
+      showDangerToaster(`Faild to get the Data Objects`);
+    }
+  }, []);
+
+  const importDataObject = useCallback(async () => {
+    console.log(importObjectFile);
+    let payload = new FormData();
+    //  payload = {
+    //   riskAssessmentId: window.data.id,
+    //   dataObjectNewId: importObjectId,
+    //   x: contextMenu.x,
+    //   y: contextMenu.y,
+    //   textType: importObjectText,
+    //   // fileCSV:importObjectFile
+    // };
+    payload.append("riskAssessmentId", window.data.id);
+    payload.append("dataObjectNewId", importObjectId);
+    payload.append("x", contextMenu.x);
+    payload.append("y", contextMenu.y);
+    payload.append("textType", importObjectText);
+    payload.append("url", url);
+    payload.append("fileCSV", importObjectFile);
+
+    const response = await addNewDataObjectInstance(payload);
+    if (response.status === 200) {
+      resetContext();
+      setImportObjectId(null);
+      setImportObject(null);
+      setImportObjectText(null);
+      setImportObjectFile(null);
+      riskAssessmentData();
+    }
+  }, [
+    contextMenu.x,
+    contextMenu.y,
+    importObjectId,
+    importObjectText,
+    importObjectFile,
+    url,
+    window.data.id,
+    resetContext,
+    riskAssessmentData,
+  ]);
 
   return (
     <>
@@ -674,11 +804,14 @@ export const RiskAssessmentWindow = ({
           objects={riskObjects}
           groups={groups}
           metaData={metaData}
+          dataObjectInstances={dataObjectInstances}
           riskAssessmentId={window.data.id}
           handleContextMenu={handleContextMenu}
           selectedElements={selectedElements}
           setSelectedElements={setSelectedElements}
           connections={connections}
+          instanceConnections={instanceConnections}
+          instanceObjectConnections={instanceObjectConnections}
           resetContext={resetContext}
           setFirstContext={setFirstContext}
           editRiskObject={editRiskObject}
@@ -812,13 +945,26 @@ export const RiskAssessmentWindow = ({
                 }));
               }}
             />
+            <MenuItem
+              text="Import Data Object"
+              onClick={() => {
+                fetchDataObjects();
+                setContextMenu((prev) => ({
+                  ...prev,
+                  type: "import data object",
+                }));
+              }}
+            />
             <MenuDivider />
             <MenuItem
-              text={closedFace?"Show Open Faces":"Show Closed Faces"}
-              onClick={()=>{setClosedFace(prev=>!prev);setContextMenu((prev) => ({
-                ...prev,
-                type: null,
-              }));}}
+              text={closedFace ? "Show Open Faces" : "Show Closed Faces"}
+              onClick={() => {
+                setClosedFace((prev) => !prev);
+                setContextMenu((prev) => ({
+                  ...prev,
+                  type: null,
+                }));
+              }}
             />
           </Menu>
         )}
@@ -1198,7 +1344,12 @@ export const RiskAssessmentWindow = ({
             }}
           >
             <H5 style={{ color: "white" }}>Import Shared Group</H5>
-            <form onSubmit={(e)=>{e.preventDefault(); importSharedGroup();}}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                importSharedGroup();
+              }}
+            >
               <FormGroup
                 label="Group"
                 labelInfo="(required)"
@@ -1234,6 +1385,137 @@ export const RiskAssessmentWindow = ({
                   onClick={() => {
                     resetContext();
                     setImportGroupId(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                  // onClick={addPortfolio}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+        {contextMenu.active && contextMenu.type === "import data object" && (
+          <div
+            key="text"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>Import Data Object</H5>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                importDataObject();
+              }}
+            >
+              <FormGroup
+                label="Object"
+                labelInfo="(required)"
+                intent={false ? Intent.DANGER : Intent.NONE}
+                // helperText="Error"
+                labelFor="Object"
+              >
+                <HTMLSelect
+                  onChange={(e) => {
+                    setImportObjectId(Number(e.target.value));
+                    setImportObject(
+                      globalDataObjects.find(
+                        (object) => object.id === Number(e.target.value)
+                      )
+                    );
+                  }}
+                >
+                  <option selected disabled>
+                    Select Object
+                  </option>
+                  {globalDataObjects.length > 0 ? (
+                    globalDataObjects.map((object) => (
+                      <option value={object.id}>{object.name}</option>
+                    ))
+                  ) : (
+                    <option>No Data Objects are Avilable</option>
+                  )}
+                </HTMLSelect>
+              </FormGroup>
+              {importObject?.arrayName ? null : (
+                <>
+                  <FormGroup
+                    label="Text"
+                    labelInfo="(required)"
+                    labelFor="texttype"
+                  >
+                    <TextArea
+                      // required
+                      value={importObjectText}
+                      fill={true}
+                      id="texttype"
+                      onChange={(event) => {
+                        setImportObjectText(event.target.value);
+                      }}
+                    />
+                  </FormGroup>
+                  <FormGroup
+                    label={`Attachment`}
+                    labelInfo="(required)"
+                    intent={false ? Intent.DANGER : Intent.NONE}
+                    labelFor="Type"
+                  >
+                    <FileInput
+                      fill={true}
+                      hasSelection={importObjectFile}
+                      text={
+                        importObjectFile?.name
+                          ? importObjectFile?.name
+                          : "Choose file..."
+                      }
+                      onInputChange={(e) => {
+                        console.log(e);
+                        setImportObjectFile(e.target.files[0]);
+                      }}
+                    ></FileInput>
+                  </FormGroup>
+                  <FormGroup
+                    label="URL"
+                    // labelInfo="(required)"
+                    labelFor="newObjectURL"
+                  >
+                    <InputGroup
+                      // required
+                      id="newObjectURL"
+                      value={url}
+                      onChange={(event) => {
+                        setURL(event.target.value);
+                      }}
+                    />
+                  </FormGroup>
+                </>
+              )}
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    resetContext();
+                    setImportObjectId(null);
+                    setImportObjectText(null);
+                    setImportObjectFile(null);
                   }}
                 >
                   Cancel

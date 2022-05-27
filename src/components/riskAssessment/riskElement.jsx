@@ -76,16 +76,12 @@ export const RiskElement = ({
       console.log("Selecting ....");
       elementSelection(
         data,
-        selectedElements.find((element) => element.id === data.id)
+        selectedElements.find((element) => (element.id === data.id && data.type!=="instance"))
           ? false
           : true
       );
-      // setActive((prev) => {
-
-      //   return !prev;
-      // });
     },
-    [/*setActive,*/ elementSelection, data, selectedElements]
+    [elementSelection, data, selectedElements]
   );
 
   

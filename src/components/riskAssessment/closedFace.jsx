@@ -67,11 +67,12 @@ export const ClosedFace = ({
 
   return (
     <>
-      <div className="risk-object-closed-header">
+      <div className="risk-object-closed-header panningDisabled">
         <Button
           small={true}
           intent="primary"
           onClick={() => setFace((prev) => !prev)}
+          className="panningDisabled"
         >
           {`${data.type[0].toUpperCase()}: ${data.id}`}{" "}
         </Button>
@@ -87,7 +88,7 @@ export const ClosedFace = ({
           {data.name}
         </Button>
       </div>
-      <div className="risk-object-closed-header">
+      <div className="risk-object-closed-header panningDisabled">
         <Button
           fill={true}
           title="Statement"

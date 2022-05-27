@@ -6,14 +6,18 @@ import { RiskGroup } from "./riskGroup";
 import { useCallback, useState, Fragment } from "react";
 import { objectSelectorState } from "../../store/objectSelector";
 import { useRecoilState } from "recoil";
+import { DataObject } from "./dataObject";
 export const RiskAssessment = ({
   objects,
   groups,
+  dataObjectInstances,
   riskAssessmentId,
   handleContextMenu,
   selectedElements,
   setSelectedElements,
   connections,
+  instanceConnections,
+  instanceObjectConnections,
   onContext,
   resetContext,
   setFirstContext,
@@ -23,7 +27,7 @@ export const RiskAssessment = ({
   // console.log("index",typeof setFirstContext);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
-    const [globalScale,setGlobalScale]=useState(1);
+  const [globalScale, setGlobalScale] = useState(1);
   const elementSelection = useCallback(
     (elementData, state) => {
       console.log(elementData, state);
@@ -71,24 +75,71 @@ export const RiskAssessment = ({
         maxScale={5}
         doubleClick={{ disabled: true }}
         onZoom={updateXarrow}
-        onZoomStop={e=>{handleZoomPanPinch();setGlobalScale(e.state.scale);console.log(e)}}
+        onZoomStop={(e) => {
+          handleZoomPanPinch();
+          setGlobalScale(e.state.scale);
+          console.log(e);
+        }}
         onPinching={updateXarrow}
         onPinchingStop={handleZoomPanPinch}
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
         panning={{ excluded: ["panningDisabled"] }}
         pinch={{ excluded: ["pinchDisabled"] }}
-        wheel={{excluded: ["wheelDisabled"]}}
+        wheel={{ excluded: ["wheelDisabled"] }}
       >
+        {instanceConnections.map((edge) => (
+          <Xarrow
+            path="straight"
+            curveness={0.2}
+            strokeWidth={1.5}
+            color="#29A634"
+            headColor="#29A634"
+            tailColor="#29A634"
+            lineColor="#29A634"
+            labels={{
+              middle: (
+                <div style={{ display: !true ? "none" : "inline" }}>
+                  {edge.name}
+                </div>
+              ),
+            }}
+            start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
+            end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+          />
+        ))}
+
+        {instanceObjectConnections.map((edge) => (
+          (
+            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
+          <Xarrow
+            path="straight"
+            curveness={0.2}
+            strokeWidth={1.5}
+            color="#29A634"
+            headColor="#29A634"
+            tailColor="#29A634"
+            lineColor="#29A634"
+            labels={{
+              middle: (
+                <div style={{ display: !true ? "none" : "inline" }}>
+                  {edge.name}
+                </div>
+              ),
+            }}
+            start={String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef)}
+            end={String((edge.objectType==="Input"?"R-":"D-") + riskAssessmentId + "-" + edge.targetRef)}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+          />
+          )
+        ))}
+
         {connections.map((edge) => (
           <Xarrow
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
-            // headShape={"arrow"}
-            // tailShape={"arrow"}
-            // headSize={7}
-            // tailSize={7}
             labels={{
               middle: (
                 <div style={{ display: !true ? "none" : "inline" }}>
@@ -135,6 +186,19 @@ export const RiskAssessment = ({
                     editRiskObject={editRiskObject}
                     closedFace={closedFace}
                     scale={globalScale}
+                  />
+                ))
+              : null}
+
+            {dataObjectInstances.length > 0
+              ? dataObjectInstances.map((dataObjectInstance) => (
+                  <DataObject
+                    riskAssessmentId={riskAssessmentId}
+                    scale={globalScale}
+                    data={dataObjectInstance}
+                    selectedElements={selectedElements}
+                    elementSelection={elementSelection}
+                    setFirstContext={setFirstContext}
                   />
                 ))
               : null}
