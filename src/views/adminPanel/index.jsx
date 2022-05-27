@@ -1,26 +1,26 @@
 import React from "react";
 import classes from "./AdminPanel.module.css";
 import {useRecoilValue} from "recoil"
-import { activeAdminPanelState } from "../../store/admin";
+import { activeDashboardPanelState } from "../../store/dashboard";
 import MetaData from "../metaData";
 import Lookup from "../lookup";
 import { DataObject } from "../../components/dataObject";
 
 const AdminPanel = () => {
-  const activeAdminPanel = useRecoilValue(activeAdminPanelState)
+  const activeDashboardPanel = useRecoilValue(activeDashboardPanelState)
 
   return (
     <div className={classes.adminPanelContainer}>
       {
-        activeAdminPanel === "meta-data" && 
+        activeDashboardPanel === "meta-data" && 
         <MetaData />
       }
       {
-        activeAdminPanel === "look-up" &&
+        activeDashboardPanel === "look-up" &&
         <Lookup />
       }
       {
-        activeAdminPanel === "Data Objects" &&
+        activeDashboardPanel === "Data Objects" &&
         <DataObject />
       }
     </div>

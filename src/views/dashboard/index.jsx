@@ -3,23 +3,27 @@ import { SideNavigator } from "./sideNavigator";
 import { CollapsePanel } from "./main/collapsePanel";
 import styles from "./styles.module.scss";
 import { useRecoilValue } from "recoil";
-import { showAdminState } from "../../store/admin";
+import { showDashboardState } from "../../store/dashboard";
 import AdminPanel from "../adminPanel";
+import DashboardCharts from "../dashboardCharts";
+import ChartPanel from "../chartPanel";
 
 export const Dashboard = () => {
-  const showAdmin = useRecoilValue(showAdminState);
+  const showDashboard = useRecoilValue(showDashboardState);
 
   return (
     <div className={styles.container}>
       <SideNavigator />
-      {showAdmin ? (
-        <AdminPanel />
-      ) : (
+      {showDashboard === "default" && (
         <>
           <Main />
           <CollapsePanel />
         </>
       )}
+
+      {showDashboard === "admin" && <AdminPanel />}
+
+      {showDashboard === "charts" && <ChartPanel />}
     </div>
   );
 };
