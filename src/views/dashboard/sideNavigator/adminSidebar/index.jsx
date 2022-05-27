@@ -1,11 +1,11 @@
 import { Tree } from "@blueprintjs/core";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
-import { activeAdminPanelState } from "../../../../store/admin";
+import { activeDashboardPanelState } from "../../../../store/dashboard";
 
 const AdminSidebar = () => {
 
-    const setActiveAdminPanelState = useSetRecoilState(activeAdminPanelState)
+    const setActiveDashboardPanelState = useSetRecoilState(activeDashboardPanelState)
 
     const navigate = useNavigate();
 
@@ -32,7 +32,7 @@ const AdminSidebar = () => {
   ];
 
   const nodeHandler = (e) => {
-    setActiveAdminPanelState(e.name)
+    setActiveDashboardPanelState(e.name)
   }
 
   return <Tree contents={sampleData} onNodeClick={nodeHandler} />;

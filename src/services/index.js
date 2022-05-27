@@ -146,10 +146,17 @@ export const updateRiskObject = (id,data) => serviceProvider.put(`/riskObjects/e
 
 export const getRiskObject = (id) => serviceProvider(`/riskObjects/${id}`);
 
+export const getAllPortfolios = () => serviceProvider('/portfolios');
+
 export const getGroups = () => serviceProvider(`/riskObjectGroups`);
 
 export const importGroup = (data) => serviceProvider.post(`/riskGroupPositions`,data);
 
+export const getRiskAssessmentHeatMap = ({riskAssessmentId, lookupPropertyId = 169}, riskType = null) => serviceProvider(`/platData/${riskAssessmentId}/${lookupPropertyId}${riskType ? `?riskType=${riskType}` : ''}`)
+
+export const getRiskAssessmentDrillDown = (data) => serviceProvider.post('/platData/drillDownCharts', data)
+
+export const getAllTreeMap = () => serviceProvider('/platData/drillDownTreeMap')
 export const getNewDataObjects = () => serviceProvider(`dataObjectNew`);
 
 export const addNewDataObjects = (data) => serviceProvider.post(`dataObjectNew`,data);
