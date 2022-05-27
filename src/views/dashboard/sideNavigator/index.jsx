@@ -10,18 +10,19 @@ import { Portfolios } from "./portfolios";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { userState } from "../../../store/user";
 import AdminSidebar from "./adminSidebar";
-import { activeAdminPanelState, showAdminState } from "../../../store/admin";
+import { activeDashboardPanelState, showDashboardState } from "../../../store/dashboard";
 import { emptyDatabase } from "../../../services";
 import { showDangerToaster, showSuccessToaster } from "../../../utils/toaster";
 import ConfirmDelete from "../../../components/confirmDelete";
+import ChartsSidebar from "./chartsSidebar";
 
 export const SideNavigator = () => {
   const [menuOpen, setMenuOpen] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
 
   const user = useRecoilValue(userState);
-  const [showAdmin, setShowAdmin] = useRecoilState(showAdminState);
-  const setActiveAdminPanel = useSetRecoilState(activeAdminPanelState)
+  const [showDashboard, setShowDashboard] = useRecoilState(showDashboardState);
+  const setActiveDashboardPanel = useSetRecoilState(activeDashboardPanelState)
 
   /**
    * handles the open of the dialog for confirmation of emptying database
@@ -66,8 +67,8 @@ export const SideNavigator = () => {
    * handle admin open
    */
   const handleAdminOpen = () => {
-    setShowAdmin(true);
-    setActiveAdminPanel(null);
+    setShowDashboard("admin");
+    setActiveDashboardPanel(null);
   }
 
   return (
@@ -85,7 +86,7 @@ export const SideNavigator = () => {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: showAdmin ? "10px" : "20px",
+          gap: showDashboard === "admin" ? "10px" : "20px",
         }}
       >
         <Tooltip2
@@ -97,19 +98,19 @@ export const SideNavigator = () => {
             onClick={() => setMenuOpen((prev) => !prev)}
           />
         </Tooltip2>
-        {menuOpen && !showAdmin && (
+        {menuOpen && showDashboard !== "admin" && (
           <Tooltip2 content={<span>Admin Panel</span>}>
             <Button icon="person" small onClick={handleAdminOpen} />
           </Tooltip2>
         )}
 
-        {menuOpen && showAdmin && (
+        {menuOpen && showDashboard === "admin" && (
           <Tooltip2 content={<span>Dashboard</span>}>
-            <Button icon="home" small onClick={() => setShowAdmin(false)} />
+            <Button icon="home" small onClick={() => setShowDashboard("default")} />
           </Tooltip2>
         )}
 
-        {menuOpen && showAdmin && (
+        {menuOpen && showDashboard === "admin" && (
           <Tooltip2 content={<span>Empty Database</span>}>
             <Button
               icon="trash"
@@ -129,7 +130,7 @@ export const SideNavigator = () => {
 
       {menuOpen && (
         <>
-          {!showAdmin && (
+          {showDashboard !== "admin" && (
             <>
               <div className={styles.tree}>
                 <div className={styles.addPortfolio}>
@@ -149,9 +150,17 @@ export const SideNavigator = () => {
                   <Portfolios />
                 </Async>
               </div>
+              <div className={styles.tree}>
+                <div className={styles.addPortfolio}>
+                  <H4>Dashboard Charts</H4>
+                </div>
+                <Async>
+                  <ChartsSidebar />
+                </Async>
+              </div>
             </>
           )}
-          {showAdmin && (
+          {showDashboard === "admin" && (
             <div className={styles.tree}>
               <div className={styles.addPortfolio}>
                 <H4>Admin</H4>

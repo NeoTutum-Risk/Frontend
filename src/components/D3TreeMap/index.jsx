@@ -6,6 +6,8 @@ const D3TreeMap = ({ treeMapData }) => {
   const [selectedData, setSelectedData] = useState(treeMapData[0]);
   const [currentDescription, setCurrentDescription] = useState(null)
 
+  console.log(selectedData)
+
   const mouseover = (e, d) => {
     setCurrentDescription(d.data.description)
   }
@@ -17,6 +19,7 @@ const D3TreeMap = ({ treeMapData }) => {
   const handleSelectedRect = (treeMapData) => {
 
     if (!treeMapData.data.hasOwnProperty("children1")) return;
+    if(treeMapData.data.children1.length === 0) return;
 
     const children = treeMapData.data.children1;
 
@@ -59,7 +62,7 @@ const D3TreeMap = ({ treeMapData }) => {
     const chart = chartContainer.append("g");
 
     const root = d3.hierarchy(tempTreeMapData).sum((data) => {
-      return data.childrenCount;
+      return data.count;
     });
 
     // Then d3.treemap computes the position of each element of the hierarchy

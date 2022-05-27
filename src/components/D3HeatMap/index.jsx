@@ -39,7 +39,7 @@ const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapBackground, 
     useEffect(() => {
       const MARGINS = { top: 20, right: 20, bottom: 20, left: 20 };
   
-      const CHART_WIDTH = 600 - MARGINS.left - MARGINS.right;
+      const CHART_WIDTH = 570 - MARGINS.left - MARGINS.right;
       const CHART_HEIGHT = 300 - MARGINS.top - MARGINS.bottom;
   
       const x = d3.scaleBand().range([MARGINS.left, CHART_WIDTH]);

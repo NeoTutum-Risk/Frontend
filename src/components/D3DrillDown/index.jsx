@@ -19,7 +19,7 @@ const D3DrillDown = ({drillDownData, handleSelectedElements, heatmapRules}) => {
 
     const drillDownKeys = Object.keys(drillDownData)
 
-    const CHART_WIDTH = 600;
+    const CHART_WIDTH = 530;
     const CHART_HEIGHT = 300 - MARGINS.top - MARGINS.bottom;
 
     const x = d3.scaleBand().rangeRound([0, CHART_WIDTH]).padding(0.1);

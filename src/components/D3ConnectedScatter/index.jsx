@@ -7,7 +7,7 @@ const D3ConnectedScatter = ({graphData}) => {
 
     useEffect(() => {
       const margin = { top: 10, right: 30, bottom: 30, left: 60 },
-        width = 600 - margin.left - margin.right,
+        width = 560 - margin.left - margin.right,
         height = 300 - margin.top - margin.bottom;
   
       // append the svg object to the body of the page
@@ -59,7 +59,6 @@ const D3ConnectedScatter = ({graphData}) => {
           "d",
           d3
             .line()
-            .curve(d3.curveBasis) // Just add that to have a curve instead of segments
             .x((d) => x(d.label))
             .y((d) => y(d.value))
         );

@@ -1,11 +1,13 @@
 import {
   Menu,
-  MenuDivider,
   MenuItem,
   Button,
   Divider,
+  Card,
+  Elevation,
+  Icon,
 } from "@blueprintjs/core";
-import { Popover2 } from "@blueprintjs/popover2";
+import { Popover2, Tooltip2 } from "@blueprintjs/popover2";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   getAllLookup,
@@ -13,22 +15,20 @@ import {
   getRiskAssessment,
   getAllTreeMap,
 } from "../../services";
-import { RiskAssessment } from "./../../components/riskAssessment/index copy";
 import {
   getRiskAssessmentHeatMap,
   getRiskAssessmentDrillDown,
-} from "./../../services/index";
+} from "../../services/index";
 import D3HeatMap from "../../components/D3HeatMap";
 import D3TreeMap from "../../components/D3TreeMap";
-import { continentDummyData } from "../../components/D3GraphsContainer/dummyData";
 import D3DrillDown from "../../components/D3DrillDown";
 import { showDangerToaster } from "../../utils/toaster";
-import { data } from "vis-network";
 import { heatmapDummyData } from "./heatMapDummy";
 import D3ConnectedScatter from "../../components/D3ConnectedScatter";
 import { graphData } from "../../components/D3ConnectedScatter/D3ConnectedScatterData";
-
-const riskViewObjects = [{}];
+import { useSetRecoilState } from "recoil";
+import { showDashboardState } from "../../store/dashboard";
+import styles from "../dashboard/styles.module.scss";
 
 const heatmapRules = [
   { minValue: 1, maxValue: 1, hexColorCode: "#92d050" },
@@ -53,7 +53,7 @@ const heatmapXLabels = Array.from({ length: 5 }, (_, i) => (i + 1).toString());
 const heatmapYLabels = Array.from({ length: 5 }, (_, i) => (i + 1).toString());
 */
 
-const SelectRiskAssessment = () => {
+const DashboardCharts = () => {
   const [portfolios, setPortfolios] = useState([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState([]); // this is dummy currently for the component to not argue with us
   const [metaData, setMetaData] = useState([]);
@@ -80,6 +80,7 @@ const SelectRiskAssessment = () => {
     drillDown: {},
   });
   const [heatmapBackground, setHeatmapBackground] = useState(heatmapDummyData);
+  const setShowDashboardState = useSetRecoilState(showDashboardState);
 
   const riskAssessmentData = useCallback(async (riskAssessmentId) => {
     const response = await getRiskAssessment(riskAssessmentId);
@@ -359,9 +360,18 @@ const SelectRiskAssessment = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "150px",
+          height: "50px",
         }}
       >
+        <Tooltip2 content={<span>Main Dashboard</span>}>
+          <Button
+            icon="undo"
+            small
+            color="dark"
+            onClick={() => setShowDashboardState("default")}
+          />
+        </Tooltip2>
+
         <Popover2
           content={
             <>
@@ -471,32 +481,137 @@ const SelectRiskAssessment = () => {
           />
         </Popover2>
       </div>
-      <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
-        {selectedRiskAssessment.heatMap.values.length > 0 && (
-          <D3HeatMap
-            heatmapBackground={heatmapBackground}
-            displayedCellData={selectedRiskAssessment.heatMap.values}
-            setSelectedPlatforms={setSelectedPlatforms}
-            xLabels={selectedRiskAssessment.heatMap.xLabels}
-            yLabels={selectedRiskAssessment.heatMap.yLabels}
-            rules={heatmapRules}
-            defaultHexColorCode="#000000"
-            axis={{ xAxis: "controlAdequacy", yAxis: "fmodeSeverity" }}
-          />
-        )}
 
-        <D3DrillDown
-          drillDownData={selectedRiskAssessment.drillDown}
-          handleSelectedElements={handleSelectedElements}
-          heatmapRules={heatmapRules}
-        />
+      <div style={{ display: "flex", flexWrap: "wrap" }}>
+        <div style={{ width: "550px", height: "400px", margin: "15px" }}>
+          <Card
+            className={`${styles.windowCard} `}
+            style={{ width: "100%", height: "100%" }}
+            elevation={Elevation.TWO}
+          >
+            <div
+              name="window-draggable-header"
+              className={`handle bp3-dark ${styles.windowHeader}`}
+            >
+              <div className={styles.windowHeader_title}>
+                {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
+                <div className="bp3-ui-text">HeatMap Chart</div>
+              </div>
+            </div>
+            <div
+              className={
+                window.type === "risk0"
+                  ? styles.windowBodyScroll
+                  : styles.windowBody
+              }
+            >
+              <D3HeatMap
+                heatmapBackground={
+                  selectedRiskAssessment.heatMap.values.length > 0
+                    ? heatmapBackground
+                    : []
+                }
+                displayedCellData={selectedRiskAssessment.heatMap.values}
+                setSelectedPlatforms={setSelectedPlatforms}
+                xLabels={selectedRiskAssessment.heatMap.xLabels}
+                yLabels={selectedRiskAssessment.heatMap.yLabels}
+                rules={heatmapRules}
+                defaultHexColorCode="#000000"
+                axis={{ xAxis: "controlAdequacy", yAxis: "fmodeSeverity" }}
+              />
+            </div>
+          </Card>
+        </div>
 
-{treeMapState.length > 0 && <D3TreeMap treeMapData={treeMapState} />}
-        <D3ConnectedScatter graphData={graphData} />
+        <div style={{ width: "550px", height: "400px", margin: "15px" }}>
+          <Card
+            className={`${styles.windowCard} `}
+            style={{ width: "100%", height: "100%" }}
+            elevation={Elevation.TWO}
+          >
+            <div
+              name="window-draggable-header"
+              className={`handle bp3-dark ${styles.windowHeader}`}
+            >
+              <div className={styles.windowHeader_title}>
+                {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
+                <div className="bp3-ui-text">DrillDown Chart</div>
+              </div>
+            </div>
+            <div
+              className={
+                window.type === "risk0"
+                  ? styles.windowBodyScroll
+                  : styles.windowBody
+              }
+            >
+              <D3DrillDown
+                drillDownData={selectedRiskAssessment.drillDown}
+                handleSelectedElements={handleSelectedElements}
+                heatmapRules={heatmapRules}
+              />
+            </div>
+          </Card>
+        </div>
+
+        <div style={{ width: "550px", height: "400px", margin: "15px" }}>
+          <Card
+            className={`${styles.windowCard} `}
+            style={{ width: "100%", height: "100%" }}
+            elevation={Elevation.TWO}
+          >
+            <div
+              name="window-draggable-header"
+              className={`handle bp3-dark ${styles.windowHeader}`}
+            >
+              <div className={styles.windowHeader_title}>
+                {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
+                <div className="bp3-ui-text">TreeMap Chart</div>
+              </div>
+            </div>
+            <div
+              className={
+                window.type === "risk0"
+                  ? styles.windowBodyScroll
+                  : styles.windowBody
+              }
+            >
+              {treeMapState.length > 0 && (
+                <D3TreeMap treeMapData={treeMapState} />
+              )}
+            </div>
+          </Card>
+        </div>
+
+        <div style={{ width: "550px", height: "400px", margin: "15px" }}>
+          <Card
+            className={`${styles.windowCard} `}
+            style={{ width: "100%", height: "100%" }}
+            elevation={Elevation.TWO}
+          >
+            <div
+              name="window-draggable-header"
+              className={`handle bp3-dark ${styles.windowHeader}`}
+            >
+              <div className={styles.windowHeader_title}>
+                {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
+                <div className="bp3-ui-text">Connected Scatter Plot</div>
+              </div>
+            </div>
+            <div
+              className={
+                window.type === "risk0"
+                  ? styles.windowBodyScroll
+                  : styles.windowBody
+              }
+            >
+              <D3ConnectedScatter graphData={graphData} />
+            </div>
+          </Card>
+        </div>
       </div>
-
     </div>
   );
 };
 
-export default SelectRiskAssessment;
+export default DashboardCharts;
