@@ -40,6 +40,36 @@ export const RiskElement = ({
     setFace(!closedFace);
   }, [closedFace]);
 
+  const updateSize = useCallback(
+    async (delta,direction, position) => {
+      console.log(data);
+      setDrag((prev) => ({ ...prev, cy: position.y, cx: position.x }));
+      if (position.x < 0) {
+        setDrag((prev) => ({ ...prev, cx: 0 }));
+        position.x = 0;
+      }
+
+      if (position.y < 0) {
+        setDrag((prev) => ({ ...prev, cy: 0 }));
+        position.y = 0;
+      }
+      updateXarrow();
+      const updateElementPosition = await updateRiskObjectPosition(
+        riskAssessmentId,
+        data.id,
+        {
+          x: Math.round(position.x),
+          y: Math.round(position.y),
+          width: Math.round(data['position.width']+delta.width),
+          height: Math.round(data['position.height']+delta.height),
+          enabled: data["position.enabled"],
+        }
+      );
+      console.log(updateElementPosition);
+    },
+    [riskAssessmentId, data, updateXarrow]
+  );
+
   const updateLocation = useCallback(
     async (e, d) => {
       setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
@@ -94,14 +124,15 @@ export const RiskElement = ({
         default={{
           x: drag.cx,
           y: drag.cy,
-          width: 220,
-          height: 145,
+          width: data['position.width'],
+          height: data['position.height'],
         }}
-        minWidth={220}
-        minHeight={145}
+        minWidth={data['position.width']}
+        minHeight={data['position.height']}
         bounds="window"
         onDrag={updateXarrow}
         onResize={updateXarrow}
+        onResizeStop={(e, direction, ref, delta, position) => {updateSize( delta,direction, position)}}
         scale={scale}
         onDragStop={(e, d) => updateLocation(e, d)}
       >

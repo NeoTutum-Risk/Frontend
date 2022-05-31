@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { Button, TextArea, H3 } from "@blueprintjs/core";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { Rnd } from "react-rnd";
+import {updateNewDataObjectInstance} from "../../services";
 export const DataObject = ({
   riskAssessmentId,
   data,
@@ -16,7 +17,53 @@ export const DataObject = ({
     cy: data.y >= 0 ? data.y : 0,
     cx: data.x >= 0 ? data.x : 0,
   });
-  const updateLocation = useCallback(async (e, d) => {}, []);
+
+  const updateSize = useCallback(async (delta,direction, position) => {
+    // console.log(data,delta,position);
+    setDrag((prev) => ({ ...prev, cy: position.y, cx: position.x }));
+      if (position.x < 0) {
+        setDrag((prev) => ({ ...prev, cx: 0 }));
+        position.x = 0;
+      }
+
+      if (position.y < 0) {
+        setDrag((prev) => ({ ...prev, cy: 0 }));
+        position.y = 0;
+      }
+      updateXarrow();
+      const updateOjectPosition = await updateNewDataObjectInstance(
+        data.id,
+        {
+          x: Math.round(position.x),
+          y: Math.round(position.y),
+          width: Math.round(data.width+delta.width),
+          height: Math.round(data.height+delta.height),
+          enabled: data["position.enabled"],
+        }
+      );
+  }, [data,updateXarrow]);
+
+  const updateLocation = useCallback(async (e, d) => {
+    setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
+      if (d.x < 0) {
+        setDrag((prev) => ({ ...prev, cx: 0 }));
+        d.x = 0;
+      }
+
+      if (d.y < 0) {
+        setDrag((prev) => ({ ...prev, cy: 0 }));
+        d.y = 0;
+      }
+      updateXarrow();
+      const updateOjectPosition = await updateNewDataObjectInstance(
+        data.id,
+        {
+          x: Math.round(d.x),
+          y: Math.round(d.y),
+          enabled: data["position.enabled"],
+        }
+      );
+  }, [data,updateXarrow]);
 
   const handleClick = useCallback(
     (e) => {
@@ -43,14 +90,15 @@ export const DataObject = ({
       default={{
         x: drag.cx,
         y: drag.cy,
-        width: 220,
-        height: 145,
+        width: data.width,
+        height: data.height,
       }}
-      minWidth={220}
-      minHeight={145}
+      minWidth={data.width}
+      minHeight={data.height}
       bounds="window"
       onDrag={updateXarrow}
-        onResize={updateXarrow}
+      onResize={updateXarrow}
+      onResizeStop={(e, direction, ref, delta, position) => {updateSize( delta,direction, position)}}
       scale={scale}
       onDragStop={(e, d) => updateLocation(e, d)}
     >
