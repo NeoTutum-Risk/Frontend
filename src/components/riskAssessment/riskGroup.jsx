@@ -170,7 +170,8 @@ export const RiskGroup = ({
         ))} */}
       {expanded &&
         data.elements.map((object, index) => (
-          object.status!=="deleted" &&  <RiskElement
+          object?
+          object?.status!=="deleted" &&  <RiskElement
             setFirstContext={setFirstContext}
             expanded={expanded}
             handleContextMenu={handleContextMenu}
@@ -187,7 +188,7 @@ export const RiskGroup = ({
             scale={scale}
             setHoveredElement={setHoveredElement}
             handleObjectAction={handleObjectAction}
-          />
+          />:null
         ))}
 
       <Rnd
