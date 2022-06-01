@@ -23,8 +23,9 @@ export const RiskElement = ({
   editRiskObject,
   closedFace,
   scale,
+  setHoveredElement,
+  handleObjectAction,
 }) => {
-
   const [face, setFace] = useState(true);
   const [editor, setEditor] = useState(false);
   const updateXarrow = useXarrow();
@@ -35,13 +36,12 @@ export const RiskElement = ({
     offset: {},
   });
 
-
   useEffect(() => {
     setFace(!closedFace);
   }, [closedFace]);
 
   const updateSize = useCallback(
-    async (delta,direction, position) => {
+    async (delta, direction, position) => {
       console.log(data);
       setDrag((prev) => ({ ...prev, cy: position.y, cx: position.x }));
       if (position.x < 0) {
@@ -60,8 +60,8 @@ export const RiskElement = ({
         {
           x: Math.round(position.x),
           y: Math.round(position.y),
-          width: Math.round(data['position.width']+delta.width),
-          height: Math.round(data['position.height']+delta.height),
+          width: Math.round(data["position.width"] + delta.width),
+          height: Math.round(data["position.height"] + delta.height),
           enabled: data["position.enabled"],
         }
       );
@@ -97,7 +97,6 @@ export const RiskElement = ({
     [riskAssessmentId, data, updateXarrow]
   );
 
-
   const handleClick = useCallback(
     (e) => {
       e.preventDefault();
@@ -106,7 +105,9 @@ export const RiskElement = ({
       console.log("Selecting ....");
       elementSelection(
         data,
-        selectedElements.find((element) => (element.id === data.id && data.type!=="instance"))
+        selectedElements.find(
+          (element) => element.id === data.id && data.type !== "instance"
+        )
           ? false
           : true
       );
@@ -114,33 +115,43 @@ export const RiskElement = ({
     [elementSelection, data, selectedElements]
   );
 
-  
-
   return (
     <>
       <Rnd
         id={`R-${riskAssessmentId}-${data.id}`}
         key={`R-${riskAssessmentId}-${data.id}`}
+        disableDragging={!data["position.enabled"]}
+        enableResizing={data["position.enabled"]}
         default={{
           x: drag.cx,
           y: drag.cy,
-          width: data['position.width'],
-          height: data['position.height'],
+          width: data["position.width"],
+          height: data["position.height"],
         }}
-        minWidth={data['position.width']}
-        minHeight={data['position.height']}
+        minWidth={270}
+        minHeight={170}
         bounds="window"
         onDrag={updateXarrow}
         onResize={updateXarrow}
-        onResizeStop={(e, direction, ref, delta, position) => {updateSize( delta,direction, position)}}
+        onResizeStop={(e, direction, ref, delta, position) => {
+          updateSize(delta, direction, position);
+        }}
         scale={scale}
         onDragStop={(e, d) => updateLocation(e, d)}
       >
         <div
-          onMouseLeave={() => setFirstContext("main")}
-          onMouseEnter={() => setFirstContext("element")}
+          onMouseLeave={() => {
+            setFirstContext("main");
+            setHoveredElement(null);
+          }}
+          onMouseEnter={() => {
+            setFirstContext("element");
+            setHoveredElement(data);
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
+            setFirstContext("element");
+            setHoveredElement(data);
             handleContextMenu(e, data);
           }}
           // title={data.description}
@@ -149,22 +160,28 @@ export const RiskElement = ({
           style={{
             border: selectedElements.find((element) => element.id === data.id)
               ? "5px solid rgb(89, 199, 209)"
-              : "5px solid rgb(89, 117, 209)",
+              : data["position.enabled"]
+              ? "5px solid rgb(89, 117, 209)"
+              : "5px solid grey",
             borderRadius: "15px",
             backgroundColor: "white",
             padding: "5px",
           }}
         >
-          {face && <OpenFace data={data} groupId={groupId} setFace={setFace} />}
-          {!face && (
+          {face /*&& data['position.enabled'] */ && (
+            <OpenFace data={data} groupId={groupId} setFace={setFace} />
+          )}
+          {!face /*&& data['position.enabled']*/ && (
             <ClosedFace
               editRiskObject={editRiskObject}
               data={data}
               groupId={groupId}
               setFace={setFace}
               setEditor={setEditor}
+              handleObjectAction={handleObjectAction}
             />
           )}
+          {/* {!data['position.enabled'] && } */}
         </div>
       </Rnd>
       {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>

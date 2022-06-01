@@ -38,6 +38,7 @@ import {
   addNewDataObjectInstance,
   addInstanceConnection,
   addInstanceObjectConnection,
+  updateNewDataObjectInstance
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -55,6 +56,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [hoveredElement, setHoveredElement] = useState(null);
   const [firstContext, setFirstContext] = useState("main");
   const [elementEnable, setElementEnable] = useState(true);
   const [groupName, setGroupName] = useState(null);
@@ -593,6 +595,72 @@ export const RiskAssessmentWindow = ({
     // const object =
   }, [contextMenu.element]);
 
+  const handleObjectAction = useCallback(
+    async (element) => {
+      if (element.type === "risk") {
+        const response =
+          element.operation === "enable"
+            ? await updateRiskObjectPosition(window.data.id, element.id, {
+                enabled: element.payload,
+              })
+            : await updateRiskObject(element.id, { status: element.payload });
+
+        setRiskObjects((prev) =>
+          prev.map((object) => {
+            if (object.id === element.id) {
+              const updatedObject = { ...object };
+              element.operation === "enable"
+                ? (updatedObject["position.enabled"] = element.payload)
+                : (updatedObject["status"] = element.payload);
+              return updatedObject;
+            } else {
+              return object;
+            }
+          })
+        );
+
+        setGroups((prev) =>
+          prev.map((group) => ({
+            ...group,
+            elements: group.elements.map((object) => {
+              if (object.id === element.id) {
+                const updatedObject = { ...object };
+                element.operation === "enable"
+                  ? (updatedObject["position.enabled"] = element.payload)
+                  : (updatedObject["status"] = element.payload);
+                return updatedObject;
+              } else {
+                return object;
+              }
+            }),
+          }))
+        );
+      }else{
+        const response =
+          element.operation === "enable"
+            ? await updateNewDataObjectInstance(element.id, {
+                disable: element.payload,
+              })
+            : await updateNewDataObjectInstance(element.id, { status: element.payload });
+
+            setDataObjectInstances((prev) =>
+          prev.map((object) => {
+            if (object.id === element.id) {
+              const updatedObject = { ...object };
+              element.operation === "enable"
+                ? (updatedObject.disable = element.payload)
+                : (updatedObject.status = element.payload);
+              return updatedObject;
+            } else {
+              return object;
+            }
+          })
+        );
+      }
+    },
+    [window.data.id]
+  );
+
   const updateElementStatus = useCallback(async () => {
     const response = await updateRiskObjectPosition(
       window.data.id,
@@ -816,6 +884,8 @@ export const RiskAssessmentWindow = ({
           setFirstContext={setFirstContext}
           editRiskObject={editRiskObject}
           closedFace={closedFace}
+          setHoveredElement={setHoveredElement}
+          handleObjectAction={handleObjectAction}
           // onContext={handleRiskViewContext}
         />
       </Window>

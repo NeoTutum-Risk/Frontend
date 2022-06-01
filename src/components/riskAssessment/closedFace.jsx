@@ -6,6 +6,7 @@ export const ClosedFace = ({
   setFace,
   setEditor,
   editRiskObject,
+  handleObjectAction,
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
@@ -70,22 +71,64 @@ export const ClosedFace = ({
       <div className="risk-object-closed-header panningDisabled">
         <Button
           small={true}
-          intent="primary"
+          intent={data["position.enabled"] ? "primary" : "none"}
           onClick={() => setFace((prev) => !prev)}
           className="panningDisabled"
         >
           {`${data.type[0].toUpperCase()}: ${data.id}`}{" "}
         </Button>
-        <Button small={true} intent="primary">
+        <Button
+          small={true}
+          intent={data["position.enabled"] ? "primary" : "none"}
+        >
           {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
         </Button>
         <Button
           small={true}
-          intent="primary"
+          intent={data["position.enabled"] ? "primary" : "none"}
           active={activeAttribute === "N"}
           onClick={() => handleAttributeClick(data.name, "N")}
         >
           {data.name}
+        </Button>
+      </div>
+      <div className="risk-object-closed-header panningDisabled">
+        <Button
+          small={true}
+          intent={data["position.enabled"] ? "warning" : "primary"}
+          onClick={() =>
+            handleObjectAction({
+              id: data.id,
+              type: "risk",
+              operation: "enable",
+              payload: !data["position.enabled"],
+            })
+          }
+          className="panningDisabled"
+        >
+          {data["position.enabled"] ? "Disable" : "Enable"}
+        </Button>
+        <Button
+          small={true}
+          intent={data["position.enabled"] ? "primary" : "none"}
+        >
+          Properties
+        </Button>
+        <Button
+          disabled={!data["position.enabled"]}
+          small={true}
+          intent="danger"
+          active={activeAttribute === "N"}
+          onClick={() =>
+            handleObjectAction({
+              id: data.id,
+              type: "risk",
+              operation: "delete",
+              payload: "deleted",
+            })
+          }
+        >
+          Delete
         </Button>
       </div>
       <div className="risk-object-closed-header panningDisabled">
@@ -139,7 +182,7 @@ export const ClosedFace = ({
         {!edit ? (
           <Button
             fill={true}
-            disabled={!activeAttribute}
+            disabled={!data["position.enabled"]}
             title="Edit"
             intent="warning"
             small={true}
@@ -188,7 +231,9 @@ export const ClosedFace = ({
             value={editingValue}
           ></TextArea>
         ) : (
-          <span style={{ overflow: "auto",height:"100%" }}>{viewedAttribute}</span>
+          <span style={{ overflow: "auto", height: "100%" }}>
+            {viewedAttribute}
+          </span>
         )}
       </div>
     </>

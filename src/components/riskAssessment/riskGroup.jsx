@@ -18,7 +18,9 @@ export const RiskGroup = ({
   setFirstContext,
   editRiskObject,
   closedFace,
-  scale
+  scale,
+  setHoveredElement,
+  handleObjectAction
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -168,7 +170,7 @@ export const RiskGroup = ({
         ))} */}
       {expanded &&
         data.elements.map((object, index) => (
-          <RiskElement
+          object.status!=="deleted" &&  <RiskElement
             setFirstContext={setFirstContext}
             expanded={expanded}
             handleContextMenu={handleContextMenu}
@@ -183,6 +185,8 @@ export const RiskGroup = ({
             editRiskObject={editRiskObject}
             closedFace={closedFace}
             scale={scale}
+            setHoveredElement={setHoveredElement}
+            handleObjectAction={handleObjectAction}
           />
         ))}
 

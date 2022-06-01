@@ -23,6 +23,8 @@ export const RiskAssessment = ({
   setFirstContext,
   editRiskObject,
   closedFace,
+  setHoveredElement,
+  handleObjectAction
 }) => {
   // console.log("index",typeof setFirstContext);
   const [selectedObjects, setSelectedObjects] =
@@ -170,7 +172,7 @@ export const RiskAssessment = ({
           >
             {objects.length > 0
               ? objects.map((object, index) => (
-                  <RiskElement
+                object.status!=="deleted" && <RiskElement
                     setFirstContext={setFirstContext}
                     expanded={true}
                     handleContextMenu={handleContextMenu}
@@ -186,19 +188,23 @@ export const RiskAssessment = ({
                     editRiskObject={editRiskObject}
                     closedFace={closedFace}
                     scale={globalScale}
+                    setHoveredElement={setHoveredElement}
+                    handleObjectAction={handleObjectAction}
                   />
                 ))
               : null}
 
             {dataObjectInstances.length > 0
               ? dataObjectInstances.map((dataObjectInstance) => (
-                  <DataObject
+                dataObjectInstance.status!=="deleted" && <DataObject
                     riskAssessmentId={riskAssessmentId}
                     scale={globalScale}
                     data={dataObjectInstance}
                     selectedElements={selectedElements}
                     elementSelection={elementSelection}
                     setFirstContext={setFirstContext}
+                    setHoveredElement={setHoveredElement}
+                    handleObjectAction={handleObjectAction}
                   />
                 ))
               : null}
@@ -221,6 +227,8 @@ export const RiskAssessment = ({
                     editRiskObject={editRiskObject}
                     closedFace={closedFace}
                     scale={globalScale}
+                    setHoveredElement={setHoveredElement}
+                    handleObjectAction={handleObjectAction}
                   />
                 ))
               : null}
