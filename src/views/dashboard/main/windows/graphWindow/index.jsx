@@ -274,6 +274,7 @@ export const GraphWindow = ({
       )}
       <Bpmn
         xml={bpmn.xml ?? window.data.fileData}
+        bpmnId={window.data.id}
         onChange={handleOnChange}
         onClick={(data) => elementSelectorHandler(data)}
         onContextMenu={handleContextMenu}
