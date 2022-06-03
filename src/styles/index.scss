@@ -7,6 +7,7 @@
 // @import '~@blueprintjs/datetime/lib/css/blueprint-datetime.css';
 @import "~bpmn-js/dist/assets/diagram-js.css";
 @import "~bpmn-js/dist/assets/bpmn-font/css/bpmn.css";
+@import "~bpmn-js/dist/assets/bpmn-js.css";
 @import "~diagram-js-minimap/assets/diagram-js-minimap.css";
 @import "~react-resizable/css/styles.css";
 
@@ -59,4 +60,8 @@ body,
 }
 .ag-root-wrapper {
   padding-bottom: 10px !important;
+}
+
+.djs-palette-shown.djs-palette-two-column .bjs-breadcrumbs {
+  left: 15px !important;
 }
