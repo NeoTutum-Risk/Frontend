@@ -4,10 +4,13 @@ import BpmnModeler from "bpmn-js/lib/Modeler";
 import minimapModule from "diagram-js-minimap";
 import { memo, useCallback, useEffect, useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
+import { useRecoilState } from "recoil";
+import { BPMNLayerState } from "../../store/windows";
 
-export const Bpmn = memo(({ xml = "", onChange, onClick, onContextMenu }) => {
+export const Bpmn = memo(({ xml = "", onChange, onClick, onContextMenu, bpmnId }) => {
   const [modeler, setModeler] = useState(null);
   const { width, height, ref: modelerRef } = useResizeDetector();
+  const [BPMNLayers, setBPMNLayers] = useRecoilState(BPMNLayerState)
 
   const resizeBpmn = useCallback(() => {
     if (!modeler) return;
@@ -16,6 +19,16 @@ export const Bpmn = memo(({ xml = "", onChange, onClick, onContextMenu }) => {
 
   const onChangeHandler = useCallback(async () => {
     if (!modeler) return;
+    
+    if(BPMNLayers.find(bpmn => bpmn.id === bpmnId).currentBPMN !== modeler.get('canvas').getRootElement().id){
+      setBPMNLayers(bpmns => {
+        return bpmns.map(bpmn => {
+          if(bpmn.id !== bpmnId) return bpmn
+
+          return {id: bpmnId, currentLayer: modeler.get('canvas').getRootElement().id}
+        })
+      })
+    }
 
     const { xml } = await modeler.saveXML({ format: true });
     onChange(xml);
@@ -43,9 +56,22 @@ export const Bpmn = memo(({ xml = "", onChange, onClick, onContextMenu }) => {
   useEffect(() => {
     if (!modeler || !xml) return;
 
+    let currentBPMN = BPMNLayers.find(bpmn => bpmn.id === bpmnId)
+
+    if(BPMNLayers.length === 0 || !currentBPMN){
+      const newBPMN = {id: bpmnId, currentLayer: "new_file"}
+      setBPMNLayers([...BPMNLayers, newBPMN])
+      currentBPMN = newBPMN
+    }
+
     modeler
       .importXML(xml)
-      .then(() => resizeBpmn())
+      .then(() => {
+        resizeBpmn()
+        if(currentBPMN.currentLayer !== modeler.get('canvas').getRootElement().id){
+          modeler.get('canvas').setRootElement(modeler.get('elementRegistry').get(currentBPMN.currentLayer));
+        }
+      })
       .catch((error) => alert(error));
   }, [modeler, resizeBpmn, xml]);
 

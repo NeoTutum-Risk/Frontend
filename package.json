@@ -16,7 +16,7 @@
     "ag-grid-react": "^26.2.0",
     "array-move": "^4.0.0",
     "axios": "^0.25.0",
-    "bpmn-js": "^8.9.1",
+    "bpmn-js": "^9.1.0",
     "buffer": "^6.0.3",
     "d3": "^7.4.4",
     "diagram-js-minimap": "^2.0.4",
