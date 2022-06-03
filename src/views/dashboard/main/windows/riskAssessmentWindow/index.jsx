@@ -428,12 +428,13 @@ export const RiskAssessmentWindow = ({
       if (data.type === "group") {
         const payload = {
           riskAssessmentId: window.data.id,
-          riskObjects: selectedElements.map((object) => object.id),
+          riskObjects: selectedElements.filter(item=>item.type!=="instance").map((object) => object.id),
+          dataObjects: selectedElements.filter(item=>item.type==="instance").map((object) => object.id),
           x: Number(contextMenu.x + 15),
           y: Number(contextMenu.y + 15),
           name: groupName,
         };
-
+        console.log(payload);
         const response = await addRiskAssessmentGroup(payload);
         setContextMenu({
           active: false,

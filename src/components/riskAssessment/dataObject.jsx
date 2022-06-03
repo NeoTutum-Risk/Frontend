@@ -18,8 +18,7 @@ export const DataObject = ({
     active: false,
     cy: data.y >= 0 ? data.y : 0,
     cx: data.x >= 0 ? data.x : 0,
-  });
-
+  });  
   const updateSize = useCallback(
     async (delta, direction, position) => {
       // console.log(data,delta,position);
