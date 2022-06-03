@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { RiskElement } from "./riskElement";
+import { DataObject } from "./dataObject";
 import { Rnd } from "react-rnd";
 import { Button } from "@blueprintjs/core";
 import "./dataElement.css";
@@ -172,6 +173,29 @@ export const RiskGroup = ({
         data.elements.map((object, index) => (
           object?
           object?.status!=="deleted" &&  <RiskElement
+            setFirstContext={setFirstContext}
+            expanded={expanded}
+            handleContextMenu={handleContextMenu}
+            selectedElements={selectedElements}
+            elementSelection={elementSelection}
+            index={index}
+            data={object}
+            riskAssessmentId={riskAssessmentId}
+            position={{ x: object["position.x"], y: object["position.y"] }}
+            expandPosition={{ x: drag.cx, y: drag.cy }}
+            groupId={data.id}
+            editRiskObject={editRiskObject}
+            closedFace={closedFace}
+            scale={scale}
+            setHoveredElement={setHoveredElement}
+            handleObjectAction={handleObjectAction}
+          />:null
+        ))}
+
+      {expanded &&
+        data.dataObjects.map((object, index) => (
+          object?
+          object?.status!=="deleted" &&  <DataObject
             setFirstContext={setFirstContext}
             expanded={expanded}
             handleContextMenu={handleContextMenu}
