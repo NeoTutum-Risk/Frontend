@@ -13,12 +13,16 @@ export const DataObject = ({
   setHoveredElement,
   handleObjectAction,
 }) => {
+  const [viewedAttribute, setViewedAttribute] = useState(data.textType);
+  const [usingService, setUsingService] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const [editingValue, setEditingValue] = useState(null);
   const updateXarrow = useXarrow();
   const [drag, setDrag] = useState({
     active: false,
     cy: data.y >= 0 ? data.y : 0,
     cx: data.x >= 0 ? data.x : 0,
-  });  
+  });
   const updateSize = useCallback(
     async (delta, direction, position) => {
       // console.log(data,delta,position);
@@ -43,6 +47,28 @@ export const DataObject = ({
     },
     [data, updateXarrow]
   );
+
+  const resetFace = useCallback(() => {
+    setEdit(false);
+    setEditingValue(null);
+  }, []);
+
+  const updateRiskObject = useCallback(async () => {
+    setUsingService(true);
+    let payload;
+    payload = { textType: editingValue };
+
+    const response = await updateNewDataObjectInstance(data.id, payload);
+    if (response.status === 200) {
+      setViewedAttribute(editingValue);
+      resetFace();
+    }
+    setUsingService(false);
+  }, [
+    editingValue,
+    data.id,
+    resetFace,
+  ]);
 
   const updateLocation = useCallback(
     async (e, d) => {
@@ -89,7 +115,7 @@ export const DataObject = ({
       id={`D-${riskAssessmentId}-${data.id}`}
       key={`D-${riskAssessmentId}-${data.id}`}
       disableDragging={data.disable}
-        enableResizing={!data.disable}
+      enableResizing={!data.disable}
       default={{
         x: drag.cx,
         y: drag.cy,
@@ -122,11 +148,14 @@ export const DataObject = ({
         }}
         // title={data.description}
         onClick={handleClick}
-        className="risk-object-container panningDisabled "
+        className=" panningDisabled "
         style={{
+          height:"100%",
           border: selectedElements.find((element) => element.id === data.id)
             ? "5px solid #62D96B"
-            : !data.disable ? "5px solid #1D7324" : "5px solid grey",
+            : !data.disable
+            ? "5px solid #1D7324"
+            : "5px solid grey",
           borderRadius: "15px",
           backgroundColor: "white",
           padding: "5px",
@@ -134,96 +163,157 @@ export const DataObject = ({
         }}
       >
         <div
-          style={{ display: "flex", justifyContent: "space-between" }}
+          style={{ display: "flex", flexDirection: "column", justifyContent:"space-around" }}
           className="panningDisabled"
         >
-          <Button className="panningDisabled" small={true} intent={!data.disable?"success":"none"}>
-            {data.id}
-          </Button>
-          <Button className="panningDisabled" small={true}  intent={!data.disable?"success":"none"}>
-            {data.dataObjectNew.name}
-          </Button>
-          <Button className="panningDisabled" small={true} intent={!data.disable?"success":"none"}>
-            {data.dataObjectNew.chronType}
-          </Button>
-          <Button className="panningDisabled" small={true} intent={!data.disable?"success":"none"}>
-            {data.dataObjectNew.IOtype}
-          </Button>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            paddingTop: "5px",
-          }}
-          className="panningDisabled"
-        >
-          <Button
-            small={true}
-            intent={!data.disable ? "warning" : "primary"}
-            onClick={() =>
-              handleObjectAction({
-                id: data.id,
-                type: "instance",
-                operation: "enable",
-                payload: !data.disable,
-              })
-            }
+          <div
+            style={{ display: "flex", justifyContent: "space-between" }}
             className="panningDisabled"
           >
-            {!data.disable ? "Disable" : "Enable"}
-          </Button>
-          <Button
-            disabled={data.disable}
-            small={true}
-            intent="danger"
-            onClick={() =>
-              handleObjectAction({
-                id: data.id,
-                type: "instance",
-                operation: "delete",
-                payload: "deleted",
-              })
-            }
+            <Button
+              className="panningDisabled"
+              small={true}
+              intent={!data.disable ? "success" : "none"}
+            >
+              {data.id}
+            </Button>
+            <Button
+              className="panningDisabled"
+              title={data.dataObjectNew.description}
+              small={true}
+              intent={!data.disable ? "success" : "none"}
+            >
+              {data.dataObjectNew.name}
+            </Button>
+            <Button
+              className="panningDisabled"
+              small={true}
+              intent={!data.disable ? "success" : "none"}
+            >
+              {data.dataObjectNew.chronType}
+            </Button>
+            <Button
+              className="panningDisabled"
+              small={true}
+              intent={!data.disable ? "success" : "none"}
+            >
+              {data.dataObjectNew.IOtype}
+            </Button>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              paddingTop: "5px",
+            }}
+            className="panningDisabled"
           >
-            Delete
-          </Button>
+            <Button
+              small={true}
+              intent={!data.disable ? "warning" : "primary"}
+              onClick={() =>
+                handleObjectAction({
+                  id: data.id,
+                  type: "instance",
+                  operation: "enable",
+                  payload: !data.disable,
+                })
+              }
+              className="panningDisabled"
+            >
+              {!data.disable ? "Disable" : "Enable"}
+            </Button>
+            {!edit ? (
+          <Button
+            // fill={true}
+            disabled={data.disable}
+            title="Edit"
+            intent="warning"
+            small={true}
+            icon="edit"
+            onClick={() => {
+              setEdit(true);
+              setEditingValue(viewedAttribute);
+            }}
+          ></Button>
+        ) : (
+          <>
+            <Button
+              // fill={true}
+              // disabled={!activeAttribute}
+              title="Save"
+              intent="success"
+              small={true}
+              icon="confirm"
+              onClick={updateRiskObject}
+              loading={usingService}
+            ></Button>
+            <Button
+              // fill={true}
+              // disabled={!activeAttribute}
+              title="Cancel"
+              intent="danger"
+              small={true}
+              icon="cross"
+              onClick={resetFace}
+              loading={usingService}
+            ></Button>
+          </>
+        )}
+            <Button
+              disabled={data.disable}
+              small={true}
+              intent="danger"
+              onClick={() =>
+                handleObjectAction({
+                  id: data.id,
+                  type: "instance",
+                  operation: "delete",
+                  payload: "deleted",
+                })
+              }
+            >
+              Delete
+            </Button>
+          </div>
         </div>
-        <div className="panningDisabled">
-          <span className="panningDisabled">
-            {data.dataObjectNew.description}
-          </span>
-        </div>
-        <hr width="100%" color="grey" size="1" />
-        {/* <H3 style={{ textAlign: "center" }} className="panningDisabled">
-          Data Object
-        </H3> */}
-        <table className="bp4-html-table-bordered panningDisabled">
-          {data.dataObjectNew.arrayName ? (
-            <>
-              <tr>
-                <th>Array Name</th>
-                <td>{data.dataObjectNew.arrayName}</td>
-              </tr>
-              <tr>
-                <th>Array Description</th>
-                <td>{data.dataObjectNew.arrayDescription}</td>
-              </tr>
-              <tr>
-                <th>Array Dimension</th>
-                <td>
-                  {data.dataObjectNew.array.length} X{" "}
-                  {data.dataObjectNew.array[0].length}
-                </td>
-              </tr>
-            </>
-          ) : (
+
+        {data.dataObjectNew.arrayName ? (
+          <table className="bp4-html-table-bordered panningDisabled">
             <tr>
-              {/* <th>Text</th> */}
-              <td>{data.textType}</td>
+              <th>Array Name</th>
+              <td>{data.dataObjectNew.arrayName}</td>
             </tr>
-          )}
-        </table>
+            <tr>
+              <th>Array Description</th>
+              <td>{data.dataObjectNew.arrayDescription}</td>
+            </tr>
+            <tr>
+              <th>Array Dimension</th>
+              <td>
+                {data.dataObjectNew.array.length} X{" "}
+                {data.dataObjectNew.array[0].length}
+              </td>
+            </tr>
+          </table>
+        ) : (
+          <div style={{paddingTop:"10px"}}>
+            {edit ? (
+              <TextArea
+                className="panningDisabled pinchDisabled"
+                fill={true}
+                growVertically={true}
+                onChange={(e) => setEditingValue(e.target.value)}
+                value={editingValue}
+              ></TextArea>
+            ) : (
+              <span style={{ overflow: "auto", height: "100%" }}>
+                {viewedAttribute}
+              </span>
+            )}
+          </div>
+        )}
         {/* <hr width="100%" color="grey" size="1"/>
         <H3 style={{textAlign:"center"}}>Refrenced Objects</H3>
         <table>
