@@ -7,6 +7,7 @@ export const ClosedFace = ({
   setEditor,
   editRiskObject,
   handleObjectAction,
+  setFirstContext
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
@@ -119,13 +120,16 @@ export const ClosedFace = ({
           small={true}
           intent="danger"
           active={activeAttribute === "N"}
-          onClick={() =>
+          onClick={() =>{
             handleObjectAction({
               id: data.id,
               type: "risk",
               operation: "delete",
               payload: "deleted",
             })
+            setFirstContext('main')
+          }
+            
           }
         >
           Delete

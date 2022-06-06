@@ -275,13 +275,16 @@ export const DataObject = ({
               disabled={data.disable}
               small={true}
               intent="danger"
-              onClick={() =>
+              onClick={() =>{
                 handleObjectAction({
                   id: data.id,
                   type: "instance",
                   operation: "delete",
                   payload: "deleted",
-                })
+                });
+                setFirstContext('main');
+              }
+                
               }
             >
               Delete

@@ -196,6 +196,7 @@ export const RiskElement = ({
                 setFace={setFace}
                 setEditor={setEditor}
                 handleObjectAction={handleObjectAction}
+                setFirstContext={setFirstContext}
               />
             )}
             {/* {!data['position.enabled'] && } */}
