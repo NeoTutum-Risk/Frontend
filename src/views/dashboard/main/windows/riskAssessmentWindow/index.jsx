@@ -341,7 +341,7 @@ export const RiskAssessmentWindow = ({
   const handleContextMenu = useCallback(
     async (e, data) => {
       e.preventDefault();
-      console.log(data, data["position.enabled"]);
+      console.log(e);
       if (data && !data.from) {
         if (data["position.enabled"]) {
           setElementEnable(true);
@@ -359,6 +359,7 @@ export const RiskAssessmentWindow = ({
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
       let x = e.nativeEvent.layerX;
       let y = e.nativeEvent.layerY;
+      console.log(e,contextX,contextY);
       if (data.from === "main" && firstContext === "main") {
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
@@ -433,6 +434,7 @@ export const RiskAssessmentWindow = ({
           x: Number(contextMenu.x + 15),
           y: Number(contextMenu.y + 15),
           name: groupName,
+          expanded:1
         };
         console.log(payload);
         const response = await addRiskAssessmentGroup(payload);
@@ -447,6 +449,8 @@ export const RiskAssessmentWindow = ({
         });
         setSelectedElements([]);
         setSelectedObjects([]);
+        setConnections([]);
+        setInstanceObjectConnections([]);
         setTimeout(riskAssessmentData, 500);
         // const redraw = await riskAssessmentData();
       }

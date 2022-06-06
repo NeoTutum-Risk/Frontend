@@ -170,7 +170,33 @@ export const RiskAssessment = ({
             onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
             onClick={resetContext}
           >
-            {objects.length > 0
+           
+
+            {groups.length > 0
+              ? groups.map((group, index) => (
+                  <RiskGroup
+                    setFirstContext={setFirstContext}
+                    updateXarrow={updateXarrow}
+                    handleContextMenu={handleContextMenu}
+                    selectedElements={selectedElements}
+                    elementSelection={elementSelection}
+                    index={index}
+                    data={group}
+                    riskAssessmentId={riskAssessmentId}
+                    position={{
+                      x: group.currentX,
+                      y: group.currentY,
+                    }}
+                    editRiskObject={editRiskObject}
+                    closedFace={closedFace}
+                    scale={globalScale}
+                    setHoveredElement={setHoveredElement}
+                    handleObjectAction={handleObjectAction}
+                  />
+                ))
+              : null}
+
+{objects.length > 0
               ? objects.map((object, index) => (
                 object.status!=="deleted" && <RiskElement
                     setFirstContext={setFirstContext}
@@ -209,30 +235,7 @@ export const RiskAssessment = ({
                   />
                 ))
               : null}
-
-            {groups.length > 0
-              ? groups.map((group, index) => (
-                  <RiskGroup
-                    setFirstContext={setFirstContext}
-                    updateXarrow={updateXarrow}
-                    handleContextMenu={handleContextMenu}
-                    selectedElements={selectedElements}
-                    elementSelection={elementSelection}
-                    index={index}
-                    data={group}
-                    riskAssessmentId={riskAssessmentId}
-                    position={{
-                      x: group.currentX,
-                      y: group.currentY,
-                    }}
-                    editRiskObject={editRiskObject}
-                    closedFace={closedFace}
-                    scale={globalScale}
-                    setHoveredElement={setHoveredElement}
-                    handleObjectAction={handleObjectAction}
-                  />
-                ))
-              : null}
+              
           </div>
         </TransformComponent>
       </TransformWrapper>

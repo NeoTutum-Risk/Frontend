@@ -174,8 +174,8 @@ export const RiskGroup = ({
                   data={object}
                   riskAssessmentId={riskAssessmentId}
                   position={{
-                    x: expanded? object["position.x"]:drag.cx,
-                    y: expanded? object["position.y"]:drag.cy,
+                    x: object["position.x"],
+                    y: object["position.y"],
                   }}
                   expandPosition={{ x: drag.cx, y: drag.cy }}
                   groupId={data.id}

@@ -119,14 +119,21 @@ export const DataObject = ({
       disableDragging={data.disable}
       enableResizing={!data.disable}
       default={{
-        x: drag.cx,
-        y: drag.cy,
-        width: data.width,
-        height: data.height,
+        x: expanded ? drag.cx : expandPosition.x,
+        y: expanded ? drag.cy : expandPosition.y,
+        width: expanded ? data.width : 150,
+        height: expanded ?data.height: 150,
       }}
-      position={{x:expanded ? drag.cx : expandPosition.x,y:expanded ? drag.cy : expandPosition.y}}
-      minWidth={270}
-      minHeight={170}
+      position={{
+        x: expanded ? drag.cx : expandPosition.x,
+        y: expanded ? drag.cy : expandPosition.y,
+      }}
+      size={{
+        width: expanded ? data.width : 150,
+        height: expanded ?data.height : 150,
+      }}
+      minWidth={expanded ? 270 : 150}
+      minHeight={expanded ? 170 : 150}
       bounds="window"
       onDrag={updateXarrow}
       onResize={updateXarrow}
@@ -136,7 +143,7 @@ export const DataObject = ({
       scale={scale}
       onDragStop={(e, d) => updateLocation(e, d)}
     >
-      <div
+      {expanded && (<div
         onMouseLeave={() => {
           setFirstContext("main");
           setHoveredElement(null);
@@ -326,7 +333,7 @@ export const DataObject = ({
             <tr><th>Description</th><td>Array Dummy Description</td></tr>
         </table>
         <hr width="100%" color="grey" size="1"/> */}
-      </div>
+      </div>)}
     </Rnd>
   );
 };
