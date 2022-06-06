@@ -38,7 +38,7 @@ import {
   addNewDataObjectInstance,
   addInstanceConnection,
   addInstanceObjectConnection,
-  updateNewDataObjectInstance
+  updateNewDataObjectInstance,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -108,6 +108,8 @@ export const RiskAssessmentWindow = ({
   const [importTemplateIdError, setImportTemplateIdError] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [closedFace, setClosedFace] = useState(true);
+  const [deletedRisk, setDeletedRisk] = useState([]);
+  const [deletedInstance, setDeletedInstance] = useState([]);
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -148,10 +150,17 @@ export const RiskAssessmentWindow = ({
           (connection) => connection.status !== "deleted"
         )
       );
-      setInstanceConnections(response.data.data.dataObjectsConnections);
-      setInstanceObjectConnections(
-        response.data.data.dataObjectsRiskObjectsConnections
+      setInstanceConnections(
+        response.data.data.dataObjectsConnections.filter(
+          (connection) => connection.status !== "deleted"
+        )
       );
+      setInstanceObjectConnections(
+        response.data.data.dataObjectsRiskObjectsConnections.filter(
+          (connection) => connection.status !== "deleted"
+        )
+      );
+      // getDeleted();
     } else {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
     }
@@ -359,7 +368,7 @@ export const RiskAssessmentWindow = ({
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
       let x = e.nativeEvent.layerX;
       let y = e.nativeEvent.layerY;
-      console.log(e,contextX,contextY);
+      console.log(e, contextX, contextY);
       if (data.from === "main" && firstContext === "main") {
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
@@ -429,12 +438,16 @@ export const RiskAssessmentWindow = ({
       if (data.type === "group") {
         const payload = {
           riskAssessmentId: window.data.id,
-          riskObjects: selectedElements.filter(item=>item.type!=="instance").map((object) => object.id),
-          dataObjects: selectedElements.filter(item=>item.type==="instance").map((object) => object.id),
+          riskObjects: selectedElements
+            .filter((item) => item.type !== "instance")
+            .map((object) => object.id),
+          dataObjects: selectedElements
+            .filter((item) => item.type === "instance")
+            .map((object) => object.id),
           x: Number(contextMenu.x + 15),
           y: Number(contextMenu.y + 15),
           name: groupName,
-          expanded:1
+          expanded: 1,
         };
         console.log(payload);
         const response = await addRiskAssessmentGroup(payload);
@@ -640,15 +653,17 @@ export const RiskAssessmentWindow = ({
             }),
           }))
         );
-      }else{
+      } else {
         const response =
           element.operation === "enable"
             ? await updateNewDataObjectInstance(element.id, {
                 disable: element.payload,
               })
-            : await updateNewDataObjectInstance(element.id, { status: element.payload });
+            : await updateNewDataObjectInstance(element.id, {
+                status: element.payload,
+              });
 
-            setDataObjectInstances((prev) =>
+        setDataObjectInstances((prev) =>
           prev.map((object) => {
             if (object.id === element.id) {
               const updatedObject = { ...object };
@@ -662,8 +677,11 @@ export const RiskAssessmentWindow = ({
           })
         );
       }
+      setConnections([]);
+      setInstanceObjectConnections([]);
+      riskAssessmentData();
     },
-    [window.data.id]
+    [window.data.id, riskAssessmentData]
   );
 
   const updateElementStatus = useCallback(async () => {

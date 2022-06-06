@@ -24,7 +24,7 @@ export const RiskAssessment = ({
   editRiskObject,
   closedFace,
   setHoveredElement,
-  handleObjectAction
+  handleObjectAction,
 }) => {
   // console.log("index",typeof setFirstContext);
   const [selectedObjects, setSelectedObjects] =
@@ -113,8 +113,7 @@ export const RiskAssessment = ({
         ))}
 
         {instanceObjectConnections.map((edge) => (
-          (
-            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
+          // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
           <Xarrow
             path="straight"
             curveness={0.2}
@@ -130,11 +129,20 @@ export const RiskAssessment = ({
                 </div>
               ),
             }}
-            start={String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef)}
-            end={String((edge.objectType==="Input"?"R-":"D-") + riskAssessmentId + "-" + edge.targetRef)}
+            start={String(
+              (edge.objectType === "Input" ? "D-" : "R-") +
+                riskAssessmentId +
+                "-" +
+                edge.sourceRef
+            )}
+            end={String(
+              (edge.objectType === "Input" ? "R-" : "D-") +
+                riskAssessmentId +
+                "-" +
+                edge.targetRef
+            )}
             SVGcanvasStyle={{ overflow: "hidden" }}
           />
-          )
         ))}
 
         {connections.map((edge) => (
@@ -167,11 +175,12 @@ export const RiskAssessment = ({
               position: "relative",
             }}
             onScroll={updateXarrow}
-            onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
+            onContextMenu={(e) => {
+              console.log(e);
+              handleContextMenu(e, { from: "main" });
+            }}
             onClick={resetContext}
           >
-           
-
             {groups.length > 0
               ? groups.map((group, index) => (
                   <RiskGroup
@@ -196,46 +205,51 @@ export const RiskAssessment = ({
                 ))
               : null}
 
-{objects.length > 0
-              ? objects.map((object, index) => (
-                object.status!=="deleted" && <RiskElement
-                    setFirstContext={setFirstContext}
-                    expanded={true}
-                    handleContextMenu={handleContextMenu}
-                    selectedElements={selectedElements}
-                    elementSelection={elementSelection}
-                    index={index}
-                    data={object}
-                    riskAssessmentId={riskAssessmentId}
-                    position={{
-                      x: object["position.x"],
-                      y: object["position.y"],
-                    }}
-                    editRiskObject={editRiskObject}
-                    closedFace={closedFace}
-                    scale={globalScale}
-                    setHoveredElement={setHoveredElement}
-                    handleObjectAction={handleObjectAction}
-                  />
-                ))
+            {objects.length > 0
+              ? objects.map(
+                  (object, index) =>
+                    object.status !== "deleted" && (
+                      <RiskElement
+                        setFirstContext={setFirstContext}
+                        expanded={true}
+                        handleContextMenu={handleContextMenu}
+                        selectedElements={selectedElements}
+                        elementSelection={elementSelection}
+                        index={index}
+                        data={object}
+                        riskAssessmentId={riskAssessmentId}
+                        position={{
+                          x: object["position.x"],
+                          y: object["position.y"],
+                        }}
+                        editRiskObject={editRiskObject}
+                        closedFace={closedFace}
+                        scale={globalScale}
+                        setHoveredElement={setHoveredElement}
+                        handleObjectAction={handleObjectAction}
+                      />
+                    )
+                )
               : null}
 
             {dataObjectInstances.length > 0
-              ? dataObjectInstances.map((dataObjectInstance) => (
-                dataObjectInstance.status!=="deleted" && <DataObject
-                    riskAssessmentId={riskAssessmentId}
-                    scale={globalScale}
-                    expanded={true}
-                    data={dataObjectInstance}
-                    selectedElements={selectedElements}
-                    elementSelection={elementSelection}
-                    setFirstContext={setFirstContext}
-                    setHoveredElement={setHoveredElement}
-                    handleObjectAction={handleObjectAction}
-                  />
-                ))
+              ? dataObjectInstances.map(
+                  (dataObjectInstance) =>
+                    dataObjectInstance.status !== "deleted" && (
+                      <DataObject
+                        riskAssessmentId={riskAssessmentId}
+                        scale={globalScale}
+                        expanded={true}
+                        data={dataObjectInstance}
+                        selectedElements={selectedElements}
+                        elementSelection={elementSelection}
+                        setFirstContext={setFirstContext}
+                        setHoveredElement={setHoveredElement}
+                        handleObjectAction={handleObjectAction}
+                      />
+                    )
+                )
               : null}
-              
           </div>
         </TransformComponent>
       </TransformWrapper>
