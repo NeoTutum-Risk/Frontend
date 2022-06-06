@@ -12,6 +12,8 @@ export const DataObject = ({
   setFirstContext,
   setHoveredElement,
   handleObjectAction,
+  expanded,
+  expandPosition
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.textType);
   const [usingService, setUsingService] = useState(false);
@@ -122,6 +124,7 @@ export const DataObject = ({
         width: data.width,
         height: data.height,
       }}
+      position={{x:expanded ? drag.cx : expandPosition.x,y:expanded ? drag.cy : expandPosition.y}}
       minWidth={270}
       minHeight={170}
       bounds="window"

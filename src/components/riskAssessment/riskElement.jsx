@@ -40,6 +40,14 @@ export const RiskElement = ({
     setFace(!closedFace);
   }, [closedFace]);
 
+  // useEffect(()=>{
+  //   if(!expanded){
+  //     setDrag((prev) => ({ ...prev, cy: expandPosition.y, cx: expandPosition.x }));
+
+  //     updateXarrow();
+  //   }
+  // },[expanded,expandPosition,updateXarrow])
+
   const updateSize = useCallback(
     async (delta, direction, position) => {
       console.log(data);
@@ -123,13 +131,21 @@ export const RiskElement = ({
         disableDragging={!data["position.enabled"]}
         enableResizing={data["position.enabled"]}
         default={{
-          x: drag.cx,
-          y: drag.cy,
-          width: data["position.width"],
-          height: data["position.height"],
+          x: expanded ? drag.cx : expandPosition.x,
+          y: expanded ? drag.cy : expandPosition.y,
+          width: expanded ? data["position.width"] : 150,
+          height: expanded ? data["position.height"] : 150,
         }}
-        minWidth={270}
-        minHeight={170}
+        position={{
+          x: expanded ? drag.cx : expandPosition.x,
+          y: expanded ? drag.cy : expandPosition.y,
+        }}
+        size={{
+          width: expanded ? data["position.width"] : 150,
+          height: expanded ? data["position.height"] : 150,
+        }}
+        minWidth={expanded ? 270 : 150}
+        minHeight={expanded ? 170 : 150}
         bounds="window"
         onDrag={updateXarrow}
         onResize={updateXarrow}
@@ -139,50 +155,52 @@ export const RiskElement = ({
         scale={scale}
         onDragStop={(e, d) => updateLocation(e, d)}
       >
-        <div
-          onMouseLeave={() => {
-            setFirstContext("main");
-            setHoveredElement(null);
-          }}
-          onMouseEnter={() => {
-            setFirstContext("element");
-            setHoveredElement(data);
-          }}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            setFirstContext("element");
-            setHoveredElement(data);
-            handleContextMenu(e, data);
-          }}
-          // title={data.description}
-          onClick={handleClick}
-          className="risk-object-container panningDisabled "
-          style={{
-            border: selectedElements.find((element) => element.id === data.id)
-              ? "5px solid rgb(89, 199, 209)"
-              : data["position.enabled"]
-              ? "5px solid rgb(89, 117, 209)"
-              : "5px solid grey",
-            borderRadius: "15px",
-            backgroundColor: "white",
-            padding: "5px",
-          }}
-        >
-          {face /*&& data['position.enabled'] */ && (
-            <OpenFace data={data} groupId={groupId} setFace={setFace} />
-          )}
-          {!face /*&& data['position.enabled']*/ && (
-            <ClosedFace
-              editRiskObject={editRiskObject}
-              data={data}
-              groupId={groupId}
-              setFace={setFace}
-              setEditor={setEditor}
-              handleObjectAction={handleObjectAction}
-            />
-          )}
-          {/* {!data['position.enabled'] && } */}
-        </div>
+        {expanded && (
+          <div
+            onMouseLeave={() => {
+              setFirstContext("main");
+              setHoveredElement(null);
+            }}
+            onMouseEnter={() => {
+              setFirstContext("element");
+              setHoveredElement(data);
+            }}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              setFirstContext("element");
+              setHoveredElement(data);
+              handleContextMenu(e, data);
+            }}
+            // title={data.description}
+            onClick={handleClick}
+            className="risk-object-container panningDisabled "
+            style={{
+              border: selectedElements.find((element) => element.id === data.id)
+                ? "5px solid rgb(89, 199, 209)"
+                : data["position.enabled"]
+                ? "5px solid rgb(89, 117, 209)"
+                : "5px solid grey",
+              borderRadius: "15px",
+              backgroundColor: "white",
+              padding: "5px",
+            }}
+          >
+            {face /*&& data['position.enabled'] */ && (
+              <OpenFace data={data} groupId={groupId} setFace={setFace} />
+            )}
+            {!face /*&& data['position.enabled']*/ && (
+              <ClosedFace
+                editRiskObject={editRiskObject}
+                data={data}
+                groupId={groupId}
+                setFace={setFace}
+                setEditor={setEditor}
+                handleObjectAction={handleObjectAction}
+              />
+            )}
+            {/* {!data['position.enabled'] && } */}
+          </div>
+        )}
       </Rnd>
       {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>
       {true && <ClosedEitor />}

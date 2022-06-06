@@ -21,15 +21,15 @@ export const RiskGroup = ({
   closedFace,
   scale,
   setHoveredElement,
-  handleObjectAction
+  handleObjectAction,
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
   const [expanded, setExpanded] = useState(data.currentExpanded);
   const [drag, setDrag] = useState({
     active: false,
-    cy: position.y  >= 0 ? position.y  : 0,
-    cx: position.x  >= 0 ? position.x  : 0,
+    cy: position.y >= 0 ? position.y : 0,
+    cx: position.x >= 0 ? position.x : 0,
     offset: {},
   });
   const [showTooltip, setShowTooltip] = useState(false);
@@ -66,35 +66,33 @@ export const RiskGroup = ({
     [drag.active, updateXarrow]
   );
 
-  const updateLocation = useCallback(async (e,d) => {
-    setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }))
-    if (d.x < 0) {
-      setDrag((prev) => ({ ...prev, cx: 0 }));
-      d.x=0;
-    }
-
-    if (d.y < 0) {
-      setDrag((prev) => ({ ...prev, cy: 0 }));
-      d.y=0;
-    }
-    updateXarrow();
-    const updateElementPosition = await updateRiskAssessmentGroup(
-      data.id,
-      riskAssessmentId,
-      {
-        x: Math.round(d.x),
-        y: Math.round(d.y),
-        expanded: data.currentExpanded,
+  const updateLocation = useCallback(
+    async (e, d) => {
+      setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
+      if (d.x < 0) {
+        setDrag((prev) => ({ ...prev, cx: 0 }));
+        d.x = 0;
       }
-    );
 
-    console.log(updateElementPosition);
-  }, [
-    data.id,
-    data.currentExpanded,
-    riskAssessmentId,
-    updateXarrow,
-  ]);
+      if (d.y < 0) {
+        setDrag((prev) => ({ ...prev, cy: 0 }));
+        d.y = 0;
+      }
+      updateXarrow();
+      const updateElementPosition = await updateRiskAssessmentGroup(
+        data.id,
+        riskAssessmentId,
+        {
+          x: Math.round(d.x),
+          y: Math.round(d.y),
+          expanded: data.currentExpanded,
+        }
+      );
+
+      console.log(updateElementPosition);
+    },
+    [data.id, data.currentExpanded, riskAssessmentId, updateXarrow]
+  );
 
   const updateExpanded = useCallback(async () => {
     const updateElementPosition = await updateRiskAssessmentGroup(
@@ -111,14 +109,7 @@ export const RiskGroup = ({
     updateXarrow();
     setInterval(updateXarrow, 200);
     console.log(updateElementPosition);
-  }, [
-    data.id,
-    drag.cx,
-    drag.cy,
-    expanded,
-    updateXarrow,
-    riskAssessmentId,
-  ]);
+  }, [data.id, drag.cx, drag.cy, expanded, updateXarrow, riskAssessmentId]);
 
   const endDrag = useCallback(
     async (e) => {
@@ -169,51 +160,63 @@ export const RiskGroup = ({
             }
           </g>
         ))} */}
-      {expanded &&
-        data.elements.map((object, index) => (
-          object?
-          object?.status!=="deleted" &&  <RiskElement
-            setFirstContext={setFirstContext}
-            expanded={expanded}
-            handleContextMenu={handleContextMenu}
-            selectedElements={selectedElements}
-            elementSelection={elementSelection}
-            index={index}
-            data={object}
-            riskAssessmentId={riskAssessmentId}
-            position={{ x: object["position.x"], y: object["position.y"] }}
-            expandPosition={{ x: drag.cx, y: drag.cy }}
-            groupId={data.id}
-            editRiskObject={editRiskObject}
-            closedFace={closedFace}
-            scale={scale}
-            setHoveredElement={setHoveredElement}
-            handleObjectAction={handleObjectAction}
-          />:null
-        ))}
+      {/*expanded &&*/
+        data.elements.map((object, index) =>
+          object
+            ? object?.status !== "deleted" && (
+                <RiskElement
+                  setFirstContext={setFirstContext}
+                  expanded={expanded}
+                  handleContextMenu={handleContextMenu}
+                  selectedElements={selectedElements}
+                  elementSelection={elementSelection}
+                  index={index}
+                  data={object}
+                  riskAssessmentId={riskAssessmentId}
+                  position={{
+                    x: expanded? object["position.x"]:drag.cx,
+                    y: expanded? object["position.y"]:drag.cy,
+                  }}
+                  expandPosition={{ x: drag.cx, y: drag.cy }}
+                  groupId={data.id}
+                  editRiskObject={editRiskObject}
+                  closedFace={closedFace}
+                  scale={scale}
+                  setHoveredElement={setHoveredElement}
+                  handleObjectAction={handleObjectAction}
+                />
+              )
+            : null
+        )}
 
-      {expanded &&
-        data.dataObjects.map((object, index) => (
-          object?
-          object?.status!=="deleted" &&  <DataObject
-            setFirstContext={setFirstContext}
-            expanded={expanded}
-            handleContextMenu={handleContextMenu}
-            selectedElements={selectedElements}
-            elementSelection={elementSelection}
-            index={index}
-            data={object}
-            riskAssessmentId={riskAssessmentId}
-            position={{ x: object["position.x"], y: object["position.y"] }}
-            expandPosition={{ x: drag.cx, y: drag.cy }}
-            groupId={data.id}
-            editRiskObject={editRiskObject}
-            closedFace={closedFace}
-            scale={scale}
-            setHoveredElement={setHoveredElement}
-            handleObjectAction={handleObjectAction}
-          />:null
-        ))}
+      {/*expanded &&*/
+        data.dataObjects.map((object, index) =>
+          object
+            ? object?.status !== "deleted" && (
+                <DataObject
+                  setFirstContext={setFirstContext}
+                  expanded={expanded}
+                  handleContextMenu={handleContextMenu}
+                  selectedElements={selectedElements}
+                  elementSelection={elementSelection}
+                  index={index}
+                  data={object}
+                  riskAssessmentId={riskAssessmentId}
+                  position={{
+                    x: object["position.x"],
+                    y: object["position.y"],
+                  }}
+                  expandPosition={{ x: drag.cx, y: drag.cy }}
+                  groupId={data.id}
+                  editRiskObject={editRiskObject}
+                  closedFace={closedFace}
+                  scale={scale}
+                  setHoveredElement={setHoveredElement}
+                  handleObjectAction={handleObjectAction}
+                />
+              )
+            : null
+        )}
 
       <Rnd
         id={`group-${data.id}`}
@@ -230,6 +233,7 @@ export const RiskGroup = ({
         onDrag={(e, d) => {
           console.log(e, d);
           updateXarrow();
+          setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
         }}
         onDragStop={(e, d) => updateLocation(e, d)}
         onResize={updateXarrow}
@@ -258,6 +262,29 @@ export const RiskGroup = ({
         >
           <span>{data.name}</span>
           <span>{data.id - 2000000}</span>
+          {/* {!expanded &&
+            data.elements.map((object, index) =>
+              object
+                ? object?.status !== "deleted" && (
+                    <div
+                      id={`R-${riskAssessmentId}-${object.id}`}
+                      key={`R-${riskAssessmentId}-${object.id}`}
+                    ></div>
+                  )
+                : null
+            )}
+
+          {!expanded &&
+            data.dataObjects.map((object, index) =>
+              object
+                ? object?.status !== "deleted" && (
+                    <div
+                      id={`D-${riskAssessmentId}-${object.id}`}
+                      key={`D-${riskAssessmentId}-${object.id}`}
+                    ></div>
+                  )
+                : null
+            )} */}
         </div>
       </Rnd>
 

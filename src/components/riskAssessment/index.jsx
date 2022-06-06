@@ -199,6 +199,7 @@ export const RiskAssessment = ({
                 dataObjectInstance.status!=="deleted" && <DataObject
                     riskAssessmentId={riskAssessmentId}
                     scale={globalScale}
+                    expanded={true}
                     data={dataObjectInstance}
                     selectedElements={selectedElements}
                     elementSelection={elementSelection}
