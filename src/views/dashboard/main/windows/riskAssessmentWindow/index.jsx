@@ -623,7 +623,7 @@ export const RiskAssessmentWindow = ({
               })
             : await updateRiskObject(element.id, { status: element.payload });
 
-        setRiskObjects((prev) =>
+        /*setRiskObjects((prev) =>
           prev.map((object) => {
             if (object.id === element.id) {
               const updatedObject = { ...object };
@@ -652,7 +652,7 @@ export const RiskAssessmentWindow = ({
               }
             }),
           }))
-        );
+        );*/
       } else {
         const response =
           element.operation === "enable"
@@ -663,7 +663,7 @@ export const RiskAssessmentWindow = ({
                 status: element.payload,
               });
 
-        setDataObjectInstances((prev) =>
+        /*setDataObjectInstances((prev) =>
           prev.map((object) => {
             if (object.id === element.id) {
               const updatedObject = { ...object };
@@ -675,7 +675,7 @@ export const RiskAssessmentWindow = ({
               return object;
             }
           })
-        );
+        );*/
       }
       setConnections([]);
       setInstanceObjectConnections([]);
