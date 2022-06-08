@@ -78,7 +78,7 @@ export const PropertiesWindow = ({
             <Button
               onClick={() => handleProperties(data.id)}
               icon="share"
-              text="Open in..."
+              text="Set"
             />
           </Popover2>
         </div>
