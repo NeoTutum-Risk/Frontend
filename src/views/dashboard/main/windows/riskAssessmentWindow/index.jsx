@@ -74,6 +74,7 @@ export const RiskAssessmentWindow = ({
   const [selectedElements, setSelectedElements] = useState([]);
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [dataObjectInstances, setDataObjectInstances] = useState([]);
+  const [activeObject,setActiveObject]=useState(null);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -171,7 +172,8 @@ export const RiskAssessmentWindow = ({
     async (path) => {
       try {
         setContextMenu((prev) => ({ ...prev, type: "loading" }));
-        const response = await addRiskObjectProperties(contextMenu.element, {
+        console.log(activeObject)
+        const response = await addRiskObjectProperties(activeObject, {
           dataObjectElements: path,
         });
         if (response.status === 200) {
@@ -214,7 +216,7 @@ export const RiskAssessmentWindow = ({
         });
       }
     },
-    [contextMenu.element]
+    [contextMenu.element,activeObject]
   );
 
   const handleConnection = useCallback(
@@ -861,6 +863,14 @@ export const RiskAssessmentWindow = ({
     riskAssessmentData,
   ]);
 
+  const handleProperties = useCallback((id) => {
+    console.log(id)
+    // setContextMenu((prev) => ({ ...prev, element: id }));
+    // setContextMenu({ element: id });
+    setActiveObject(id);
+    console.log(activeObject)
+  }, [activeObject]);
+
   return (
     <>
       <Window
@@ -910,6 +920,8 @@ export const RiskAssessmentWindow = ({
           setHoveredElement={setHoveredElement}
           handleObjectAction={handleObjectAction}
           // onContext={handleRiskViewContext}
+          menu={menu}
+          handleProperties={handleProperties}
         />
       </Window>
       <div

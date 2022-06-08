@@ -7,7 +7,9 @@ export const ClosedFace = ({
   setEditor,
   editRiskObject,
   handleObjectAction,
-  setFirstContext
+  setFirstContext,
+  setShowProperties,
+  handleProperties,
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
@@ -112,6 +114,10 @@ export const ClosedFace = ({
         <Button
           small={true}
           intent={data["position.enabled"] ? "primary" : "none"}
+          onClick={() => {
+            setShowProperties((prev) => !prev);
+            handleProperties(data.id);
+          }}
         >
           Properties
         </Button>
@@ -120,17 +126,15 @@ export const ClosedFace = ({
           small={true}
           intent="danger"
           active={activeAttribute === "N"}
-          onClick={() =>{
+          onClick={() => {
             handleObjectAction({
               id: data.id,
               type: "risk",
               operation: "delete",
               payload: "deleted",
-            })
-            setFirstContext('main')
-          }
-            
-          }
+            });
+            setFirstContext("main");
+          }}
         >
           Delete
         </Button>

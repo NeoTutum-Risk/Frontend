@@ -25,6 +25,8 @@ export const RiskAssessment = ({
   closedFace,
   setHoveredElement,
   handleObjectAction,
+  menu,
+  handleProperties
 }) => {
   // console.log("index",typeof setFirstContext);
   const [selectedObjects, setSelectedObjects] =
@@ -201,6 +203,8 @@ export const RiskAssessment = ({
                     scale={globalScale}
                     setHoveredElement={setHoveredElement}
                     handleObjectAction={handleObjectAction}
+                    menu={menu}
+                    handleProperties={handleProperties}
                   />
                 ))
               : null}
@@ -227,6 +231,8 @@ export const RiskAssessment = ({
                         scale={globalScale}
                         setHoveredElement={setHoveredElement}
                         handleObjectAction={handleObjectAction}
+                        menu={menu}
+                        handleProperties={handleProperties}
                       />
                     )
                 )

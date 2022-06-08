@@ -8,6 +8,7 @@ import "./dataElement.css";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { updateRiskObjectPosition } from "../../services";
 import Draggable from "react-draggable";
+import { PropertiesWindow } from "./propertiesWindow";
 export const RiskElement = ({
   data,
   elementSelection,
@@ -25,8 +26,11 @@ export const RiskElement = ({
   scale,
   setHoveredElement,
   handleObjectAction,
+  menu,
+  handleProperties
 }) => {
   const [face, setFace] = useState(true);
+  const [showProperties, setShowProperties] = useState(false);
   const [editor, setEditor] = useState(false);
   const updateXarrow = useXarrow();
   const [drag, setDrag] = useState({
@@ -125,6 +129,16 @@ export const RiskElement = ({
 
   return (
     <>
+      {expanded && showProperties && (
+        <PropertiesWindow
+          scale={scale}
+          riskAssessmentId={riskAssessmentId}
+          enabled={true}
+          data={{ id: data.id, x: drag.cx-270, y: drag.cy }}
+          menu={menu}
+          handleProperties={handleProperties}
+        />
+      )}
       <Rnd
         id={`R-${riskAssessmentId}-${data.id}`}
         key={`R-${riskAssessmentId}-${data.id}`}
@@ -154,6 +168,7 @@ export const RiskElement = ({
         }}
         scale={scale}
         onDragStop={(e, d) => updateLocation(e, d)}
+        style={showProperties?{zIndex:1000000}:{}}
       >
         {expanded && (
           <div
@@ -197,6 +212,8 @@ export const RiskElement = ({
                 setEditor={setEditor}
                 handleObjectAction={handleObjectAction}
                 setFirstContext={setFirstContext}
+                setShowProperties={setShowProperties}
+                handleProperties={handleProperties}
               />
             )}
             {/* {!data['position.enabled'] && } */}

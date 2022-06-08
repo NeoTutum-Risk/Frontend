@@ -22,6 +22,8 @@ export const RiskGroup = ({
   scale,
   setHoveredElement,
   handleObjectAction,
+  menu,
+  handleProperties
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -184,6 +186,8 @@ export const RiskGroup = ({
                   scale={scale}
                   setHoveredElement={setHoveredElement}
                   handleObjectAction={handleObjectAction}
+                  menu={menu}
+                  handleProperties={handleProperties}
                 />
               )
             : null
