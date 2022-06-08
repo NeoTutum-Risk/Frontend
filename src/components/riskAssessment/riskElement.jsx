@@ -175,7 +175,7 @@ export const RiskElement = ({
         }}
         scale={scale}
         onDragStop={(e, d) => updateLocation(e, d)}
-        style={showProperties ? { zIndex: 1000000 } : {}}
+        style={showProperties && expanded ? { zIndex: 1000000 } : {}}
       >
         {expanded && (
           <div
