@@ -27,7 +27,7 @@ export const RiskElement = ({
   setHoveredElement,
   handleObjectAction,
   menu,
-  handleProperties
+  handleProperties,
 }) => {
   const [face, setFace] = useState(true);
   const [showProperties, setShowProperties] = useState(false);
@@ -134,7 +134,14 @@ export const RiskElement = ({
           scale={scale}
           riskAssessmentId={riskAssessmentId}
           enabled={true}
-          data={{ id: data.id, x: drag.cx-270, y: drag.cy }}
+          data={{
+            id: data.id,
+            x:
+              drag.cx - 270 > 0
+                ? drag.cx - 270
+                : drag.cx + data["position.width"],
+            y: drag.cy,
+          }}
           menu={menu}
           handleProperties={handleProperties}
         />
@@ -168,7 +175,7 @@ export const RiskElement = ({
         }}
         scale={scale}
         onDragStop={(e, d) => updateLocation(e, d)}
-        style={showProperties?{zIndex:1000000}:{}}
+        style={showProperties ? { zIndex: 1000000 } : {}}
       >
         {expanded && (
           <div
