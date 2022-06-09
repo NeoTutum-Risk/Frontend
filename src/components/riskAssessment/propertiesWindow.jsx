@@ -194,15 +194,15 @@ export const PropertiesWindow = ({
                                   {`${property.metaDataLevel2Name} -> ${property.dataObjectElementName}`}
                                 </span>
                                 <FormGroup
-                                  label="Description"
+                                  label="Text"
                                   labelInfo="(required)"
-                                  labelFor="newObjectDescription"
+                                  labelFor="Text"
                                 >
                                   <TextArea
                                     required
                                     value={editedText}
                                     fill={true}
-                                    id="newObjectDescription"
+                                    id="Text"
                                     onChange={(event) => {
                                       setEditedText(event.target.value);
                                     }}
