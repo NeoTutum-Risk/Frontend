@@ -28,8 +28,12 @@ export const RiskElement = ({
   handleObjectAction,
   menu,
   handleProperties,
-  removeFromGroup
+  removeFromGroup,
 }) => {
+  const [size, setSize] = useState({
+    w: data["position.width"],
+    h: data["position.height"],
+  });
   const [face, setFace] = useState(true);
   const [showProperties, setShowProperties] = useState(false);
   const [editor, setEditor] = useState(false);
@@ -55,6 +59,9 @@ export const RiskElement = ({
 
   const updateSize = useCallback(
     async (delta, direction, position) => {
+      const w = Math.round(size.w + delta.width);
+      const h = Math.round(size.h + delta.height);
+      setSize({w,h});
       console.log(data);
       setDrag((prev) => ({ ...prev, cy: position.y, cx: position.x }));
       if (position.x < 0) {
@@ -67,20 +74,22 @@ export const RiskElement = ({
         position.y = 0;
       }
       updateXarrow();
+      
       const updateElementPosition = await updateRiskObjectPosition(
         riskAssessmentId,
         data.id,
         {
           x: Math.round(position.x),
           y: Math.round(position.y),
-          width: Math.round(data["position.width"] + delta.width),
-          height: Math.round(data["position.height"] + delta.height),
+          width: w,
+          height: h,
           enabled: data["position.enabled"],
         }
       );
+      
       console.log(updateElementPosition);
     },
-    [riskAssessmentId, data, updateXarrow]
+    [riskAssessmentId, data, updateXarrow,size]
   );
 
   const updateLocation = useCallback(
@@ -138,8 +147,8 @@ export const RiskElement = ({
           data={{
             id: data.id,
             x:
-              drag.cx - 320 > 0
-                ? drag.cx - 320
+              drag.cx - 420 > 0
+                ? drag.cx - 420
                 : drag.cx + data["position.width"],
             y: drag.cy,
           }}
@@ -151,20 +160,20 @@ export const RiskElement = ({
         id={`R-${riskAssessmentId}-${data.id}`}
         key={`R-${riskAssessmentId}-${data.id}`}
         disableDragging={!data["position.enabled"]}
-        enableResizing={data["position.enabled"]}
+        enableResizing={!!data["position.enabled"]}
         default={{
           x: expanded ? drag.cx : expandPosition.x,
           y: expanded ? drag.cy : expandPosition.y,
-          width: expanded ? data["position.width"] : 150,
-          height: expanded ? data["position.height"] : 150,
+          width: expanded ? size.w : 150,
+          height: expanded ? size.h : 150,
         }}
         position={{
           x: expanded ? drag.cx : expandPosition.x,
           y: expanded ? drag.cy : expandPosition.y,
         }}
         size={{
-          width: expanded ? data["position.width"] : 150,
-          height: expanded ? data["position.height"] : 150,
+          width: expanded ? size.w : 150,
+          height: expanded ? size.h : 150,
         }}
         minWidth={expanded ? 270 : 150}
         minHeight={expanded ? 170 : 150}

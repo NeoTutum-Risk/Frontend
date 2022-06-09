@@ -263,8 +263,8 @@ export const ClosedFace = ({
         )}
       </div>
       <div
-        className="risk-object-closed-body wheelDisabled panningDisabled"
-        style={{ backgroundColor: "lightsteelblue" }}
+        className=" wheelDisabled panningDisabled"
+        style={{ backgroundColor: "lightsteelblue", height: "100%" }}
         onClick={() => setEditor((prev) => !prev)}
       >
         {edit ? (
@@ -276,9 +276,13 @@ export const ClosedFace = ({
             value={editingValue}
           ></TextArea>
         ) : (
-          <span style={{ overflow: "auto", height: "100%" }}>
+          <div
+        className=" wheelDisabled panningDisabled"
+        style={{ backgroundColor: "lightsteelblue", height: "100%",overflow:"scroll" }}
+      >
+          <span style={{ height: "100%"}}>
             {viewedAttribute}
-          </span>
+          </span></div>
         )}
       </div>
     </>

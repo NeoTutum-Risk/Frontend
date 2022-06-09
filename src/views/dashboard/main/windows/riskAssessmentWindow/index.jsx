@@ -40,6 +40,8 @@ import {
   addInstanceObjectConnection,
   updateNewDataObjectInstance,
   editGroup,
+  deleteInstanceRiskConnection,
+  deleteInstanceConnection
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -113,8 +115,6 @@ export const RiskAssessmentWindow = ({
   const [deletedRisk, setDeletedRisk] = useState([]);
   const [deletedInstance, setDeletedInstance] = useState([]);
 
-  
-
   const fetchTemplates = useCallback(async () => {
     try {
       const response = await getTemplates();
@@ -142,7 +142,7 @@ export const RiskAssessmentWindow = ({
   }, []);
 
   const riskAssessmentData = useCallback(async () => {
-    try{
+    try {
       const response = await getRiskAssessment(window.data.id);
       if (response.status === 200) {
         console.log(response.data.data);
@@ -169,29 +169,31 @@ export const RiskAssessmentWindow = ({
       } else {
         showDangerToaster(`Error Retrieving Risk Assessment Data`);
         setTimeout(riskAssessmentData, 1000);
-        console.log("Failing")
+        console.log("Failing");
       }
       getGlobalGroups();
-    }catch(err){
+    } catch (err) {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
       setTimeout(riskAssessmentData, 1000);
     }
-    
   }, [window.data.id, getGlobalGroups]);
 
-  const removeFromGroup = useCallback(async (type, data) => {
-    let payload;
-    if (type === "risk") {
-      payload = { riskObjects: [data.id], dataObjects: [] };
-    } else {
-      payload = { riskObjects: [], dataObjects: [data.id] };
-    }
-    const response = await editGroup(window.data.id,data.groupId,payload);
-    setConnections([]);
-    setInstanceConnections([]);
-    setInstanceObjectConnections([]);
-    setTimeout(riskAssessmentData, 500);
-  }, [window.data.id,riskAssessmentData]);
+  const removeFromGroup = useCallback(
+    async (type, data) => {
+      let payload;
+      if (type === "risk") {
+        payload = { riskObjects: [data.id], dataObjects: [] };
+      } else {
+        payload = { riskObjects: [], dataObjects: [data.id] };
+      }
+      const response = await editGroup(window.data.id, data.groupId, payload);
+      setConnections([]);
+      setInstanceConnections([]);
+      setInstanceObjectConnections([]);
+      setTimeout(riskAssessmentData, 500);
+    },
+    [window.data.id, riskAssessmentData]
+  );
 
   const contextMenuAction = useCallback(
     async (path) => {
@@ -642,6 +644,18 @@ export const RiskAssessmentWindow = ({
 
   const handleObjectAction = useCallback(
     async (element) => {
+      if (element.operation === "reset") {
+        riskAssessmentData();
+        return;
+      }
+
+      if (element.operation === "resetAll") {
+        setConnections([]);
+        setInstanceObjectConnections([]);
+        riskAssessmentData();
+        return;
+      }
+
       if (element.type === "risk") {
         const response =
           element.operation === "enable"
@@ -751,50 +765,121 @@ export const RiskAssessmentWindow = ({
   }, [window.data.id, contextMenu.element, elementEnable, resetContext]);
 
   useEffect(() => {
-    let connection;
+    let connection,connectionType;
     if (selectedElements.length === 2) {
-      console.log(
-        "selected",
-        selectedElements[0].id,
-        selectedElements[1].id,
-        connections
-      );
-      const first = connections.find(
-        (connection) =>
-          connection.sourceRef === selectedElements[0].id &&
-          connection.targetRef === selectedElements[1].id
-      );
-      console.log("first", first);
-      if (first) {
-        connection = first;
-      } else {
-        const second = connections.find(
+      
+
+      if(selectedElements[0].type==="instance" && selectedElements[1].type==="instance"){
+        connectionType = "instances";
+        const first = instanceConnections.find(
           (connection) =>
-            connection.sourceRef === selectedElements[1].id &&
-            connection.targetRef === selectedElements[0].id
+            connection.sourceRef === selectedElements[0].id &&
+            connection.targetRef === selectedElements[1].id
         );
-        console.log("second", second);
-        if (second) {
-          connection = second;
+        if (first) {
+          connection = first;
+        } else {
+          const second = instanceConnections.find(
+            (connection) =>
+              connection.sourceRef === selectedElements[1].id &&
+              connection.targetRef === selectedElements[0].id
+          );
+          if (second) {
+            connection = second;
+          }
+        }
+      }else if(selectedElements[0].type!=="instance" && selectedElements[1].type!=="instance"){
+        connectionType = "riskObjects";
+        const first = connections.find(
+          (connection) =>
+            connection.sourceRef === selectedElements[0].id &&
+            connection.targetRef === selectedElements[1].id
+        );
+        if (first) {
+          connection = first;
+        } else {
+          const second = connections.find(
+            (connection) =>
+              connection.sourceRef === selectedElements[1].id &&
+              connection.targetRef === selectedElements[0].id
+          );
+          if (second) {
+            connection = second;
+          }
+        }
+      }else{
+        connectionType = "instanceRiskObjects";
+        let object,instance;
+        if(selectedElements[0].type==="instance"){
+          instance=selectedElements[0];
+          object=selectedElements[1];
+        }else{
+          instance=selectedElements[1];
+          object=selectedElements[0];
+        }
+        if(instance.dataObjectNew.IOtype==="Output"){
+          connection= instanceObjectConnections.find(
+            (connection) =>
+              connection.sourceRef === instance.id &&
+              connection.targetRef === object.id
+          );
+        }else{
+          connection= instanceObjectConnections.find(
+            (connection) =>
+              connection.sourceRef === object.id &&
+              connection.targetRef === instance.id
+          );
         }
       }
-      console.log("selected", connection);
+
+      
+
       if (connection) {
-        setSelectedConnection(connection.id);
+        setSelectedConnection({id:connection.id,type:connectionType});
       } else {
         setSelectedConnection(null);
       }
     } else {
       setSelectedConnection(null);
     }
-  }, [selectedElements, connections]);
+  }, [selectedElements, connections,instanceConnections,instanceObjectConnections]);
 
   const handleDisconnect = useCallback(async () => {
-    const response = await deleteRiskConnection(selectedConnection);
-    resetContext();
-    setConnections((prev) =>
-      prev.filter((connection) => connection.id !== selectedConnection)
-    );
+    let  response;
+    switch(selectedConnection?.type){
+      case "riskObjects":
+         response = await deleteRiskConnection(selectedConnection.id);
+        resetContext();
+        setConnections((prev) =>
+          prev.filter((connection) => connection.id !== selectedConnection.id)
+        );
+      break;
+
+      case "instances":
+         response = await deleteInstanceConnection(selectedConnection.id);
+        resetContext();
+        setInstanceConnections((prev) =>
+          prev.filter((connection) => connection.id !== selectedConnection.id)
+        );
+      break;
+
+      case "instanceRiskObjects":
+         response = await deleteInstanceRiskConnection(selectedConnection.id);
+        resetContext();
+        setInstanceObjectConnections((prev) =>
+          prev.filter((connection) => connection.id !== selectedConnection.id)
+        );
+      break;
+
+      default:
+        break;
+    }
+    if(response?.status>=200 && response?.status<300){
+      showSuccessToaster(`Connection is removed #${selectedConnection.id}`)
+    }else{
+      showDangerToaster(`Can't Remove Connection #${selectedConnection.id}`)
+    }
+    
     setSelectedConnection(null);
   }, [selectedConnection, resetContext]);
 
