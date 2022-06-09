@@ -142,33 +142,41 @@ export const RiskAssessmentWindow = ({
   }, []);
 
   const riskAssessmentData = useCallback(async () => {
-    const response = await getRiskAssessment(window.data.id);
-    if (response.status === 200) {
-      console.log(response.data.data);
-      setRiskObjects(response.data.data.riskObjects);
-      setDataObjectInstances(response.data.data.dataObjectsNewProperties);
-      setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
-      setGroups(response.data.data.riskGroups);
-      setConnections(
-        response.data.data.riskConnections.filter(
-          (connection) => connection.status !== "deleted"
-        )
-      );
-      setInstanceConnections(
-        response.data.data.dataObjectsConnections.filter(
-          (connection) => connection.status !== "deleted"
-        )
-      );
-      setInstanceObjectConnections(
-        response.data.data.dataObjectsRiskObjectsConnections.filter(
-          (connection) => connection.status !== "deleted"
-        )
-      );
-      // getDeleted();
-    } else {
+    try{
+      const response = await getRiskAssessment(window.data.id);
+      if (response.status === 200) {
+        console.log(response.data.data);
+        setRiskObjects(response.data.data.riskObjects);
+        setDataObjectInstances(response.data.data.dataObjectsNewProperties);
+        setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
+        setGroups(response.data.data.riskGroups);
+        setConnections(
+          response.data.data.riskConnections.filter(
+            (connection) => connection.status !== "deleted"
+          )
+        );
+        setInstanceConnections(
+          response.data.data.dataObjectsConnections.filter(
+            (connection) => connection.status !== "deleted"
+          )
+        );
+        setInstanceObjectConnections(
+          response.data.data.dataObjectsRiskObjectsConnections.filter(
+            (connection) => connection.status !== "deleted"
+          )
+        );
+        // getDeleted();
+      } else {
+        showDangerToaster(`Error Retrieving Risk Assessment Data`);
+        setTimeout(riskAssessmentData, 1000);
+        console.log("Failing")
+      }
+      getGlobalGroups();
+    }catch(err){
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
+      setTimeout(riskAssessmentData, 1000);
     }
-    getGlobalGroups();
+    
   }, [window.data.id, getGlobalGroups]);
 
   const removeFromGroup = useCallback(async (type, data) => {
@@ -179,7 +187,10 @@ export const RiskAssessmentWindow = ({
       payload = { riskObjects: [], dataObjects: [data.id] };
     }
     const response = await editGroup(window.data.id,data.groupId,payload);
-    riskAssessmentData();
+    setConnections([]);
+    setInstanceConnections([]);
+    setInstanceObjectConnections([]);
+    setTimeout(riskAssessmentData, 500);
   }, [window.data.id,riskAssessmentData]);
 
   const contextMenuAction = useCallback(

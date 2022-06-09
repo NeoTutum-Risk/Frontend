@@ -138,8 +138,8 @@ export const RiskElement = ({
           data={{
             id: data.id,
             x:
-              drag.cx - 270 > 0
-                ? drag.cx - 270
+              drag.cx - 320 > 0
+                ? drag.cx - 320
                 : drag.cx + data["position.width"],
             y: drag.cy,
           }}

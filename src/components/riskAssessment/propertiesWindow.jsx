@@ -16,7 +16,8 @@ export const PropertiesWindow = ({
 
   const getProperties = useCallback(async () => {
     const response = await getRiskObjectProperties({ ids: [data.id] });
-    if (response.status === 201) {
+    if (response.status >=200 && response.status <300) {
+        console.log(response.data.data)
       setProperties(
         response.data.data.map((property) => ({
           metaDataLevel2Name: property.metaDataLevel2Name,
@@ -41,7 +42,7 @@ export const PropertiesWindow = ({
       default={{
         x: data.x,
         y: data.y,
-        width: 270,
+        width: 320,
         height: 170,
       }}
     //   position={{ x: data.x, y: data.y }}
