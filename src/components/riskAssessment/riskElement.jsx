@@ -175,8 +175,8 @@ export const RiskElement = ({
           width: expanded ? size.w : 150,
           height: expanded ? size.h : 150,
         }}
-        minWidth={expanded ? 270 : 150}
-        minHeight={expanded ? 170 : 150}
+        minWidth={50}
+        minHeight={50}
         bounds="window"
         onDrag={updateXarrow}
         onResize={updateXarrow}

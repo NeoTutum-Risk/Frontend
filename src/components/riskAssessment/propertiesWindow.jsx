@@ -163,8 +163,8 @@ export const PropertiesWindow = ({
                   <td>{property.value}</td>
                   <td>
                     <span title={property.text}>
-                      {`${String(property.text).substring(0, 4)}`}
-                      {String(property.text).length > 5 ? "..." : ""}
+                      {String(property.text)!=="null"?`${String(property.text).substring(0, 5)}`:``}
+                      {String(property.text).length >= 5 ? "..." : ""}
                     </span>
                   </td>
                   <td>
