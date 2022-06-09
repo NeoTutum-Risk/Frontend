@@ -39,6 +39,7 @@ import {
   addInstanceConnection,
   addInstanceObjectConnection,
   updateNewDataObjectInstance,
+  editGroup,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -74,7 +75,7 @@ export const RiskAssessmentWindow = ({
   const [selectedElements, setSelectedElements] = useState([]);
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [dataObjectInstances, setDataObjectInstances] = useState([]);
-  const [activeObject,setActiveObject]=useState(null);
+  const [activeObject, setActiveObject] = useState(null);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -111,6 +112,8 @@ export const RiskAssessmentWindow = ({
   const [closedFace, setClosedFace] = useState(true);
   const [deletedRisk, setDeletedRisk] = useState([]);
   const [deletedInstance, setDeletedInstance] = useState([]);
+
+  
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -168,11 +171,22 @@ export const RiskAssessmentWindow = ({
     getGlobalGroups();
   }, [window.data.id, getGlobalGroups]);
 
+  const removeFromGroup = useCallback(async (type, data) => {
+    let payload;
+    if (type === "risk") {
+      payload = { riskObjects: [data.id], dataObjects: [] };
+    } else {
+      payload = { riskObjects: [], dataObjects: [data.id] };
+    }
+    const response = await editGroup(window.data.id,data.groupId,payload);
+    riskAssessmentData();
+  }, [window.data.id,riskAssessmentData]);
+
   const contextMenuAction = useCallback(
     async (path) => {
       try {
         setContextMenu((prev) => ({ ...prev, type: "loading" }));
-        console.log(activeObject)
+        console.log(activeObject);
         const response = await addRiskObjectProperties(activeObject, {
           dataObjectElements: path,
         });
@@ -216,7 +230,7 @@ export const RiskAssessmentWindow = ({
         });
       }
     },
-    [contextMenu.element,activeObject]
+    [contextMenu.element, activeObject]
   );
 
   const handleConnection = useCallback(
@@ -863,13 +877,16 @@ export const RiskAssessmentWindow = ({
     riskAssessmentData,
   ]);
 
-  const handleProperties = useCallback((id) => {
-    console.log(id)
-    // setContextMenu((prev) => ({ ...prev, element: id }));
-    // setContextMenu({ element: id });
-    setActiveObject(id);
-    console.log(activeObject)
-  }, [activeObject]);
+  const handleProperties = useCallback(
+    (id) => {
+      console.log(id);
+      // setContextMenu((prev) => ({ ...prev, element: id }));
+      // setContextMenu({ element: id });
+      setActiveObject(id);
+      console.log(activeObject);
+    },
+    [activeObject]
+  );
 
   return (
     <>
@@ -922,6 +939,7 @@ export const RiskAssessmentWindow = ({
           // onContext={handleRiskViewContext}
           menu={menu}
           handleProperties={handleProperties}
+          removeFromGroup={removeFromGroup}
         />
       </Window>
       <div

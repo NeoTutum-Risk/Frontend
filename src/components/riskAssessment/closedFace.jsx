@@ -10,12 +10,14 @@ export const ClosedFace = ({
   setFirstContext,
   setShowProperties,
   handleProperties,
+  removeFromGroup
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
   const [edit, setEdit] = useState(false);
   const [editingValue, setEditingValue] = useState(null);
   const [usingService, setUsingService] = useState(false);
+  const [editGroup,setEditGroup] = useState(false);
 
   const handleAttributeClick = useCallback((view, active) => {
     console.log(view, active);
@@ -69,6 +71,17 @@ export const ClosedFace = ({
     resetFace,
   ]);
 
+  const handleGroup = useCallback(async ()=>{
+    if(groupId){
+      setEditGroup(true);
+    }
+  },[groupId])
+
+  const removeFromGroupHandler = useCallback(async()=>{
+    console.log({id:data.id,groupId});
+    const response = await removeFromGroup("risk",{id:data.id,groupId})
+  },[data.id,groupId,removeFromGroup])
+
   return (
     <>
       <div className="risk-object-closed-header panningDisabled">
@@ -80,12 +93,36 @@ export const ClosedFace = ({
         >
           {`${data.type[0].toUpperCase()}: ${data.id}`}{" "}
         </Button>
-        <Button
+        {editGroup?(
+          <>
+          <Button
+            // fill={true}
+            disabled={!activeAttribute}
+            title={`Remove from G#${Number(groupId - 2000000)}`}
+            intent="warning"
+            small={true}
+            icon="graph-remove"
+            onClick={removeFromGroupHandler}
+            loading={usingService}
+          ></Button>
+          <Button
+            // fill={true}
+            disabled={!activeAttribute}
+            title="Cancel"
+            intent="danger"
+            small={true}
+            icon="cross"
+            onClick={()=>setEditGroup(false)}
+            loading={usingService}
+          ></Button>
+        </>
+        ):(<Button
           small={true}
+          onClick={handleGroup}
           intent={data["position.enabled"] ? "primary" : "none"}
         >
           {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
-        </Button>
+        </Button>)}
         <Button
           small={true}
           intent={data["position.enabled"] ? "primary" : "none"}

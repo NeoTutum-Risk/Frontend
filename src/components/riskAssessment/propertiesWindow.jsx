@@ -44,6 +44,7 @@ export const PropertiesWindow = ({
         width: 270,
         height: 170,
       }}
+    //   position={{ x: data.x, y: data.y }}
       style={{ zIndex: 1000000 }}
       minWidth={270}
       minHeight={170}
@@ -65,14 +66,14 @@ export const PropertiesWindow = ({
           padding: "5px",
         }}
       >
-        <div>
+        <div className="panningDisabled">
           <Popover2
             fill={false}
             content={<Menu>{menu}</Menu>}
             placement="right"
-            onClose={()=>{
-                setTimeout(getProperties, 500);
-                setTimeout(getProperties, 1000);
+            onClose={() => {
+              setTimeout(getProperties, 500);
+              setTimeout(getProperties, 1000);
             }}
           >
             <Button
@@ -82,25 +83,35 @@ export const PropertiesWindow = ({
             />
           </Popover2>
         </div>
-        <div style={{height:"100%",padding:"2px",overflowY:"scroll"}}>
-          <table style={{width:"100%",border:"solid 1px grey",textAlign:"left"}}>
-              <thead>
-            <tr>
-              <th>MD2</th>
-              <th>DOE</th>
-              <th>Level</th>
-              <th>Value</th>
-            </tr>
+        <div
+          className="panningDisabled"
+          style={{ height: "100%", padding: "2px", overflowY: "scroll" }}
+        >
+          <table
+            className="panningDisabled"
+            style={{
+              width: "100%",
+              border: "solid 1px grey",
+              textAlign: "left",
+            }}
+          >
+            <thead>
+              <tr>
+                <th>MD2</th>
+                <th>DOE</th>
+                <th>Level</th>
+                <th>Value</th>
+              </tr>
             </thead>
             <tbody>
-            {properties.map((property) => (
-              <tr>
-                <td>{property.metaDataLevel2Name}</td>
-                <td>{property.dataObjectElementName}</td>
-                <td>{property.level_value}</td>
-                <td>{property.value}</td>
-              </tr>
-            ))}
+              {properties.map((property) => (
+                <tr>
+                  <td>{property.metaDataLevel2Name}</td>
+                  <td>{property.dataObjectElementName}</td>
+                  <td>{property.level_value}</td>
+                  <td>{property.value}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

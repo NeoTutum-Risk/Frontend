@@ -169,3 +169,5 @@ export const updateNewDataObjectInstance = (id,data) => serviceProvider.put(`dat
 export const addInstanceConnection = (data) => serviceProvider.post(`dataObjectNewConnections`,data);
 
 export const addInstanceObjectConnection = (data) => serviceProvider.post(`dataObjectNewRiskObjectConnections`,data);
+
+export const editGroup = (riskAssessmentId,riskGroupId,data) => serviceProvider.put(`riskObjectGroups/editGroup/${riskAssessmentId}/${riskGroupId}`,data);

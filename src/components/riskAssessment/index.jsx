@@ -26,7 +26,8 @@ export const RiskAssessment = ({
   setHoveredElement,
   handleObjectAction,
   menu,
-  handleProperties
+  handleProperties,
+  removeFromGroup
 }) => {
   // console.log("index",typeof setFirstContext);
   const [selectedObjects, setSelectedObjects] =
@@ -205,6 +206,7 @@ export const RiskAssessment = ({
                     handleObjectAction={handleObjectAction}
                     menu={menu}
                     handleProperties={handleProperties}
+                    removeFromGroup={removeFromGroup}
                   />
                 ))
               : null}
@@ -233,6 +235,7 @@ export const RiskAssessment = ({
                         handleObjectAction={handleObjectAction}
                         menu={menu}
                         handleProperties={handleProperties}
+                        removeFromGroup={removeFromGroup}
                       />
                     )
                 )
@@ -252,6 +255,7 @@ export const RiskAssessment = ({
                         setFirstContext={setFirstContext}
                         setHoveredElement={setHoveredElement}
                         handleObjectAction={handleObjectAction}
+                        removeFromGroup={removeFromGroup}
                       />
                     )
                 )

@@ -28,6 +28,7 @@ export const RiskElement = ({
   handleObjectAction,
   menu,
   handleProperties,
+  removeFromGroup
 }) => {
   const [face, setFace] = useState(true);
   const [showProperties, setShowProperties] = useState(false);
@@ -221,6 +222,7 @@ export const RiskElement = ({
                 setFirstContext={setFirstContext}
                 setShowProperties={setShowProperties}
                 handleProperties={handleProperties}
+                removeFromGroup={removeFromGroup}
               />
             )}
             {/* {!data['position.enabled'] && } */}

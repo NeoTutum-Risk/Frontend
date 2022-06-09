@@ -13,12 +13,15 @@ export const DataObject = ({
   setHoveredElement,
   handleObjectAction,
   expanded,
-  expandPosition
+  expandPosition,
+  groupId,
+  removeFromGroup
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.textType);
   const [usingService, setUsingService] = useState(false);
   const [edit, setEdit] = useState(false);
   const [editingValue, setEditingValue] = useState(null);
+  const [editGroup,setEditGroup] = useState(false);
   const updateXarrow = useXarrow();
   const [drag, setDrag] = useState({
     active: false,
@@ -49,6 +52,12 @@ export const DataObject = ({
     },
     [data, updateXarrow]
   );
+
+  const handleGroup = useCallback(async ()=>{
+    if(groupId){
+      setEditGroup(true);
+    }
+  },[groupId]);
 
   const resetFace = useCallback(() => {
     setEdit(false);
@@ -112,6 +121,12 @@ export const DataObject = ({
     },
     [elementSelection, data, selectedElements]
   );
+
+  const removeFromGroupHandler = useCallback(async()=>{
+    console.log({id:data.id,groupId});
+    const response = await removeFromGroup("data",{id:data.id,groupId})
+  },[data.id,groupId,removeFromGroup])
+
   return (
     <Rnd
       id={`D-${riskAssessmentId}-${data.id}`}
@@ -234,6 +249,37 @@ export const DataObject = ({
             >
               {!data.disable ? "Disable" : "Enable"}
             </Button>
+            {editGroup?(
+          <>
+          <Button
+            // fill={true}
+            // disabled={!activeAttribute}
+            title={`Remove from G#${Number(groupId - 2000000)}`}
+            intent="warning"
+            small={true}
+            icon="graph-remove"
+            onClick={removeFromGroupHandler}
+            loading={usingService}
+          ></Button>
+          <Button
+            // fill={true}
+            // disabled={!activeAttribute}
+            title="Cancel"
+            intent="danger"
+            small={true}
+            icon="cross"
+            onClick={()=>setEditGroup(false)}
+            loading={usingService}
+          ></Button>
+        </>
+        ):(<Button
+          small={true}
+          onClick={handleGroup}
+          intent={!data.disable ? "success" : "none"}
+          disabled={data.disable}
+        >
+          {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
+        </Button>)}
             {!edit ? (
           <Button
             // fill={true}
