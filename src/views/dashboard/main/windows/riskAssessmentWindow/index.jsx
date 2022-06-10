@@ -810,6 +810,7 @@ export const RiskAssessmentWindow = ({
       }else{
         connectionType = "instanceRiskObjects";
         let object,instance;
+
         if(selectedElements[0].type==="instance"){
           instance=selectedElements[0];
           object=selectedElements[1];
@@ -817,17 +818,20 @@ export const RiskAssessmentWindow = ({
           instance=selectedElements[1];
           object=selectedElements[0];
         }
+
+        console.log(object,instance);
+
         if(instance.dataObjectNew.IOtype==="Output"){
           connection= instanceObjectConnections.find(
             (connection) =>
-              connection.sourceRef === instance.id &&
-              connection.targetRef === object.id
+              connection.sourceRef ===  object.id &&
+              connection.targetRef === instance.id
           );
         }else{
           connection= instanceObjectConnections.find(
             (connection) =>
-              connection.sourceRef === object.id &&
-              connection.targetRef === instance.id
+              connection.sourceRef === instance.id &&
+              connection.targetRef === object.id
           );
         }
       }
