@@ -33,9 +33,28 @@ export const GraphWindow = ({
     x: 0,
     y: 0,
     element: null,
+    modeler: null
   });
   const [elementSelector, setElementSelector] =
     useRecoilState(elementSelectorState);
+  const [modeler, setModeler] = useState(null)
+
+  /**
+   * 
+   * @param {Element Registry} dataObjectReference 
+   * @param {String} text 
+   * 
+   * creates text annotation and appends it to the file
+   */
+  const appendTextAnnotation = (dataObjectReference, text) => {
+    const textAnnotation = modeler.get("elementFactory").createShape({
+      type: 'bpmn:TextAnnotation',
+      businessObject: modeler.get("bpmnFactory").create('bpmn:TextAnnotation', {
+        text
+      })
+    });
+    modeler.get("modeling").appendShape(dataObjectReference, textAnnotation)
+  }
 
   const handleContextMenu = useCallback(
     async (e) => {
@@ -152,6 +171,12 @@ export const GraphWindow = ({
   
       if(response.status===201){
         setIsAddPhysicalObjectLoading(false);
+        const BPMNphysicalDataObject = modeler.get('elementRegistry').get(contextMenu.element)
+        const physicalDataObjectId = response.data.data.id
+        const physicalDataObjectName = response.data.data.name
+        const textAppended = `id: ${physicalDataObjectId}\nname: ${physicalDataObjectName}`
+        appendTextAnnotation(BPMNphysicalDataObject, textAppended)
+        modeler.get("modeling").setColor([BPMNphysicalDataObject], {stroke: '#2C5E1A',fill: '#B2D2A4'})
         setContextMenu(prev=>({...prev,active:false,element:null}));
         showSuccessToaster(`Risk Object Created Successfully`);
       }else{
@@ -278,6 +303,8 @@ export const GraphWindow = ({
         onChange={handleOnChange}
         onClick={(data) => elementSelectorHandler(data)}
         onContextMenu={handleContextMenu}
+        modeler={modeler}
+        setModeler={setModeler}
       />
     </Window>
   );

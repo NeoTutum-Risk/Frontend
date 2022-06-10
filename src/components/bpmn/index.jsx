@@ -7,8 +7,7 @@ import { useResizeDetector } from "react-resize-detector";
 import { useRecoilState } from "recoil";
 import { BPMNLayerState } from "../../store/windows";
 
-export const Bpmn = memo(({ xml = "", onChange, onClick, onContextMenu, bpmnId }) => {
-  const [modeler, setModeler] = useState(null);
+export const Bpmn = memo(({ xml = "", onChange, onClick, onContextMenu, bpmnId, modeler, setModeler }) => {
   const { width, height, ref: modelerRef } = useResizeDetector();
   const [BPMNLayers, setBPMNLayers] = useRecoilState(BPMNLayerState)
 
