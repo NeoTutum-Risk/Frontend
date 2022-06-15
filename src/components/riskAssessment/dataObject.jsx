@@ -249,6 +249,7 @@ export const DataObject = ({
                     type: "instance",
                     operation: "enable",
                     payload: !data.disable,
+                    groupId
                   })
                 }
                 className="panningDisabled"
@@ -335,6 +336,8 @@ export const DataObject = ({
                     type: "instance",
                     operation: "delete",
                     payload: "deleted",
+                    object: data,
+                    groupId
                   });
                   setFirstContext("main");
                 }}

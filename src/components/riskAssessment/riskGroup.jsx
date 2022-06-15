@@ -173,7 +173,7 @@ export const RiskGroup = ({
                   handleContextMenu={handleContextMenu}
                   selectedElements={selectedElements}
                   elementSelection={elementSelection}
-                  index={index}
+                  key={`g-r-${object.id}`}
                   data={object}
                   riskAssessmentId={riskAssessmentId}
                   position={{
@@ -205,7 +205,7 @@ export const RiskGroup = ({
                   handleContextMenu={handleContextMenu}
                   selectedElements={selectedElements}
                   elementSelection={elementSelection}
-                  index={index}
+                  key={`g-o-${object.id}`}
                   data={object}
                   
                   riskAssessmentId={riskAssessmentId}

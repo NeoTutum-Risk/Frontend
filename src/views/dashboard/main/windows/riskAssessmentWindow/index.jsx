@@ -41,7 +41,7 @@ import {
   updateNewDataObjectInstance,
   editGroup,
   deleteInstanceRiskConnection,
-  deleteInstanceConnection
+  deleteInstanceConnection,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -115,6 +115,43 @@ export const RiskAssessmentWindow = ({
   const [deletedRisk, setDeletedRisk] = useState([]);
   const [deletedInstance, setDeletedInstance] = useState([]);
 
+  const removeObjectConnections = useCallback((obj) => {
+    console.log("remove connection", obj.type);
+    if (obj.type !== "instance") {
+      setConnections((prev) =>
+        prev.filter(
+          (connection) =>
+            connection.sourceRef !== obj.id && connection.targetRef !== obj.id
+        )
+      );
+      setInstanceObjectConnections((prev) =>
+        prev.filter(
+          (connection) =>
+            (connection.sourceRef !== obj.id &&
+              connection.objectType === "Output") ||
+            (connection.targetRef !== obj.id &&
+              connection.objectType === "Input")
+        )
+      );
+    } else {
+      setInstanceConnections((prev) =>
+        prev.filter(
+          (connection) =>
+            connection.sourceRef !== obj.id && connection.targetRef !== obj.id
+        )
+      );
+      setInstanceObjectConnections((prev) =>
+        prev.filter(
+          (connection) =>
+            (connection.sourceRef !== obj.id &&
+              connection.objectType === "Input") ||
+            (connection.targetRef !== obj.id &&
+              connection.objectType === "Output")
+        )
+      );
+    }
+  }, []);
+
   const fetchTemplates = useCallback(async () => {
     try {
       const response = await getTemplates();
@@ -165,13 +202,13 @@ export const RiskAssessmentWindow = ({
             (connection) => connection.status !== "deleted"
           )
         );
+        getGlobalGroups();
         // getDeleted();
       } else {
         showDangerToaster(`Error Retrieving Risk Assessment Data`);
         setTimeout(riskAssessmentData, 1000);
         console.log("Failing");
       }
-      getGlobalGroups();
     } catch (err) {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
       setTimeout(riskAssessmentData, 1000);
@@ -180,19 +217,140 @@ export const RiskAssessmentWindow = ({
 
   const removeFromGroup = useCallback(
     async (type, data) => {
-      let payload;
+      let payload,
+        tempConnections = [],
+        tempInstObjConnections = [],
+        tempinstConnections = [];
       if (type === "risk") {
         payload = { riskObjects: [data.id], dataObjects: [] };
+        connections.forEach((connection) => {
+          if (
+            connection.sourceRef === data.id ||
+            connection.targetRef === data.id
+          ) {
+            tempConnections = [...tempConnections, connection];
+          }
+        });
+        instanceObjectConnections.forEach((connection) => {
+          if (
+            (connection.sourceRef === data.id &&
+              connection.objectType === "Output") ||
+            (connection.targetRef === data.id &&
+              connection.objectType === "Input")
+          ) {
+            tempInstObjConnections = [...tempInstObjConnections, connection];
+          }
+        });
+        setConnections((prev) =>
+          prev.filter(
+            (connection) =>
+              connection.sourceRef !== data.id &&
+              connection.targetRef !== data.id
+          )
+        );
+        setInstanceObjectConnections((prev) =>
+          prev.filter(
+            (connection) =>
+              (connection.sourceRef !== data.id &&
+                connection.objectType === "Output") ||
+              (connection.targetRef !== data.id &&
+                connection.objectType === "Input")
+          )
+        );
       } else {
         payload = { riskObjects: [], dataObjects: [data.id] };
+        instanceConnections.forEach((connection) => {
+          if (
+            connection.sourceRef === data.id ||
+            connection.targetRef === data.id
+          ) {
+            tempinstConnections = [...tempinstConnections, connection];
+          }
+        });
+        instanceObjectConnections.forEach((connection) => {
+          if (
+            (connection.sourceRef === data.id &&
+              connection.objectType === "Input") ||
+            (connection.targetRef === data.id &&
+              connection.objectType === "Output")
+          ) {
+            tempInstObjConnections = [...tempInstObjConnections, connection];
+          }
+        });
+        setInstanceConnections((prev) =>
+          prev.filter(
+            (connection) =>
+              connection.sourceRef !== data.id &&
+              connection.targetRef !== data.id
+          )
+        );
+        setInstanceObjectConnections((prev) =>
+          prev.filter(
+            (connection) =>
+              (connection.sourceRef !== data.id &&
+                connection.objectType === "Input") ||
+              (connection.targetRef !== data.id &&
+                connection.objectType === "Output")
+          )
+        );
       }
       const response = await editGroup(window.data.id, data.groupId, payload);
-      setConnections([]);
-      setInstanceConnections([]);
-      setInstanceObjectConnections([]);
-      setTimeout(riskAssessmentData, 500);
+      // setConnections([]);
+      // setInstanceConnections([]);
+      // setInstanceObjectConnections([]);
+      // setTimeout(riskAssessmentData, 500);
+      // if (type === "risk") {setTimeout(riskAssessmentData, 1000);}else{riskAssessmentData();}
+      if (type === "risk") {
+        let riskObject;
+        
+        setGroups((prev) => {
+          return prev.map((group) => {
+            if (group.id === data.groupId) {
+              riskObject = {
+                ...group.elements.find((element) => element.id === data.id),
+              };
+              return {
+                ...group,
+                elements: group.elements.filter(
+                  (element) => element.id !== data.id
+                ),
+              };
+            } else {
+              return group;
+            }
+          });
+        });
+        setRiskObjects((prev) => [...prev, riskObject]);
+        setConnections(prev=>([...prev,...tempConnections]));
+        setInstanceObjectConnections(prev=>([...prev,...tempInstObjConnections]));
+      } else {
+        let dataObject;
+        
+        setGroups((prev) => {
+          return prev.map((group) => {
+            if (group.id === data.groupId) {
+              dataObject = {
+                ...group.dataObjects.find((object) => object.id === data.id),
+              };
+              return {
+                ...group,
+                dataObjects: group.dataObjects.filter(
+                  (object) => object.id !== data.id
+                ),
+              };
+            } else {
+              return group;
+            }
+          });
+        });
+        setDataObjectInstances((prev) => [...prev, dataObject]);
+        setInstanceConnections(prev=>([...prev,...tempinstConnections]))
+        setInstanceObjectConnections(prev=>([...prev,...tempInstObjConnections]));
+      }
+      // setTimeout(riskAssessmentData, 3000);
+      // riskAssessmentData();
     },
-    [window.data.id, riskAssessmentData]
+    [window.data.id, connections,instanceConnections,instanceObjectConnections]
   );
 
   const contextMenuAction = useCallback(
@@ -489,15 +647,19 @@ export const RiskAssessmentWindow = ({
           contextY: 0,
           element: null,
         });
+        selectedElements.forEach((object) => {
+          removeObjectConnections(object);
+        });
         setSelectedElements([]);
         setSelectedObjects([]);
-        setConnections([]);
-        setInstanceObjectConnections([]);
+        // setConnections([]);
+        // setInstanceObjectConnections([]);
         setTimeout(riskAssessmentData, 500);
         // const redraw = await riskAssessmentData();
       }
     },
     [
+      removeObjectConnections,
       riskAssessmentData,
       window.data.id,
       selectedElements,
@@ -644,6 +806,7 @@ export const RiskAssessmentWindow = ({
 
   const handleObjectAction = useCallback(
     async (element) => {
+      console.log("element", element);
       if (element.operation === "reset") {
         riskAssessmentData();
         return;
@@ -656,45 +819,101 @@ export const RiskAssessmentWindow = ({
         return;
       }
 
+      if (element.operation === "resetAll") {
+        setConnections([]);
+        setInstanceObjectConnections([]);
+        riskAssessmentData();
+        return;
+      }
+
+      if (element.operation === "delete") {
+        removeObjectConnections(element.object);
+      }
+
       if (element.type === "risk") {
+        !element.groupId
+          ? setRiskObjects((prev) =>
+              prev.map((object) => {
+                if (object.id === element.id) {
+                  const updatedObject = { ...object };
+                  element.operation === "enable"
+                    ? (updatedObject["position.enabled"] = element.payload)
+                    : (updatedObject["status"] = element.payload);
+                  return updatedObject;
+                } else {
+                  return object;
+                }
+              })
+            )
+          : setGroups((prev) =>
+              prev.map((group) => {
+                if (group.id === element.groupId) {
+                  return {
+                    ...group,
+                    elements: group.elements.map((object) => {
+                      console.log("inside", object, element);
+                      if (object?.id === element.id) {
+                        const updatedObject = { ...object };
+                        element.operation === "enable"
+                          ? (updatedObject["position.enabled"] =
+                              element.payload)
+                          : (updatedObject["status"] = element.payload);
+                        return updatedObject;
+                      } else {
+                        return object;
+                      }
+                    }),
+                  };
+                } else {
+                  return group;
+                }
+              })
+            );
+
         const response =
           element.operation === "enable"
             ? await updateRiskObjectPosition(window.data.id, element.id, {
                 enabled: element.payload,
               })
             : await updateRiskObject(element.id, { status: element.payload });
-
-        /*setRiskObjects((prev) =>
-          prev.map((object) => {
-            if (object.id === element.id) {
-              const updatedObject = { ...object };
-              element.operation === "enable"
-                ? (updatedObject["position.enabled"] = element.payload)
-                : (updatedObject["status"] = element.payload);
-              return updatedObject;
-            } else {
-              return object;
-            }
-          })
-        );
-
-        setGroups((prev) =>
-          prev.map((group) => ({
-            ...group,
-            elements: group.elements.map((object) => {
-              if (object.id === element.id) {
-                const updatedObject = { ...object };
-                element.operation === "enable"
-                  ? (updatedObject["position.enabled"] = element.payload)
-                  : (updatedObject["status"] = element.payload);
-                return updatedObject;
-              } else {
-                return object;
-              }
-            }),
-          }))
-        );*/
       } else {
+        !element.groupId
+          ? setDataObjectInstances((prev) =>
+              prev.map((object) => {
+                if (object.id === element.id) {
+                  const updatedObject = { ...object };
+                  element.operation === "enable"
+                    ? (updatedObject.disable = element.payload)
+                    : (updatedObject.status = element.payload);
+                  return updatedObject;
+                } else {
+                  return object;
+                }
+              })
+            )
+          : setGroups((prev) =>
+              prev.map((group) => {
+                if (group.id === element.groupId) {
+                  return {
+                    ...group,
+                    dataObjects: group.dataObjects.map((object) => {
+                      if (object?.id === element.id) {
+                        const updatedObject = { ...object };
+                        element.operation === "enable"
+                          ? (updatedObject.disable = element.payload)
+                          : (updatedObject.status = element.payload);
+                        return updatedObject;
+                      } else {
+                        return object;
+                      }
+                    }),
+                  };
+                } else {
+                  return group;
+                }
+              })
+            );
+
         const response =
           element.operation === "enable"
             ? await updateNewDataObjectInstance(element.id, {
@@ -703,26 +922,12 @@ export const RiskAssessmentWindow = ({
             : await updateNewDataObjectInstance(element.id, {
                 status: element.payload,
               });
-
-        /*setDataObjectInstances((prev) =>
-          prev.map((object) => {
-            if (object.id === element.id) {
-              const updatedObject = { ...object };
-              element.operation === "enable"
-                ? (updatedObject.disable = element.payload)
-                : (updatedObject.status = element.payload);
-              return updatedObject;
-            } else {
-              return object;
-            }
-          })
-        );*/
       }
-      setConnections([]);
-      setInstanceObjectConnections([]);
-      riskAssessmentData();
+      // setConnections([]);
+      // setInstanceObjectConnections([]);
+      // riskAssessmentData();
     },
-    [window.data.id, riskAssessmentData]
+    [window.data.id, riskAssessmentData, removeObjectConnections]
   );
 
   const updateElementStatus = useCallback(async () => {
@@ -765,11 +970,12 @@ export const RiskAssessmentWindow = ({
   }, [window.data.id, contextMenu.element, elementEnable, resetContext]);
 
   useEffect(() => {
-    let connection,connectionType;
+    let connection, connectionType;
     if (selectedElements.length === 2) {
-      
-
-      if(selectedElements[0].type==="instance" && selectedElements[1].type==="instance"){
+      if (
+        selectedElements[0].type === "instance" &&
+        selectedElements[1].type === "instance"
+      ) {
         connectionType = "instances";
         const first = instanceConnections.find(
           (connection) =>
@@ -788,7 +994,10 @@ export const RiskAssessmentWindow = ({
             connection = second;
           }
         }
-      }else if(selectedElements[0].type!=="instance" && selectedElements[1].type!=="instance"){
+      } else if (
+        selectedElements[0].type !== "instance" &&
+        selectedElements[1].type !== "instance"
+      ) {
         connectionType = "riskObjects";
         const first = connections.find(
           (connection) =>
@@ -807,28 +1016,28 @@ export const RiskAssessmentWindow = ({
             connection = second;
           }
         }
-      }else{
+      } else {
         connectionType = "instanceRiskObjects";
-        let object,instance;
+        let object, instance;
 
-        if(selectedElements[0].type==="instance"){
-          instance=selectedElements[0];
-          object=selectedElements[1];
-        }else{
-          instance=selectedElements[1];
-          object=selectedElements[0];
+        if (selectedElements[0].type === "instance") {
+          instance = selectedElements[0];
+          object = selectedElements[1];
+        } else {
+          instance = selectedElements[1];
+          object = selectedElements[0];
         }
 
-        console.log(object,instance);
+        console.log(object, instance);
 
-        if(instance.dataObjectNew.IOtype==="Output"){
-          connection= instanceObjectConnections.find(
+        if (instance.dataObjectNew.IOtype === "Output") {
+          connection = instanceObjectConnections.find(
             (connection) =>
-              connection.sourceRef ===  object.id &&
+              connection.sourceRef === object.id &&
               connection.targetRef === instance.id
           );
-        }else{
-          connection= instanceObjectConnections.find(
+        } else {
+          connection = instanceObjectConnections.find(
             (connection) =>
               connection.sourceRef === instance.id &&
               connection.targetRef === object.id
@@ -836,54 +1045,57 @@ export const RiskAssessmentWindow = ({
         }
       }
 
-      
-
       if (connection) {
-        setSelectedConnection({id:connection.id,type:connectionType});
+        setSelectedConnection({ id: connection.id, type: connectionType });
       } else {
         setSelectedConnection(null);
       }
     } else {
       setSelectedConnection(null);
     }
-  }, [selectedElements, connections,instanceConnections,instanceObjectConnections]);
+  }, [
+    selectedElements,
+    connections,
+    instanceConnections,
+    instanceObjectConnections,
+  ]);
 
   const handleDisconnect = useCallback(async () => {
-    let  response;
-    switch(selectedConnection?.type){
+    let response;
+    switch (selectedConnection?.type) {
       case "riskObjects":
-         response = await deleteRiskConnection(selectedConnection.id);
+        response = await deleteRiskConnection(selectedConnection.id);
         resetContext();
         setConnections((prev) =>
           prev.filter((connection) => connection.id !== selectedConnection.id)
         );
-      break;
+        break;
 
       case "instances":
-         response = await deleteInstanceConnection(selectedConnection.id);
+        response = await deleteInstanceConnection(selectedConnection.id);
         resetContext();
         setInstanceConnections((prev) =>
           prev.filter((connection) => connection.id !== selectedConnection.id)
         );
-      break;
+        break;
 
       case "instanceRiskObjects":
-         response = await deleteInstanceRiskConnection(selectedConnection.id);
+        response = await deleteInstanceRiskConnection(selectedConnection.id);
         resetContext();
         setInstanceObjectConnections((prev) =>
           prev.filter((connection) => connection.id !== selectedConnection.id)
         );
-      break;
+        break;
 
       default:
         break;
     }
-    if(response?.status>=200 && response?.status<300){
-      showSuccessToaster(`Connection is removed #${selectedConnection.id}`)
-    }else{
-      showDangerToaster(`Can't Remove Connection #${selectedConnection.id}`)
+    if (response?.status >= 200 && response?.status < 300) {
+      showSuccessToaster(`Connection is removed #${selectedConnection.id}`);
+    } else {
+      showDangerToaster(`Can't Remove Connection #${selectedConnection.id}`);
     }
-    
+
     setSelectedConnection(null);
   }, [selectedConnection, resetContext]);
 

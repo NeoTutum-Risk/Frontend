@@ -34,6 +34,7 @@ export const RiskElement = ({
     w: data["position.width"],
     h: data["position.height"],
   });
+  const [groupIdState, setGroupIdState] = useState(groupId);
   const [face, setFace] = useState(true);
   const [showProperties, setShowProperties] = useState(false);
   const [editor, setEditor] = useState(false);
@@ -49,6 +50,7 @@ export const RiskElement = ({
     setFace(!closedFace);
   }, [closedFace]);
 
+
   // useEffect(()=>{
   //   if(!expanded){
   //     setDrag((prev) => ({ ...prev, cy: expandPosition.y, cx: expandPosition.x }));
@@ -61,7 +63,7 @@ export const RiskElement = ({
     async (delta, direction, position) => {
       const w = Math.round(size.w + delta.width);
       const h = Math.round(size.h + delta.height);
-      setSize({w,h});
+      setSize({ w, h });
       console.log(data);
       setDrag((prev) => ({ ...prev, cy: position.y, cx: position.x }));
       if (position.x < 0) {
@@ -74,7 +76,7 @@ export const RiskElement = ({
         position.y = 0;
       }
       updateXarrow();
-      
+
       const updateElementPosition = await updateRiskObjectPosition(
         riskAssessmentId,
         data.id,
@@ -86,10 +88,10 @@ export const RiskElement = ({
           enabled: data["position.enabled"],
         }
       );
-      
+
       console.log(updateElementPosition);
     },
-    [riskAssessmentId, data, updateXarrow,size]
+    [riskAssessmentId, data, updateXarrow, size]
   );
 
   const updateLocation = useCallback(
@@ -218,13 +220,13 @@ export const RiskElement = ({
             }}
           >
             {face /*&& data['position.enabled'] */ && (
-              <OpenFace data={data} groupId={groupId} setFace={setFace} />
+              <OpenFace data={data} groupId={groupIdState} setFace={setFace} />
             )}
             {!face /*&& data['position.enabled']*/ && (
               <ClosedFace
                 editRiskObject={editRiskObject}
                 data={data}
-                groupId={groupId}
+                groupId={groupIdState}
                 setFace={setFace}
                 setEditor={setEditor}
                 handleObjectAction={handleObjectAction}
@@ -232,6 +234,7 @@ export const RiskElement = ({
                 setShowProperties={setShowProperties}
                 handleProperties={handleProperties}
                 removeFromGroup={removeFromGroup}
+                setGroupIdState={setGroupIdState}
               />
             )}
             {/* {!data['position.enabled'] && } */}

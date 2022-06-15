@@ -221,7 +221,7 @@ export const RiskAssessment = ({
                         handleContextMenu={handleContextMenu}
                         selectedElements={selectedElements}
                         elementSelection={elementSelection}
-                        index={index}
+                        key={`r-${object.id}`}
                         data={object}
                         riskAssessmentId={riskAssessmentId}
                         position={{
@@ -256,6 +256,7 @@ export const RiskAssessment = ({
                         setHoveredElement={setHoveredElement}
                         handleObjectAction={handleObjectAction}
                         removeFromGroup={removeFromGroup}
+                        key={`o-${dataObjectInstance.id}`}
                       />
                     )
                 )

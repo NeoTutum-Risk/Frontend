@@ -10,7 +10,8 @@ export const ClosedFace = ({
   setFirstContext,
   setShowProperties,
   handleProperties,
-  removeFromGroup
+  removeFromGroup,
+  setGroupIdState
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
@@ -80,7 +81,8 @@ export const ClosedFace = ({
   const removeFromGroupHandler = useCallback(async()=>{
     console.log({id:data.id,groupId});
     const response = await removeFromGroup("risk",{id:data.id,groupId})
-  },[data.id,groupId,removeFromGroup])
+    setGroupIdState(null);
+  },[data.id,groupId,removeFromGroup,setGroupIdState])
 
   return (
     <>
@@ -142,6 +144,7 @@ export const ClosedFace = ({
               type: "risk",
               operation: "enable",
               payload: !data["position.enabled"],
+              groupId
             })
           }
           className="panningDisabled"
@@ -169,6 +172,8 @@ export const ClosedFace = ({
               type: "risk",
               operation: "delete",
               payload: "deleted",
+              object: data,
+              groupId
             });
             setFirstContext("main");
           }}
