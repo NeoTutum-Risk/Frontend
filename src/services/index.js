@@ -179,3 +179,5 @@ export const editGroup = (riskAssessmentId,riskGroupId,data) => serviceProvider.
 export const deleteProperty = (id) => serviceProvider.delete(`/riskObjects/properties/${id}`);
 
 export const updateProperty = (id,data) => serviceProvider.put(`riskObjects/properties/${id}`,data);
+
+export const findJSONData = (data) => serviceProvider.post("riskObjects/findJSONData", data);
