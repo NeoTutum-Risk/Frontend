@@ -28,6 +28,12 @@ const AdminSidebar = () => {
       hasCaret: false,
       label: "Data Objects",
       name: "Data Objects"
+    },
+    {
+      id: 3,
+      hasCaret: false,
+      label: "JSON process step 1 test",
+      name: "JSON-process-step-1-test"
     }
   ];
 
