@@ -1105,6 +1105,7 @@ export const RiskAssessmentWindow = ({
       riskGroupId: importGroupId,
       x: contextMenu.x,
       y: contextMenu.y,
+      shared:true
     };
 
     const response = await importGroup(payload);
