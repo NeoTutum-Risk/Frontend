@@ -40,7 +40,7 @@ const JSONProcessStep1Test = () => {
       isOpen={popupState}
       content={
         <div key="text">
-          <H5>Select Risk Assessment</H5>
+          <H5>JSON process step 1 test</H5>
           <div>
             <div
               style={{
