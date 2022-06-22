@@ -180,4 +180,4 @@ export const deleteProperty = (id) => serviceProvider.delete(`/riskObjects/prope
 
 export const updateProperty = (id,data) => serviceProvider.put(`riskObjects/properties/${id}`,data);
 
-export const findJSONData = (data) => serviceProvider.post("riskObjects/findJSONData", data);
+export const findJSONData = (data) => serviceProvider.post("JSONAnalytics/JsonIO", data);
