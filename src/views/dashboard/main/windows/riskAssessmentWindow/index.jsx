@@ -17,6 +17,7 @@ import {
 } from "@blueprintjs/core";
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
+import { Rnd } from "react-rnd";
 import { useRecoilState } from "recoil";
 import {
   getRiskAssessment,
@@ -1201,6 +1202,22 @@ export const RiskAssessmentWindow = ({
     [activeObject]
   );
 
+  const updateDraftLocation = useCallback(
+    async (e, d) => {
+      setContextMenu((prev) => ({ ...prev, contextY: d.y, contextX: d.x }));
+      if (d.x < 0) {
+        setContextMenu((prev) => ({ ...prev, ccontextXx: 0 }));
+        d.x = 0;
+      }
+
+      if (d.y < 0) {
+        setContextMenu((prev) => ({ ...prev, contextY: 0 }));
+        d.y = 0;
+      }
+    },
+    []
+  );
+
   return (
     <>
       <Window
@@ -1255,7 +1272,7 @@ export const RiskAssessmentWindow = ({
           removeFromGroup={removeFromGroup}
         />
       </Window>
-      <div
+      {/* <div
         className=""
         style={{
           zIndex: 10000000000,
@@ -1264,7 +1281,15 @@ export const RiskAssessmentWindow = ({
           top: contextMenu.contextY,
           left: contextMenu.contextX,
         }}
-      >
+      > */}
+      <Rnd
+        position={{
+          x: Number(contextMenu.contextX),
+          y: Number(contextMenu.contextY),
+        }}
+        style={{zIndex: 1000000}}
+        onDragStop={(e, d) => updateDraftLocation(e, d)}
+>
         {contextMenu.active && contextMenu.type === "context" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             {elementEnable ? menu : null}
@@ -1968,7 +1993,8 @@ export const RiskAssessmentWindow = ({
             </form>
           </div>
         )}
-      </div>
+      {/* </div> */}
+      </Rnd>
     </>
   );
 };

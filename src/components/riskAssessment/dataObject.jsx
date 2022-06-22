@@ -132,7 +132,7 @@ export const DataObject = ({
     <Rnd
       id={`D-${riskAssessmentId}-${data.id}`}
       key={`D-${riskAssessmentId}-${data.id}`}
-      disableDragging={data.disable}
+      // disableDragging={data.disable}
       enableResizing={!data.disable}
       default={{
         x: expanded ? drag.cx : expandPosition.x,
@@ -360,8 +360,7 @@ export const DataObject = ({
               <tr>
                 <th>Array Dimension</th>
                 <td>
-                  {data.dataObjectNew.array.length} X{" "}
-                  {data.dataObjectNew.array[0].length}
+                  {data.dataObjectNew.array && `${data.dataObjectNew.array.length} X ${data.dataObjectNew.array[0].length}`}
                 </td>
               </tr>
             </table>

@@ -27,9 +27,11 @@ export const RiskAssessment = ({
   handleObjectAction,
   menu,
   handleProperties,
-  removeFromGroup
+  removeFromGroup,
 }) => {
-  // console.log("index",typeof setFirstContext);
+  const [objectPropertyConnections, setObjectPropertyConnections] = useState(
+    []
+  );
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [globalScale, setGlobalScale] = useState(1);
@@ -57,6 +59,14 @@ export const RiskAssessment = ({
     },
     [setSelectedElements, setSelectedObjects, selectedObjects]
   );
+
+  const handleObjectProperty = useCallback(({ id, action }) => {
+    if (action === "add") {
+      setObjectPropertyConnections((prev) => [...prev, id]);
+    } else {
+      setObjectPropertyConnections((prev) => prev.filter((obj) => obj !== id));
+    }
+  }, []);
   const updateXarrow = useXarrow();
   const handleZoomPanPinch = useCallback(() => {
     updateXarrow();
@@ -166,6 +176,20 @@ export const RiskAssessment = ({
           />
         ))}
 
+        {objectPropertyConnections.map((object) => (
+          <Xarrow
+            path="straight"
+            curveness={0.2}
+            strokeWidth={1.5}
+            start={`R-${riskAssessmentId}-${object}`}
+            end={`P-${riskAssessmentId}-${object}`}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+            headColor="orange"
+            tailColor="orange"
+            lineColor="orange"
+          />
+        ))}
+
         <TransformComponent
           wrapperStyle={{ width: "800%", height: "800%" }}
           contentStyle={{ width: "800%", height: "800%" }}
@@ -207,6 +231,7 @@ export const RiskAssessment = ({
                     menu={menu}
                     handleProperties={handleProperties}
                     removeFromGroup={removeFromGroup}
+                    handleObjectProperty={handleObjectProperty}
                   />
                 ))
               : null}
@@ -236,6 +261,7 @@ export const RiskAssessment = ({
                         menu={menu}
                         handleProperties={handleProperties}
                         removeFromGroup={removeFromGroup}
+                        handleObjectProperty={handleObjectProperty}
                       />
                     )
                 )

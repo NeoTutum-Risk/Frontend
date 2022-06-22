@@ -24,7 +24,8 @@ export const RiskGroup = ({
   handleObjectAction,
   menu,
   handleProperties,
-  removeFromGroup
+  removeFromGroup,
+  handleObjectProperty
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -190,6 +191,7 @@ export const RiskGroup = ({
                   menu={menu}
                   handleProperties={handleProperties}
                   removeFromGroup={removeFromGroup}
+                  handleObjectProperty={handleObjectProperty}
                 />
               )
             : null

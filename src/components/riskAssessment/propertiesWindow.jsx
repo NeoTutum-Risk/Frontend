@@ -23,6 +23,7 @@ import {
   updateProperty,
 } from "../../services";
 import { useCallback, useEffect, useState } from "react";
+import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { property } from "lodash";
 import { showDangerToaster, showSuccessToaster } from "../../utils/toaster";
 export const PropertiesWindow = ({
@@ -53,7 +54,7 @@ export const PropertiesWindow = ({
       );
     }
   }, [data.id]);
-
+  const updateXarrow = useXarrow();
   useEffect(() => {
     getProperties();
   }, [getProperties]);
@@ -97,8 +98,8 @@ export const PropertiesWindow = ({
       minWidth={270}
       minHeight={170}
       bounds="window"
-      // onDrag={updateXarrow}
-      // onResize={updateXarrow}
+      onDrag={updateXarrow}
+      onResize={updateXarrow}
       // onResizeStop={(e, direction, ref, delta, position) => {
       //   updateSize(delta, direction, position);
       // }}

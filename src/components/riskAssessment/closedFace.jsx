@@ -11,14 +11,16 @@ export const ClosedFace = ({
   setShowProperties,
   handleProperties,
   removeFromGroup,
-  setGroupIdState
+  setGroupIdState,
+  handleObjectProperty,
+  showProperties,
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
   const [edit, setEdit] = useState(false);
   const [editingValue, setEditingValue] = useState(null);
   const [usingService, setUsingService] = useState(false);
-  const [editGroup,setEditGroup] = useState(false);
+  const [editGroup, setEditGroup] = useState(false);
 
   const handleAttributeClick = useCallback((view, active) => {
     console.log(view, active);
@@ -72,17 +74,17 @@ export const ClosedFace = ({
     resetFace,
   ]);
 
-  const handleGroup = useCallback(async ()=>{
-    if(groupId){
+  const handleGroup = useCallback(async () => {
+    if (groupId) {
       setEditGroup(true);
     }
-  },[groupId])
+  }, [groupId]);
 
-  const removeFromGroupHandler = useCallback(async()=>{
-    console.log({id:data.id,groupId});
-    const response = await removeFromGroup("risk",{id:data.id,groupId})
+  const removeFromGroupHandler = useCallback(async () => {
+    console.log({ id: data.id, groupId });
+    const response = await removeFromGroup("risk", { id: data.id, groupId });
     setGroupIdState(null);
-  },[data.id,groupId,removeFromGroup,setGroupIdState])
+  }, [data.id, groupId, removeFromGroup, setGroupIdState]);
 
   return (
     <>
@@ -95,36 +97,38 @@ export const ClosedFace = ({
         >
           {`${data.type[0].toUpperCase()}: ${data.id}`}{" "}
         </Button>
-        {editGroup?(
+        {editGroup ? (
           <>
+            <Button
+              // fill={true}
+              disabled={!activeAttribute}
+              title={`Remove from G#${Number(groupId - 2000000)}`}
+              intent="warning"
+              small={true}
+              icon="graph-remove"
+              onClick={removeFromGroupHandler}
+              loading={usingService}
+            ></Button>
+            <Button
+              // fill={true}
+              disabled={!activeAttribute}
+              title="Cancel"
+              intent="danger"
+              small={true}
+              icon="cross"
+              onClick={() => setEditGroup(false)}
+              loading={usingService}
+            ></Button>
+          </>
+        ) : (
           <Button
-            // fill={true}
-            disabled={!activeAttribute}
-            title={`Remove from G#${Number(groupId - 2000000)}`}
-            intent="warning"
             small={true}
-            icon="graph-remove"
-            onClick={removeFromGroupHandler}
-            loading={usingService}
-          ></Button>
-          <Button
-            // fill={true}
-            disabled={!activeAttribute}
-            title="Cancel"
-            intent="danger"
-            small={true}
-            icon="cross"
-            onClick={()=>setEditGroup(false)}
-            loading={usingService}
-          ></Button>
-        </>
-        ):(<Button
-          small={true}
-          onClick={handleGroup}
-          intent={data["position.enabled"] ? "primary" : "none"}
-        >
-          {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
-        </Button>)}
+            onClick={handleGroup}
+            intent={data["position.enabled"] ? "primary" : "none"}
+          >
+            {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
+          </Button>
+        )}
         <Button
           small={true}
           intent={data["position.enabled"] ? "primary" : "none"}
@@ -144,7 +148,7 @@ export const ClosedFace = ({
               type: "risk",
               operation: "enable",
               payload: !data["position.enabled"],
-              groupId
+              groupId,
             })
           }
           className="panningDisabled"
@@ -156,6 +160,10 @@ export const ClosedFace = ({
           intent={data["position.enabled"] ? "primary" : "none"}
           onClick={() => {
             setShowProperties((prev) => !prev);
+            handleObjectProperty({
+              id: data.id,
+              action: showProperties ? "remove" : "add",
+            });
             handleProperties(data.id);
           }}
         >
@@ -173,7 +181,7 @@ export const ClosedFace = ({
               operation: "delete",
               payload: "deleted",
               object: data,
-              groupId
+              groupId,
             });
             setFirstContext("main");
           }}
@@ -282,12 +290,15 @@ export const ClosedFace = ({
           ></TextArea>
         ) : (
           <div
-        className=" wheelDisabled panningDisabled"
-        style={{ backgroundColor: "lightsteelblue", height: "100%",overflow:"scroll" }}
-      >
-          <span style={{ height: "100%"}}>
-            {viewedAttribute}
-          </span></div>
+            className=" wheelDisabled panningDisabled"
+            style={{
+              backgroundColor: "lightsteelblue",
+              height: "100%",
+              overflow: "scroll",
+            }}
+          >
+            <span style={{ height: "100%" }}>{viewedAttribute}</span>
+          </div>
         )}
       </div>
     </>
