@@ -29,6 +29,7 @@ import { graphData } from "../../components/D3ConnectedScatter/D3ConnectedScatte
 import { useSetRecoilState } from "recoil";
 import { showDashboardState } from "../../store/dashboard";
 import styles from "../dashboard/styles.module.scss";
+import RiskAssessmentMenu from "../../components/riskAssessmentMenu";
 
 const heatmapRules = [
   { minValue: 1, maxValue: 1, hexColorCode: "#92d050" },
@@ -182,6 +183,19 @@ const DashboardCharts = () => {
   useEffect(() => {
     initialLoading();
   }, [initialLoading]);
+
+  /**
+   * @param {Object} riskAssessment
+   *
+   * @description get the data of the selected risk assessment and add it in its state
+   */
+  const selectRiskAssessmentHandler = (riskAssessment) => {
+    setSelectedRiskAssessment({
+      ...selectedRiskAssessment,
+      riskAssessmentId: parseInt(riskAssessment.id),
+      name: riskAssessment.name,
+    });
+  };
 
   // here we update the type of the current datalevel
   const handleSelectedElements = useCallback(
@@ -372,57 +386,11 @@ const DashboardCharts = () => {
           />
         </Tooltip2>
 
-        <Popover2
-          content={
-            <>
-              <Menu>
-                {portfolios.map((portfolio, index) => (
-                  <div key={index}>
-                    <MenuItem id={portfolio.id} text={portfolio.name}>
-                      {portfolio.serviceChains.length === 0
-                        ? null
-                        : portfolio.serviceChains.map((serviceChain, index) => (
-                            <MenuItem key={index} text={serviceChain.name}>
-                              {serviceChain.riskAssessments.length === 0
-                                ? null
-                                : serviceChain.riskAssessments.map(
-                                    (riskAssessment, index) => (
-                                      <MenuItem
-                                        onClick={() =>
-                                          setSelectedRiskAssessment({
-                                            ...selectedRiskAssessment,
-                                            riskAssessmentId: parseInt(
-                                              riskAssessment.id
-                                            ),
-                                            name: riskAssessment.name,
-                                          })
-                                        }
-                                        key={riskAssessment.id}
-                                        text={riskAssessment.name}
-                                      />
-                                    )
-                                  )}
-                            </MenuItem>
-                          ))}
-                    </MenuItem>
-                  </div>
-                ))}
-              </Menu>
-            </>
-          }
-          position="bottom"
-          interactionKind="hover"
-          autoFocus={false}
-        >
-          <Button
-            text={selectedRiskAssessment.name || "select risk assessment"}
-            minimal
-            large={false}
-            className="b f5 white _btn_"
-            intent="none"
-            icon="share"
-          />
-        </Popover2>
+        <RiskAssessmentMenu
+          portfolios={portfolios}
+          selectedRiskAssessment={selectedRiskAssessment}
+          selectRiskAssessmentHandler={selectRiskAssessmentHandler}
+        />
 
         <Popover2
           content={

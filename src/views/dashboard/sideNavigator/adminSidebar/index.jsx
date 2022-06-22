@@ -1,13 +1,18 @@
-import { Tree } from "@blueprintjs/core";
+import {
+  Tree,
+} from "@blueprintjs/core";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { activeDashboardPanelState } from "../../../../store/dashboard";
+import DownloadRiskAssessmentJSON from "../../../../components/downloadRiskAssessmentJSON";
+import JSONProcessStep1Test from "../../../../components/JSONProcessStep1Test";
 
 const AdminSidebar = () => {
+  const setActiveDashboardPanelState = useSetRecoilState(
+    activeDashboardPanelState
+  );
 
-    const setActiveDashboardPanelState = useSetRecoilState(activeDashboardPanelState)
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Sample Tree Data
   const sampleData = [
@@ -15,31 +20,41 @@ const AdminSidebar = () => {
       id: 0,
       hasCaret: false,
       label: "Risk Object Meta Data",
-      name: "meta-data"
+      name: "meta-data",
     },
     {
       id: 1,
       hasCaret: false,
       label: "Look-up",
-      name: "look-up"
+      name: "look-up",
     },
     {
       id: 2,
       hasCaret: false,
       label: "Data Objects",
-      name: "Data Objects"
+      name: "Data Objects",
     },
     {
       id: 3,
       hasCaret: false,
-      label: "JSON process step 1 test",
-      name: "JSON-process-step-1-test"
-    }
+      label: (
+        <JSONProcessStep1Test />
+      ),
+      name: "JSON-process-step-1-test",
+    },
+    {
+      id: 4,
+      hasCaret: false,
+      label: (
+        <DownloadRiskAssessmentJSON />
+      ),
+      name: "download-risk-assessment-json",
+    },
   ];
 
   const nodeHandler = (e) => {
-    setActiveDashboardPanelState(e.name)
-  }
+    setActiveDashboardPanelState(e.name);
+  };
 
   return <Tree contents={sampleData} onNodeClick={nodeHandler} />;
 };

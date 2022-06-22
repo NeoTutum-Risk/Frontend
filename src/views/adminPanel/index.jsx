@@ -24,10 +24,6 @@ const AdminPanel = () => {
         activeDashboardPanel === "Data Objects" &&
         <DataObject />
       }
-      {
-        activeDashboardPanel === "JSON-process-step-1-test" &&
-        <JSONProcessStep1Test />
-      }
     </div>
   );
 };
