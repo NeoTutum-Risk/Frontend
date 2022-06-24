@@ -29,6 +29,7 @@ export const RiskElement = ({
   menu,
   handleProperties,
   removeFromGroup,
+  handleObjectProperty
 }) => {
   const [size, setSize] = useState({
     w: data["position.width"],
@@ -142,6 +143,7 @@ export const RiskElement = ({
   return (
     <>
       {expanded && showProperties && (
+        <>
         <PropertiesWindow
           scale={scale}
           riskAssessmentId={riskAssessmentId}
@@ -149,19 +151,20 @@ export const RiskElement = ({
           data={{
             id: data.id,
             x:
-              drag.cx - 420 > 0
-                ? drag.cx - 420
-                : drag.cx + data["position.width"],
+              drag.cx - (420+50) > 0
+                ? drag.cx - (420+50)
+                : drag.cx + data["position.width"]+50,
             y: drag.cy,
           }}
           menu={menu}
           handleProperties={handleProperties}
         />
+          </>
       )}
       <Rnd
         id={`R-${riskAssessmentId}-${data.id}`}
         key={`R-${riskAssessmentId}-${data.id}`}
-        disableDragging={!data["position.enabled"]}
+        // disableDragging={!data["position.enabled"]}
         enableResizing={!!data["position.enabled"]}
         default={{
           x: expanded ? drag.cx : expandPosition.x,
@@ -232,9 +235,11 @@ export const RiskElement = ({
                 handleObjectAction={handleObjectAction}
                 setFirstContext={setFirstContext}
                 setShowProperties={setShowProperties}
+                showProperties={showProperties}
                 handleProperties={handleProperties}
                 removeFromGroup={removeFromGroup}
                 setGroupIdState={setGroupIdState}
+                handleObjectProperty={handleObjectProperty}
               />
             )}
             {/* {!data['position.enabled'] && } */}

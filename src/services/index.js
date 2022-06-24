@@ -180,4 +180,6 @@ export const deleteProperty = (id) => serviceProvider.delete(`/riskObjects/prope
 
 export const updateProperty = (id,data) => serviceProvider.put(`riskObjects/properties/${id}`,data);
 
+export const findJSONData = (data) => serviceProvider.post("JSONAnalytics/JsonIO", data);
+
 export const checkDeletedPhysicalDataObj = (bpmnId) => serviceProvider(`bpmnFile/riskObjectsDeleted/${bpmnId}`)
