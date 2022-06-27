@@ -156,6 +156,26 @@ export const ClosedFace = ({
           {data["position.enabled"] ? "Disable" : "Enable"}
         </Button>
         <Button
+          disabled={!data["position.enabled"]}
+          small={true}
+          intent={data.status=== "invisible"?"primary":"warning"}
+          active={activeAttribute === "N"}
+          title={data.status=== "invisible"?"Make Visible":"Make Invisible"}
+          icon={data.status=== "invisible"?"eye-on":"eye-off"}
+          onClick={() => {
+            handleObjectAction({
+              id: data.id,
+              type: "risk",
+              operation: data.status=== "invisible"?"changed":"invisible",
+              payload: data.status=== "invisible"?"changed":"invisible",
+              object: data,
+              groupId,
+            });
+            setFirstContext("main");
+          }}
+        >
+        </Button>
+        <Button
           small={true}
           intent={data["position.enabled"] ? "primary" : "none"}
           onClick={() => {
@@ -172,14 +192,14 @@ export const ClosedFace = ({
         <Button
           disabled={!data["position.enabled"]}
           small={true}
-          intent="danger"
+          intent={data.status=== "delete"?"warning":"danger"}
           active={activeAttribute === "N"}
           onClick={() => {
             handleObjectAction({
               id: data.id,
               type: "risk",
-              operation: "delete",
-              payload: "deleted",
+              operation: data.status=== "delete"?"changed":"delete",
+              payload: data.status=== "delete"?"changed":"delete",
               object: data,
               groupId,
             });
@@ -188,6 +208,7 @@ export const ClosedFace = ({
         >
           Delete
         </Button>
+        
       </div>
       <div className="risk-object-closed-header panningDisabled">
         <Button
@@ -242,7 +263,7 @@ export const ClosedFace = ({
             fill={true}
             disabled={!data["position.enabled"]}
             title="Edit"
-            intent="warning"
+            intent="primary"
             small={true}
             icon="edit"
             onClick={() => {

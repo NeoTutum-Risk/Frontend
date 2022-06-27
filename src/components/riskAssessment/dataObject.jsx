@@ -137,7 +137,7 @@ export const DataObject = ({
       default={{
         x: expanded ? drag.cx : expandPosition.x,
         y: expanded ? drag.cy : expandPosition.y,
-        width: expanded ?  size.w : 150,
+        width: expanded ? size.w : 150,
         height: expanded ? size.h : 150,
       }}
       position={{
@@ -249,13 +249,37 @@ export const DataObject = ({
                     type: "instance",
                     operation: "enable",
                     payload: !data.disable,
-                    groupId
+                    groupId,
                   })
                 }
                 className="panningDisabled"
               >
                 {!data.disable ? "Disable" : "Enable"}
               </Button>
+              <Button
+                disabled={data.disable}
+                small={true}
+                intent={data.status === "invisible" ? "primary" : "warning"}
+                title={
+                  data.status === "invisible"
+                    ? "Make Visible"
+                    : "Make Invisible"
+                }
+                icon={data.status === "invisible" ? "eye-on" : "eye-off"}
+                onClick={() => {
+                  handleObjectAction({
+                    id: data.id,
+                    type: "instance",
+                    operation:
+                      data.status === "invisible" ? "changed" : "invisible",
+                    payload:
+                      data.status === "invisible" ? "changed" : "invisible",
+                    object: data,
+                    groupId,
+                  });
+                  setFirstContext("main");
+                }}
+              ></Button>
               {editGroup ? (
                 <>
                   <Button
@@ -294,7 +318,7 @@ export const DataObject = ({
                   // fill={true}
                   disabled={data.disable}
                   title="Edit"
-                  intent="warning"
+                  intent="primary"
                   small={true}
                   icon="edit"
                   onClick={() => {
@@ -329,15 +353,15 @@ export const DataObject = ({
               <Button
                 disabled={data.disable}
                 small={true}
-                intent="danger"
+                intent={data.status === "delete" ? "warning" : "danger"}
                 onClick={() => {
                   handleObjectAction({
                     id: data.id,
                     type: "instance",
-                    operation: "delete",
-                    payload: "deleted",
+                    operation: data.status === "delete" ? "changed" : "delete",
+                    payload: data.status === "delete" ? "changed" : "delete",
                     object: data,
-                    groupId
+                    groupId,
                   });
                   setFirstContext("main");
                 }}
@@ -360,7 +384,8 @@ export const DataObject = ({
               <tr>
                 <th>Array Dimension</th>
                 <td>
-                  {data.dataObjectNew.array && `${data.dataObjectNew.array.length} X ${data.dataObjectNew.array[0].length}`}
+                  {data.dataObjectNew.array &&
+                    `${data.dataObjectNew.array.length} X ${data.dataObjectNew.array[0].length}`}
                 </td>
               </tr>
             </table>

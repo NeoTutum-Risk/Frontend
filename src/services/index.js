@@ -181,3 +181,7 @@ export const deleteProperty = (id) => serviceProvider.delete(`/riskObjects/prope
 export const updateProperty = (id,data) => serviceProvider.put(`riskObjects/properties/${id}`,data);
 
 export const findJSONData = (data) => serviceProvider.post("JSONAnalytics/JsonIO", data);
+
+export const getRiskAssessmentViews = (id) => serviceProvider(`filterViews/riskAssessment/${id}`);
+
+export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews`,data);

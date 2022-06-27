@@ -28,6 +28,8 @@ export const RiskAssessment = ({
   menu,
   handleProperties,
   removeFromGroup,
+  checkFilter,
+  checkConnctionVisibility
 }) => {
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
@@ -104,7 +106,7 @@ export const RiskAssessment = ({
         wheel={{ excluded: ["wheelDisabled"] }}
       >
         {instanceConnections.map((edge) => (
-          <Xarrow
+          checkConnctionVisibility(edge,'dataObjects') && <Xarrow
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
@@ -127,7 +129,7 @@ export const RiskAssessment = ({
 
         {instanceObjectConnections.map((edge) => (
           // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
-          <Xarrow
+          checkConnctionVisibility(edge,'riskDataObjects') && <Xarrow
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
@@ -159,7 +161,7 @@ export const RiskAssessment = ({
         ))}
 
         {connections.map((edge) => (
-          <Xarrow
+          checkConnctionVisibility(edge,'riskObjects') && <Xarrow
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
@@ -232,6 +234,7 @@ export const RiskAssessment = ({
                     handleProperties={handleProperties}
                     removeFromGroup={removeFromGroup}
                     handleObjectProperty={handleObjectProperty}
+                    checkFilter={checkFilter}
                   />
                 ))
               : null}
@@ -239,7 +242,11 @@ export const RiskAssessment = ({
             {objects.length > 0
               ? objects.map(
                   (object, index) =>
-                    object.status !== "deleted" && (
+                    checkFilter(
+                      object.type,
+                      object.status,
+                      object["position.enaled"]
+                    ) && (
                       <RiskElement
                         setFirstContext={setFirstContext}
                         expanded={true}
@@ -270,7 +277,11 @@ export const RiskAssessment = ({
             {dataObjectInstances.length > 0
               ? dataObjectInstances.map(
                   (dataObjectInstance) =>
-                    dataObjectInstance.status !== "deleted" && (
+                    checkFilter(
+                      dataObjectInstance.dataObjectNew.IOtype,
+                      dataObjectInstance.status,
+                      dataObjectInstance.disable
+                    ) && (
                       <DataObject
                         riskAssessmentId={riskAssessmentId}
                         scale={globalScale}

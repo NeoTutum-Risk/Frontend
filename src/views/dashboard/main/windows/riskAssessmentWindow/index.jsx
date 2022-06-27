@@ -14,6 +14,7 @@ import {
   HTMLSelect,
   TextArea,
   FileInput,
+  Checkbox,
 } from "@blueprintjs/core";
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
@@ -43,6 +44,8 @@ import {
   editGroup,
   deleteInstanceRiskConnection,
   deleteInstanceConnection,
+  getRiskAssessmentViews,
+  addRiskAssessmentView,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -52,6 +55,8 @@ import { objectSelectorState } from "../../../../../store/objectSelector";
 import { Window } from "../window";
 import { RiskAssessment } from "../../../../../components/riskAssessment";
 import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
+import { set } from "lodash";
+import { data } from "vis-network";
 export const RiskAssessmentWindow = ({
   onClose,
   onCollapse,
@@ -113,8 +118,226 @@ export const RiskAssessmentWindow = ({
   const [importTemplateIdError, setImportTemplateIdError] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [closedFace, setClosedFace] = useState(true);
-  const [deletedRisk, setDeletedRisk] = useState([]);
-  const [deletedInstance, setDeletedInstance] = useState([]);
+  const [newViewName, setNewViewName] = useState("");
+  const [viewsList, setViewsList] = useState([]);
+  const [filter, setFilter] = useState({
+    normal: true,
+    everything: false,
+    connections: false,
+    riskObjects: false,
+    pObjects: false,
+    mObjects: false,
+    vObjects: false,
+    dataObjects: false,
+    iDataObjects: false,
+    oDataObjects: false,
+    groups: false,
+    collapsedGroups: false,
+    expandedGroups: false,
+    deleted: false,
+    invisible: false,
+    disabled: false,
+  });
+
+  const resetContext = useCallback(() => {
+    setContextMenu({
+      active: false,
+      type: "",
+      x: 0,
+      y: 0,
+      contextX: 0,
+      contextY: 0,
+      element: null,
+    });
+    setObjectName(null);
+    setObjectDescription(null);
+    setEditElement(null);
+  }, []);
+
+  const checkObject = useCallback(
+    ( id, type ) => {
+      let object;
+
+      if (type === "risk") {
+        object = riskObjects.find((obj) => obj.id === id);
+      } else {
+        object = dataObjectInstances.find((obj) => obj.id === id);
+      }
+      if (!object) {
+        groups.forEach((grp) => {
+          if (type === "risk") {
+            object = grp.elements.find((obj) => obj.id === id);
+          } else {
+            object = grp.dataObjects.find((obj) => obj.id === id);
+          }
+          console.log("grp-obj",object, grp,id, type);
+          return { object, group: grp };
+        });
+      }
+      return { object, group: null };
+    },
+    [riskObjects, dataObjectInstances, groups]
+  );
+
+  const checkFilter = useCallback(
+    (type, status, disabled) => {
+      let check = false;
+
+      if (filter.everything) return true;
+
+      if (filter.normal) {
+        check = status !== "deleted" && status !== "invisible" ? true : false;
+      } else {
+        check = filter.connections && type === "connection" ? true : check;
+        check = filter.vObjects && type === "virtual" ? true : check;
+        check = filter.pObjects && type === "physical" ? true : check;
+        check = filter.mObjects && type === "model" ? true : check;
+        check =
+          filter.riskObjects &&
+          (type === "virtual" || type === "physical" || type === "model")
+            ? true
+            : check;
+        check = filter.oDataObjects && type === "Output" ? true : check;
+        check = filter.iDataObjects && type === "Input" ? true : check;
+        check =
+          filter.dataObjects && (type === "Input" || type === "Output")
+            ? true
+            : check;
+        // check =
+        // (filter.deleted && status === "deleted") ||
+        //   (filter.invisible && status === "invisible")
+        // (filter.disabled && disabled) ||
+        // (filter.expandedGroups && status === "expanded") ||
+        // (filter.collapsedGroups && status === "collapsed")
+        //     ? true
+        //     : false;
+      }
+      console.log(type, status, filter, check);
+      return check;
+    },
+    [filter]
+  );
+
+  const checkConnctionVisibility = useCallback((connection, type) => {
+    let check = false;
+    let target, source;
+    if(!filter.everything && !filter.normal && !filter.connections) return false;
+    
+    switch (type) {
+      case "riskObjects":
+        target = checkObject(connection.sourceRef, "risk");
+        source = checkObject(connection.targetRef, "risk");
+        check =
+          checkFilter(target.object.type, target.object.status) &&
+          checkFilter(source.object.type, source.object.status);
+
+          if(!check) return false;
+
+        if (target.group) {
+          check = target.group.expanded ? true : false;
+        } 
+
+        if (source.group) {
+          check = source.group.expanded ? true : false;
+        }
+        break;
+
+      case "dataObjects":
+        target = checkObject(connection.sourceRef, "instance");
+        source = checkObject(connection.targetRef, "instance");
+
+        check =
+          checkFilter(target.object.dataObjectNew.IOtype, target.object.status) &&
+          checkFilter(source.object.dataObjectNew.IOtype, source.object.status);
+
+          if(!check) return false;
+
+        if (target.group) {
+          check = target.group.expanded ? true : false;
+        } 
+
+        if (source.group) {
+          check = source.group.expanded ? true : false;
+        }
+        break;
+
+      case "riskDataObjects":
+        if(connection.objectType==="Output"){
+        target = checkObject(connection.sourceRef, "risk");
+        source = checkObject(connection.targetRef, "instance");
+        check =
+          checkFilter(target.object.type, target.object.status) &&
+          checkFilter(source.object.dataObjectNew.IOtype, source.object.status);
+        }else{
+          target = checkObject(connection.sourceRef, "instance");
+          source = checkObject(connection.targetRef, "risk");
+          check =
+          checkFilter(target.object.dataObjectNew.IOtype, target.object.status) &&
+          checkFilter(source.object.type, source.object.status);
+        }
+        if(!check) return false;
+
+        if (target.group) {
+          check = target.group.expanded ? true : false;
+        } 
+
+        if (source.group) {
+          check = source.group.expanded ? true : false;
+        }
+        break;
+
+      default:
+        break;
+        
+    }
+    return check;
+  }, [checkFilter,checkObject,filter.connections,filter.everything,filter.normal]);
+
+  const changeView = useCallback(
+    async (id) => {
+      setFilter(viewsList.find((view) => view.id === id));
+    },
+    [viewsList]
+  );
+
+  const updateViewsList = useCallback(async () => {
+    try {
+      const response = await getRiskAssessmentViews(window.data.id);
+      if (response.status >= 200 && response.status < 300) {
+        setViewsList(response.data.data);
+        const current = response.data.data.find((view) => view.current);
+        if (current) {
+          setFilter(current.filter);
+        }
+      } else {
+        showDangerToaster(`Couldn't get views`);
+      }
+    } catch (error) {
+      showDangerToaster(`Couldn't get views: ${error}`);
+    }
+  }, [window.data.id]);
+
+  const postView = useCallback(async () => {
+    setIsServiceLoading(true);
+    try {
+      const response = await addRiskAssessmentView({
+        name: newViewName,
+        filter,
+        riskAssessmentId: window.data.id,
+        current: true,
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        updateViewsList();
+        resetContext();
+      } else {
+        showDangerToaster(`Couldn't add view`);
+      }
+    } catch (error) {
+      showDangerToaster(`Couldn't add view: ${error}`);
+    }
+    setIsServiceLoading(false);
+  }, [newViewName, filter, window.data.id, updateViewsList, resetContext]);
 
   const removeObjectConnections = useCallback((obj) => {
     console.log("remove connection", obj.type);
@@ -189,21 +412,31 @@ export const RiskAssessmentWindow = ({
         setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
         setGroups(response.data.data.riskGroups);
         setConnections(
-          response.data.data.riskConnections.filter(
-            (connection) => connection.status !== "deleted"
-          )
+          response.data.data.riskConnections
+          // .filter(
+          //   (connection) =>
+          //     connection.status !== "deleted" &&
+          //     connection.status !== "invisible"
+          // )
         );
         setInstanceConnections(
-          response.data.data.dataObjectsConnections.filter(
-            (connection) => connection.status !== "deleted"
-          )
+          response.data.data.dataObjectsConnections
+          // .filter(
+          //   (connection) =>
+          //     connection.status !== "deleted" &&
+          //     connection.status !== "invisible"
+          // )
         );
         setInstanceObjectConnections(
-          response.data.data.dataObjectsRiskObjectsConnections.filter(
-            (connection) => connection.status !== "deleted"
-          )
+          response.data.data.dataObjectsRiskObjectsConnections
+          // .filter(
+          //   (connection) =>
+          //     connection.status !== "deleted" &&
+          //     connection.status !== "invisible"
+          // )
         );
         getGlobalGroups();
+        updateViewsList();
         // getDeleted();
       } else {
         showDangerToaster(`Error Retrieving Risk Assessment Data`);
@@ -214,7 +447,7 @@ export const RiskAssessmentWindow = ({
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
       setTimeout(riskAssessmentData, 1000);
     }
-  }, [window.data.id, getGlobalGroups]);
+  }, [window.data.id, getGlobalGroups, updateViewsList]);
 
   const removeFromGroup = useCallback(
     async (type, data) => {
@@ -303,7 +536,7 @@ export const RiskAssessmentWindow = ({
       // if (type === "risk") {setTimeout(riskAssessmentData, 1000);}else{riskAssessmentData();}
       if (type === "risk") {
         let riskObject;
-        
+
         setGroups((prev) => {
           return prev.map((group) => {
             if (group.id === data.groupId) {
@@ -322,11 +555,14 @@ export const RiskAssessmentWindow = ({
           });
         });
         setRiskObjects((prev) => [...prev, riskObject]);
-        setConnections(prev=>([...prev,...tempConnections]));
-        setInstanceObjectConnections(prev=>([...prev,...tempInstObjConnections]));
+        setConnections((prev) => [...prev, ...tempConnections]);
+        setInstanceObjectConnections((prev) => [
+          ...prev,
+          ...tempInstObjConnections,
+        ]);
       } else {
         let dataObject;
-        
+
         setGroups((prev) => {
           return prev.map((group) => {
             if (group.id === data.groupId) {
@@ -345,13 +581,21 @@ export const RiskAssessmentWindow = ({
           });
         });
         setDataObjectInstances((prev) => [...prev, dataObject]);
-        setInstanceConnections(prev=>([...prev,...tempinstConnections]))
-        setInstanceObjectConnections(prev=>([...prev,...tempInstObjConnections]));
+        setInstanceConnections((prev) => [...prev, ...tempinstConnections]);
+        setInstanceObjectConnections((prev) => [
+          ...prev,
+          ...tempInstObjConnections,
+        ]);
       }
       // setTimeout(riskAssessmentData, 3000);
       // riskAssessmentData();
     },
-    [window.data.id, connections,instanceConnections,instanceObjectConnections]
+    [
+      window.data.id,
+      connections,
+      instanceConnections,
+      instanceObjectConnections,
+    ]
   );
 
   const contextMenuAction = useCallback(
@@ -649,7 +893,7 @@ export const RiskAssessmentWindow = ({
           element: null,
         });
         selectedElements.forEach((object) => {
-          removeObjectConnections(object);
+          // removeObjectConnections(object);
         });
         setSelectedElements([]);
         setSelectedObjects([]);
@@ -660,7 +904,7 @@ export const RiskAssessmentWindow = ({
       }
     },
     [
-      removeObjectConnections,
+      // removeObjectConnections,
       riskAssessmentData,
       window.data.id,
       selectedElements,
@@ -669,21 +913,6 @@ export const RiskAssessmentWindow = ({
       setSelectedObjects,
     ]
   );
-
-  const resetContext = useCallback(() => {
-    setContextMenu({
-      active: false,
-      type: "",
-      x: 0,
-      y: 0,
-      contextX: 0,
-      contextY: 0,
-      element: null,
-    });
-    setObjectName(null);
-    setObjectDescription(null);
-    setEditElement(null);
-  }, []);
 
   const editRiskObject = useCallback(
     async (id, payload, groupId) => {
@@ -827,8 +1056,8 @@ export const RiskAssessmentWindow = ({
         return;
       }
 
-      if (element.operation === "delete") {
-        removeObjectConnections(element.object);
+      if (element.operation === "delete" || element.operation === "invisible") {
+        // removeObjectConnections(element.object);
       }
 
       if (element.type === "risk") {
@@ -928,7 +1157,7 @@ export const RiskAssessmentWindow = ({
       // setInstanceObjectConnections([]);
       // riskAssessmentData();
     },
-    [window.data.id, riskAssessmentData, removeObjectConnections]
+    [window.data.id, riskAssessmentData,/* removeObjectConnections*/]
   );
 
   const updateElementStatus = useCallback(async () => {
@@ -1106,7 +1335,7 @@ export const RiskAssessmentWindow = ({
       riskGroupId: importGroupId,
       x: contextMenu.x,
       y: contextMenu.y,
-      shared:true
+      shared: true,
     };
 
     const response = await importGroup(payload);
@@ -1202,21 +1431,18 @@ export const RiskAssessmentWindow = ({
     [activeObject]
   );
 
-  const updateDraftLocation = useCallback(
-    async (e, d) => {
-      setContextMenu((prev) => ({ ...prev, contextY: d.y, contextX: d.x }));
-      if (d.x < 0) {
-        setContextMenu((prev) => ({ ...prev, ccontextXx: 0 }));
-        d.x = 0;
-      }
+  const updateDraftLocation = useCallback(async (e, d) => {
+    setContextMenu((prev) => ({ ...prev, contextY: d.y, contextX: d.x }));
+    if (d.x < 0) {
+      setContextMenu((prev) => ({ ...prev, ccontextXx: 0 }));
+      d.x = 0;
+    }
 
-      if (d.y < 0) {
-        setContextMenu((prev) => ({ ...prev, contextY: 0 }));
-        d.y = 0;
-      }
-    },
-    []
-  );
+    if (d.y < 0) {
+      setContextMenu((prev) => ({ ...prev, contextY: 0 }));
+      d.y = 0;
+    }
+  }, []);
 
   return (
     <>
@@ -1270,6 +1496,8 @@ export const RiskAssessmentWindow = ({
           menu={menu}
           handleProperties={handleProperties}
           removeFromGroup={removeFromGroup}
+          checkFilter={checkFilter}
+          checkConnctionVisibility={checkConnctionVisibility}
         />
       </Window>
       {/* <div
@@ -1287,9 +1515,9 @@ export const RiskAssessmentWindow = ({
           x: Number(contextMenu.contextX),
           y: Number(contextMenu.contextY),
         }}
-        style={{zIndex: 1000000}}
+        style={{ zIndex: 1000000 }}
         onDragStop={(e, d) => updateDraftLocation(e, d)}
->
+      >
         {contextMenu.active && contextMenu.type === "context" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             {elementEnable ? menu : null}
@@ -1363,8 +1591,398 @@ export const RiskAssessmentWindow = ({
           </Menu>
         )}
 
+        {contextMenu.active && contextMenu.type === "view name" && (
+          <div
+            key="text3"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>New View Name</H5>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                postView();
+              }}
+            >
+              <FormGroup
+                label="Name"
+                labelInfo="(required)"
+                labelFor="newViewName"
+              >
+                <InputGroup
+                  required
+                  id="newLinkName"
+                  onChange={(event) => {
+                    setNewViewName(event.target.value);
+                  }}
+                />
+              </FormGroup>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    setNewViewName(null);
+                    resetContext();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {contextMenu.active && contextMenu.type === "show filters" && (
+          <div
+            key="text3"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>Filters</H5>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                postView();
+              }}
+            >
+              <Checkbox
+                checked={filter.everything}
+                label="Show All Objects"
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    everything: !prev.everything,
+                    normal: false,
+                  }))
+                }
+              />
+              <hr />
+              <Checkbox
+                checked={filter.connections}
+                label="Show All Connections"
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    connections: !prev.connections,
+                    normal: false,
+                  }))
+                }
+              />
+              <hr />
+              <Checkbox
+                checked={filter.riskObjects}
+                label="Show All Risk Objects"
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    riskObjects: !prev.riskObjects,
+                    normal: false,
+                  }))
+                }
+              />
+              <Checkbox
+                checked={filter.vObjects | filter.riskObjects}
+                label="Show All Virtual Risk Objects"
+                disabled={filter.riskObjects}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    vObjects: !prev.vObjects,
+                    normal: false,
+                  }))
+                }
+              />
+              <Checkbox
+                checked={filter.pObjects | filter.riskObjects}
+                label="Show All Physical Risk Objects"
+                disabled={filter.riskObjects}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    pObjects: !prev.pObjects,
+                    normal: false,
+                  }))
+                }
+              />
+              <Checkbox
+                checked={filter.mObjects | filter.riskObjects}
+                label="Show All Model Risk Objects"
+                disabled={filter.riskObjects}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    mObjects: !prev.mObjects,
+                    normal: false,
+                  }))
+                }
+              />
+              <hr />
+              <Checkbox
+                checked={filter.dataObjects}
+                label="Show All Data Objects"
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    dataObjects: !prev.dataObjects,
+                    normal: false,
+                  }))
+                }
+              />
+              <Checkbox
+                checked={filter.iDataObjects | filter.dataObjects}
+                label="Show All Input Data Objects"
+                disabled={filter.dataObjects}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    iDataObjects: !prev.iDataObjects,
+                    normal: false,
+                  }))
+                }
+              />
+              <Checkbox
+                checked={filter.oDataObjects | filter.dataObjects}
+                label="Show All Output Data Objects"
+                disabled={filter.dataObjects}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    oDataObjects: !prev.oDataObjects,
+                    normal: false,
+                  }))
+                }
+              />
+
+              <FormGroup
+                label="Name"
+                labelInfo="(required)"
+                labelFor="newViewName"
+              >
+                <InputGroup
+                  required
+                  id="newLinkName"
+                  onChange={(event) => {
+                    setNewViewName(event.target.value);
+                  }}
+                />
+              </FormGroup>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    setNewViewName(null);
+                    resetContext();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {contextMenu.active && contextMenu.type === "create" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
+            <MenuItem
+              text="Show Filters"
+              onClick={() =>
+                setContextMenu((prev) => ({ ...prev, type: "show filters" }))
+              }
+            >
+              <MenuItem
+                intent={filter.normal ? "primary" : ""}
+                onClick={() => setFilter((prev) => ({ ...prev, normal: !prev.normal }))}
+                text="Show Visible"
+              />
+              <MenuItem
+                intent={filter.everything ? "primary" : ""}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    everything: !prev.everything,
+                    normal: false,
+                  }))
+                }
+                text={
+                  filter.everything ? `Hide All Objects` : `Show All Objects`
+                }
+              />
+              <MenuItem
+                intent={filter.connections ? "primary" : ""}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    connections: !prev.connections,
+                    normal: false,
+                  }))
+                }
+                text={
+                  filter.connections
+                    ? `Hide All Connections`
+                    : `Show All Connections`
+                }
+              />
+              <MenuItem
+                intent={filter.riskObjects ? "primary" : ""}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    riskObjects: !prev.riskObjects,
+                    normal: false,
+                  }))
+                }
+                text={
+                  filter.riskObjects
+                    ? `Hide All Risk Objects`
+                    : `Show All Risk Objects`
+                }
+              >
+                <MenuItem
+                  intent={filter.pObjects ? "primary" : ""}
+                  onClick={() =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      pObjects: !prev.pObjects,
+                      normal: false,
+                    }))
+                  }
+                  text={
+                    filter.pObjects
+                      ? `Hide Physical Risk Objects`
+                      : `Show Physical Risk Objects`
+                  }
+                />
+                <MenuItem
+                  intent={filter.vObjects ? "primary" : ""}
+                  onClick={() =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      vObjects: !prev.vObjects,
+                      normal: false,
+                    }))
+                  }
+                  text={
+                    filter.vObjects
+                      ? `Hide Virtual Risk Objects`
+                      : `Show Virtual Risk Objects`
+                  }
+                />
+                <MenuItem
+                  intent={filter.mObjects ? "primary" : ""}
+                  onClick={() =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      mObjects: !prev.mObjects,
+                      normal: false,
+                    }))
+                  }
+                  text={
+                    filter.mObjects
+                      ? `Hide Model Risk Objects`
+                      : `Show Model Risk Objects`
+                  }
+                />
+              </MenuItem>
+              <MenuItem
+                intent={filter.dataObjects ? "primary" : ""}
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    dataObjects: !prev.dataObjects,
+                    normal: false,
+                  }))
+                }
+                text={
+                  filter.dataObjects
+                    ? `Hide All Data Objects`
+                    : `Show All Data Objects`
+                }
+              >
+                <MenuItem
+                  intent={filter.iDataObjects ? "primary" : ""}
+                  onClick={() =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      iDataObjects: !prev.iDataObjects,
+                      normal: false,
+                    }))
+                  }
+                  text={
+                    filter.iDataObjects
+                      ? `Hide Input Data Objects`
+                      : `Show Input Data Objects`
+                  }
+                />
+                <MenuItem
+                  intent={filter.oDataObjects ? "primary" : ""}
+                  onClick={() =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      oDataObjects: !prev.oDataObjects,
+                      normal: false,
+                    }))
+                  }
+                  text={
+                    filter.oDataObjects
+                      ? `Hide Output Data Objects`
+                      : `Show Output Data Objects`
+                  }
+                />
+              </MenuItem>
+              <MenuDivider />
+              <MenuItem
+                onClick={() =>
+                  setContextMenu((prev) => ({ ...prev, type: "view name" }))
+                }
+                text="Save View As"
+              />
+              <MenuItem text="Show View">
+                {viewsList.map((view) => (
+                  <MenuItem
+                    text={view.name}
+                    onClick={changeView.bind(null, [view.id])}
+                  />
+                ))}
+              </MenuItem>
+              <MenuDivider />
+            </MenuItem>
+            <MenuDivider />
             <MenuItem
               text="Create Virtual Risk Object"
               onClick={() => {
@@ -1993,7 +2611,7 @@ export const RiskAssessmentWindow = ({
             </form>
           </div>
         )}
-      {/* </div> */}
+        {/* </div> */}
       </Rnd>
     </>
   );
