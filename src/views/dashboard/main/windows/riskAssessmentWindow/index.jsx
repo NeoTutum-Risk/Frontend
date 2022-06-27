@@ -155,24 +155,24 @@ export const RiskAssessmentWindow = ({
   }, []);
 
   const checkObject = useCallback(
-    ( id, type ) => {
+    (id, type) => {
       let object;
 
       if (type === "risk") {
-        object = riskObjects.find((obj) => obj.id === id);
+        object = riskObjects.find((obj) => obj?.id === id);
       } else {
-        object = dataObjectInstances.find((obj) => obj.id === id);
+        object = dataObjectInstances.find((obj) => obj?.id === id);
       }
       if (!object) {
         groups.forEach((grp) => {
           if (type === "risk") {
-            object = grp.elements.find((obj) => obj.id === id);
+            object = grp.elements.find((obj) => obj?.id === id);
           } else {
-            object = grp.dataObjects.find((obj) => obj.id === id);
+            object = grp.dataObjects.find((obj) => obj?.id === id);
           }
-          
-          if (object){
-            console.log("grp-obj",object, grp,id, type);
+
+          if (object) {
+            // console.log("grp-obj",object, grp,id, type);
             return { object, group: grp };
           }
         });
@@ -215,87 +215,117 @@ export const RiskAssessmentWindow = ({
         //     ? true
         //     : false;
       }
-      console.log(type, status, filter, check);
+      // console.log(type, status, filter, check);
       return check;
     },
     [filter]
   );
 
-  const checkConnctionVisibility = useCallback(async(connection, type) => {
-    let check = false;
-    let target, source;
-    if(!filter.everything && !filter.normal && !filter.connections) return false;
-    
-    switch (type) {
-      case "riskObjects":
-        target = await checkObject(connection.sourceRef, "risk");
-        source = await checkObject(connection.targetRef, "risk");
-        console.log("-------",connection, type, target, source)
-        check =
-          checkFilter(target.object.type, target.object.status) &&
-          checkFilter(source.object.type, source.object.status);
-      
-          if(!check) return false;
+  const checkConnctionVisibility = useCallback(
+     (connection, type) => {
+      let check = false;
+      let target, source;
 
-        if (target.group) {
-          check = target.group.expanded ? true : false;
-        } 
-
-        if (source.group) {
-          check = source.group.expanded ? true : false;
-        }
-        break;
-
-      case "dataObjects":
-        target = checkObject(connection.sourceRef, "instance");
-        source = checkObject(connection.targetRef, "instance");
-
-        check =
-          checkFilter(target.object.dataObjectNew.IOtype, target.object.status) &&
-          checkFilter(source.object.dataObjectNew.IOtype, source.object.status);
-
-          if(!check) return false;
-
-        if (target.group) {
-          check = target.group.expanded ? true : false;
-        } 
-
-        if (source.group) {
-          check = source.group.expanded ? true : false;
-        }
-        break;
-
-      case "riskDataObjects":
-        if(connection.objectType==="Output"){
-        target = checkObject(connection.sourceRef, "risk");
-        source = checkObject(connection.targetRef, "instance");
-        check =
-          checkFilter(target.object.type, target.object.status) &&
-          checkFilter(source.object.dataObjectNew.IOtype, source.object.status);
-        }else{
-          target = checkObject(connection.sourceRef, "instance");
-          source = checkObject(connection.targetRef, "risk");
+      if (!filter.everything && !filter.normal && !filter.connections)
+        return false;
+      // console.log(!filter.everything , !filter.normal , !filter.connections,connection, type)
+      switch (type) {
+        case "riskObjects":
+          target =  checkObject(connection.sourceRef, "risk");
+          source =  checkObject(connection.targetRef, "risk");
+          
           check =
-          checkFilter(target.object.dataObjectNew.IOtype, target.object.status) &&
-          checkFilter(source.object.type, source.object.status);
-        }
-        if(!check) return false;
+            checkFilter(target.object.type, target.object.status) &&
+            checkFilter(source.object.type, source.object.status);
 
-        if (target.group) {
-          check = target.group.expanded ? true : false;
-        } 
+          if (!check) return false;
 
-        if (source.group) {
-          check = source.group.expanded ? true : false;
-        }
-        break;
+          if (target.group) {
+            check = target.group.expanded ? true : false;
+          }
 
-      default:
-        break;
-        
-    }
-    return check;
-  }, [checkFilter,checkObject,filter.connections,filter.everything,filter.normal]);
+          if (source.group) {
+            check = source.group.expanded ? true : false;
+          }
+          break;
+
+        case "dataObjects":
+          target = checkObject(connection.sourceRef, "instance");
+          source = checkObject(connection.targetRef, "instance");
+          // console.log(
+          //   "-------",
+          //   target.object.id,
+          //   target.object.status,
+          //   checkFilter(target.object.dataObjectNew.IOtype, target.object.status),
+          //   source.object.id,
+          //   source.object.status,
+          //   checkFilter(source.object.dataObjectNew.IOtype, source.object.status)
+          // );
+          check =
+            checkFilter(
+              target.object?.dataObjectNew.IOtype,
+              target.object?.status
+            ) &&
+            checkFilter(
+              source.object?.dataObjectNew.IOtype,
+              source.object?.status
+            );
+            // console.log(check);
+          if (!check) return false;
+
+          if (target.group) {
+            check = target.group.expanded ? true : false;
+          }
+
+          if (source.group) {
+            check = source.group.expanded ? true : false;
+          }
+          break;
+
+        case "riskDataObjects":
+          if (connection.objectType === "Output") {
+            source = checkObject(connection.sourceRef, "risk");
+            target = checkObject(connection.targetRef, "instance");
+            check =
+              checkFilter(source.object?.type, source.object?.status) &&
+              checkFilter(
+                target.object?.dataObjectNew.IOtype,
+                target.object?.status
+              );
+          } else {
+            source = checkObject(connection.sourceRef, "instance");
+            target = checkObject(connection.targetRef, "risk");
+            check =
+              checkFilter(
+                source.object?.dataObjectNew.IOtype,
+                source.object?.status
+              ) && checkFilter(target.object?.type, target.object?.status);
+          }
+          if (!check) return false;
+
+          if (target.group) {
+            check = target.group.expanded ? true : false;
+          }
+
+          if (source.group) {
+            check = source.group.expanded ? true : false;
+          }
+          break;
+
+        default:
+          break;
+      }
+      console.log("check",check,connection  )
+      return check;
+    },
+    [
+      checkFilter,
+      checkObject,
+      filter.connections,
+      filter.everything,
+      filter.normal,
+    ]
+  );
 
   const changeView = useCallback(
     async (id) => {
@@ -344,7 +374,7 @@ export const RiskAssessmentWindow = ({
   }, [newViewName, filter, window.data.id, updateViewsList, resetContext]);
 
   const removeObjectConnections = useCallback((obj) => {
-    console.log("remove connection", obj.type);
+    // console.log("remove connection", obj.type);
     if (obj.type !== "instance") {
       setConnections((prev) =>
         prev.filter(
@@ -410,7 +440,7 @@ export const RiskAssessmentWindow = ({
     try {
       const response = await getRiskAssessment(window.data.id);
       if (response.status === 200) {
-        console.log(response.data.data);
+        // console.log(response.data.data);
         setRiskObjects(response.data.data.riskObjects);
         setDataObjectInstances(response.data.data.dataObjectsNewProperties);
         setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
@@ -445,7 +475,7 @@ export const RiskAssessmentWindow = ({
       } else {
         showDangerToaster(`Error Retrieving Risk Assessment Data`);
         setTimeout(riskAssessmentData, 1000);
-        console.log("Failing");
+        // console.log("Failing");
       }
     } catch (err) {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
@@ -606,7 +636,7 @@ export const RiskAssessmentWindow = ({
     async (path) => {
       try {
         setContextMenu((prev) => ({ ...prev, type: "loading" }));
-        console.log(activeObject);
+        // console.log(activeObject);
         const response = await addRiskObjectProperties(activeObject, {
           dataObjectElements: path,
         });
@@ -672,7 +702,7 @@ export const RiskAssessmentWindow = ({
           setConnections((prev) => [...prev, response.data.data]);
           setSelectedElements([]);
           setSelectedObjects([]);
-          console.log(payload);
+          // console.log(payload);
         } else if (
           selectedElements[0].type === "instance" &&
           selectedElements[1].type === "instance"
@@ -688,7 +718,7 @@ export const RiskAssessmentWindow = ({
           setInstanceConnections((prev) => [...prev, response.data.data]);
           setSelectedElements([]);
           setSelectedObjects([]);
-          console.log(payload);
+          // console.log(payload);
         } else {
           let instance, object, source, target;
           if (selectedElements[0].type === "instance") {
@@ -720,7 +750,7 @@ export const RiskAssessmentWindow = ({
           setInstanceObjectConnections((prev) => [...prev, response.data.data]);
           setSelectedElements([]);
           setSelectedObjects([]);
-          console.log(payload);
+          // console.log(payload);
         }
         setContextMenu({
           active: false,
@@ -786,7 +816,7 @@ export const RiskAssessmentWindow = ({
   const handleContextMenu = useCallback(
     async (e, data) => {
       e.preventDefault();
-      console.log(e);
+      // console.log(e);
       if (data && !data.from) {
         if (data["position.enabled"]) {
           setElementEnable(true);
@@ -804,7 +834,7 @@ export const RiskAssessmentWindow = ({
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
       let x = e.nativeEvent.layerX;
       let y = e.nativeEvent.layerY;
-      console.log(e, contextX, contextY);
+      // console.log(e, contextX, contextY);
       if (data.from === "main" && firstContext === "main") {
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
@@ -835,7 +865,7 @@ export const RiskAssessmentWindow = ({
         ? Number(id)
         : Number(e.target.parentElement.id.split("-")[2]);
 
-      console.log(type, e.target.parentElement.id, element);
+      // console.log(type, e.target.parentElement.id, element);
       setContextMenu((prev) => ({
         active: true,
         type,
@@ -885,7 +915,7 @@ export const RiskAssessmentWindow = ({
           name: groupName,
           expanded: 1,
         };
-        console.log(payload);
+        // console.log(payload);
         const response = await addRiskAssessmentGroup(payload);
         setContextMenu({
           active: false,
@@ -920,7 +950,7 @@ export const RiskAssessmentWindow = ({
 
   const editRiskObject = useCallback(
     async (id, payload, groupId) => {
-      console.log("main", payload);
+      // console.log("main", payload);
       const response = await updateRiskObject(id, payload);
       if (response.status === 200) {
         riskAssessmentData();
@@ -1030,7 +1060,7 @@ export const RiskAssessmentWindow = ({
     const riskObject = await getRiskObject(contextMenu.element);
     if (riskObject.status === 200) {
       const { name, description } = riskObject.data.data;
-      console.log(name, description);
+      // console.log(name, description);
       setObjectName(name);
       setObjectDescription(description);
       setContextMenu((prev) => ({ ...prev, type: "create object" }));
@@ -1040,7 +1070,7 @@ export const RiskAssessmentWindow = ({
 
   const handleObjectAction = useCallback(
     async (element) => {
-      console.log("element", element);
+      // console.log("element", element);
       if (element.operation === "reset") {
         riskAssessmentData();
         return;
@@ -1161,7 +1191,7 @@ export const RiskAssessmentWindow = ({
       // setInstanceObjectConnections([]);
       // riskAssessmentData();
     },
-    [window.data.id, riskAssessmentData,/* removeObjectConnections*/]
+    [window.data.id, riskAssessmentData /* removeObjectConnections*/]
   );
 
   const updateElementStatus = useCallback(async () => {
@@ -1672,6 +1702,14 @@ export const RiskAssessmentWindow = ({
               }}
             >
               <Checkbox
+                checked={filter.normal}
+                label="Show Visible Only"
+                onClick={() =>
+                  setFilter((prev) => ({ ...prev, normal: !prev.normal }))
+                }
+              />
+              <hr />
+              <Checkbox
                 checked={filter.everything}
                 label="Show All Objects"
                 onClick={() =>
@@ -1831,8 +1869,10 @@ export const RiskAssessmentWindow = ({
             >
               <MenuItem
                 intent={filter.normal ? "primary" : ""}
-                onClick={() => setFilter((prev) => ({ ...prev, normal: !prev.normal }))}
-                text="Show Visible"
+                onClick={() =>
+                  setFilter((prev) => ({ ...prev, normal: !prev.normal }))
+                }
+                text="Show Visible Only"
               />
               <MenuItem
                 intent={filter.everything ? "primary" : ""}

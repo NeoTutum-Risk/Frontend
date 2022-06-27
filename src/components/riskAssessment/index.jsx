@@ -107,6 +107,7 @@ export const RiskAssessment = ({
       >
         {instanceConnections.map((edge) => (
           checkConnctionVisibility(edge,'dataObjects') && <Xarrow
+          key={edge.sourceRef+" "+edge.targetRef}
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
@@ -130,6 +131,7 @@ export const RiskAssessment = ({
         {instanceObjectConnections.map((edge) => (
           // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
           checkConnctionVisibility(edge,'riskDataObjects') && <Xarrow
+          key={edge.sourceRef+" "+edge.targetRef}
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
@@ -162,6 +164,7 @@ export const RiskAssessment = ({
 
         {connections.map((edge) => (
           checkConnctionVisibility(edge,'riskObjects') && <Xarrow
+          key={edge.sourceRef+" "+edge.targetRef}
             path="straight"
             curveness={0.2}
             strokeWidth={1.5}
