@@ -46,11 +46,12 @@ export const GraphWindow = ({
    * 
    * creates text annotation and appends it to the file
    */
-  const appendTextAnnotation = (dataObjectReference, text) => {
+  const appendTextAnnotation = (dataObjectReference, text, physicalDataObjectId) => {
     const textAnnotation = modeler.get("elementFactory").createShape({
       type: 'bpmn:TextAnnotation',
       businessObject: modeler.get("bpmnFactory").create('bpmn:TextAnnotation', {
-        text
+        text,
+        physicalDataObjectId,
       })
     });
     modeler.get("modeling").appendShape(dataObjectReference, textAnnotation)
@@ -171,11 +172,13 @@ export const GraphWindow = ({
   
       if(response.status===201){
         setIsAddPhysicalObjectLoading(false);
+
+        // do the coloring of the data reference object
         const BPMNphysicalDataObject = modeler.get('elementRegistry').get(contextMenu.element)
         const physicalDataObjectId = response.data.data.id
         const physicalDataObjectName = response.data.data.name
         const textAppended = `id: ${physicalDataObjectId}\nname: ${physicalDataObjectName}`
-        appendTextAnnotation(BPMNphysicalDataObject, textAppended)
+        appendTextAnnotation(BPMNphysicalDataObject, textAppended, physicalDataObjectId)
         modeler.get("modeling").setColor([BPMNphysicalDataObject], {stroke: '#2C5E1A',fill: '#B2D2A4'})
         setContextMenu(prev=>({...prev,active:false,element:null}));
         showSuccessToaster(`Risk Object Created Successfully`);

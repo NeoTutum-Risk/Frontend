@@ -184,6 +184,9 @@ export const findJSONData = (data) => serviceProvider.post("JSONAnalytics/JsonIO
 
 export const checkDeletedPhysicalDataObj = (bpmnId) => serviceProvider(`bpmnFile/riskObjectsDeleted/${bpmnId}`)
 
+export const checkDeletedPhysicalDataObj = (bpmnId) => serviceProvider(`bpmnFile/riskObjectsDeleted/${bpmnId}`)
+
 export const getRiskAssessmentViews = (id) => serviceProvider(`filterViews/riskAssessment/${id}`);
 
 export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews`,data);
+
