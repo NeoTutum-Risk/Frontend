@@ -25,7 +25,8 @@ export const RiskGroup = ({
   menu,
   handleProperties,
   removeFromGroup,
-  handleObjectProperty
+  handleObjectProperty,
+  checkFilter
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -167,7 +168,11 @@ export const RiskGroup = ({
       {/*expanded &&*/
         data.elements.map((object, index) =>
           object
-            ? object?.status !== "deleted" && (
+            ? checkFilter(
+              object.type,
+              object.status,
+              object["position.enaled"]
+            ) && (
                 <RiskElement
                   setFirstContext={setFirstContext}
                   expanded={expanded}
@@ -200,7 +205,11 @@ export const RiskGroup = ({
       {/*expanded &&*/
         data.dataObjects.map((object, index) =>
           object
-            ? object?.status !== "deleted" && (
+            ? checkFilter(
+              object.dataObjectNew.IOtype,
+              object.status,
+              object.disable
+            ) && (
                 <DataObject
                   setFirstContext={setFirstContext}
                   expanded={expanded}
