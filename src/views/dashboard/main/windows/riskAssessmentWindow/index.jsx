@@ -170,8 +170,11 @@ export const RiskAssessmentWindow = ({
           } else {
             object = grp.dataObjects.find((obj) => obj.id === id);
           }
-          console.log("grp-obj",object, grp,id, type);
-          return { object, group: grp };
+          
+          if (object){
+            console.log("grp-obj",object, grp,id, type);
+            return { object, group: grp };
+          }
         });
       }
       return { object, group: null };
@@ -218,19 +221,20 @@ export const RiskAssessmentWindow = ({
     [filter]
   );
 
-  const checkConnctionVisibility = useCallback((connection, type) => {
+  const checkConnctionVisibility = useCallback(async(connection, type) => {
     let check = false;
     let target, source;
     if(!filter.everything && !filter.normal && !filter.connections) return false;
     
     switch (type) {
       case "riskObjects":
-        target = checkObject(connection.sourceRef, "risk");
-        source = checkObject(connection.targetRef, "risk");
+        target = await checkObject(connection.sourceRef, "risk");
+        source = await checkObject(connection.targetRef, "risk");
+        console.log("-------",connection, type, target, source)
         check =
           checkFilter(target.object.type, target.object.status) &&
           checkFilter(source.object.type, source.object.status);
-
+      
           if(!check) return false;
 
         if (target.group) {
