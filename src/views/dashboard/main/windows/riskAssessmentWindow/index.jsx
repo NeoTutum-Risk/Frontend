@@ -191,6 +191,7 @@ export const RiskAssessmentWindow = ({
       if (filter.normal) {
         check = status !== "deleted" && status !== "invisible" ? true : false;
       } else {
+        if(status === "deleted") return false;
         check = filter.connections && type === "connection" ? true : check;
         check = filter.vObjects && type === "virtual" ? true : check;
         check = filter.pObjects && type === "physical" ? true : check;
@@ -235,8 +236,8 @@ export const RiskAssessmentWindow = ({
           source =  checkObject(connection.targetRef, "risk");
           
           check =
-            checkFilter(target.object.type, target.object.status) &&
-            checkFilter(source.object.type, source.object.status);
+            checkFilter(target.object?.type, target.object?.status) &&
+            checkFilter(source.object?.type, source.object?.status);
 
           if (!check) return false;
 
