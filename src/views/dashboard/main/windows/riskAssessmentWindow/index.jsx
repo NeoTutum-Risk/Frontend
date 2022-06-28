@@ -1734,21 +1734,21 @@ export const RiskAssessmentWindow = ({
               borderRadius: "2px",
             }}
           >
-            <H5 style={{ color: "white" }}>Visiilty Filter</H5>
+            <H5 style={{ color: "white" }}>Visibilty Filter</H5>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 postView();
               }}
             >
-              <Checkbox
+              {/* <Checkbox
                 checked={filter.normal}
                 label="Visible Only"
                 onClick={() =>
                   setFilter((prev) => ({ ...prev, normal: !prev.normal }))
                 }
               />
-              <hr />
+              <hr /> */}
               <Checkbox
                 checked={filter.everything}
                 label="All Objects"
@@ -1932,13 +1932,13 @@ export const RiskAssessmentWindow = ({
                 setContextMenu((prev) => ({ ...prev, type: "show filters" }))
               }
             >
-              <MenuItem
+              {/* <MenuItem
                 intent={filter.normal ? "primary" : ""}
                 onClick={() =>
                   setFilter((prev) => ({ ...prev, normal: !prev.normal }))
                 }
                 text="Show Visible Only"
-              />
+              /> */}
               <MenuItem
                 intent={filter.everything ? "primary" : ""}
                 onClick={() =>
