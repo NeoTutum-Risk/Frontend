@@ -46,6 +46,7 @@ import {
   deleteInstanceConnection,
   getRiskAssessmentViews,
   addRiskAssessmentView,
+  updateRiskAssessmentView
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -363,13 +364,7 @@ export const RiskAssessmentWindow = ({
     ]
   );
 
-  const changeView = useCallback(
-    async (id) => {
-      // console.log(viewsList);
-      setFilter(viewsList.find((view) => view.id === id).filter);
-    },
-    [viewsList]
-  );
+ 
 
   const updateViewsList = useCallback(async () => {
     try {
@@ -387,6 +382,16 @@ export const RiskAssessmentWindow = ({
       showDangerToaster(`Couldn't get views: ${error}`);
     }
   }, [window.data.id]);
+
+  const changeView = useCallback(
+    async (id) => {
+      // console.log(viewsList);
+      const response = await updateRiskAssessmentView(id,{current:true});
+      updateViewsList();
+      setFilter(viewsList.find((view) => view.id === id).filter);
+    },
+    [viewsList,updateViewsList]
+  );
 
   const postView = useCallback(async () => {
     setIsServiceLoading(true);

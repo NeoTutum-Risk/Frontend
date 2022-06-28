@@ -189,3 +189,4 @@ export const getRiskAssessmentViews = (id) => serviceProvider(`filterViews/riskA
 
 export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews`,data);
 
+export const updateRiskAssessmentView = (id,data) => serviceProvider.put(`filterViews/${id}`,data);
