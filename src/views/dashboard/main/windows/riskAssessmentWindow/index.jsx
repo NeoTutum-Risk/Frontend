@@ -121,22 +121,22 @@ export const RiskAssessmentWindow = ({
   const [newViewName, setNewViewName] = useState("");
   const [viewsList, setViewsList] = useState([]);
   const [filter, setFilter] = useState({
-    normal: true,
+    normal: false,
     everything: false,
-    connections: false,
+    connections: true,
     riskObjects: false,
-    pObjects: false,
-    mObjects: false,
-    vObjects: false,
+    pObjects: true,
+    mObjects: true,
+    vObjects: true,
     dataObjects: false,
-    iDataObjects: false,
-    oDataObjects: false,
-    groups: false,
+    iDataObjects: true,
+    oDataObjects: true,
+    groups: true,
     collapsedGroups: false,
     expandedGroups: false,
     deleted: false,
     invisible: false,
-    disabled: false,
+    disabled: true,
   });
 
   const resetContext = useCallback(() => {
@@ -157,7 +157,7 @@ export const RiskAssessmentWindow = ({
   const checkObject = useCallback(
     (id, type) => {
       let object;
-
+      let group = null;
       if (type === "risk") {
         object = riskObjects.find((obj) => obj?.id === id);
       } else {
@@ -165,19 +165,24 @@ export const RiskAssessmentWindow = ({
       }
       if (!object) {
         groups.forEach((grp) => {
-          if (type === "risk") {
-            object = grp.elements.find((obj) => obj?.id === id);
-          } else {
-            object = grp.dataObjects.find((obj) => obj?.id === id);
+          if(!object){
+            if (type === "risk") {
+              object = grp.elements.find((obj) => obj?.id === id);
+            } else {
+              object = grp.dataObjects.find((obj) => obj?.id === id);
+            }
           }
+          
 
           if (object) {
-            // console.log("grp-obj",object, grp,id, type);
-            return { object, group: grp };
+            group=grp;
+            //  console.log("grp-obj",object, grp,id, type);
+            console.log('obj',object,Date.now())
+            // return { object:object, group: grp };
           }
         });
       }
-      return { object, group: null };
+      return { object, group};
     },
     [riskObjects, dataObjectInstances, groups]
   );
@@ -186,12 +191,33 @@ export const RiskAssessmentWindow = ({
     (type, status, disabled) => {
       let check = false;
 
+      if (status==="deleted") return false;
+
       if (filter.everything) return true;
 
       if (filter.normal) {
-        check = status !== "deleted" && status !== "invisible" ? true : false;
+        check = status !== "invisible" ? true : false;
       } else {
-        if(status === "deleted") return false;
+        
+        if (disabled) {
+          if (!filter.disabled && !filter.everything) {
+            return false;
+          } else {
+           check = true;
+          }
+        }
+
+        if (type === "group") {
+          if (!filter.groups && !filter.everything) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+
+        
+
+        // if (status === "deleted") return false;
         check = filter.connections && type === "connection" ? true : check;
         check = filter.vObjects && type === "virtual" ? true : check;
         check = filter.pObjects && type === "physical" ? true : check;
@@ -223,31 +249,35 @@ export const RiskAssessmentWindow = ({
   );
 
   const checkConnctionVisibility = useCallback(
-     (connection, type) => {
+    (connection, type) => {
       let check = false;
       let target, source;
 
+      if(connection.status==="deleted") return false;
       if (!filter.everything && !filter.normal && !filter.connections)
         return false;
-      // console.log(!filter.everything , !filter.normal , !filter.connections,connection, type)
+      
       switch (type) {
         case "riskObjects":
-          target =  checkObject(connection.sourceRef, "risk");
-          source =  checkObject(connection.targetRef, "risk");
-          
+          target = checkObject(connection.sourceRef, "risk");
+          source = checkObject(connection.targetRef, "risk");
+
+          console.log('con',connection.sourceRef,source,Date.now())
           check =
-            checkFilter(target.object?.type, target.object?.status) &&
-            checkFilter(source.object?.type, source.object?.status);
+            checkFilter(target.object?.type, target.object?.status,!target.object['position.enabled']) &&
+            checkFilter(source.object?.type, source.object?.status,!source.object['position.enabled']);
 
           if (!check) return false;
 
           if (target.group) {
-            check = target.group.expanded ? true : false;
+            check = target.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
           }
 
           if (source.group) {
-            check = source.group.expanded ? true : false;
+            check = source.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
           }
+
+          console.log(target,source)
           break;
 
         case "dataObjects":
@@ -265,21 +295,23 @@ export const RiskAssessmentWindow = ({
           check =
             checkFilter(
               target.object?.dataObjectNew.IOtype,
-              target.object?.status
+              target.object?.status,
+              target.object?.disable
             ) &&
             checkFilter(
               source.object?.dataObjectNew.IOtype,
-              source.object?.status
+              source.object?.status,
+              source.object?.disable
             );
-            // console.log(check);
+          // console.log(check);
           if (!check) return false;
 
           if (target.group) {
-            check = target.group.expanded ? true : false;
+            check = target.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
           }
 
           if (source.group) {
-            check = source.group.expanded ? true : false;
+            check = source.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
           }
           break;
 
@@ -288,10 +320,11 @@ export const RiskAssessmentWindow = ({
             source = checkObject(connection.sourceRef, "risk");
             target = checkObject(connection.targetRef, "instance");
             check =
-              checkFilter(source.object?.type, source.object?.status) &&
+              checkFilter(source.object?.type, source.object?.status,!source.object['position.enabled']) &&
               checkFilter(
                 target.object?.dataObjectNew.IOtype,
-                target.object?.status
+                target.object?.status,
+                target.object?.disable
               );
           } else {
             source = checkObject(connection.sourceRef, "instance");
@@ -299,24 +332,25 @@ export const RiskAssessmentWindow = ({
             check =
               checkFilter(
                 source.object?.dataObjectNew.IOtype,
-                source.object?.status
-              ) && checkFilter(target.object?.type, target.object?.status);
+                source.object?.status,
+                source.object?.disable
+              ) && checkFilter(target.object?.type, target.object?.status,!target.object['position.enabled']);
           }
           if (!check) return false;
 
           if (target.group) {
-            check = target.group.expanded ? true : false;
+            check = target.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
           }
 
           if (source.group) {
-            check = source.group.expanded ? true : false;
+            check = source.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
           }
           break;
 
         default:
           break;
       }
-      console.log("check",check,connection  )
+      // console.log("check", check, connection,target,source);
       return check;
     },
     [
@@ -325,6 +359,7 @@ export const RiskAssessmentWindow = ({
       filter.connections,
       filter.everything,
       filter.normal,
+      filter.groups
     ]
   );
 
@@ -1188,9 +1223,7 @@ export const RiskAssessmentWindow = ({
                 status: element.payload,
               });
       }
-      // setConnections([]);
-      // setInstanceObjectConnections([]);
-      // riskAssessmentData();
+     setFirstContext('main')
     },
     [window.data.id, riskAssessmentData /* removeObjectConnections*/]
   );
@@ -1695,7 +1728,7 @@ export const RiskAssessmentWindow = ({
               borderRadius: "2px",
             }}
           >
-            <H5 style={{ color: "white" }}>Filters</H5>
+            <H5 style={{ color: "white" }}>Visiilty Filter</H5>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -1704,7 +1737,7 @@ export const RiskAssessmentWindow = ({
             >
               <Checkbox
                 checked={filter.normal}
-                label="Show Visible Only"
+                label="Visible Only"
                 onClick={() =>
                   setFilter((prev) => ({ ...prev, normal: !prev.normal }))
                 }
@@ -1712,7 +1745,7 @@ export const RiskAssessmentWindow = ({
               <hr />
               <Checkbox
                 checked={filter.everything}
-                label="Show All Objects"
+                label="All Objects"
                 onClick={() =>
                   setFilter((prev) => ({
                     ...prev,
@@ -1724,7 +1757,7 @@ export const RiskAssessmentWindow = ({
               <hr />
               <Checkbox
                 checked={filter.connections}
-                label="Show All Connections"
+                label="All Connections"
                 onClick={() =>
                   setFilter((prev) => ({
                     ...prev,
@@ -1736,7 +1769,7 @@ export const RiskAssessmentWindow = ({
               <hr />
               <Checkbox
                 checked={filter.riskObjects}
-                label="Show All Risk Objects"
+                label="All Risk Objects"
                 onClick={() =>
                   setFilter((prev) => ({
                     ...prev,
@@ -1747,7 +1780,7 @@ export const RiskAssessmentWindow = ({
               />
               <Checkbox
                 checked={filter.vObjects | filter.riskObjects}
-                label="Show All Virtual Risk Objects"
+                label="All Virtual Risk Objects"
                 disabled={filter.riskObjects}
                 onClick={() =>
                   setFilter((prev) => ({
@@ -1759,7 +1792,7 @@ export const RiskAssessmentWindow = ({
               />
               <Checkbox
                 checked={filter.pObjects | filter.riskObjects}
-                label="Show All Physical Risk Objects"
+                label="All Physical Risk Objects"
                 disabled={filter.riskObjects}
                 onClick={() =>
                   setFilter((prev) => ({
@@ -1771,7 +1804,7 @@ export const RiskAssessmentWindow = ({
               />
               <Checkbox
                 checked={filter.mObjects | filter.riskObjects}
-                label="Show All Model Risk Objects"
+                label="All Model Risk Objects"
                 disabled={filter.riskObjects}
                 onClick={() =>
                   setFilter((prev) => ({
@@ -1784,7 +1817,7 @@ export const RiskAssessmentWindow = ({
               <hr />
               <Checkbox
                 checked={filter.dataObjects}
-                label="Show All Data Objects"
+                label="All Data Objects"
                 onClick={() =>
                   setFilter((prev) => ({
                     ...prev,
@@ -1795,7 +1828,7 @@ export const RiskAssessmentWindow = ({
               />
               <Checkbox
                 checked={filter.iDataObjects | filter.dataObjects}
-                label="Show All Input Data Objects"
+                label="All Input Data Objects"
                 disabled={filter.dataObjects}
                 onClick={() =>
                   setFilter((prev) => ({
@@ -1807,7 +1840,7 @@ export const RiskAssessmentWindow = ({
               />
               <Checkbox
                 checked={filter.oDataObjects | filter.dataObjects}
-                label="Show All Output Data Objects"
+                label="All Output Data Objects"
                 disabled={filter.dataObjects}
                 onClick={() =>
                   setFilter((prev) => ({
@@ -1817,7 +1850,32 @@ export const RiskAssessmentWindow = ({
                   }))
                 }
               />
-
+              <hr />
+              <Checkbox
+                checked={filter.groups}
+                label="All Groups"
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    groups: !prev.groups,
+                    normal: false,
+                  }))
+                }
+              />
+              <hr />
+              <Checkbox
+                checked={filter.disabled}
+                label="All Disabled"
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    disabled: !prev.disabled,
+                    normal: false,
+                  }))
+                }
+              />
+              <hr />
+              Save View As
               <FormGroup
                 label="Name"
                 labelInfo="(required)"
@@ -1846,7 +1904,7 @@ export const RiskAssessmentWindow = ({
                     resetContext();
                   }}
                 >
-                  Cancel
+                  Close
                 </Button>
                 <Button
                   type="submit"

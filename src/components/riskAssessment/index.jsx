@@ -213,7 +213,7 @@ export const RiskAssessment = ({
             }}
             onClick={resetContext}
           >
-            {groups.length > 0
+            {groups.length > 0 && checkFilter('group')
               ? groups.map((group, index) => (
                   <RiskGroup
                     setFirstContext={setFirstContext}
@@ -248,7 +248,7 @@ export const RiskAssessment = ({
                     checkFilter(
                       object.type,
                       object.status,
-                      object["position.enaled"]
+                      !object["position.enabled"]
                     ) && (
                       <RiskElement
                         setFirstContext={setFirstContext}

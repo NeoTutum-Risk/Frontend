@@ -171,7 +171,7 @@ export const RiskGroup = ({
             ? checkFilter(
               object.type,
               object.status,
-              object["position.enaled"]
+              !object["position.enabled"]
             ) && (
                 <RiskElement
                   setFirstContext={setFirstContext}
