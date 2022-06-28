@@ -365,7 +365,8 @@ export const RiskAssessmentWindow = ({
 
   const changeView = useCallback(
     async (id) => {
-      setFilter(viewsList.find((view) => view.id === id));
+      // console.log(viewsList);
+      setFilter(viewsList.find((view) => view.id === id).filter);
     },
     [viewsList]
   );
@@ -2078,6 +2079,7 @@ export const RiskAssessmentWindow = ({
               <MenuItem text="Show View">
                 {viewsList.map((view) => (
                   <MenuItem
+                  intent={view.current?"primary":"none"}
                     text={view.name}
                     onClick={changeView.bind(null, [view.id])}
                   />
