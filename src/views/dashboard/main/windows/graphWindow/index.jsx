@@ -179,7 +179,7 @@ export const GraphWindow = ({
         const physicalDataObjectName = response.data.data.name
         const textAppended = `id: ${physicalDataObjectId}\nname: ${physicalDataObjectName}`
         appendTextAnnotation(BPMNphysicalDataObject, textAppended, physicalDataObjectId)
-        modeler.get("modeling").setColor([BPMNphysicalDataObject], {stroke: '#2C5E1A',fill: '#B2D2A4'})
+        modeler.get("modeling").setColor([BPMNphysicalDataObject], {stroke: '#000000',fill: '#137cbd'})
         setContextMenu(prev=>({...prev,active:false,element:null}));
         showSuccessToaster(`Risk Object Created Successfully`);
       }else{
