@@ -7,7 +7,7 @@ import {
 import { Popover2, Classes } from "@blueprintjs/popover2";
 import RiskAssessmentMenu from "../riskAssessmentMenu";
 import { showDangerToaster } from "../../utils/toaster";
-import { getAllPortfolios, getRiskAssessment } from "../../services";
+import { getAllPortfolios, getRiskAssessment, testGetRiskAssessment } from "../../services";
 
 const DownloadRiskAssessmentJSON = () => {
   const [portfolios, setPortfolios] = useState([]);
@@ -32,16 +32,17 @@ const DownloadRiskAssessmentJSON = () => {
 
   const downloadRiskAssessmentHandler = async () => {
     try {
-      const response = await getRiskAssessment(
+      const response = await testGetRiskAssessment(
         selectedRiskAssessment.riskAssessmentId
       );
       if (response.status === 200) {
-        const result = response.data.data;
+        const result = response.data;
+        console.log(result)
 
         result.metaData && delete result.metaData;
 
         // handling the creation of json file
-        const fileName = "riskAssessmentFile";
+        const fileName = `${selectedRiskAssessment.name}_file`;
         const json = JSON.stringify(result);
         const blob = new Blob([json], { type: "application/json" });
         const href = await URL.createObjectURL(blob);

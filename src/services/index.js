@@ -1,5 +1,5 @@
 import { xmlParser } from "../utils/xmlParser";
-import { serviceProvider } from "./serviceProvider";
+import { serviceProvider, testServiceProvider } from "./serviceProvider";
 
 export const getPortfolios = () => serviceProvider("/portfolios");
 
@@ -190,3 +190,5 @@ export const getRiskAssessmentViews = (id) => serviceProvider(`filterViews/riskA
 export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews`,data);
 
 export const updateRiskAssessmentView = (id,data) => serviceProvider.put(`filterViews/${id}`,data);
+
+export const testGetRiskAssessment = (id) => testServiceProvider(`riskAssessments/v2/RA-Analytics/${id}`)
