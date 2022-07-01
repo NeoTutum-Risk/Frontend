@@ -34,10 +34,13 @@ import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import { mapStatusToIcon } from "../../../../utils/mapStatusToIcon";
 import {windowDefault} from "../../../../constants";
+import { useDispatch } from "react-redux";
+import { onWindowNodeClickAction } from "../../../../slices/window-slice";
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState([]);
-  const setWindows = useSetRecoilState(windowsState);
+  //const setWindows = useSetRecoilState(windowsState);
+  const dispatch = useDispatch()
   const [referenceGroups, setReferenceGroups] =
     useRecoilState(referenceGroupsState);
   const [referenceGroupPopOverOpenId, setReferenceGroupPopOverOpenId] =
@@ -690,6 +693,9 @@ export const ReferenceGroups = () => {
       if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
 
+      dispatch(onWindowNodeClickAction({nodeData, windowDefault}))
+
+      /*
       setWindows((prevWindows) =>
         prevWindows.find(
           (window) =>
@@ -710,8 +716,9 @@ export const ReferenceGroups = () => {
               ...prevWindows,
             ]
       );
+      */
     },
-    [setWindows]
+    [dispatch]
   );
 
   console.log(referenceGroupsNodes, referenceGroups);

@@ -8,6 +8,8 @@ import { Tooltip2 } from "@blueprintjs/popover2";
 import { useNavigate } from "react-router-dom";
 import { AddUpload } from "./addUpload";
 import { lookupListState, lookupTableState } from "../../store/lookup";
+import { useDispatch, useSelector } from "react-redux";
+import { setLookupList, setLookupTable } from "../../slices/lookup-slice";
 
 const columns = [
   { value: "id", width: 100 },
@@ -25,8 +27,11 @@ const filesColumns = [
 
 const Lookup = () => {
   const [loading, setLoading] = useState(false);
-  const [lookupList, setLookupList] = useRecoilState(lookupListState);
-  const [lookupTable, setLookupTable] = useRecoilState(lookupTableState);
+  //const [lookupList, setLookupList] = useRecoilState(lookupListState);
+  //const [lookupTable, setLookupTable] = useRecoilState(lookupTableState);
+  const lookupList = useSelector(state => state.lookupReducer.lookupList)
+  const lookupTable = useSelector(state => state.lookupReducer.lookupTable)
+  const dispatch = useDispatch()
 
   const initialLoading = useCallback(async () => {
     const res = await getAllLookup();
@@ -34,7 +39,8 @@ const Lookup = () => {
     if (res.status === 200) {
       const { data } = res.data;
 
-      setLookupList(data);
+      dispatch(setLookupList(data))
+      //setLookupList(data);
     }
   }, [setLookupList]);
 
@@ -43,7 +49,9 @@ const Lookup = () => {
   }, [initialLoading, loading]);
 
   const showInTable = (id) => {
-    setLookupTable(lookupList.find((lookup) => lookup.id === id));
+    const selectedLookupList = lookupList.find((lookup) => lookup.id === id)
+    //setLookupTable(selectedLookupList);
+    dispatch(setLookupTable(selectedLookupList))
   };
 
 

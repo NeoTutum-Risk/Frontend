@@ -28,6 +28,8 @@ import {
 import { windowsState } from "../../../../../store/windows";
 import { useRecoilState } from "recoil";
 import { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { changeWindowTypeAction, changeWindowLocationAction, windowResizeAction, windowMaximizeAction } from "../../../../../slices/window-slice";
 export const Window = ({
   icon,
   title,
@@ -37,7 +39,10 @@ export const Window = ({
   headerAdditionalContent = null,
   window,
 }) => {
-  const [windows, setWindows] = useRecoilState(windowsState);
+  //const [windows, setWindows] = useRecoilState(windowsState);
+  const windows = useSelector(state => state.windowsReducer.windows)
+  const dispatch = useDispatch()
+
   const [isMaximize, setIsMaximize] = useState(false);
   const [changeTypeLoading, setChangeTypeLoading] = useState(false);
 
@@ -52,6 +57,10 @@ export const Window = ({
         case "left":
           const leftIndex = windowIndex - 1;
           const leftData = windows[leftIndex];
+
+          dispatch(changeWindowLocationAction({directionData:leftData, directionIndex: leftIndex, windowIndex, windowData}))
+
+          /*
           setWindows((prevWindows) => {
             return prevWindows.map((window, index) => {
               if (index !== windowIndex && index !== leftIndex) {
@@ -67,11 +76,16 @@ export const Window = ({
               return {};
             });
           });
+          */
           break;
 
         case "right":
           const rightIndex = windowIndex + 1;
           const rightData = windows[rightIndex];
+
+          dispatch(changeWindowLocationAction({directionData: rightData, directionIndex: rightIndex, windowIndex, windowData}))
+          
+          /*
           setWindows((prevWindows) => {
             return prevWindows.map((window, index) => {
               if (index !== windowIndex && index !== rightIndex) {
@@ -87,13 +101,14 @@ export const Window = ({
               return {};
             });
           });
+          */
           break;
 
         default:
           return;
       }
     },
-    [setWindows, windows]
+    [dispatch, windows]
   );
 
   const windowTypeHandler = useCallback(
@@ -125,6 +140,10 @@ export const Window = ({
           default:
             showWarningToaster(`Worng Type Selection`);
         }
+
+        dispatch(changeWindowTypeAction({id, dataObject}))
+        
+        /*
         setWindows((prevWindows) =>
           prevWindows.map((window) => {
             if (window.id !== id) {
@@ -134,17 +153,22 @@ export const Window = ({
             }
           })
         );
+        */
         setChangeTypeLoading(false);
       } catch (error) {
         showDangerToaster(`Can't Change Window Type: ${error}`);
         setChangeTypeLoading(false);
       }
     },
-    [setWindows]
+    [dispatch]
   );
 
   const handleWindowResize = useCallback(
     (delta) => {
+
+      dispatch(windowResizeAction({windowId: window.id, delta}))
+      
+      /*
       setWindows((prev) =>
         prev.map((storedWindow) => {
           if (storedWindow.id === window.id) {
@@ -158,11 +182,15 @@ export const Window = ({
           }
         })
       );
+      */
     },
-    [setWindows, window.id]
+    [dispatch, window.id]
   );
 
   const handleMaximize = useCallback(() => {
+
+    dispatch(windowMaximizeAction(window.id))
+    /*
     setWindows((prev) =>
       prev.map((storedWindow) => {
         if (storedWindow.id === window.id) {
@@ -175,7 +203,8 @@ export const Window = ({
         }
       })
     );
-  }, [setWindows, window.id]);
+    */
+  }, [dispatch, window.id]);
   return (
     <Resizable
       className={

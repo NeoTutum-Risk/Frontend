@@ -9,16 +9,27 @@ import { FlowChartWindow } from "./windows/flowChartWindow";
 import { RiskAssessmentWindow } from "./windows/riskAssessmentWindow";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { arrayMoveImmutable } from "array-move";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  closeWindowAction,
+  reArrangeWindowAction,
+  restoreWindowAction,
+  collapseWindowAction,
+} from "../../../slices/window-slice";
 
 export const Main = () => {
-  const [windows, setWindows] = useRecoilState(windowsState);
+  //const [windows, setWindows] = useRecoilState(windowsState);
+  const windows = useSelector((state) => state.windowsReducer.windows);
+  const dispatch = useDispatch();
 
   const windowCloseHandler = useCallback(
     (id) =>
+      /*
       setWindows((prevWindows) =>
         prevWindows.filter((window) => window.id !== id)
       ),
-    [setWindows]
+      */
+      dispatch(closeWindowAction(id)),[dispatch]
   );
 
   // handler that cancel drag if the draggable
@@ -29,8 +40,9 @@ export const Main = () => {
       : false;
 
   const windowCollapseHandler = useCallback(
-    (id) =>
-      setWindows((prevWindows) =>
+    (id) => dispatch(collapseWindowAction(id)),
+    /*  
+    setWindows((prevWindows) =>
         prevWindows.map((window) => {
           if (window.id !== id) {
             return window;
@@ -38,24 +50,32 @@ export const Main = () => {
             return { ...window, collapse: true };
           }
         })
-      ),
-    [setWindows]
+      )*/
+    [dispatch]
   );
 
   const windowRestoreHandler = useCallback(
-    (id) =>
+    (id) => dispatch(restoreWindowAction(id)),
+    /*
       setWindows((prevWindows) => [
         {
           ...prevWindows[prevWindows.map((row) => row.id).indexOf(id)],
           collapse: false,
         },
         ...prevWindows.filter((window) => window.id !== id),
-      ]),
-    [setWindows]
+      ])*/ [dispatch]
   );
 
   // handles the arrangment of the new order of the elements list after the DnD happened
   const onSortEnd = ({ oldIndex, newIndex }) => {
+    dispatch(reArrangeWindowAction(
+      arrayMoveImmutable(
+        windows.filter((window) => !window.collapse),
+        oldIndex,
+        newIndex
+      )
+    ));
+    /*
     setWindows(
       arrayMoveImmutable(
         windows.filter((window) => !window.collapse),
@@ -63,6 +83,7 @@ export const Main = () => {
         newIndex
       )
     );
+    */
   };
 
   // to display each window of the Draggable Windows

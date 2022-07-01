@@ -2,8 +2,12 @@ import { windowsState } from "../../../../store/windows";
 import { useRecoilState } from "recoil";
 import { CollapsedWindow } from "../windows/collapsedWindow";
 import { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { restoreWindowAction } from "../../../../slices/window-slice";
 export const CollapsePanel = ({ children }) => {
-  const [windows, setWindows] = useRecoilState(windowsState);
+  //const [windows, setWindows] = useRecoilState(windowsState);
+  const windows = useSelector(state => state.windowsReducer.windows)
+  const dispatch = useDispatch()
   const panelStyle = {
     position: "fixed",
     bottom: 10,
@@ -18,19 +22,22 @@ export const CollapsePanel = ({ children }) => {
   };
   const windowRestoreHandler = useCallback(
     (id) =>
+
+    dispatch(restoreWindowAction(id))
+    /*
       setWindows((prevWindows) => [
         {
           ...prevWindows[prevWindows.map((row) => row.id).indexOf(id)],
           collapse: false,
         },
         ...prevWindows.filter((window) => window.id !== id),
-      ]),
-    [setWindows]
+      ])*/,
+    [dispatch]
   );
   return (
     <div style={panelStyle}>
       {windows.map((window) => (
-        <>
+        <div key={`collapsed-${window.id}`}>
           {window.collapse === true && (
             <CollapsedWindow
               key={window.id}
@@ -51,7 +58,7 @@ export const CollapsePanel = ({ children }) => {
               onRestore={() => windowRestoreHandler(window.id)}
             />
           )}
-        </>
+        </div>
       ))}
     </div>
   );

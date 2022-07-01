@@ -23,10 +23,7 @@ import {
   archiveBpmn,
   updateBpmnStatus,
 } from "../../../../services";
-import {
-  platformState,
-  protfoliosState,
-} from "../../../../store/portfolios";
+import { platformState, protfoliosState } from "../../../../store/portfolios";
 import { referenceGroupsState } from "../../../../store/referenceGroups";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
@@ -37,6 +34,8 @@ import {
 } from "../../../../utils/toaster";
 import { xmlParser } from "../../../../utils/xmlParser";
 import { windowDefault } from "../../../../constants";
+import { useDispatch } from "react-redux";
+import { addNewWindowAction } from "../../../../slices/window-slice";
 export const Portfolios = () => {
   const [serviceChainAction, setServiceChainAction] = useState(null);
   const [referenceGroups, setReferenceGroups] =
@@ -60,7 +59,8 @@ export const Portfolios = () => {
   const [serviceChainPopOver, setServiceChainPopOver] = useState(null);
   const [serviceChainPopOverOpenId, setServiceChainPopOverOpenId] =
     useState(null);
-  const setWindows = useSetRecoilState(windowsState);
+  //const setWindows = useSetRecoilState(windowsState);
+  const dispatch = useDispatch();
   const [serviceContextMenu, setServiceContextMenu] = useState(null);
   const [portfolioContextMenu, setPortfolioContextMenu] = useState(null);
   const [platformContextMenu, setPlatformContextMenu] = useState(null);
@@ -109,24 +109,27 @@ export const Portfolios = () => {
 
   const addNewWindow = useCallback(
     ({ data, type }) => {
+      const windowData = {
+        type,
+        data,
+        id: generateID(),
+        collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
+      };
+
+      dispatch(addNewWindowAction({windowData, dataId: data.id}))
+
+      /*
       setWindows((prevWindows) =>
         prevWindows.find((window) => window.data.id === data.id)
           ? prevWindows
-          : [
-              {
-                type,
-                data,
-                id: generateID(),
-                collapse: false,
-                width: windowDefault.width,
-                height: windowDefault.height,
-                maximized: false,
-              },
-              ...prevWindows,
-            ]
+          : [windowData, ...prevWindows]
       );
+      */
     },
-    [setWindows]
+    [dispatch]
   );
 
   const onImportBpmnFile = useCallback(
@@ -714,7 +717,12 @@ export const Portfolios = () => {
         </form>
       </div>
     ),
-    [addRiskAssessment,referenceGroups, isAddServiceLoading, newRiskAssessmentNameError]
+    [
+      addRiskAssessment,
+      referenceGroups,
+      isAddServiceLoading,
+      newRiskAssessmentNameError,
+    ]
   );
 
   const BpmnPopOverContent = useMemo(
@@ -879,7 +887,7 @@ export const Portfolios = () => {
   useEffect(() => {
     setNodes((prevNodes) =>
       portfolios.data.map((portfolio, portfolioIdx) => ({
-        key:portfolio.id,
+        key: portfolio.id,
         id: portfolio.id,
         hasCaret: portfolio?.serviceChains?.length > 0,
         icon: "folder-close",
@@ -1019,15 +1027,17 @@ export const Portfolios = () => {
               </Popover2>
             ),
             nodeData: { type: "serviceChain", data: serviceChain },
-            childNodes:
-            (serviceChain?.riskAssessments?.map((riskAssessment, riskAssessmentIdx)=>({
-              id:riskAssessment.id,
-              label:riskAssessment.name,
-              icon:"derive-column",
-              nodeData: { type:"risk assessment", data: riskAssessment }
-              
-            }))??[]).concat
-              (serviceChain?.platforms?.map((platform, platformIdx) => ({
+            childNodes: (
+              serviceChain?.riskAssessments?.map(
+                (riskAssessment, riskAssessmentIdx) => ({
+                  id: riskAssessment.id,
+                  label: riskAssessment.name,
+                  icon: "derive-column",
+                  nodeData: { type: "risk assessment", data: riskAssessment },
+                })
+              ) ?? []
+            ).concat(
+              serviceChain?.platforms?.map((platform, platformIdx) => ({
                 id: platform.id,
                 hasCaret: platform?.bpmnFiles?.length > 0,
                 icon: "application",
@@ -1179,7 +1189,8 @@ export const Portfolios = () => {
                       </Popover2>
                     ),
                   })) ?? [],
-              })) ?? []),
+              })) ?? []
+            ),
           })) ?? [],
       }))
     );
@@ -1191,7 +1202,7 @@ export const Portfolios = () => {
     serviceChainPopOverOpenId,
     onServiceChainMenuClick,
     PlatformPopOverContent,
-    setWindows,
+    dispatch,
     portfolioContextMenu,
     serviceContextMenu,
     platformContextMenu,
@@ -1203,22 +1214,21 @@ export const Portfolios = () => {
     onBpmnStateChange,
     onBpmnArchive,
     riskAssessmentPopOverContent,
-    serviceChainAction
+    serviceChainAction,
   ]);
 
   const onNodeClick = useCallback(
     (node, nodePath) => {
-      if (node.nodeData.type === "bpmn"){
+      if (node.nodeData.type === "bpmn") {
         addNewWindow({ type: "bpmn", data: node.nodeData.data });
-      }else if(node.nodeData.type === "risk assessment"){
+      } else if (node.nodeData.type === "risk assessment") {
         addNewWindow({ type: "risk", data: node.nodeData.data });
-      }else{
+      } else {
         return;
-      } 
+      }
 
       // setNodes(setNodesAttribute(nodes, 'isSelected', false))
       // setNodes(setNodeAttribute(nodes, nodePath, 'isSelected', true))
-      
     },
     [addNewWindow]
   );

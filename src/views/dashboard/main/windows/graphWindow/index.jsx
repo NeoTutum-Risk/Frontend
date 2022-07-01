@@ -10,6 +10,8 @@ import { showDangerToaster, showSuccessToaster } from "../../../../../utils/toas
 import { Window } from "../window";
 import { windowsState } from "../../../../../store/windows";
 import { getBpmnSequenceFlows, getBpmnEntities } from "../../../../../services";
+import { useDispatch, useSelector } from "react-redux";
+import { changeInWindowAction } from "../../../../../slices/window-slice";
 export const GraphWindow = ({
   onClose,
   onCollapse,
@@ -18,7 +20,10 @@ export const GraphWindow = ({
   collapseState,
   onTypeChange,
 }) => {
-  const [windows, setWindows] = useRecoilState(windowsState);
+  //const [windows, setWindows] = useRecoilState(windowsState);
+  const windows = useSelector(state => state.windowsReducer.windows)
+  const dispatch = useDispatch()
+
   const [bpmn, setbpmn] = useRecoilState(platformState(window.data.id));
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveLoading, setAutoSaveLoading] = useState(false);
@@ -121,6 +126,9 @@ export const GraphWindow = ({
         const sequenceFlows = await getBpmnSequenceFlows();
         const entities = await getBpmnEntities();
 
+        dispatch(changeInWindowAction({sequenceFlows, entities}))
+
+        /*
         setWindows((prev) => {
           return prev.map((window) => {
             if (window.data.type === "BPMN SequenceFlows") {
@@ -146,9 +154,10 @@ export const GraphWindow = ({
             return window;
           });
         });
+        */
       }, 500);
     },
-    [autoSave, saveBpmn, setbpmn, setWindows, windows]
+    [autoSave, saveBpmn, setbpmn, dispatch, windows]
   );
 
   const contextMenuAction = useCallback( () => {

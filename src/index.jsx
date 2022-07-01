@@ -1,5 +1,12 @@
-import ReactDOM from 'react-dom'
-import { Router } from './router'
-import './styles/index.scss'
+import ReactDOM from "react-dom";
+import { Router } from "./router";
+import { Provider } from "react-redux";
+import { store } from "./store"
+import "./styles/index.scss";
 
-ReactDOM.render(<Router />, document.getElementById('root'))
+ReactDOM.render(
+  <Provider store={store}>
+    <Router />
+  </Provider>,
+  document.getElementById("root")
+);

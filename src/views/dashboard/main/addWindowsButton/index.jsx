@@ -1,7 +1,7 @@
 import { Button, Menu, MenuItem } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import React, { useCallback, useState } from "react";
-import { useSetRecoilState,useRecoilState } from "recoil";
+import { useSetRecoilState, useRecoilState } from "recoil";
 import {
   getBpmnAssociations,
   getBpmnEntities,
@@ -9,41 +9,47 @@ import {
   getBpmnSequenceFlows,
   getRiskAssessmentTable,
   getRiskAssessmentPhysicalTable,
-  getRiskObjectProperties
+  getRiskObjectProperties,
 } from "../../../../services";
 import { windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import { windowDefault } from "../../../../constants";
-import {objectSelectorState} from "../../../../store/objectSelector"
+import { objectSelectorState } from "../../../../store/objectSelector";
+import { useDispatch } from "react-redux";
+import { appendWindowAtStartAction } from "../../../../slices/window-slice";
 
 export const AddWindowsButton = ({ data }) => {
-
-  const [selectedObjects, setSelectedObjects] = useRecoilState(objectSelectorState);
+  const [selectedObjects, setSelectedObjects] =
+    useRecoilState(objectSelectorState);
 
   const [isLoading, setIsLoading] = useState(false);
-  const setWindowsState = useSetRecoilState(windowsState);
+  //const setWindowsState = useSetRecoilState(windowsState);
+  const dispatch = useDispatch();
 
-  const onRiskObjectProperties = useCallback(async ()=>{
+  const onRiskObjectProperties = useCallback(async () => {
     setIsLoading(true);
-    const ids = selectedObjects.map(object=>object.id);
-    const payload = {ids:[...new Set([...ids])]};
+    const ids = selectedObjects.map((object) => object.id);
+    const payload = { ids: [...new Set([...ids])] };
     const response = await getRiskObjectProperties(payload);
-    setSelectedObjects([]);
-    setWindowsState((prevWindows) => [
-      {
-        id: generateID(),
-        type: "data",
-        data: { type: "riskTable", name:"Risk Object(s) Properties", riskTable: response.data.data },
-        collapse: false,
-        width: windowDefault.width,
-        height: windowDefault.height,
-        maximized: false,
+    const windowData = {
+      id: generateID(),
+      type: "data",
+      data: {
+        type: "riskTable",
+        name: "Risk Object(s) Properties",
+        riskTable: response.data.data,
       },
-      ...prevWindows,
-    ]);
+      collapse: false,
+      width: windowDefault.width,
+      height: windowDefault.height,
+      maximized: false,
+    };
+    setSelectedObjects([]);
+    dispatch(appendWindowAtStartAction(windowData));
+    //setWindowsState((prevWindows) => [windowData, ...prevWindows]);
 
     setIsLoading(false);
-  },[selectedObjects,setWindowsState]);
+  }, [selectedObjects, dispatch]);
 
   const onRiskAssessmentPhysicalTable = useCallback(
     async (id, name) => {
@@ -66,165 +72,200 @@ export const AddWindowsButton = ({ data }) => {
         };
       });
 
+      const windowData = {
+        id: generateID(),
+        type: "data",
+        data: { type: "riskPhysicalTable", name, riskTable: preparedData },
+        collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
+      };
+
+      dispatch(appendWindowAtStartAction(windowData));
+      /*
       setWindowsState((prevWindows) => [
-        {
-          id: generateID(),
-          type: "data",
-          data: { type: "riskPhysicalTable", name, riskTable: preparedData },
-          collapse: false,
-          width: windowDefault.width,
-          height: windowDefault.height,
-          maximized: false,
-        },
+        windowData,
         ...prevWindows,
       ]);
+      */
 
       setIsLoading(false);
     },
-    [setWindowsState]
+    [dispatch]
   );
 
   const onRiskAssessmentTable = useCallback(
     async (id, name) => {
       setIsLoading(true);
       const { data } = await getRiskAssessmentTable(id);
+
+      const windowData = {
+        id: generateID(),
+        type: "data",
+        data: { type: "riskTable", name, riskTable: data.data },
+        collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
+      };
+
+      dispatch(appendWindowAtStartAction(windowData));
+      /*
       setWindowsState((prevWindows) => [
-        {
-          id: generateID(),
-          type: "data",
-          data: { type: "riskTable", name, riskTable: data.data },
-          collapse: false,
-          width: windowDefault.width,
-          height: windowDefault.height,
-          maximized: false,
-        },
+        windowData,
         ...prevWindows,
       ]);
+      */
 
       setIsLoading(false);
     },
-    [setWindowsState]
+    [dispatch]
   );
 
   const onAssociationsClick = useCallback(async () => {
     setIsLoading(true);
     const { data } = await getBpmnAssociations();
+
+    const windowData = {
+      id: generateID(),
+      type: "data",
+      data: { type: "BPMN Associations", associations: data.data },
+      collapse: false,
+      width: windowDefault.width,
+      height: windowDefault.height,
+      maximized: false,
+    };
+
+    dispatch(appendWindowAtStartAction(windowData));
+
+    /*
     setWindowsState((prevWindows) => [
-      {
-        id: generateID(),
-        type: "data",
-        data: { type: "BPMN Associations", associations: data.data },
-        collapse: false,
-        width: windowDefault.width,
-        height: windowDefault.height,
-        maximized: false,
-      },
+      windowData,
       ...prevWindows,
     ]);
+    */
 
     setIsLoading(false);
-  }, [setWindowsState]);
+  }, [dispatch]);
 
   const onEntitiesClick = useCallback(async () => {
     setIsLoading(true);
     const { data } = await getBpmnEntities();
+
+    const windowData = {
+      id: generateID(),
+      type: "data",
+      data: { type: "BPMN Entities", entities: data.data },
+      collapse: false,
+      width: windowDefault.width,
+      height: windowDefault.height,
+      maximized: false,
+    };
+
+    dispatch(appendWindowAtStartAction(windowData));
+    /*
     setWindowsState((prevWindows) => [
-      {
-        id: generateID(),
-        type: "data",
-        data: { type: "BPMN Entities", entities: data.data },
-        collapse: false,
-        width: windowDefault.width,
-        height: windowDefault.height,
-        maximized: false,
-      },
+      windowData,
       ...prevWindows,
     ]);
+    */
 
     setIsLoading(false);
-  }, [setWindowsState]);
+  }, [dispatch]);
 
   const onSequenceFlowsClick = useCallback(async () => {
     setIsLoading(true);
     const { data } = await getBpmnSequenceFlows();
-    setWindowsState((prevWindows) => [
-      {
-        id: generateID(),
-        type: "data",
-        data: { type: "BPMN SequenceFlows", sequenceFlows: data.data },
-        collapse: false,
-        width: windowDefault.width,
-        height: windowDefault.height,
-        maximized: false,
-      },
-      ...prevWindows,
-    ]);
+
+    const windowData = {
+      id: generateID(),
+      type: "data",
+      data: { type: "BPMN SequenceFlows", sequenceFlows: data.data },
+      collapse: false,
+      width: windowDefault.width,
+      height: windowDefault.height,
+      maximized: false,
+    };
+
+    dispatch(appendWindowAtStartAction(windowData));
+
+    //setWindowsState((prevWindows) => [windowData, ...prevWindows]);
     setIsLoading(false);
-  }, [setWindowsState]);
+  }, [dispatch]);
 
   const onLanesClick = useCallback(async () => {
     setIsLoading(true);
     const { data } = await getBpmnLanes();
-    setWindowsState((prevWindows) => [
-      {
-        id: generateID(),
-        type: "data",
-        data: { type: "Lanes", lanes: data.data },
-        collapse: false,
-        width: windowDefault.width,
-        height: windowDefault.height,
-        maximized: false,
-      },
-      ...prevWindows,
-    ]);
+
+    const windowData = {
+      id: generateID(),
+      type: "data",
+      data: { type: "Lanes", lanes: data.data },
+      collapse: false,
+      width: windowDefault.width,
+      height: windowDefault.height,
+      maximized: false,
+    };
+
+    dispatch(appendWindowAtStartAction(windowData))
+
+    //setWindowsState((prevWindows) => [windowData, ...prevWindows]);
     setIsLoading(false);
-  }, [setWindowsState]);
+  }, [dispatch]);
 
   const onLevelClick = useCallback(
     (id) => {
       const levelData = data.data.dataObjectLevels.find(
         (level) => level.id === id
       );
-      setWindowsState((prevWindows) => [
-        {
-          id: generateID(),
-          type: "data",
-          data: {
-            type: "Level Data",
-            levelName: levelData.name,
-            levelDataObject: data.data.id,
-            levelData: levelData.dataObjectElements.map((element) => ({
-              id: element.id,
-              label: element.label,
-              levelId: element.levelId,
-              name: element.name,
-              status: element.status,
-              ConnectedTo:
-                element.dataObjectConnections.length > 0
-                  ? element.dataObjectConnections.reduce((con, acc) => {
-                      const returned = (con += ` ${
-                        data.data.dataObjectLevels
-                          .flat()
-                          .map((level) => level.dataObjectElements)
-                          .flat()
-                          .find((item) => item.id === acc.targetId).label
-                      }`);
-                      return returned;
-                    }, "")
-                  : "",
-            })),
-          },
-          collapse: false,
-          width: windowDefault.width,
-          height: windowDefault.height,
-          maximized: false,
+
+      const windowData = {
+        id: generateID(),
+        type: "data",
+        data: {
+          type: "Level Data",
+          levelName: levelData.name,
+          levelDataObject: data.data.id,
+          levelData: levelData.dataObjectElements.map((element) => ({
+            id: element.id,
+            label: element.label,
+            levelId: element.levelId,
+            name: element.name,
+            status: element.status,
+            ConnectedTo:
+              element.dataObjectConnections.length > 0
+                ? element.dataObjectConnections.reduce((con, acc) => {
+                    const returned = (con += ` ${
+                      data.data.dataObjectLevels
+                        .flat()
+                        .map((level) => level.dataObjectElements)
+                        .flat()
+                        .find((item) => item.id === acc.targetId).label
+                    }`);
+                    return returned;
+                  }, "")
+                : "",
+          })),
         },
+        collapse: false,
+        width: windowDefault.width,
+        height: windowDefault.height,
+        maximized: false,
+      }
+
+      dispatch(appendWindowAtStartAction(windowData))
+
+      /*
+      setWindowsState((prevWindows) => [
+        windowData,
         ...prevWindows,
       ]);
+      */
       setIsLoading(false);
       console.log(levelData);
     },
-    [data.data.dataObjectLevels, setWindowsState, data.data.id]
+    [data.data.dataObjectLevels, dispatch, data.data.id]
   );
 
   return (
