@@ -28,7 +28,7 @@ import {
   protfoliosState,
 } from "../../../../store/portfolios";
 import { referenceGroupsState } from "../../../../store/referenceGroups";
-import { windowsState } from "../../../../store/windows";
+import { windowFamily, windowsState, windowsIds } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import {
   showDangerToaster,
@@ -107,8 +107,25 @@ export const Portfolios = () => {
 
   const bpmnFileRef = useRef(null);
 
+  const setWindowCallBack = useRecoilCallback(({set}) => ({data, type}) => {
+    const id = generateID();
+    const windowData = {
+      type,
+      data,
+      id,
+      collapse: false,
+      width: windowDefault.width,
+      height: windowDefault.height,
+      maximized: false
+    }
+    set(windowsIds, (prev) => [id, ...prev])
+    set(windowFamily(id), windowData)
+  }, [])
+
   const addNewWindow = useCallback(
     ({ data, type }) => {
+      setWindowCallBack({data, type})
+      /*
       setWindows((prevWindows) =>
         prevWindows.find((window) => window.data.id === data.id)
           ? prevWindows
@@ -125,8 +142,9 @@ export const Portfolios = () => {
               ...prevWindows,
             ]
       );
+      */
     },
-    [setWindows]
+    [setWindows, setWindowCallBack]
   );
 
   const onImportBpmnFile = useCallback(
