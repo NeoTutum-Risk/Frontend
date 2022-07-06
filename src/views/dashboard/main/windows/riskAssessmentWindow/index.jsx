@@ -46,7 +46,7 @@ import {
   deleteInstanceConnection,
   getRiskAssessmentViews,
   addRiskAssessmentView,
-  updateRiskAssessmentView
+  updateRiskAssessmentView,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -166,24 +166,23 @@ export const RiskAssessmentWindow = ({
       }
       if (!object) {
         groups.forEach((grp) => {
-          if(!object){
+          if (!object) {
             if (type === "risk") {
               object = grp.elements.find((obj) => obj?.id === id);
             } else {
               object = grp.dataObjects.find((obj) => obj?.id === id);
             }
           }
-          
 
           if (object) {
-            group=grp;
+            group = grp;
             //  console.log("grp-obj",object, grp,id, type);
-            console.log('obj',object,Date.now())
+            console.log("obj", object, Date.now());
             // return { object:object, group: grp };
           }
         });
       }
-      return { object, group};
+      return { object, group };
     },
     [riskObjects, dataObjectInstances, groups]
   );
@@ -192,19 +191,18 @@ export const RiskAssessmentWindow = ({
     (type, status, disabled) => {
       let check = false;
 
-      if (status==="deleted") return false;
+      if (status === "deleted") return false;
 
       if (filter.everything) return true;
 
       if (filter.normal) {
         check = status !== "invisible" ? true : false;
       } else {
-        
         if (disabled) {
           if (!filter.disabled && !filter.everything) {
             return false;
           } else {
-           check = true;
+            check = true;
           }
         }
 
@@ -215,8 +213,6 @@ export const RiskAssessmentWindow = ({
             return true;
           }
         }
-
-        
 
         // if (status === "deleted") return false;
         check = filter.connections && type === "connection" ? true : check;
@@ -254,31 +250,47 @@ export const RiskAssessmentWindow = ({
       let check = false;
       let target, source;
 
-      if(connection.status==="deleted") return false;
+      if (connection.status === "deleted") return false;
       if (!filter.everything && !filter.normal && !filter.connections)
         return false;
-      
+
       switch (type) {
         case "riskObjects":
           target = checkObject(connection.sourceRef, "risk");
           source = checkObject(connection.targetRef, "risk");
 
-          console.log('con',connection.sourceRef,source,Date.now())
+          console.log("con", connection.sourceRef, source, Date.now());
           check =
-            checkFilter(target.object?.type, target.object?.status,!target.object['position.enabled']) &&
-            checkFilter(source.object?.type, source.object?.status,!source.object['position.enabled']);
+            checkFilter(
+              target.object?.type,
+              target.object?.status,
+              !target.object["position.enabled"]
+            ) &&
+            checkFilter(
+              source.object?.type,
+              source.object?.status,
+              !source.object["position.enabled"]
+            );
 
           if (!check) return false;
 
           if (target.group) {
-            check = target.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
+            check =
+              target.group.expanded &&
+              (filter.groups || filter.normal || filter.everything)
+                ? true
+                : false;
           }
 
           if (source.group) {
-            check = source.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
+            check =
+              source.group.expanded &&
+              (filter.groups || filter.normal || filter.everything)
+                ? true
+                : false;
           }
 
-          console.log(target,source)
+          console.log(target, source);
           break;
 
         case "dataObjects":
@@ -308,11 +320,19 @@ export const RiskAssessmentWindow = ({
           if (!check) return false;
 
           if (target.group) {
-            check = target.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
+            check =
+              target.group.expanded &&
+              (filter.groups || filter.normal || filter.everything)
+                ? true
+                : false;
           }
 
           if (source.group) {
-            check = source.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
+            check =
+              source.group.expanded &&
+              (filter.groups || filter.normal || filter.everything)
+                ? true
+                : false;
           }
           break;
 
@@ -321,7 +341,11 @@ export const RiskAssessmentWindow = ({
             source = checkObject(connection.sourceRef, "risk");
             target = checkObject(connection.targetRef, "instance");
             check =
-              checkFilter(source.object?.type, source.object?.status,!source.object['position.enabled']) &&
+              checkFilter(
+                source.object?.type,
+                source.object?.status,
+                !source.object["position.enabled"]
+              ) &&
               checkFilter(
                 target.object?.dataObjectNew.IOtype,
                 target.object?.status,
@@ -335,16 +359,29 @@ export const RiskAssessmentWindow = ({
                 source.object?.dataObjectNew.IOtype,
                 source.object?.status,
                 source.object?.disable
-              ) && checkFilter(target.object?.type, target.object?.status,!target.object['position.enabled']);
+              ) &&
+              checkFilter(
+                target.object?.type,
+                target.object?.status,
+                !target.object["position.enabled"]
+              );
           }
           if (!check) return false;
 
           if (target.group) {
-            check = target.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
+            check =
+              target.group.expanded &&
+              (filter.groups || filter.normal || filter.everything)
+                ? true
+                : false;
           }
 
           if (source.group) {
-            check = source.group.expanded && (filter.groups || filter.normal  || filter.everything) ? true : false;
+            check =
+              source.group.expanded &&
+              (filter.groups || filter.normal || filter.everything)
+                ? true
+                : false;
           }
           break;
 
@@ -360,11 +397,9 @@ export const RiskAssessmentWindow = ({
       filter.connections,
       filter.everything,
       filter.normal,
-      filter.groups
+      filter.groups,
     ]
   );
-
- 
 
   const updateViewsList = useCallback(async () => {
     try {
@@ -386,11 +421,11 @@ export const RiskAssessmentWindow = ({
   const changeView = useCallback(
     async (id) => {
       // console.log(viewsList);
-      const response = await updateRiskAssessmentView(id,{current:true});
+      const response = await updateRiskAssessmentView(id, { current: true });
       updateViewsList();
       setFilter(viewsList.find((view) => view.id === id).filter);
     },
-    [viewsList,updateViewsList]
+    [viewsList, updateViewsList]
   );
 
   const postView = useCallback(async () => {
@@ -1113,6 +1148,7 @@ export const RiskAssessmentWindow = ({
   const handleObjectAction = useCallback(
     async (element) => {
       // console.log("element", element);
+
       if (element.operation === "reset") {
         riskAssessmentData();
         return;
@@ -1229,9 +1265,16 @@ export const RiskAssessmentWindow = ({
                 status: element.payload,
               });
       }
-     setFirstContext('main')
+      setFirstContext("main");
+      setSelectedElements([]);
+      setSelectedObjects([]);
     },
-    [window.data.id, riskAssessmentData /* removeObjectConnections*/]
+    [
+      window.data.id,
+      riskAssessmentData,
+      setSelectedElements,
+      setSelectedObjects /* removeObjectConnections*/,
+    ]
   );
 
   const updateElementStatus = useCallback(async () => {
@@ -1396,12 +1439,19 @@ export const RiskAssessmentWindow = ({
     }
     if (response?.status >= 200 && response?.status < 300) {
       showSuccessToaster(`Connection is removed #${selectedConnection.id}`);
+      setSelectedElements([]);
+      setSelectedObjects([]);
     } else {
       showDangerToaster(`Can't Remove Connection #${selectedConnection.id}`);
     }
 
     setSelectedConnection(null);
-  }, [selectedConnection, resetContext]);
+  }, [
+    selectedConnection,
+    resetContext,
+    setSelectedElements,
+    setSelectedObjects,
+  ]);
 
   const importSharedGroup = useCallback(async () => {
     const payload = {
@@ -1592,7 +1642,7 @@ export const RiskAssessmentWindow = ({
         style={{ zIndex: 1000000 }}
         onDragStop={(e, d) => updateDraftLocation(e, d)}
       >
-        {contextMenu.active && contextMenu.type === "context" && (
+        {/* {contextMenu.active && contextMenu.type === "context" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             {elementEnable ? menu : null}
 
@@ -1606,7 +1656,7 @@ export const RiskAssessmentWindow = ({
               <MenuItem text="Enable" onClick={updateElementStatus} />
             )}
           </Menu>
-        )}
+        )} */}
 
         {contextMenu.active && contextMenu.type === "connection" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
@@ -2084,7 +2134,7 @@ export const RiskAssessmentWindow = ({
               <MenuItem text="Show View">
                 {viewsList.map((view) => (
                   <MenuItem
-                  intent={view.current?"primary":"none"}
+                    intent={view.current ? "primary" : "none"}
                     text={view.name}
                     onClick={changeView.bind(null, [view.id])}
                   />
@@ -2396,7 +2446,7 @@ export const RiskAssessmentWindow = ({
                 labelFor="newObjectDescription"
               >
                 <TextArea
-                  required
+                  // required
                   value={objectDescription}
                   id="newObjectDescription"
                   onChange={(event) => {

@@ -175,7 +175,7 @@ export const DataObject = ({
           }}
           // title={data.description}
           onClick={handleClick}
-          className=" panningDisabled "
+          className="panningDisabled pinchDisabled wheelDisabled"
           style={{
             height: "100%",
             border: selectedElements.find((element) => element.id === data.id)
@@ -186,7 +186,7 @@ export const DataObject = ({
             borderRadius: "15px",
             backgroundColor: "white",
             padding: "5px",
-            overflow: "scroll",
+            
           }}
         >
           <div
@@ -194,22 +194,23 @@ export const DataObject = ({
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-around",
+              
             }}
-            className="panningDisabled"
+            className="panningDisabled pinchDisabled wheelDisabled"
           >
             <div
               style={{ display: "flex", justifyContent: "space-between" }}
-              className="panningDisabled"
+              className="panningDisabled pinchDisabled wheelDisabled"
             >
               <Button
-                className="panningDisabled"
+                className="panningDisabled pinchDisabled wheelDisabled"
                 small={true}
                 intent={!data.disable ? "success" : "none"}
               >
                 {data.id}
               </Button>
               <Button
-                className="panningDisabled"
+                className="panningDisabled pinchDisabled wheelDisabled"
                 title={data.dataObjectNew.description}
                 small={true}
                 intent={!data.disable ? "success" : "none"}
@@ -217,14 +218,14 @@ export const DataObject = ({
                 {data.dataObjectNew.name}
               </Button>
               <Button
-                className="panningDisabled"
+                className="panningDisabled pinchDisabled wheelDisabled"
                 small={true}
                 intent={!data.disable ? "success" : "none"}
               >
                 {data.dataObjectNew.chronType}
               </Button>
               <Button
-                className="panningDisabled"
+                className="panningDisabled pinchDisabled wheelDisabled"
                 small={true}
                 intent={!data.disable ? "success" : "none"}
               >
@@ -238,7 +239,7 @@ export const DataObject = ({
                 justifyContent: "space-between",
                 paddingTop: "5px",
               }}
-              className="panningDisabled"
+              className="panningDisabled pinchDisabled wheelDisabled"
             >
               <Button
                 small={true}
@@ -252,13 +253,14 @@ export const DataObject = ({
                     groupId,
                   })
                 }
-                className="panningDisabled"
+                className="panningDisabled pinchDisabled wheelDisabled"
               >
                 {!data.disable ? "Disable" : "Enable"}
               </Button>
               <Button
                 disabled={data.disable}
                 small={true}
+                className="panningDisabled pinchDisabled wheelDisabled"
                 intent={data.status === "invisible" ? "primary" : "warning"}
                 title={
                   data.status === "invisible"
@@ -285,6 +287,7 @@ export const DataObject = ({
                   <Button
                     // fill={true}
                     // disabled={!activeAttribute}
+                    className="panningDisabled pinchDisabled wheelDisabled"
                     title={`Remove from G#${Number(groupId - 2000000)}`}
                     intent="warning"
                     small={true}
@@ -295,6 +298,7 @@ export const DataObject = ({
                   <Button
                     // fill={true}
                     // disabled={!activeAttribute}
+                    className="panningDisabled pinchDisabled wheelDisabled"
                     title="Cancel"
                     intent="danger"
                     small={true}
@@ -305,6 +309,7 @@ export const DataObject = ({
                 </>
               ) : (
                 <Button
+                className="panningDisabled pinchDisabled wheelDisabled"
                   small={true}
                   onClick={handleGroup}
                   intent={!data.disable ? "success" : "none"}
@@ -316,6 +321,7 @@ export const DataObject = ({
               {!edit ? (
                 <Button
                   // fill={true}
+                  className="panningDisabled pinchDisabled wheelDisabled"
                   disabled={data.disable}
                   title="Edit"
                   intent="primary"
@@ -331,6 +337,7 @@ export const DataObject = ({
                   <Button
                     // fill={true}
                     // disabled={!activeAttribute}
+                    className="panningDisabled pinchDisabled wheelDisabled"
                     title="Save"
                     intent="success"
                     small={true}
@@ -341,6 +348,7 @@ export const DataObject = ({
                   <Button
                     // fill={true}
                     // disabled={!activeAttribute}
+                    className="panningDisabled pinchDisabled wheelDisabled"
                     title="Cancel"
                     intent="danger"
                     small={true}
@@ -353,6 +361,7 @@ export const DataObject = ({
               <Button
                 disabled={data.disable}
                 small={true}
+                className="panningDisabled pinchDisabled wheelDisabled"
                 intent={data.status === "delete" ? "warning" : "danger"}
                 onClick={() => {
                   handleObjectAction({
@@ -372,7 +381,7 @@ export const DataObject = ({
           </div>
 
           {data.dataObjectNew.arrayName ? (
-            <table className="bp4-html-table-bordered panningDisabled">
+            <table className="bp4-html-table-bordered panningDisabled" style={{textAlign:"left",paddingTop:"5px"}}>
               <tr>
                 <th>Array Name</th>
                 <td>{data.dataObjectNew.arrayName}</td>
@@ -390,17 +399,17 @@ export const DataObject = ({
               </tr>
             </table>
           ) : (
-            <div style={{ paddingTop: "10px" }}>
+            <div className="panningDisabled pinchDisabled wheelDisabled" style={{ paddingTop: "10px",overflow: "auto", }}>
               {edit ? (
                 <TextArea
-                  className="panningDisabled pinchDisabled"
+                  className="panningDisabled pinchDisabled wheelDisabled"
                   fill={true}
                   growVertically={true}
                   onChange={(e) => setEditingValue(e.target.value)}
                   value={editingValue}
                 ></TextArea>
               ) : (
-                <span style={{ overflow: "auto", height: "100%" }}>
+                <span className="panningDisabled pinchDisabled wheelDisabled" style={{ overflow: "auto", height: "100%" }}>
                   {viewedAttribute}
                 </span>
               )}

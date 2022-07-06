@@ -29,7 +29,7 @@ export const RiskAssessment = ({
   handleProperties,
   removeFromGroup,
   checkFilter,
-  checkConnctionVisibility
+  checkConnctionVisibility,
 }) => {
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
@@ -105,81 +105,90 @@ export const RiskAssessment = ({
         pinch={{ excluded: ["pinchDisabled"] }}
         wheel={{ excluded: ["wheelDisabled"] }}
       >
-        {instanceConnections.map((edge) => (
-          checkConnctionVisibility(edge,'dataObjects') && <Xarrow
-          key={edge.sourceRef+" "+edge.targetRef}
-            path="straight"
-            curveness={0.2}
-            strokeWidth={1.5}
-            color="#29A634"
-            headColor="#29A634"
-            tailColor="#29A634"
-            lineColor="#29A634"
-            labels={{
-              middle: (
-                <div style={{ display: !true ? "none" : "inline" }}>
-                  {edge.name}
-                </div>
-              ),
-            }}
-            start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
-            end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
-            SVGcanvasStyle={{ overflow: "hidden" }}
-          />
-        ))}
+        {instanceConnections.map(
+          (edge) =>
+            checkConnctionVisibility(edge, "dataObjects") && (
+              <Xarrow
+                key={edge.sourceRef + " " + edge.targetRef}
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                color="#29A634"
+                headColor="#29A634"
+                tailColor="#29A634"
+                lineColor="#29A634"
+                labels={{
+                  middle: (
+                    <div style={{ display: !true ? "none" : "inline" }}>
+                      {edge.name}
+                    </div>
+                  ),
+                }}
+                start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
+                end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
 
-        {instanceObjectConnections.map((edge) => (
-          // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
-          checkConnctionVisibility(edge,'riskDataObjects') && <Xarrow
-          key={edge.sourceRef+" "+edge.targetRef}
-            path="straight"
-            curveness={0.2}
-            strokeWidth={1.5}
-            color="#29A634"
-            headColor="#29A634"
-            tailColor="#29A634"
-            lineColor="#29A634"
-            labels={{
-              middle: (
-                <div style={{ display: !true ? "none" : "inline" }}>
-                  {edge.name}
-                </div>
-              ),
-            }}
-            start={String(
-              (edge.objectType === "Input" ? "D-" : "R-") +
-                riskAssessmentId +
-                "-" +
-                edge.sourceRef
-            )}
-            end={String(
-              (edge.objectType === "Input" ? "R-" : "D-") +
-                riskAssessmentId +
-                "-" +
-                edge.targetRef
-            )}
-            SVGcanvasStyle={{ overflow: "hidden" }}
-          />
-        ))}
+        {instanceObjectConnections.map(
+          (edge) =>
+            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
+            checkConnctionVisibility(edge, "riskDataObjects") && (
+              <Xarrow
+                key={edge.sourceRef + " " + edge.targetRef}
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                color="#29A634"
+                headColor="#29A634"
+                tailColor="#29A634"
+                lineColor="#29A634"
+                labels={{
+                  middle: (
+                    <div style={{ display: !true ? "none" : "inline" }}>
+                      {edge.name}
+                    </div>
+                  ),
+                }}
+                start={String(
+                  (edge.objectType === "Input" ? "D-" : "R-") +
+                    riskAssessmentId +
+                    "-" +
+                    edge.sourceRef
+                )}
+                end={String(
+                  (edge.objectType === "Input" ? "R-" : "D-") +
+                    riskAssessmentId +
+                    "-" +
+                    edge.targetRef
+                )}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
 
-        {connections.map((edge) => (
-          checkConnctionVisibility(edge,'riskObjects') && <Xarrow
-          key={edge.sourceRef+" "+edge.targetRef}
-            path="straight"
-            curveness={0.2}
-            strokeWidth={1.5}
-            labels={{
-              middle: (
-                <div style={{ display: !true ? "none" : "inline" }}>
-                  {edge.name}
-                </div>
-              ),
-            }}
-            start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
-            end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
-            SVGcanvasStyle={{ overflow: "hidden" }}
-          />
-        ))}
+        {connections.map(
+          (edge) =>
+            checkConnctionVisibility(edge, "riskObjects") && (
+              <Xarrow
+                key={edge.sourceRef + " " + edge.targetRef}
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                labels={{
+                  middle: (
+                    <div style={{ display: !true ? "none" : "inline" }}>
+                      {edge.name}
+                    </div>
+                  ),
+                }}
+                start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
+                end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
 
         {objectPropertyConnections.map((object) => (
           <Xarrow
@@ -213,33 +222,40 @@ export const RiskAssessment = ({
             }}
             onClick={resetContext}
           >
-            {groups.length > 0 && checkFilter('group')
-              ? groups.map((group, index) => (
-                  <RiskGroup
-                    setFirstContext={setFirstContext}
-                    updateXarrow={updateXarrow}
-                    handleContextMenu={handleContextMenu}
-                    selectedElements={selectedElements}
-                    elementSelection={elementSelection}
-                    index={index}
-                    data={group}
-                    riskAssessmentId={riskAssessmentId}
-                    position={{
-                      x: group.currentX,
-                      y: group.currentY,
-                    }}
-                    editRiskObject={editRiskObject}
-                    closedFace={closedFace}
-                    scale={globalScale}
-                    setHoveredElement={setHoveredElement}
-                    handleObjectAction={handleObjectAction}
-                    menu={menu}
-                    handleProperties={handleProperties}
-                    removeFromGroup={removeFromGroup}
-                    handleObjectProperty={handleObjectProperty}
-                    checkFilter={checkFilter}
-                  />
-                ))
+            {groups.length > 0 && checkFilter("group")
+              ? groups.map(
+                  (group, index) =>
+                    Number(group.elements.filter((element) => element).length) +
+                      Number(
+                        group.dataObjects.filter((element) => element).length
+                      ) >
+                      0 && (
+                      <RiskGroup
+                        setFirstContext={setFirstContext}
+                        updateXarrow={updateXarrow}
+                        handleContextMenu={handleContextMenu}
+                        selectedElements={selectedElements}
+                        elementSelection={elementSelection}
+                        index={index}
+                        data={group}
+                        riskAssessmentId={riskAssessmentId}
+                        position={{
+                          x: group.currentX,
+                          y: group.currentY,
+                        }}
+                        editRiskObject={editRiskObject}
+                        closedFace={closedFace}
+                        scale={globalScale}
+                        setHoveredElement={setHoveredElement}
+                        handleObjectAction={handleObjectAction}
+                        menu={menu}
+                        handleProperties={handleProperties}
+                        removeFromGroup={removeFromGroup}
+                        handleObjectProperty={handleObjectProperty}
+                        checkFilter={checkFilter}
+                      />
+                    )
+                )
               : null}
 
             {objects.length > 0

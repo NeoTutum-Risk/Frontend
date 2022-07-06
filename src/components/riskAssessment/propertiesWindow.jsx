@@ -85,8 +85,8 @@ export const PropertiesWindow = ({
     <Rnd
       id={`P-${riskAssessmentId}-${data.id}`}
       key={`P-${riskAssessmentId}-${data.id}`}
-      disableDragging={!enabled}
-      enableResizing={enabled}
+      disableDragging={false}
+      enableResizing={true}
       default={{
         x: data.x,
         y: data.y,
@@ -107,7 +107,7 @@ export const PropertiesWindow = ({
       // onDragStop={(e, d) => updateLocation(e, d)}
     >
       <div
-        className="risk-object-container panningDisabled "
+        className="risk-object-container panningDisabled pinchDisabled wheelDisabled "
         style={{
           border: "5px solid orange",
           borderRadius: "15px",
@@ -115,8 +115,9 @@ export const PropertiesWindow = ({
           padding: "5px",
         }}
       >
-        <div className="panningDisabled">
+        <div className="panningDisabled pinchDisabled wheelDisabled">
           <Popover2
+            disabled={!enabled}
             fill={false}
             content={<Menu>{menu}</Menu>}
             placement="right"
@@ -130,42 +131,41 @@ export const PropertiesWindow = ({
               icon="share"
               text="Set"
               loading={isLoading}
+              disabled={!enabled}
             />
           </Popover2>
         </div>
         <div
-          className="panningDisabled"
-          style={{ height: "100%", padding: "2px", overflowY: "scroll" }}
+          className="panningDisabled pinchDisabled wheelDisabled"
+          style={{ height: "100%", padding: "2px" , overflowY: "auto"}}
         >
           <table
-            className="panningDisabled"
+            // className="panningDisabled pinchDisabled wheelDisabled"
             style={{
               width: "100%",
               border: "solid 1px grey",
               textAlign: "left",
+              
             }}
           >
             <thead>
               <tr>
-                <th>MD2</th>
-                <th>DOE</th>
-                <th>Level</th>
+                <th>Property</th>
                 <th>Value</th>
-                <th>Text</th>
-                <th>Edit</th>
+                <th>Level</th>
+                <th>Comment</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {properties.map((property) => (
                 <tr>
                   <td>{property.metaDataLevel2Name}</td>
-                  <td>{property.dataObjectElementName}</td>
+                  <td>{property.dataObjectElementName} {property.value?` | ${property.value}`:``}</td>
                   <td>{property.level_value}</td>
-                  <td>{property.value}</td>
                   <td>
                     <span title={property.text}>
-                      {String(property.text)!=="null"?`${String(property.text).substring(0, 5)}`:``}
-                      {String(property.text).length >= 5 ? "..." : ""}
+                    {property.text}
                     </span>
                   </td>
                   <td>
@@ -252,61 +252,7 @@ export const PropertiesWindow = ({
                             loading={isLoading}
                           ></Button>
                         </Popover2>
-                        <Popover2
-                          popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
-                          boundary={"scrollParent"}
-                          enforceFocus={false}
-                          isOpen={
-                            edit?.type === "delete" && edit?.id === property.id
-                          }
-                          content={
-                            <div className="bp4-popover2-content">
-                              <div key="text">
-                                <H5>Confirm deletion</H5>
-                                <span>
-                                  {`Are you sure you want to delete property
-                                   ${property.metaDataLevel2Name} -> ${property.dataObjectElementName}
-                                  You won't be able to recover it.`}
-                                </span>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "flex-end",
-                                    marginTop: 15,
-                                  }}
-                                >
-                                  <Button
-                                    className="bp4-button bp4-intent-danger bp4-popover2-dismiss"
-                                    style={{ marginRight: 10 }}
-                                    onClick={() => setEdit(null)}
-                                    loading={isLoading}
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button
-                                    intent="danger"
-                                    className="bp4-button bp4-popover2-dismiss"
-                                    loading={isLoading}
-                                    onClick={handleAction}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          }
-                        >
-                          <Button
-                            small={true}
-                            icon="trash"
-                            intent="danger"
-                            title="Delete"
-                            loading={isLoading}
-                            onClick={() => {
-                              setEdit({ type: "delete", id: property.id });
-                            }}
-                          ></Button>
-                        </Popover2>
+                        
                         {/* <Button
                           small={true}
                           onClick={() => {
