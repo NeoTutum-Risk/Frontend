@@ -212,7 +212,7 @@ export const RiskElement = ({
             className="risk-object-container panningDisabled pinchDisabled wheelDisabled "
             style={{
               border: selectedElements.find((element) => element.id === data.id)
-                ? "5px solid rgb(89, 199, 209)"
+                ? "5px solid #EE0000"
                 : data["position.enabled"]
                 ? data.type === "physical"
                   ? "5px solid rgb(89, 117, 209)"

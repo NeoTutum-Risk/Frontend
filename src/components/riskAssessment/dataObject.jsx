@@ -179,7 +179,7 @@ export const DataObject = ({
           style={{
             height: "100%",
             border: selectedElements.find((element) => element.id === data.id)
-              ? "5px solid #62D96B"
+              ? "5px solid #EE0000"
               : !data.disable
               ? "5px solid #1D7324"
               : "5px solid grey",
