@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import { Async } from "../../../components/asyncHOC";
-import { windowsState } from "../../../store/windows";
+import { windowFamily, windowsIds, windowsState } from "../../../store/windows";
 import styles from "../styles.module.scss";
 import { DataWindow } from "./windows/dataWindow";
 import { GraphWindow } from "./windows/graphWindow";
@@ -9,9 +9,11 @@ import { FlowChartWindow } from "./windows/flowChartWindow";
 import { RiskAssessmentWindow } from "./windows/riskAssessmentWindow";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { arrayMoveImmutable } from "array-move";
+import WindowWrapper from "../../../components/WindowWrapper";
 
 export const Main = () => {
   const [windows, setWindows] = useRecoilState(windowsState);
+  const [windowsIdsList, setWindowsIdsList] = useRecoilState(windowsIds);
 
   const windowCloseHandler = useCallback(
     (id) =>
@@ -54,7 +56,33 @@ export const Main = () => {
     [setWindows]
   );
 
+  /**
+   * @description return windowsIdsList where window collapse is false
+   */
+  const getUnCollapsedWindows =useRecoilCallback(
+    ({ set, snapshot }) =>
+      async () => {
+        //const returnedWindowsIdsList = []
+        const getWindowsIdsList = await snapshot.getPromise(windowsIds);
+
+        return getWindowsIdsList.filter(async (windowId) => {
+          const window = await snapshot.getPromise(windowFamily(windowId));
+
+          return !window.collapse;
+        });
+        /*
+              for (const windowId of getWindowsIdsList) {
+                const window = await snapshot.getPromise(windowAtom(windowId));
+                !window.collapse && returnedWindowsIdsList.push(windowId)
+              }
+              return returnedWindowsIdsList
+              */
+      },
+    []
+  );
+
   // handles the arrangment of the new order of the elements list after the DnD happened
+  /*
   const onSortEnd = ({ oldIndex, newIndex }) => {
     setWindows(
       arrayMoveImmutable(
@@ -64,6 +92,14 @@ export const Main = () => {
       )
     );
   };
+  */
+
+  const onSortEnd = async ({ oldIndex, newIndex }) => {
+    setWindowsIdsList(
+      arrayMoveImmutable(await getUnCollapsedWindows(), oldIndex, newIndex)
+    );
+  };
+
 
   // to display each window of the Draggable Windows
   const SortableItem = SortableElement(({ value: window }) => (
@@ -107,12 +143,15 @@ export const Main = () => {
     </>
   ));
 
+
   // to display the array of windows
   const SortableList = SortableContainer(({ items }) => {
     return (
       <div className={styles.mainContainer} id="mainContainer">
         <Async>
-          {items
+          {
+          /*
+          items
             .filter((window) => !window.collapse)
             .map((window, index) => (
               <SortableItem
@@ -120,7 +159,16 @@ export const Main = () => {
                 index={index}
                 value={window}
               />
-            ))}
+            ))
+          */
+            items.map((windowId, index) => (
+                <WindowWrapper
+                key={`item-${windowId}`}
+                windowId={windowId}
+                index={index}
+                />
+              ))
+              }
         </Async>
         {/* <CollapsePanel key="collapsePanel">
           
@@ -133,7 +181,8 @@ export const Main = () => {
     <SortableList
       shouldCancelStart={cancelDragIfNotHeaderHandler}
       axis="xy"
-      items={windows}
+      //items={windows}
+      items={windowsIdsList}
       onSortEnd={onSortEnd}
     />
   );
