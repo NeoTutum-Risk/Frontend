@@ -94,6 +94,14 @@ export const ClosedFace = ({
           intent={data["position.enabled"] ? "primary" : "none"}
           onClick={() => setFace((prev) => !prev)}
           className="panningDisabled"
+          style={{
+            backgroundColor:
+              data.type === "physical"
+                ? "rgb(89, 117, 209)"
+                : data.type === "model"
+                ? "#CD6600"
+                : "#8B008B",
+          }}
         >
           {`${data.type[0].toUpperCase()}: ${data.id}`}{" "}
         </Button>
@@ -158,23 +166,24 @@ export const ClosedFace = ({
         <Button
           disabled={!data["position.enabled"]}
           small={true}
-          intent={data.status=== "invisible"?"primary":"warning"}
+          intent={data.status === "invisible" ? "primary" : "warning"}
           active={activeAttribute === "N"}
-          title={data.status=== "invisible"?"Make Visible":"Make Invisible"}
-          icon={data.status=== "invisible"?"eye-on":"eye-off"}
+          title={
+            data.status === "invisible" ? "Make Visible" : "Make Invisible"
+          }
+          icon={data.status === "invisible" ? "eye-on" : "eye-off"}
           onClick={() => {
             handleObjectAction({
               id: data.id,
               type: "risk",
-              operation: data.status=== "invisible"?"changed":"invisible",
-              payload: data.status=== "invisible"?"changed":"invisible",
+              operation: data.status === "invisible" ? "changed" : "invisible",
+              payload: data.status === "invisible" ? "changed" : "invisible",
               object: data,
               groupId,
             });
             setFirstContext("main");
           }}
-        >
-        </Button>
+        ></Button>
         <Button
           small={true}
           intent={data["position.enabled"] ? "primary" : "none"}
@@ -192,14 +201,14 @@ export const ClosedFace = ({
         <Button
           disabled={!data["position.enabled"]}
           small={true}
-          intent={data.status=== "delete"?"warning":"danger"}
+          intent={data.status === "delete" ? "warning" : "danger"}
           active={activeAttribute === "N"}
           onClick={() => {
             handleObjectAction({
               id: data.id,
               type: "risk",
-              operation: data.status=== "delete"?"changed":"delete",
-              payload: data.status=== "delete"?"changed":"delete",
+              operation: data.status === "delete" ? "changed" : "delete",
+              payload: data.status === "delete" ? "changed" : "delete",
               object: data,
               groupId,
             });
@@ -208,7 +217,6 @@ export const ClosedFace = ({
         >
           Delete
         </Button>
-        
       </div>
       <div className="risk-object-closed-header panningDisabled">
         <Button
@@ -240,7 +248,7 @@ export const ClosedFace = ({
         </Button>
         <Button
           fill={true}
-          title="Causel Failure Mechanism"
+          title="Causal Failure Mechanism"
           small={true}
           active={activeAttribute === "CFM"}
           onClick={() =>
@@ -297,13 +305,13 @@ export const ClosedFace = ({
         )}
       </div>
       <div
-        className=" wheelDisabled panningDisabled"
+        className="panningDisabled pinchDisabled wheelDisabled"
         style={{ backgroundColor: "lightsteelblue", height: "100%" }}
         onClick={() => setEditor((prev) => !prev)}
       >
         {edit ? (
           <TextArea
-            className="panningDisabled pinchDisabled"
+          className="panningDisabled pinchDisabled wheelDisabled"
             fill={true}
             growVertically={true}
             onChange={(e) => setEditingValue(e.target.value)}
@@ -311,7 +319,7 @@ export const ClosedFace = ({
           ></TextArea>
         ) : (
           <div
-            className=" wheelDisabled panningDisabled"
+          className="panningDisabled pinchDisabled wheelDisabled"
             style={{
               backgroundColor: "lightsteelblue",
               height: "100%",

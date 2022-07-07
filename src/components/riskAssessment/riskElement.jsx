@@ -29,7 +29,7 @@ export const RiskElement = ({
   menu,
   handleProperties,
   removeFromGroup,
-  handleObjectProperty
+  handleObjectProperty,
 }) => {
   const [size, setSize] = useState({
     w: data["position.width"],
@@ -50,7 +50,6 @@ export const RiskElement = ({
   useEffect(() => {
     setFace(!closedFace);
   }, [closedFace]);
-
 
   // useEffect(()=>{
   //   if(!expanded){
@@ -144,22 +143,22 @@ export const RiskElement = ({
     <>
       {expanded && showProperties && (
         <>
-        <PropertiesWindow
-          scale={scale}
-          riskAssessmentId={riskAssessmentId}
-          enabled={true}
-          data={{
-            id: data.id,
-            x:
-              drag.cx - (420+50) > 0
-                ? drag.cx - (420+50)
-                : drag.cx + data["position.width"]+50,
-            y: drag.cy,
-          }}
-          menu={menu}
-          handleProperties={handleProperties}
-        />
-          </>
+          <PropertiesWindow
+            scale={scale}
+            riskAssessmentId={riskAssessmentId}
+            enabled={data["position.enabled"]}
+            data={{
+              id: data.id,
+              x:
+                drag.cx - (420 + 50) > 0
+                  ? drag.cx - (420 + 50)
+                  : drag.cx + data["position.width"] + 50,
+              y: drag.cy,
+            }}
+            menu={menu}
+            handleProperties={handleProperties}
+          />
+        </>
       )}
       <Rnd
         id={`R-${riskAssessmentId}-${data.id}`}
@@ -210,12 +209,16 @@ export const RiskElement = ({
             }}
             // title={data.description}
             onClick={handleClick}
-            className="risk-object-container panningDisabled "
+            className="risk-object-container panningDisabled pinchDisabled wheelDisabled "
             style={{
               border: selectedElements.find((element) => element.id === data.id)
-                ? "5px solid rgb(89, 199, 209)"
+                ? "5px solid #EE0000"
                 : data["position.enabled"]
-                ? "5px solid rgb(89, 117, 209)"
+                ? data.type === "physical"
+                  ? "5px solid rgb(89, 117, 209)"
+                  : data.type === "model"
+                  ? "5px solid #CD6600"
+                  : "5px solid #8B008B"
                 : "5px solid grey",
               borderRadius: "15px",
               backgroundColor: "white",
