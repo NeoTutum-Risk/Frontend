@@ -191,7 +191,7 @@ export const RiskAssessmentWindow = ({
     (type, status, disabled) => {
       let check = false;
 
-      if (status === "deleted") return false;
+      if (status === "delete") return false;
 
       if (filter.everything) return true;
 
@@ -250,7 +250,7 @@ export const RiskAssessmentWindow = ({
       let check = false;
       let target, source;
 
-      if (connection.status === "deleted") return false;
+      if (connection.status === "delete") return false;
       if (!filter.everything && !filter.normal && !filter.connections)
         return false;
 
