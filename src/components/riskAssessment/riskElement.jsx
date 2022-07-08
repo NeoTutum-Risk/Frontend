@@ -141,12 +141,13 @@ export const RiskElement = ({
 
   return (
     <>
-      {expanded && showProperties && (
+      {expanded && showProperties && data["position.enabled"] && (
         <>
           <PropertiesWindow
             scale={scale}
             riskAssessmentId={riskAssessmentId}
             enabled={data["position.enabled"]}
+            setShowProperties={setShowProperties}
             data={{
               id: data.id,
               x:

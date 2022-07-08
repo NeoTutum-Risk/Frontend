@@ -259,8 +259,8 @@ export const RiskAssessmentWindow = ({
           target = checkObject(connection.sourceRef, "risk");
           source = checkObject(connection.targetRef, "risk");
 
-          console.log("con", connection.sourceRef, source, Date.now());
-          check =
+          if(!target.object || !source.object) return false;
+          check = 
             checkFilter(
               target.object?.type,
               target.object?.status,
@@ -296,6 +296,7 @@ export const RiskAssessmentWindow = ({
         case "dataObjects":
           target = checkObject(connection.sourceRef, "instance");
           source = checkObject(connection.targetRef, "instance");
+          if(!target.object || !source.object) return false;
           // console.log(
           //   "-------",
           //   target.object.id,
@@ -340,6 +341,7 @@ export const RiskAssessmentWindow = ({
           if (connection.objectType === "Output") {
             source = checkObject(connection.sourceRef, "risk");
             target = checkObject(connection.targetRef, "instance");
+            if(!target.object || !source.object) return false;
             check =
               checkFilter(
                 source.object?.type,
@@ -352,8 +354,11 @@ export const RiskAssessmentWindow = ({
                 target.object?.disable
               );
           } else {
+            
             source = checkObject(connection.sourceRef, "instance");
             target = checkObject(connection.targetRef, "risk");
+            if(!target.object || !source.object) return false;
+            console.log("==========",source,target,connection)
             check =
               checkFilter(
                 source.object?.dataObjectNew.IOtype,
@@ -363,7 +368,7 @@ export const RiskAssessmentWindow = ({
               checkFilter(
                 target.object?.type,
                 target.object?.status,
-                !target.object["position.enabled"]
+                !target?.object["position.enabled"]
               );
           }
           if (!check) return false;
@@ -1022,6 +1027,7 @@ export const RiskAssessmentWindow = ({
       contextMenu,
       groupName,
       setSelectedObjects,
+      removeObjectConnections
     ]
   );
 

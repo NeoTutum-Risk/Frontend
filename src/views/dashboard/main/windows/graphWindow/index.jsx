@@ -267,7 +267,7 @@ export const GraphWindow = ({
                 labelFor="newObjectDescription"
               >
                 <TextArea
-                  required
+                  // required
                   id="newObjectDescription"
                   onChange={(event) => {
                     setObjectDescriptionError(null);

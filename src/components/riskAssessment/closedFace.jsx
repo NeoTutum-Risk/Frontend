@@ -130,6 +130,7 @@ export const ClosedFace = ({
           </>
         ) : (
           <Button
+            disabled={!data["position.enabled"]}
             small={true}
             onClick={handleGroup}
             intent={data["position.enabled"] ? "primary" : "none"}
@@ -150,15 +151,20 @@ export const ClosedFace = ({
         <Button
           small={true}
           intent={data["position.enabled"] ? "warning" : "primary"}
-          onClick={() =>
+          onClick={() => {
+            setShowProperties(false);
+            handleObjectProperty({
+              id: data.id,
+              action: "remove" ,
+            });
             handleObjectAction({
               id: data.id,
               type: "risk",
               operation: "enable",
               payload: !data["position.enabled"],
               groupId,
-            })
-          }
+            });
+          }}
           className="panningDisabled"
         >
           {data["position.enabled"] ? "Disable" : "Enable"}
@@ -186,6 +192,7 @@ export const ClosedFace = ({
         ></Button>
         <Button
           small={true}
+          disabled={!data["position.enabled"]}
           intent={data["position.enabled"] ? "primary" : "none"}
           onClick={() => {
             setShowProperties((prev) => !prev);
@@ -311,7 +318,7 @@ export const ClosedFace = ({
       >
         {edit ? (
           <TextArea
-          className="panningDisabled pinchDisabled wheelDisabled"
+            className="panningDisabled pinchDisabled wheelDisabled"
             fill={true}
             growVertically={true}
             onChange={(e) => setEditingValue(e.target.value)}
@@ -319,7 +326,7 @@ export const ClosedFace = ({
           ></TextArea>
         ) : (
           <div
-          className="panningDisabled pinchDisabled wheelDisabled"
+            className="panningDisabled pinchDisabled wheelDisabled"
             style={{
               backgroundColor: "lightsteelblue",
               height: "100%",

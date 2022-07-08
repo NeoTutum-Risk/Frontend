@@ -33,6 +33,7 @@ export const PropertiesWindow = ({
   scale,
   menu,
   handleProperties,
+  setShowProperties
 }) => {
   const [properties, setProperties] = useState([]);
   const [edit, setEdit] = useState(null);
