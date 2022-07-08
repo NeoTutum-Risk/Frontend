@@ -1,14 +1,14 @@
 import { Intent, Spinner, Switch, Menu, MenuItem, H5,FormGroup,InputGroup,Button,TextArea } from "@blueprintjs/core";
 import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import { Bpmn } from "../../../../../components/bpmn";
 import { updateBpmnStatus, addNewRiskObject } from "../../../../../services";
 import { platformState } from "../../../../../store/portfolios";
 import { elementSelectorState } from "../../../../../store/elementSelector";
 import { showDangerToaster, showSuccessToaster } from "../../../../../utils/toaster";
 import { Window } from "../window";
-import { windowsState } from "../../../../../store/windows";
+import { windowFamily, windowsIds, windowsState } from "../../../../../store/windows";
 import { getBpmnSequenceFlows, getBpmnEntities } from "../../../../../services";
 export const GraphWindow = ({
   onClose,
@@ -109,6 +109,55 @@ export const GraphWindow = ({
     [window]
   );
 
+  const setOtherWindows = useRecoilCallback(
+    ({ set, snapshot }) =>
+      async (sequenceFlows, entities) => {
+        const windowsIdsList = await snapshot.getPromise(windowsIds);
+        for (const windowId of windowsIdsList) {
+          const window = await snapshot.getPromise(windowFamily(windowId));
+
+          if (window.data.type === "BPMN SequenceFlows") {
+            set(windowFamily(windowId), {
+              ...window,
+              data: {
+                type: "BPMN SequenceFlows",
+                sequenceFlows: sequenceFlows.data.data,
+              },
+            });
+          }
+
+          if (window.data.type === "BPMN Entities") {
+            set(windowFamily(windowId), {
+              ...window,
+              data: {
+                type: "BPMN Entities",
+                entities: entities.data.data,
+              },
+            });
+          }
+        }
+      },
+    []
+  );
+
+  const handleOnChange = useCallback(
+    async (data) => {
+      console.log(windows);
+      setbpmn({ xml: data, changed: !autoSave });
+      if (autoSave) {
+        saveBpmn(data);
+      }
+      setTimeout(async () => {
+        const sequenceFlows = await getBpmnSequenceFlows();
+        const entities = await getBpmnEntities();
+
+        setOtherWindows(sequenceFlows, entities);
+      }, 500);
+    },
+    [autoSave, saveBpmn, setbpmn, /*setWindows*/ windows, setOtherWindows]
+  );
+
+  /*
   const handleOnChange = useCallback(
     async (data) => {
       setContextMenu((prev) => ({ ...prev, active: false, element: null }));
@@ -150,6 +199,7 @@ export const GraphWindow = ({
     },
     [autoSave, saveBpmn, setbpmn, setWindows, windows]
   );
+  */
 
   const contextMenuAction = useCallback( () => {
     setContextMenu(prev=>({...prev,type:"form"}))
