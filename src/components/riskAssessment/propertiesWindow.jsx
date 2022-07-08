@@ -162,7 +162,7 @@ export const PropertiesWindow = ({
               {properties.map((property) => (
                 <tr>
                   <td>{property.metaDataLevel2Name}</td>
-                  <td>{property.dataObjectElementName} {property.value?` | ${property.value}`:``}</td>
+                  <td>{property.value?` ${property.value}`:property.dataObjectElementName}</td>
                   <td>{property.level_value}</td>
                   <td>
                     <span title={property.text}>
