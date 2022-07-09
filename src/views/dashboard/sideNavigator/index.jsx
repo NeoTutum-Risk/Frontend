@@ -10,19 +10,26 @@ import { Portfolios } from "./portfolios";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { userState } from "../../../store/user";
 import AdminSidebar from "./adminSidebar";
-import { activeDashboardPanelState, showDashboardState } from "../../../store/dashboard";
+import {
+  activeDashboardPanelState,
+  showDashboardState,
+} from "../../../store/dashboard";
 import { emptyDatabase } from "../../../services";
 import { showDangerToaster, showSuccessToaster } from "../../../utils/toaster";
 import ConfirmDelete from "../../../components/confirmDelete";
 import ChartsSidebar from "./chartsSidebar";
+import { fullScreenHandlerState } from "../../../store/fullScreen";
 
 export const SideNavigator = () => {
   const [menuOpen, setMenuOpen] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const user = useRecoilValue(userState);
   const [showDashboard, setShowDashboard] = useRecoilState(showDashboardState);
-  const setActiveDashboardPanel = useSetRecoilState(activeDashboardPanelState)
+  const setActiveDashboardPanel = useSetRecoilState(activeDashboardPanelState);
+  const fullScreenHandler = useRecoilValue(fullScreenHandlerState);
+
 
   /**
    * handles the open of the dialog for confirmation of emptying database
@@ -69,6 +76,13 @@ export const SideNavigator = () => {
   const handleAdminOpen = () => {
     setShowDashboard("admin");
     setActiveDashboardPanel(null);
+  };
+
+  const handleFullScreen = (e) => {
+    if(!isFullScreen) fullScreenHandler.enter(e)
+    else fullScreenHandler.exit(e)
+
+    setIsFullScreen(!isFullScreen)
   }
 
   return (
@@ -106,7 +120,11 @@ export const SideNavigator = () => {
 
         {menuOpen && showDashboard === "admin" && (
           <Tooltip2 content={<span>Dashboard</span>}>
-            <Button icon="home" small onClick={() => setShowDashboard("default")} />
+            <Button
+              icon="home"
+              small
+              onClick={() => setShowDashboard("default")}
+            />
           </Tooltip2>
         )}
 
@@ -118,6 +136,12 @@ export const SideNavigator = () => {
               small
               onClick={openDialogHandler}
             />
+          </Tooltip2>
+        )}
+
+        {fullScreenHandler && (
+          <Tooltip2 content={<span>{isFullScreen ? "Minimize" : "Full Screen"}</span>}>
+            <Button icon="maximize" small onClick={handleFullScreen} />
           </Tooltip2>
         )}
 
