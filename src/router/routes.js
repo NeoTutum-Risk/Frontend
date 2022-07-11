@@ -7,10 +7,22 @@ import Lookup from "../views/lookup";
 import MetaData from "../views/metaData";
 import { NotFound } from "../views/notFound";
 import DashboardCharts from "../views/dashboardCharts";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { useEffect } from "react";
+import { useSetRecoilState } from "recoil";
+import { fullScreenHandlerState } from "../store/fullScreen";
 
 export const Routes = () => {
   const element = useRoutes(routes);
-  return element;
+
+  const setFullScreenHandler = useSetRecoilState(fullScreenHandlerState);
+  const handle = useFullScreenHandle();
+
+  useEffect(() => {
+    setFullScreenHandler(handle);
+  }, []);
+
+  return <FullScreen handle={handle}>{element}</FullScreen>;
 };
 
 const routes = [
@@ -24,11 +36,11 @@ const routes = [
   },
   {
     element: <D3Graphs />,
-    path: "d3-graphs"
+    path: "d3-graphs",
   },
   {
     element: <DashboardCharts />,
-    path: "dashboard-charts"
+    path: "dashboard-charts",
   },
   { path: "*", element: <NotFound /> },
 ];
