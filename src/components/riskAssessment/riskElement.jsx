@@ -30,6 +30,7 @@ export const RiskElement = ({
   handleProperties,
   removeFromGroup,
   handleObjectProperty,
+  enviroDimension
 }) => {
   const [size, setSize] = useState({
     w: data["position.width"],
@@ -102,9 +103,19 @@ export const RiskElement = ({
         d.x = 0;
       }
 
+      if (d.x > enviroDimension.width - 200) {
+        setDrag((prev) => ({ ...prev, cx: enviroDimension.width - 200 }));
+        d.x = enviroDimension.width - 200;
+      }
+
       if (d.y < 0) {
         setDrag((prev) => ({ ...prev, cy: 0 }));
         d.y = 0;
+      }
+
+      if (d.y > enviroDimension.height - 200) {
+        setDrag((prev) => ({ ...prev, cy: enviroDimension.height - 200 }));
+        d.y = enviroDimension.height - 200;
       }
       updateXarrow();
       const updateElementPosition = await updateRiskObjectPosition(

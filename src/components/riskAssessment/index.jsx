@@ -78,6 +78,8 @@ export const RiskAssessment = ({
     setTimeout(updateXarrow, 500);
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
+
+  const enviroDimension = {height: 8000, width: 8000}
   return (
     // <div
     //   style={{ overflow: "auto", height: "100%", width: "100%",position:"relative" }}
@@ -88,13 +90,15 @@ export const RiskAssessment = ({
     <Xwrapper>
       <TransformWrapper
         initialScale={1}
+        initialPositionX={-Math.floor(enviroDimension.width / 2)}
+        initialPositionY={-Math.floor(enviroDimension.height / 2)}
         minScale={0.1}
         maxScale={5}
         doubleClick={{ disabled: true }}
         onZoom={updateXarrow}
         onZoomStop={(e) => {
           handleZoomPanPinch();
-          setGlobalScale(e.state.scale);
+          setGlobalScale(e.state.scale < 0.1 ? 0.1 : e.state.scale);
           console.log(e);
         }}
         onPinching={updateXarrow}
@@ -205,15 +209,16 @@ export const RiskAssessment = ({
         ))}
 
         <TransformComponent
-          wrapperStyle={{ width: "800%", height: "800%" }}
-          contentStyle={{ width: "800%", height: "800%" }}
+          wrapperStyle={{ width: "100%", height: "100%", backgroundColor: "green" }}
+          contentStyle={{ width: `${enviroDimension.width}px`, height: `${enviroDimension.height}px`, backgroundColor: "red" }}
         >
           <div
             style={{
               overflow: "auto",
-              height: "8000px",
-              width: "8000px",
+              height: `${enviroDimension.height}px`,
+              width: `${enviroDimension.width}px`,
               position: "relative",
+              border: "30px solid yellow"
             }}
             onScroll={updateXarrow}
             onContextMenu={(e) => {
@@ -253,6 +258,7 @@ export const RiskAssessment = ({
                         removeFromGroup={removeFromGroup}
                         handleObjectProperty={handleObjectProperty}
                         checkFilter={checkFilter}
+                        enviroDimension={enviroDimension}
                       />
                     )
                 )
@@ -288,6 +294,7 @@ export const RiskAssessment = ({
                         handleProperties={handleProperties}
                         removeFromGroup={removeFromGroup}
                         handleObjectProperty={handleObjectProperty}
+                        enviroDimension={enviroDimension}
                       />
                     )
                 )
@@ -313,6 +320,7 @@ export const RiskAssessment = ({
                         handleObjectAction={handleObjectAction}
                         removeFromGroup={removeFromGroup}
                         key={`o-${dataObjectInstance.id}`}
+                        enviroDimension={enviroDimension}
                       />
                     )
                 )
