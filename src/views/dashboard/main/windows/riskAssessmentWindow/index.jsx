@@ -148,6 +148,8 @@ export const RiskAssessmentWindow = ({
       y: 0,
       contextX: 0,
       contextY: 0,
+      offsetX: 0,
+      offsetY: 0,
       element: null,
     });
     setObjectName(null);
@@ -174,10 +176,10 @@ export const RiskAssessmentWindow = ({
             }
           }
 
-          if (object) {
+          if (object && group===null) {
             group = grp;
             //  console.log("grp-obj",object, grp,id, type);
-            console.log("obj", object, Date.now());
+            // console.log("obj", object, Date.now());
             // return { object:object, group: grp };
           }
         });
@@ -259,8 +261,8 @@ export const RiskAssessmentWindow = ({
           target = checkObject(connection.sourceRef, "risk");
           source = checkObject(connection.targetRef, "risk");
 
-          if(!target.object || !source.object) return false;
-          check = 
+          if (!target.object || !source.object) return false;
+          check =
             checkFilter(
               target.object?.type,
               target.object?.status,
@@ -290,13 +292,13 @@ export const RiskAssessmentWindow = ({
                 : false;
           }
 
-          console.log(target, source);
+          // console.log(target, source);
           break;
 
         case "dataObjects":
           target = checkObject(connection.sourceRef, "instance");
           source = checkObject(connection.targetRef, "instance");
-          if(!target.object || !source.object) return false;
+          if (!target.object || !source.object) return false;
           // console.log(
           //   "-------",
           //   target.object.id,
@@ -341,7 +343,7 @@ export const RiskAssessmentWindow = ({
           if (connection.objectType === "Output") {
             source = checkObject(connection.sourceRef, "risk");
             target = checkObject(connection.targetRef, "instance");
-            if(!target.object || !source.object) return false;
+            if (!target.object || !source.object) return false;
             check =
               checkFilter(
                 source.object?.type,
@@ -354,11 +356,10 @@ export const RiskAssessmentWindow = ({
                 target.object?.disable
               );
           } else {
-            
             source = checkObject(connection.sourceRef, "instance");
             target = checkObject(connection.targetRef, "risk");
-            if(!target.object || !source.object) return false;
-            console.log("==========",source,target,connection)
+            if (!target.object || !source.object) return false;
+            console.log("==========", source, target, connection);
             check =
               checkFilter(
                 source.object?.dataObjectNew.IOtype,
@@ -393,7 +394,7 @@ export const RiskAssessmentWindow = ({
         default:
           break;
       }
-      // console.log("check", check, connection,target,source);
+      console.log("check", check, connection,target,source);
       return check;
     },
     [
@@ -898,7 +899,7 @@ export const RiskAssessmentWindow = ({
   const handleContextMenu = useCallback(
     async (e, data) => {
       e.preventDefault();
-      // console.log(e);
+      console.log(data, e);
       if (data && !data.from) {
         if (data["position.enabled"]) {
           setElementEnable(true);
@@ -916,6 +917,8 @@ export const RiskAssessmentWindow = ({
       const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
       let x = e.nativeEvent.layerX;
       let y = e.nativeEvent.layerY;
+      let offsetX = e.nativeEvent.offsetX;
+      let offsetY = e.nativeEvent.offsetY;
       // console.log(e, contextX, contextY);
       if (data.from === "main" && firstContext === "main") {
         type = "create";
@@ -956,6 +959,8 @@ export const RiskAssessmentWindow = ({
         contextX,
         contextY,
         element,
+        offsetX: data.from === "main" ? offsetX : prev.offsetX,
+        offsetY: data.from === "main" ? offsetY : prev.offsetY,
       }));
     },
     [setContextMenu, selectedElements, firstContext]
@@ -984,6 +989,16 @@ export const RiskAssessmentWindow = ({
   const handleGrouping = useCallback(
     async (data) => {
       if (data.type === "group") {
+        let x, y;
+        const lastElement = selectedElements[selectedElements.length - 1];
+        if (lastElement.type === "instance") {
+          x = lastElement.x;
+          y = lastElement.y;
+        } else {
+          x = lastElement["position.x"];
+          y = lastElement["position.y"];
+        }
+
         const payload = {
           riskAssessmentId: window.data.id,
           riskObjects: selectedElements
@@ -992,30 +1007,20 @@ export const RiskAssessmentWindow = ({
           dataObjects: selectedElements
             .filter((item) => item.type === "instance")
             .map((object) => object.id),
-          x: Number(contextMenu.x + 15),
-          y: Number(contextMenu.y + 15),
+          x: x+75,
+          y: y+75,
           name: groupName,
           expanded: 1,
         };
-        // console.log(payload);
         const response = await addRiskAssessmentGroup(payload);
-        setContextMenu({
-          active: false,
-          type: "",
-          x: 0,
-          y: 0,
-          contextX: 0,
-          contextY: 0,
-          element: null,
-        });
-        selectedElements.forEach((object) => {
-          // removeObjectConnections(object);
-        });
+        resetContext();
+        
         setSelectedElements([]);
         setSelectedObjects([]);
         // setConnections([]);
         // setInstanceObjectConnections([]);
         setTimeout(riskAssessmentData, 500);
+        // riskAssessmentData();
         // const redraw = await riskAssessmentData();
       }
     },
@@ -1024,10 +1029,11 @@ export const RiskAssessmentWindow = ({
       riskAssessmentData,
       window.data.id,
       selectedElements,
-      contextMenu,
+      // contextMenu,
       groupName,
       setSelectedObjects,
-      removeObjectConnections
+      resetContext,
+      // removeObjectConnections
     ]
   );
 
@@ -1054,8 +1060,8 @@ export const RiskAssessmentWindow = ({
               type: objectType.toLowerCase(),
               name: objectName,
               description: objectDescription,
-              x: contextMenu.x,
-              y: contextMenu.y,
+              x: contextMenu.offsetX,
+              y: contextMenu.offsetY,
               riskAssessmentId: window.data.id,
               enabled: true,
             };
@@ -1112,8 +1118,8 @@ export const RiskAssessmentWindow = ({
           riskAssessmentId: window.data.id,
           riskTemplateId: importTemplateId,
           name: importTemplateName,
-          x: contextMenu.x,
-          y: contextMenu.y,
+          x: contextMenu.offsetX,
+          y: contextMenu.offsetY,
         };
         const response = await addGroupFromTemplate(payload);
         resetContext();
@@ -1463,8 +1469,8 @@ export const RiskAssessmentWindow = ({
     const payload = {
       riskAssessmentId: window.data.id,
       riskGroupId: importGroupId,
-      x: contextMenu.x,
-      y: contextMenu.y,
+      x: contextMenu.offsetX,
+      y: contextMenu.offsetY,
       shared: true,
     };
 
@@ -1473,8 +1479,8 @@ export const RiskAssessmentWindow = ({
     setImportGroupId(null);
     riskAssessmentData();
   }, [
-    contextMenu.x,
-    contextMenu.y,
+    contextMenu.offsetX,
+    contextMenu.offsetY,
     importGroupId,
     window.data.id,
     resetContext,
@@ -1523,8 +1529,8 @@ export const RiskAssessmentWindow = ({
     // };
     payload.append("riskAssessmentId", window.data.id);
     payload.append("dataObjectNewId", importObjectId);
-    payload.append("x", contextMenu.x);
-    payload.append("y", contextMenu.y);
+    payload.append("x", contextMenu.offsetX);
+    payload.append("y", contextMenu.offsetY);
     payload.append("textType", importObjectText);
     payload.append("url", url);
     payload.append("fileCSV", importObjectFile);
@@ -1539,8 +1545,8 @@ export const RiskAssessmentWindow = ({
       riskAssessmentData();
     }
   }, [
-    contextMenu.x,
-    contextMenu.y,
+    contextMenu.offsetX,
+    contextMenu.offsetY,
     importObjectId,
     importObjectText,
     importObjectFile,
@@ -1628,6 +1634,7 @@ export const RiskAssessmentWindow = ({
           removeFromGroup={removeFromGroup}
           checkFilter={checkFilter}
           checkConnctionVisibility={checkConnctionVisibility}
+          setGroups={setGroups}
         />
       </Window>
       {/* <div
