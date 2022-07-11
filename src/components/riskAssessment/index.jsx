@@ -121,11 +121,11 @@ export const RiskAssessment = ({
                 tailColor="#29A634"
                 lineColor="#29A634"
                 labels={{
-                  middle: (
+                  middle: checkConnctionVisibility(edge, "dataObjects")!=="collapsed"?(
                     <div style={{ display: !true ? "none" : "inline" }}>
                       {edge.name}
                     </div>
-                  ),
+                  ):``,
                 }}
                 start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
                 end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
@@ -148,11 +148,11 @@ export const RiskAssessment = ({
                 tailColor="#29A634"
                 lineColor="#29A634"
                 labels={{
-                  middle: (
+                  middle:checkConnctionVisibility(edge, "riskDataObjects")!=="collapsed"? (
                     <div style={{ display: !true ? "none" : "inline" }}>
                       {edge.name}
                     </div>
-                  ),
+                  ):``,
                 }}
                 start={String(
                   (edge.objectType === "Input" ? "D-" : "R-") +
@@ -180,11 +180,11 @@ export const RiskAssessment = ({
                 curveness={0.2}
                 strokeWidth={1.5}
                 labels={{
-                  middle: (
+                  middle:checkConnctionVisibility(edge, "riskObjects")!=="collapsed"? (
                     <div style={{ display: !true ? "none" : "inline" }}>
                       {edge.name}
                     </div>
-                  ),
+                  ):``,
                 }}
                 start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
                 end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}

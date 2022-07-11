@@ -281,7 +281,7 @@ export const RiskAssessmentWindow = ({
               target.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
                 ? true
-                : false;
+                : "collapsed";
           }
 
           if (source.group) {
@@ -289,7 +289,7 @@ export const RiskAssessmentWindow = ({
               source.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
                 ? true
-                : false;
+                : "collapsed";
           }
 
           // console.log(target, source);
@@ -327,7 +327,7 @@ export const RiskAssessmentWindow = ({
               target.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
                 ? true
-                : false;
+                : "collapsed";
           }
 
           if (source.group) {
@@ -335,7 +335,7 @@ export const RiskAssessmentWindow = ({
               source.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
                 ? true
-                : false;
+                : "collapsed";
           }
           break;
 
@@ -379,7 +379,7 @@ export const RiskAssessmentWindow = ({
               target.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
                 ? true
-                : false;
+                : "collapsed";
           }
 
           if (source.group) {
@@ -387,7 +387,7 @@ export const RiskAssessmentWindow = ({
               source.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
                 ? true
-                : false;
+                : "collapsed";
           }
           break;
 
