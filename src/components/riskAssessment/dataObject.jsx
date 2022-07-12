@@ -170,7 +170,7 @@ export const DataObject = ({
       scale={scale}
       onDragStop={(e, d) => updateLocation(e, d)}
     >
-      {expanded && (
+      {expanded ? (
         <div
           onMouseLeave={() => {
             setFirstContext("main");
@@ -436,7 +436,7 @@ export const DataObject = ({
         </table>
         <hr width="100%" color="grey" size="1"/> */}
         </div>
-      )}
+      ):null}
     </Rnd>
   );
 };

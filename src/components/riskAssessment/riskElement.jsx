@@ -152,7 +152,7 @@ export const RiskElement = ({
 
   return (
     <>
-      {expanded && showProperties && data["position.enabled"] && (
+      {expanded ? showProperties && data["position.enabled"] && (
         <>
           <PropertiesWindow
             scale={scale}
@@ -171,7 +171,7 @@ export const RiskElement = ({
             handleProperties={handleProperties}
           />
         </>
-      )}
+      ):null}
       <Rnd
         id={`R-${riskAssessmentId}-${data.id}`}
         key={`R-${riskAssessmentId}-${data.id}`}
@@ -203,7 +203,7 @@ export const RiskElement = ({
         onDragStop={(e, d) => updateLocation(e, d)}
         style={showProperties && expanded ? { zIndex: 1000000 } : {}}
       >
-        {expanded && (
+        {expanded ? (
           <div
             onMouseLeave={() => {
               setFirstContext("main");
@@ -259,7 +259,7 @@ export const RiskElement = ({
             )}
             {/* {!data['position.enabled'] && } */}
           </div>
-        )}
+        ):null}
       </Rnd>
       {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>
       {true && <ClosedEitor />}

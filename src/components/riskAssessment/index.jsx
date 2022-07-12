@@ -30,6 +30,7 @@ export const RiskAssessment = ({
   removeFromGroup,
   checkFilter,
   checkConnctionVisibility,
+  setGroups
 }) => {
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
@@ -122,11 +123,11 @@ export const RiskAssessment = ({
                 tailColor="#29A634"
                 lineColor="#29A634"
                 labels={{
-                  middle: (
+                  middle: checkConnctionVisibility(edge, "dataObjects")!=="collapsed"?(
                     <div style={{ display: !true ? "none" : "inline" }}>
                       {edge.name}
                     </div>
-                  ),
+                  ):``,
                 }}
                 start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
                 end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
@@ -149,11 +150,11 @@ export const RiskAssessment = ({
                 tailColor="#29A634"
                 lineColor="#29A634"
                 labels={{
-                  middle: (
+                  middle:checkConnctionVisibility(edge, "riskDataObjects")!=="collapsed"? (
                     <div style={{ display: !true ? "none" : "inline" }}>
                       {edge.name}
                     </div>
-                  ),
+                  ):``,
                 }}
                 start={String(
                   (edge.objectType === "Input" ? "D-" : "R-") +
@@ -181,11 +182,11 @@ export const RiskAssessment = ({
                 curveness={0.2}
                 strokeWidth={1.5}
                 labels={{
-                  middle: (
+                  middle:checkConnctionVisibility(edge, "riskObjects")!=="collapsed"? (
                     <div style={{ display: !true ? "none" : "inline" }}>
                       {edge.name}
                     </div>
-                  ),
+                  ):``,
                 }}
                 start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
                 end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
@@ -222,19 +223,19 @@ export const RiskAssessment = ({
             }}
             onScroll={updateXarrow}
             onContextMenu={(e) => {
-              console.log(e);
+              // console.log(e);
               handleContextMenu(e, { from: "main" });
             }}
             onClick={resetContext}
           >
-            {groups.length > 0 && checkFilter("group")
+            {(groups.length > 0) && checkFilter("group")
               ? groups.map(
                   (group, index) =>
-                    Number(group.elements.filter((element) => element).length) +
+                    ((Number(group.elements.filter((element) => element).length) +
                       Number(
                         group.dataObjects.filter((element) => element).length
-                      ) >
-                      0 && (
+                      )) >
+                      0) && (
                       <RiskGroup
                         setFirstContext={setFirstContext}
                         updateXarrow={updateXarrow}
@@ -243,6 +244,7 @@ export const RiskAssessment = ({
                         elementSelection={elementSelection}
                         index={index}
                         data={group}
+                        key={`grp-${group.id}`}
                         riskAssessmentId={riskAssessmentId}
                         position={{
                           x: group.currentX,
@@ -259,12 +261,13 @@ export const RiskAssessment = ({
                         handleObjectProperty={handleObjectProperty}
                         checkFilter={checkFilter}
                         enviroDimension={enviroDimension}
+                        setGroups={setGroups}
                       />
                     )
                 )
               : null}
 
-            {objects.length > 0
+            {(objects.length > 0)
               ? objects.map(
                   (object, index) =>
                     checkFilter(
@@ -300,7 +303,7 @@ export const RiskAssessment = ({
                 )
               : null}
 
-            {dataObjectInstances.length > 0
+            {(dataObjectInstances.length > 0)
               ? dataObjectInstances.map(
                   (dataObjectInstance) =>
                     checkFilter(

@@ -111,6 +111,20 @@ export const RiskGroup = ({
   );
 
   const updateExpanded = useCallback(async () => {
+    setGroups((prev) =>
+      prev.map((grp) =>
+        grp.id === data.id
+          ? {
+              ...grp,
+              expanded: !expanded,
+              currentExpanded: !data.currentExpanded,
+            }
+          : grp
+      )
+    );
+    setExpanded((prev) => !prev);
+
+    updateXarrow();
     const updateElementPosition = await updateRiskAssessmentGroup(
       data.id,
       riskAssessmentId,
@@ -120,12 +134,18 @@ export const RiskGroup = ({
         expanded: !expanded,
       }
     );
-
-    setExpanded((prev) => !prev);
-    updateXarrow();
-    setInterval(updateXarrow, 200);
+    // setInterval(updateXarrow, 200);
     console.log(updateElementPosition);
-  }, [data.id, drag.cx, drag.cy, expanded, updateXarrow, riskAssessmentId]);
+  }, [
+    data.id,
+    drag.cx,
+    drag.cy,
+    expanded,
+    updateXarrow,
+    riskAssessmentId,
+    data.currentExpanded,
+    setGroups,
+  ]);
 
   const endDrag = useCallback(
     async (e) => {
@@ -176,14 +196,15 @@ export const RiskGroup = ({
             }
           </g>
         ))} */}
-      {/*expanded &&*/
+      {
+        /*expanded &&*/
         data.elements.map((object, index) =>
           object
-            ? checkFilter(
-              object.type,
-              object.status,
-              !object["position.enabled"]
-            ) && (
+            ? !!checkFilter(
+                object.type,
+                object.status,
+                !object["position.enabled"]
+              ) && (
                 <RiskElement
                   setFirstContext={setFirstContext}
                   expanded={expanded}
@@ -211,16 +232,18 @@ export const RiskGroup = ({
                 />
               )
             : null
-        )}
+        )
+      }
 
-      {/*expanded &&*/
+      {
+        /*expanded &&*/
         data.dataObjects.map((object, index) =>
           object
-            ? checkFilter(
-              object.dataObjectNew.IOtype,
-              object.status,
-              object.disable
-            ) && (
+            ? !!checkFilter(
+                object.dataObjectNew.IOtype,
+                object.status,
+                object.disable
+              ) && (
                 <DataObject
                   setFirstContext={setFirstContext}
                   expanded={expanded}
@@ -229,7 +252,6 @@ export const RiskGroup = ({
                   elementSelection={elementSelection}
                   key={`g-o-${object.id}`}
                   data={object}
-                  
                   riskAssessmentId={riskAssessmentId}
                   position={{
                     x: object["position.x"],
@@ -246,7 +268,8 @@ export const RiskGroup = ({
                 />
               )
             : null
-        )}
+        )
+      }
 
       <Rnd
         id={`group-${data.id}`}
