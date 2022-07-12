@@ -81,7 +81,6 @@ export const RiskAssessment = ({
   }, [updateXarrow]);
 
   const enviroDimension = { height: 50000, width: 50000 };
-
   return (
     // <div
     //   style={{ overflow: "auto", height: "100%", width: "100%",position:"relative" }}
@@ -115,6 +114,7 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
               <Xarrow
+              zIndex={1000000}
                 key={edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
@@ -146,7 +146,7 @@ export const RiskAssessment = ({
             // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
-                zIndex={1000000}
+              zIndex={1000000}
                 key={edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
@@ -187,7 +187,7 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
               <Xarrow
-                zIndex={1000000}
+              zIndex={1000000}
                 key={edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
@@ -221,6 +221,7 @@ export const RiskAssessment = ({
             headColor="orange"
             tailColor="orange"
             lineColor="orange"
+            zIndex={1000000}
           />
         ))}
 
@@ -233,7 +234,7 @@ export const RiskAssessment = ({
           contentStyle={{
             width: `${enviroDimension.width}px`,
             height: `${enviroDimension.height}px`,
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "white",
           }}
         >
           <div

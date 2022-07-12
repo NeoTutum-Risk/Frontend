@@ -7,6 +7,7 @@ import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { updateRiskAssessmentGroup } from "../../services";
+import { showDangerToaster } from "../../utils/toaster";
 export const RiskGroup = ({
   data,
   elementSelection,
@@ -126,17 +127,53 @@ export const RiskGroup = ({
     setExpanded((prev) => !prev);
 
     updateXarrow();
-    const updateElementPosition = await updateRiskAssessmentGroup(
-      data.id,
-      riskAssessmentId,
-      {
-        x: Math.round(drag.cx),
-        y: Math.round(drag.cy),
-        expanded: !expanded,
+    try{
+      const updateElementPosition = await updateRiskAssessmentGroup(
+        data.id,
+        riskAssessmentId,
+        {
+          x: Math.round(drag.cx),
+          y: Math.round(drag.cy),
+          expanded: !expanded,
+        }
+      );
+      if(updateElementPosition.status>=200 && updateElementPosition.status<300){
+
+      }else{
+        showDangerToaster(`Faild To Update Group`);
+        setGroups((prev) =>
+        prev.map((grp) =>
+          grp.id === data.id
+            ? {
+                ...grp,
+                expanded: !expanded,
+                currentExpanded: !data.currentExpanded,
+              }
+            : grp
+        )
+      );
+        setExpanded((prev) => !prev);
       }
+    }catch(error){
+      showDangerToaster(`Faild To Update Group`);
+      setGroups((prev) =>
+      prev.map((grp) =>
+        grp.id === data.id
+          ? {
+              ...grp,
+              expanded: !expanded,
+              currentExpanded: !data.currentExpanded,
+            }
+          : grp
+      )
     );
+      setExpanded((prev) => !prev);
+    }
+    
+
+    
     // setInterval(updateXarrow, 200);
-    console.log(updateElementPosition);
+    // console.log(updateElementPosition);
   }, [
     data.id,
     drag.cx,

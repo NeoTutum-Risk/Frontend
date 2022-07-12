@@ -1077,7 +1077,9 @@ export const RiskAssessmentWindow = ({
               response.data.data.riskObjectsPositions[0].x;
             newObject["position.y"] =
               response.data.data.riskObjectsPositions[0].y;
-            newObject["position.enabled"] = true;
+              newObject["position.width"] =270;
+            newObject["position.height"] =170;
+            newObject["position.enabled"] = 1;
             setRiskObjects((prev) => [...prev, newObject]);
           }
         }
