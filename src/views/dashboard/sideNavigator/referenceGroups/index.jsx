@@ -30,7 +30,7 @@ import {
   showSuccessToaster,
   showWarningToaster,
 } from "../../../../utils/toaster";
-import { windowsState } from "../../../../store/windows";
+import { windowFamily, windowsIds, windowsState } from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import { mapStatusToIcon } from "../../../../utils/mapStatusToIcon";
 import {windowDefault} from "../../../../constants";
@@ -684,12 +684,46 @@ export const ReferenceGroups = () => {
     // console.log("context",nodeData);
   }, []);
 
+  // handle the add new reference group window
+  // if a reference group window exists then don't add a new reference group window
+  // if it doesn't exists then add a new reference group window
+  const setWindowCallBack = useRecoilCallback(({set, snapshot}) => (nodeData) => {
+
+    const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+
+    const windowId = getWindowsIdsList.find(windowId => {
+      const window = snapshot.getLoadable(windowFamily(windowId)).contents;
+
+      return (window.data.id === nodeData.data.data.id && window.type === "flowchart")
+    })
+
+    if(windowId) {
+      return
+    }
+
+    const id = generateID();
+    const windowData = {
+      type: "flowchart",
+      data: nodeData.data.data,
+      id: generateID(),
+      collapse: false,
+      width: windowDefault.width,
+      height: windowDefault.height,
+      maximized: false
+    }
+
+    set(windowsIds, (prev) => [id, ...prev])
+    set(windowFamily(id), windowData)
+  }, [])
+
   const onNodeClick = useCallback(
     async (node) => {
       console.log(node);
       if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
 
+      setWindowCallBack(nodeData)
+      /*
       setWindows((prevWindows) =>
         prevWindows.find(
           (window) =>
@@ -710,6 +744,7 @@ export const ReferenceGroups = () => {
               ...prevWindows,
             ]
       );
+      */
     },
     [setWindows]
   );

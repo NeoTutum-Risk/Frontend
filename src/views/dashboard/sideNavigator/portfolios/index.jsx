@@ -107,7 +107,22 @@ export const Portfolios = () => {
 
   const bpmnFileRef = useRef(null);
 
-  const setWindowCallBack = useRecoilCallback(({set}) => ({data, type}) => {
+  // check if window already opened if opened then don't open a new one
+  // if it wasn't opened then open a new window
+  const setWindowCallBack = useRecoilCallback(({set, snapshot}) => ({data, type}) => {
+
+    const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+
+    const windowId = getWindowsIdsList.find(windowId => {
+      const window = snapshot.getLoadable(windowFamily(windowId)).contents;
+
+      return window.data.id === data.id;
+    })
+
+    if(windowId) {
+      return
+    }
+
     const id = generateID();
     const windowData = {
       type,

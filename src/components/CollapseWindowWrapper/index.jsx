@@ -36,7 +36,7 @@ const CollapseWindowWrapper = ({windowId, }) => {
             title={
               window.type === "bpmn"
                 ? window.data.fileName
-                : window.data.type
+                : `${window.data.name} (${window.type})`
             }
             onRestore={() => windowRestoreHandler(window.id)}
           />
