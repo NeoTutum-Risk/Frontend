@@ -98,6 +98,7 @@ export const RiskAssessment = ({
             id="svg"
           >
             <defs>
+              {/* Need it for the original grid */}
               <pattern
                 id="smallGrid"
                 width="8"

@@ -27,7 +27,8 @@ export const RiskGroup = ({
   removeFromGroup,
   handleObjectProperty,
   checkFilter,
-  enviroDimension
+  enviroDimension,
+  setGroups
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
