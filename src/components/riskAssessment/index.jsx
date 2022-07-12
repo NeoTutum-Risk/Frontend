@@ -107,8 +107,8 @@ export const RiskAssessment = ({
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
         panning={{ excluded: ["panningDisabled"], activationKeys: ["Control"] }}
-        pinch={{ excluded: ["pinchDisabled"] }}
-        wheel={{ excluded: ["wheelDisabled"] }}
+        pinch={{ excluded: ["pinchDisabled"], activationKeys: ["Control"] }}
+        wheel={{ excluded: ["wheelDisabled"], activationKeys: ["Control"] }}
       >
         {instanceConnections.map(
           (edge) =>
