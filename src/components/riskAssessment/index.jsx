@@ -114,6 +114,7 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
               <Xarrow
+              zIndex={1000000}
                 key={edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
