@@ -27,7 +27,8 @@ export const RiskGroup = ({
   removeFromGroup,
   handleObjectProperty,
   checkFilter,
-  setGroups,
+  enviroDimension,
+  setGroups
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -80,9 +81,19 @@ export const RiskGroup = ({
         d.x = 0;
       }
 
+      if (d.x > enviroDimension.width - 500) {
+        setDrag((prev) => ({ ...prev, cx: enviroDimension.width - 500 }));
+        d.x = enviroDimension.width - 500;
+      }
+
       if (d.y < 0) {
         setDrag((prev) => ({ ...prev, cy: 0 }));
         d.y = 0;
+      }
+
+      if (d.y > enviroDimension.height - 500) {
+        setDrag((prev) => ({ ...prev, cy: enviroDimension.height - 500 }));
+        d.y = enviroDimension.height - 500;
       }
       updateXarrow();
       const updateElementPosition = await updateRiskAssessmentGroup(

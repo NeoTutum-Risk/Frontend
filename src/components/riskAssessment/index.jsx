@@ -30,7 +30,7 @@ export const RiskAssessment = ({
   removeFromGroup,
   checkFilter,
   checkConnctionVisibility,
-  setGroups
+  setGroups,
 }) => {
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
@@ -79,6 +79,8 @@ export const RiskAssessment = ({
     setTimeout(updateXarrow, 500);
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
+
+  const enviroDimension = { height: 8000, width: 11000 };
   return (
     // <div
     //   style={{ overflow: "auto", height: "100%", width: "100%",position:"relative" }}
@@ -89,15 +91,15 @@ export const RiskAssessment = ({
     <Xwrapper>
       <TransformWrapper
         initialScale={1}
-        initialPositionX={200}
-        initialPositionY={100}
+        initialPositionX={-Math.floor(enviroDimension.width / 2)}
+        initialPositionY={-Math.floor(enviroDimension.height / 2)}
         minScale={0.1}
         maxScale={5}
         doubleClick={{ disabled: true }}
         onZoom={updateXarrow}
         onZoomStop={(e) => {
           handleZoomPanPinch();
-          setGlobalScale(e.state.scale);
+          setGlobalScale(e.state.scale < 0.1 ? 0.1 : e.state.scale);
           console.log(e);
         }}
         onPinching={updateXarrow}
@@ -121,11 +123,15 @@ export const RiskAssessment = ({
                 tailColor="#29A634"
                 lineColor="#29A634"
                 labels={{
-                  middle: checkConnctionVisibility(edge, "dataObjects")!=="collapsed"?(
-                    <div style={{ display: !true ? "none" : "inline" }}>
-                      {edge.name}
-                    </div>
-                  ):``,
+                  middle:
+                    checkConnctionVisibility(edge, "dataObjects") !==
+                    "collapsed" ? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
                 }}
                 start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
                 end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
@@ -148,11 +154,15 @@ export const RiskAssessment = ({
                 tailColor="#29A634"
                 lineColor="#29A634"
                 labels={{
-                  middle:checkConnctionVisibility(edge, "riskDataObjects")!=="collapsed"? (
-                    <div style={{ display: !true ? "none" : "inline" }}>
-                      {edge.name}
-                    </div>
-                  ):``,
+                  middle:
+                    checkConnctionVisibility(edge, "riskDataObjects") !==
+                    "collapsed" ? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
                 }}
                 start={String(
                   (edge.objectType === "Input" ? "D-" : "R-") +
@@ -180,11 +190,15 @@ export const RiskAssessment = ({
                 curveness={0.2}
                 strokeWidth={1.5}
                 labels={{
-                  middle:checkConnctionVisibility(edge, "riskObjects")!=="collapsed"? (
-                    <div style={{ display: !true ? "none" : "inline" }}>
-                      {edge.name}
-                    </div>
-                  ):``,
+                  middle:
+                    checkConnctionVisibility(edge, "riskObjects") !==
+                    "collapsed" ? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
                 }}
                 start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
                 end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
@@ -208,15 +222,24 @@ export const RiskAssessment = ({
         ))}
 
         <TransformComponent
-          wrapperStyle={{ width: "800%", height: "800%" }}
-          contentStyle={{ width: "800%", height: "800%" }}
+          wrapperStyle={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "#cccaca",
+          }}
+          contentStyle={{
+            width: `${enviroDimension.width}px`,
+            height: `${enviroDimension.height}px`,
+            backgroundColor: "#FFFFFF",
+          }}
         >
           <div
             style={{
               overflow: "auto",
-              height: "16000px",
-              width: "16000px",
+              height: `${enviroDimension.height}px`,
+              width: `${enviroDimension.width}px`,
               position: "relative",
+              border: "30px solid black",
             }}
             onScroll={updateXarrow}
             onContextMenu={(e) => {
@@ -225,14 +248,14 @@ export const RiskAssessment = ({
             }}
             onClick={resetContext}
           >
-            {(groups.length > 0) && checkFilter("group")
+            {groups.length > 0 && checkFilter("group")
               ? groups.map(
                   (group, index) =>
-                    ((Number(group.elements.filter((element) => element).length) +
+                    Number(group.elements.filter((element) => element).length) +
                       Number(
                         group.dataObjects.filter((element) => element).length
-                      )) >
-                      0) && (
+                      ) >
+                      0 && (
                       <RiskGroup
                         setFirstContext={setFirstContext}
                         updateXarrow={updateXarrow}
@@ -257,13 +280,14 @@ export const RiskAssessment = ({
                         removeFromGroup={removeFromGroup}
                         handleObjectProperty={handleObjectProperty}
                         checkFilter={checkFilter}
+                        enviroDimension={enviroDimension}
                         setGroups={setGroups}
                       />
                     )
                 )
               : null}
 
-            {(objects.length > 0)
+            {objects.length > 0
               ? objects.map(
                   (object, index) =>
                     checkFilter(
@@ -293,12 +317,13 @@ export const RiskAssessment = ({
                         handleProperties={handleProperties}
                         removeFromGroup={removeFromGroup}
                         handleObjectProperty={handleObjectProperty}
+                        enviroDimension={enviroDimension}
                       />
                     )
                 )
               : null}
 
-            {(dataObjectInstances.length > 0)
+            {dataObjectInstances.length > 0
               ? dataObjectInstances.map(
                   (dataObjectInstance) =>
                     checkFilter(
@@ -318,6 +343,7 @@ export const RiskAssessment = ({
                         handleObjectAction={handleObjectAction}
                         removeFromGroup={removeFromGroup}
                         key={`o-${dataObjectInstance.id}`}
+                        enviroDimension={enviroDimension}
                       />
                     )
                 )
