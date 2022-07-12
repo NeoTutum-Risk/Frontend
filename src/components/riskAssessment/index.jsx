@@ -106,7 +106,7 @@ export const RiskAssessment = ({
         onPinchingStop={handleZoomPanPinch}
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
-        panning={{ excluded: ["panningDisabled"] }}
+        panning={{ excluded: ["panningDisabled"], activationKeys: ["Control"] }}
         pinch={{ excluded: ["pinchDisabled"] }}
         wheel={{ excluded: ["wheelDisabled"] }}
       >
