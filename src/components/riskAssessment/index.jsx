@@ -80,7 +80,8 @@ export const RiskAssessment = ({
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
 
-  const enviroDimension = { height: 8000, width: 8000 };
+  const enviroDimension = { height: 50000, width: 50000 };
+
   return (
     // <div
     //   style={{ overflow: "auto", height: "100%", width: "100%",position:"relative" }}
@@ -145,6 +146,7 @@ export const RiskAssessment = ({
             // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
+                zIndex={1000000}
                 key={edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
@@ -185,6 +187,7 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
               <Xarrow
+                zIndex={1000000}
                 key={edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
