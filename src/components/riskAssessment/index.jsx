@@ -80,7 +80,7 @@ export const RiskAssessment = ({
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
 
-  const enviroDimension = { height: 8000, width: 8000 };
+  const enviroDimension = { height: 50000, width: 50000 };
   return (
     // <div
     //   style={{ overflow: "auto", height: "100%", width: "100%",position:"relative" }}
