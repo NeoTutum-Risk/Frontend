@@ -225,12 +225,12 @@ export const RiskAssessment = ({
           wrapperStyle={{
             width: "100%",
             height: "100%",
-            backgroundColor: "#cccaca",
+            // backgroundColor: "#cccaca",
           }}
           contentStyle={{
             width: `${enviroDimension.width}px`,
             height: `${enviroDimension.height}px`,
-            backgroundColor: "#FFFFFF",
+            // backgroundColor: "",
           }}
         >
           <div
