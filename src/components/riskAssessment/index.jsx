@@ -107,8 +107,8 @@ export const RiskAssessment = ({
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
         panning={{ excluded: ["panningDisabled"], activationKeys: ["Control"] }}
-        pinch={{ excluded: ["pinchDisabled"], activationKeys: ["Control"] }}
-        wheel={{ excluded: ["wheelDisabled"], activationKeys: ["Control"] }}
+        pinch={{ excluded: ["pinchDisabled"]}}
+        wheel={{ excluded: ["wheelDisabled"] }}
       >
         {instanceConnections.map(
           (edge) =>
@@ -229,7 +229,6 @@ export const RiskAssessment = ({
           wrapperStyle={{
             width: "100%",
             height: "100%",
-            backgroundColor: "#cccaca",
           }}
           contentStyle={{
             width: `${enviroDimension.width}px`,
@@ -243,7 +242,7 @@ export const RiskAssessment = ({
               height: `${enviroDimension.height}px`,
               width: `${enviroDimension.width}px`,
               position: "relative",
-              border: "30px solid black",
+              border: "5px solid grey",
             }}
             onScroll={updateXarrow}
             onContextMenu={(e) => {
