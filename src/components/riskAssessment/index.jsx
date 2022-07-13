@@ -115,7 +115,7 @@ export const RiskAssessment = ({
             checkConnctionVisibility(edge, "dataObjects") && (
               <Xarrow
               zIndex={1000000}
-                key={edge.sourceRef + " " + edge.targetRef}
+                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
@@ -147,7 +147,7 @@ export const RiskAssessment = ({
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
               zIndex={1000000}
-                key={edge.sourceRef + " " + edge.targetRef}
+                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
@@ -188,7 +188,7 @@ export const RiskAssessment = ({
             checkConnctionVisibility(edge, "riskObjects") && (
               <Xarrow
               zIndex={1000000}
-                key={edge.sourceRef + " " + edge.targetRef}
+                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
@@ -268,7 +268,7 @@ export const RiskAssessment = ({
                         elementSelection={elementSelection}
                         index={index}
                         data={group}
-                        key={`grp-${group.id}`}
+                        key={`grp-${riskAssessmentId}-${group.id}`}
                         riskAssessmentId={riskAssessmentId}
                         position={{
                           x: group.currentX,
@@ -305,7 +305,7 @@ export const RiskAssessment = ({
                         handleContextMenu={handleContextMenu}
                         selectedElements={selectedElements}
                         elementSelection={elementSelection}
-                        key={`r-${object.id}`}
+                        key={`r-${riskAssessmentId}-${object.id}`}
                         data={object}
                         riskAssessmentId={riskAssessmentId}
                         position={{
@@ -346,7 +346,7 @@ export const RiskAssessment = ({
                         setHoveredElement={setHoveredElement}
                         handleObjectAction={handleObjectAction}
                         removeFromGroup={removeFromGroup}
-                        key={`o-${dataObjectInstance.id}`}
+                        key={`o-${riskAssessmentId}-${dataObjectInstance.id}`}
                         enviroDimension={enviroDimension}
                       />
                     )

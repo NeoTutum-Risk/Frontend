@@ -249,7 +249,7 @@ export const RiskGroup = ({
                   handleContextMenu={handleContextMenu}
                   selectedElements={selectedElements}
                   elementSelection={elementSelection}
-                  key={`g-r-${object.id}`}
+                  key={`g-r-${riskAssessmentId}-${object.id}`}
                   data={object}
                   riskAssessmentId={riskAssessmentId}
                   position={{
@@ -288,7 +288,7 @@ export const RiskGroup = ({
                   handleContextMenu={handleContextMenu}
                   selectedElements={selectedElements}
                   elementSelection={elementSelection}
-                  key={`g-o-${object.id}`}
+                  key={`g-o-${riskAssessmentId}-${object.id}`}
                   data={object}
                   riskAssessmentId={riskAssessmentId}
                   position={{
@@ -310,8 +310,8 @@ export const RiskGroup = ({
       }
 
       <Rnd
-        id={`group-${data.id}`}
-        key={`group-${data.id}`}
+        id={`group-${riskAssessmentId}-${data.id}`}
+        key={`group-${riskAssessmentId}-${data.id}`}
         default={{
           x: drag.cx,
           y: drag.cy,
