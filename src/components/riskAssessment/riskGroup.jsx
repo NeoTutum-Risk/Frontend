@@ -267,6 +267,7 @@ export const RiskGroup = ({
                   handleProperties={handleProperties}
                   removeFromGroup={removeFromGroup}
                   handleObjectProperty={handleObjectProperty}
+                  enviroDimension={enviroDimension}
                 />
               )
             : null
@@ -303,6 +304,7 @@ export const RiskGroup = ({
                   setHoveredElement={setHoveredElement}
                   handleObjectAction={handleObjectAction}
                   removeFromGroup={removeFromGroup}
+                  enviroDimension={enviroDimension}
                 />
               )
             : null
