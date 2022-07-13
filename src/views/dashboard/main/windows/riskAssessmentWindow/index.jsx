@@ -1654,7 +1654,7 @@ export const RiskAssessmentWindow = ({
           x: Number(contextMenu.contextX),
           y: Number(contextMenu.contextY),
         }}
-        style={{ zIndex: 1000000 }}
+        style={{ zIndex: 9999999 }}
         onDragStop={(e, d) => updateDraftLocation(e, d)}
       >
         {/* {contextMenu.active && contextMenu.type === "context" && (
