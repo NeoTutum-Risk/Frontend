@@ -22,27 +22,27 @@ const CollapseWindowWrapper = ({ windowId }) => {
 
   const windowRestoreHandler = useRecoilCallback(
     ({ set, snapshot }) =>
-      () => {
-        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+      async (windowIdn) => {
+        const getWindowsIdsList = await snapshot.getLoadable(windowsIds).contents;
         const check = checkMaximized();
         let currentWindow;
         
         if (!check) {
           
-          currentWindow = snapshot.getLoadable(windowFamily(windowId)).contents;
-          console.log("no",currentWindow)
-          set(windowFamily(windowId), {
+          currentWindow = await snapshot.getLoadable(windowFamily(windowId)).contents;
+          set(windowFamily(windowIdn), {
             ...currentWindow,
             collapse: !currentWindow.collapse,
           });
         } else {
-          console.log("u")
-          getWindowsIdsList.forEach((element) => {
+          
+          getWindowsIdsList.forEach(async (element) => {
             // let currentWindow;
-            currentWindow = snapshot.getLoadable(
+            currentWindow = await snapshot.getLoadable(
               windowFamily(element)
             ).contents;
-            if (element === windowId) {
+            
+            if (element === windowIdn) {
               set(windowFamily(element), {
                 ...currentWindow,
                 maximized: true,
