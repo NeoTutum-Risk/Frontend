@@ -127,16 +127,24 @@ export const RiskAssessment = ({
     // >
     <Xwrapper>
       <TransformWrapper
+        zoomAnimation={{disabled:true}}
         initialScale={raSettings.scale}
         initialPositionX={raSettings.positionX}
         initialPositionY={raSettings.positionY}
         minScale={0.1}
         maxScale={5}
         doubleClick={{ disabled: true }}
-        onZoom={updateXarrow}
+        onZoom={(e) => {
+          if (e.state.scale < 0.1) {
+            e.state.scale = 0.1;
+            e.zoomOut(.1)
+          }
+          updateXarrow();
+        }}
         onZoomStop={(e) => {
           handleZoomPanPinch(e);
           setGlobalScale(e.state.scale < 0.1 ? 0.1 : e.state.scale);
+          // setGlobalScale(e.state.scale);
           console.log(e);
         }}
         onPinching={updateXarrow}
@@ -152,7 +160,7 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
               <Xarrow
-                zIndex={1000000}
+                // zIndex={1000000}
                 key={
                   riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
                 }
@@ -186,7 +194,7 @@ export const RiskAssessment = ({
             // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
-                zIndex={1000000}
+                // zIndex={1000000}
                 key={
                   riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
                 }
@@ -229,7 +237,7 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
               <Xarrow
-                zIndex={1000000}
+                // zIndex={1000000}
                 key={
                   riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
                 }
@@ -265,7 +273,7 @@ export const RiskAssessment = ({
             headColor="orange"
             tailColor="orange"
             lineColor="orange"
-            zIndex={1000000}
+            // zIndex={1000000}
           />
         ))}
 
@@ -277,7 +285,7 @@ export const RiskAssessment = ({
           contentStyle={{
             width: `${enviroDimension.width}px`,
             height: `${enviroDimension.height}px`,
-            backgroundColor: "white",
+            // backgroundColor: "white",
           }}
         >
           <div

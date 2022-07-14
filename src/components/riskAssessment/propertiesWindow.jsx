@@ -118,9 +118,11 @@ export const PropertiesWindow = ({
       >
         <div className="panningDisabled pinchDisabled wheelDisabled">
           <Popover2
+          usePortal={false}
+          style={{zIndex:99999999999}}
             disabled={!enabled}
             fill={false}
-            content={<Menu>{menu}</Menu>}
+            content={<Menu >{menu}</Menu>}
             placement="right"
             onClose={() => {
               setTimeout(getProperties, 500);
