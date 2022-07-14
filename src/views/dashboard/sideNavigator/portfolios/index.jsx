@@ -107,6 +107,18 @@ export const Portfolios = () => {
 
   const bpmnFileRef = useRef(null);
 
+  const checkMaximized = useRecoilCallback(
+    ({ set, snapshot }) =>
+      () => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+
+        return getWindowsIdsList.find(
+          (element) =>
+            snapshot.getLoadable(windowFamily(element)).contents.maximized
+        );
+      },
+    []
+  );
   // check if window already opened if opened then don't open a new one
   // if it wasn't opened then open a new window
   const setWindowCallBack = useRecoilCallback(({set, snapshot}) => ({data, type}) => {
@@ -123,6 +135,17 @@ export const Portfolios = () => {
       return
     }
 
+    const check = checkMaximized();
+    
+    if(check){
+      let old = snapshot.getLoadable(windowFamily(check)).contents
+      console.log(old);
+      set(windowFamily(check), {
+        ...old,
+        maximized: false,
+        collapse:true
+      });
+    }
     const id = generateID();
     const windowData = {
       type,
@@ -131,7 +154,7 @@ export const Portfolios = () => {
       collapse: false,
       width: windowDefault.width,
       height: windowDefault.height,
-      maximized: false
+      maximized: check?true:false
     }
     set(windowsIds, (prev) => [id, ...prev])
     set(windowFamily(id), windowData)

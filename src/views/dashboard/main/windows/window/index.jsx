@@ -25,8 +25,12 @@ import {
   showWarningToaster,
   showDangerToaster,
 } from "../../../../../utils/toaster";
-import { windowFamily, windowsIds, windowsState } from "../../../../../store/windows";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import {
+  windowFamily,
+  windowsIds,
+  windowsState,
+} from "../../../../../store/windows";
+import { useRecoilState, useSetRecoilState, useRecoilCallback } from "recoil";
 import { useCallback } from "react";
 export const Window = ({
   icon,
@@ -38,15 +42,54 @@ export const Window = ({
   window,
 }) => {
   const [windows, setWindows] = useRecoilState(windowsState);
-  const [windowsIdsList, setWindowsIdsList] = useRecoilState(windowsIds)
-  const setWindow = useSetRecoilState(windowFamily(window.id))
+  const [windowsIdsList, setWindowsIdsList] = useRecoilState(windowsIds);
+  const setWindow = useSetRecoilState(windowFamily(window.id));
   const [isMaximize, setIsMaximize] = useState(false);
   const [changeTypeLoading, setChangeTypeLoading] = useState(false);
+
+  const checkMaximized = useRecoilCallback(
+    ({ set, snapshot }) =>
+      () => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+
+        return getWindowsIdsList.find(
+          (element) =>
+            snapshot.getLoadable(windowFamily(element)).contents.maximized
+        );
+      },
+    []
+  );
+
+  const setWindowsNew = useRecoilCallback(
+    ({ set, snapshot }) =>
+      () => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+
+        getWindowsIdsList.forEach((element) => {
+          let currentWindow;
+          currentWindow = snapshot.getLoadable(windowFamily(element)).contents;
+          if (element === window.id) {
+            set(windowFamily(element), {
+              ...currentWindow,
+              maximized: !currentWindow.maximized,
+            });
+          } else {
+            set(windowFamily(element), {
+              ...currentWindow,
+              collapse: window.maximized ? false : true,
+            });
+          }
+        });
+      },
+    []
+  );
 
   const windowLocationHandler = useCallback(
     (id, location) => {
       //const windowIndex = windows.map((window) => window.id).indexOf(id);
-      const windowIndex = windowsIdsList.map(windowId => windowId).indexOf(id);
+      const windowIndex = windowsIdsList
+        .map((windowId) => windowId)
+        .indexOf(id);
 
       //const windowsLength = windows.length;
       const windowsLength = windowsIdsList.length;
@@ -60,7 +103,7 @@ export const Window = ({
           //const leftData = windows[leftIndex];
           const leftData = windowsIdsList[leftIndex];
 
-          setWindowsIdsList(prevWindowsIds => {
+          setWindowsIdsList((prevWindowsIds) => {
             return prevWindowsIds.map((windowId, index) => {
               if (index !== windowIndex && index !== leftIndex) {
                 return windowId;
@@ -74,7 +117,7 @@ export const Window = ({
 
               return {};
             });
-          })
+          });
 
           /*
           setWindows((prevWindows) => {
@@ -100,7 +143,7 @@ export const Window = ({
           //const rightData = windows[rightIndex];
           const rightData = windowsIdsList[rightIndex];
 
-          setWindowsIdsList(prevWindowsIds => {
+          setWindowsIdsList((prevWindowsIds) => {
             return prevWindowsIds.map((windowId, index) => {
               if (index !== windowIndex && index !== rightIndex) {
                 return windowId;
@@ -114,7 +157,7 @@ export const Window = ({
 
               return {};
             });
-          })
+          });
           /*
           setWindows((prevWindows) => {
             return prevWindows.map((window, index) => {
@@ -181,7 +224,7 @@ export const Window = ({
           })
         );
         */
-        setWindow({...window, type: "data", data: dataObject})
+        setWindow({ ...window, type: "data", data: dataObject });
         setChangeTypeLoading(false);
       } catch (error) {
         showDangerToaster(`Can't Change Window Type: ${error}`);
@@ -212,8 +255,8 @@ export const Window = ({
       setWindow({
         ...window,
         width: window.width + delta.width,
-        height: window.height + delta.height
-       })
+        height: window.height + delta.height,
+      });
     },
     [setWindows, window.id, setWindow, window]
   );
@@ -233,11 +276,12 @@ export const Window = ({
       })
     );
     */
-    setWindow({
-      ...window,
-     maximized: !window.maximized
-   })
-  }, [setWindows, window.id, setWindow, window]);
+    setWindowsNew();
+    //   setWindow({
+    //     ...window,
+    //    maximized: !window.maximized
+    //  })
+  }, [setWindowsNew, setWindow, window]);
   return (
     <Resizable
       className={
@@ -360,7 +404,15 @@ export const Window = ({
             </Tooltip2>
           </ButtonGroup>
         </div>
-        <div className={window.type==="risk0"?styles.windowBodyScroll:styles.windowBody}>{children}</div>
+        <div
+          className={
+            window.type === "risk0"
+              ? styles.windowBodyScroll
+              : styles.windowBody
+          }
+        >
+          {children}
+        </div>
       </Card>
     </Resizable>
   );
