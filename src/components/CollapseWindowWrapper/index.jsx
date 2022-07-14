@@ -28,8 +28,9 @@ const CollapseWindowWrapper = ({ windowId }) => {
         let currentWindow;
         
         if (!check) {
-          console.log("no")
+          
           currentWindow = snapshot.getLoadable(windowFamily(windowId)).contents;
+          console.log("no",currentWindow)
           set(windowFamily(windowId), {
             ...currentWindow,
             collapse: !currentWindow.collapse,
