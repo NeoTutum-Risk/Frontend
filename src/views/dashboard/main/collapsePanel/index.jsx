@@ -62,6 +62,7 @@ export const CollapsePanel = ({ children }) => {
           {windowsIdsList.map((windowId) => (
       <CollapsedWindowWrapper
       windowId={windowId}
+      key={windowId}
       />
           ))}
     </div>
