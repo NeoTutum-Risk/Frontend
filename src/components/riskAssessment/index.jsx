@@ -47,8 +47,8 @@ export const RiskAssessment = ({
   const [globalScale, setGlobalScale] = useState(1);
   const [raSettings, setRASettings] = useState({
     id: 0,
-    positionX: -25000,
-    positionY: -25000,
+    positionX: -Math.floor(enviroDimension.width / 2),
+    positionY: -Math.floor(enviroDimension.height / 2),
     previousScale: 1,
     scale: 1,
   });
@@ -60,10 +60,20 @@ export const RiskAssessment = ({
 
       const { id, positionX, positionY, previousScale, scale } = res.data.data;
       console.log("state comming from database: ", res.data);
+
+      let reposition;
+      switch(scale) {
+        case scale < 0.7:
+          reposition = 500;
+        default:
+          reposition = 300;
+      }
+      const condX = (positionX + reposition) > 0 ? 0 : positionX + reposition
+      const condY = (positionY + reposition) > 0 ? 0 : positionY + reposition
       setRASettings({
         id,
-        positionX: positionX + 300,
-        positionY: positionY + 300,
+        positionX: condX,
+        positionY: condY,
         previousScale,
         scale,
       });
@@ -141,6 +151,7 @@ export const RiskAssessment = ({
         positionX: e.offsetX * -1,
         positionY: e.offsetY * -1,
         scale: ref.state.scale,
+        previousScale: ref.state.previousScale
       });
       updateXarrow();
       setTimeout(updateXarrow, 0);
