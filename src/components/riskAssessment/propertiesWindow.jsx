@@ -119,10 +119,11 @@ export const PropertiesWindow = ({
         <div className="panningDisabled pinchDisabled wheelDisabled">
           <Popover2
           usePortal={false}
+          boundary
           style={{zIndex:99999999999}}
             disabled={!enabled}
             fill={false}
-            content={<Menu >{menu}</Menu>}
+            content={<div><Menu >{menu}</Menu></div>}
             placement="right"
             onClose={() => {
               setTimeout(getProperties, 500);
@@ -184,6 +185,7 @@ export const PropertiesWindow = ({
                           small={true}
                         ></Button> */}
                         <Popover2
+                        usePortal={false}
                           popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
                           boundary={"scrollParent"}
                           enforceFocus={false}
