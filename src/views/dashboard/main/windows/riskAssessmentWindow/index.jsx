@@ -359,7 +359,7 @@ export const RiskAssessmentWindow = ({
             source = checkObject(connection.sourceRef, "instance");
             target = checkObject(connection.targetRef, "risk");
             if (!target.object || !source.object) return false;
-            console.log("==========", source, target, connection);
+            // console.log("==========", source, target, connection);
             check =
               checkFilter(
                 source.object?.dataObjectNew.IOtype,
@@ -394,7 +394,7 @@ export const RiskAssessmentWindow = ({
         default:
           break;
       }
-      console.log("check", check, connection,target,source);
+      // console.log("check", check, connection,target,source);
       return check;
     },
     [

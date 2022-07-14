@@ -90,16 +90,24 @@ export const RiskAssessment = ({
     // >
     <Xwrapper>
       <TransformWrapper
+      zoomAnimation={{disabled:true}}
         initialScale={1}
         initialPositionX={-Math.floor(enviroDimension.width / 2)}
         initialPositionY={-Math.floor(enviroDimension.height / 2)}
         minScale={0.1}
         maxScale={5}
         doubleClick={{ disabled: true }}
-        onZoom={updateXarrow}
+        onZoom={(e) => {
+          if (e.state.scale < 0.1) {
+            e.state.scale = 0.1;
+            e.zoomOut(.1)
+          }
+          updateXarrow();
+        }}
         onZoomStop={(e) => {
           handleZoomPanPinch();
           setGlobalScale(e.state.scale < 0.1 ? 0.1 : e.state.scale);
+          // setGlobalScale(e.state.scale);
           console.log(e);
         }}
         onPinching={updateXarrow}
@@ -107,15 +115,21 @@ export const RiskAssessment = ({
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
         panning={{ excluded: ["panningDisabled"], activationKeys: ["Control"] }}
-        pinch={{ excluded: ["pinchDisabled"]}}
-        wheel={{ excluded: ["wheelDisabled"] }}
+        pinch={{ excluded: ["pinchDisabled"] }}
+        wheel={{
+          excluded: ["wheelDisabled"],
+          activationKeys: ["Control"],
+          step: 0.2,
+        }}
       >
         {instanceConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
               <Xarrow
-              zIndex={1000000}
-                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
+                zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
@@ -146,8 +160,10 @@ export const RiskAssessment = ({
             // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
-              zIndex={1000000}
-                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
+                zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
@@ -187,8 +203,10 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
               <Xarrow
-              zIndex={1000000}
-                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
+                zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
