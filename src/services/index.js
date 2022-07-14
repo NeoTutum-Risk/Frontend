@@ -192,3 +192,7 @@ export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews
 export const updateRiskAssessmentView = (id,data) => serviceProvider.put(`filterViews/${id}`,data);
 
 export const testGetRiskAssessment = (id) => testServiceProvider(`riskAssessments/v2/RA-Analytics/${id}`)
+
+export const updateRiskAssessmentWindowSettings = (id, data) => serviceProvider.put(`riskAssessments/${id}`, data)
+
+export const getRiskAssessmentWindowSettings = (id) => serviceProvider(`/riskAssessments/WindowSettings/${id}`)

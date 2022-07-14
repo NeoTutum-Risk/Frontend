@@ -3,10 +3,12 @@ import { DraggableBox } from "./draggableBox";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
 import { RiskGroup } from "./riskGroup";
-import { useCallback, useState, Fragment } from "react";
+import { useCallback, useState, Fragment, useRef } from "react";
 import { objectSelectorState } from "../../store/objectSelector";
 import { useRecoilState } from "recoil";
 import { DataObject } from "./dataObject";
+import { useEffect } from "react";
+import { getRiskAssessmentWindowSettings, updateRiskAssessmentWindowSettings } from "../../services";
 export const RiskAssessment = ({
   objects,
   groups,
@@ -32,12 +34,44 @@ export const RiskAssessment = ({
   checkConnctionVisibility,
   setGroups,
 }) => {
+  const transformWrapperRef = useRef(null)
+  const enviroDimension = { height: 50000, width: 50000 };
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
   );
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [globalScale, setGlobalScale] = useState(1);
+  const [raSettings, setRASettings] = useState({
+    id: 0,
+    positionX: -Math.floor(enviroDimension.width / 2),
+    positionY: -Math.floor(enviroDimension.height / 2),
+    previousScale: 1,
+    scale: 1,
+  });
+
+  useEffect(() => {
+    getRiskAssessmentWindowSettings(riskAssessmentId).then(res => {
+      console.log("state comming from database: ", res.data.data)
+      const {positionX, positionY,previousScale, scale}  = res.data.data
+      transformWrapperRef.current.setTransform(positionX, positionY, scale)
+      setRASettings({
+        positionX,
+        positionY,
+        previousScale,
+        scale,
+      })
+    })
+  }, [])
+
+  useEffect(() => {
+    if (raSettings.hasOwnProperty("id")) {
+      return
+    }
+    console.log('RA Settings before update to the server: ', raSettings)
+    updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings)
+  }, [raSettings])
+
   const elementSelection = useCallback(
     (elementData, state) => {
       console.log(elementData, state);
@@ -71,7 +105,10 @@ export const RiskAssessment = ({
     }
   }, []);
   const updateXarrow = useXarrow();
-  const handleZoomPanPinch = useCallback(() => {
+  const handleZoomPanPinch = useCallback((e) => {
+    const raState = e.state
+    console.log("RA State before update settings:", raState)
+    setRASettings({...raState})
     updateXarrow();
     setTimeout(updateXarrow, 0);
     setTimeout(updateXarrow, 100);
@@ -80,7 +117,7 @@ export const RiskAssessment = ({
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
 
-  const enviroDimension = { height: 50000, width: 50000 };
+  console.log(raSettings)
   return (
     // <div
     //   style={{ overflow: "auto", height: "100%", width: "100%",position:"relative" }}
@@ -90,15 +127,15 @@ export const RiskAssessment = ({
     // >
     <Xwrapper>
       <TransformWrapper
-        initialScale={1}
-        initialPositionX={-Math.floor(enviroDimension.width / 2)}
-        initialPositionY={-Math.floor(enviroDimension.height / 2)}
+        initialScale={raSettings.scale}
+        initialPositionX={raSettings.positionX}
+        initialPositionY={raSettings.positionY}
         minScale={0.1}
         maxScale={5}
         doubleClick={{ disabled: true }}
         onZoom={updateXarrow}
         onZoomStop={(e) => {
-          handleZoomPanPinch();
+          handleZoomPanPinch(e);
           setGlobalScale(e.state.scale < 0.1 ? 0.1 : e.state.scale);
           console.log(e);
         }}
@@ -107,15 +144,18 @@ export const RiskAssessment = ({
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
         panning={{ excluded: ["panningDisabled"], activationKeys: ["Control"] }}
-        pinch={{ excluded: ["pinchDisabled"]}}
+        pinch={{ excluded: ["pinchDisabled"] }}
         wheel={{ excluded: ["wheelDisabled"] }}
+        ref={transformWrapperRef}
       >
         {instanceConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
               <Xarrow
-              zIndex={1000000}
-                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
+                zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
@@ -146,8 +186,10 @@ export const RiskAssessment = ({
             // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
-              zIndex={1000000}
-                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
+                zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
@@ -187,8 +229,10 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
               <Xarrow
-              zIndex={1000000}
-                key={riskAssessmentId+" "+edge.sourceRef + " " + edge.targetRef}
+                zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
                 path="straight"
                 curveness={0.2}
                 strokeWidth={1.5}
