@@ -126,7 +126,7 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
               <Xarrow
-                zIndex={1000000}
+                // zIndex={1000000}
                 key={
                   riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
                 }
@@ -160,7 +160,7 @@ export const RiskAssessment = ({
             // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
-                zIndex={1000000}
+                // zIndex={1000000}
                 key={
                   riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
                 }
@@ -203,7 +203,7 @@ export const RiskAssessment = ({
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
               <Xarrow
-                zIndex={1000000}
+                // zIndex={1000000}
                 key={
                   riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
                 }
@@ -239,7 +239,7 @@ export const RiskAssessment = ({
             headColor="orange"
             tailColor="orange"
             lineColor="orange"
-            zIndex={1000000}
+            // zIndex={1000000}
           />
         ))}
 
@@ -251,7 +251,7 @@ export const RiskAssessment = ({
           contentStyle={{
             width: `${enviroDimension.width}px`,
             height: `${enviroDimension.height}px`,
-            backgroundColor: "white",
+            // backgroundColor: "white",
           }}
         >
           <div
