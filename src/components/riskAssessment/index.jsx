@@ -118,7 +118,6 @@ export const RiskAssessment = ({
         pinch={{ excluded: ["pinchDisabled"] }}
         wheel={{
           excluded: ["wheelDisabled"],
-          activationKeys: ["Control"],
           step: 0.2,
         }}
       >
