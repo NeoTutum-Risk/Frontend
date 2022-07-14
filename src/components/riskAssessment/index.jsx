@@ -53,9 +53,10 @@ export const RiskAssessment = ({
   useEffect(() => {
     getRiskAssessmentWindowSettings(riskAssessmentId).then(res => {
       console.log("state comming from database: ", res.data.data)
-      const {positionX, positionY,previousScale, scale}  = res.data.data
+      const {id, positionX, positionY,previousScale, scale}  = res.data.data
       transformWrapperRef.current.setTransform(positionX, positionY, scale)
       setRASettings({
+        id,
         positionX,
         positionY,
         previousScale,
@@ -117,7 +118,6 @@ export const RiskAssessment = ({
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
 
-  console.log(raSettings)
   return (
     // <div
     //   style={{ overflow: "auto", height: "100%", width: "100%",position:"relative" }}
