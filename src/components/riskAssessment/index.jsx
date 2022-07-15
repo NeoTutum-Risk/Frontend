@@ -394,12 +394,23 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="reset"
-                  onClick={() =>
+                  onClick={() =>{
+                    setRASettings({
+                      id: 0,
+                      positionX: -Math.floor(enviroDimension.width / 2),
+                      positionY: -Math.floor(enviroDimension.height / 2),
+                      scale: 1,
+                      previousScale: 1,
+                    });
                     setTransform(
                       -Math.floor(enviroDimension.width / 2),
                       -Math.floor(enviroDimension.height / 2),
                       1
                     )
+                    
+                    setGlobalScale(1)
+                  }
+                    
                   }
                 />
               </div>
