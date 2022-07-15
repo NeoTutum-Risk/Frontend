@@ -179,26 +179,150 @@ export const RiskAssessment = ({
       // >
 
       <Xwrapper>
-        <div style={{ display: "inline", position: "absolute", zIndex: 99 }}>
-          {/* <Button
-            fill={false}
-            small={true}
-            icon="reset"
-            title="Reset View"
-            onClick={() => {
-              setRASettings({
-                // id: 0,
-                positionX: -Math.floor(enviroDimension.width / 2),
-                positionY: -Math.floor(enviroDimension.height / 2),
-                previousScale: 1,
-                scale: 1,
-              });
-              setGlobalScale(1);
-              updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
-              updateXarrow();
-            }}
-          /> */}
-        </div>
+        {instanceConnections.map(
+          (edge) =>
+            checkConnctionVisibility(edge, "dataObjects") && (
+              <Xarrow
+                // zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                color="#29A634"
+                headColor="#29A634"
+                tailColor="#29A634"
+                lineColor="#29A634"
+                showHead={
+                  checkConnctionVisibility(edge, "dataObjects") ===
+                  "collapsedGroup"
+                    ? false
+                    : checkConnctionVisibility(edge, "dataObjects")
+                }
+
+                labels={{
+                  middle:
+                    (checkConnctionVisibility(edge, "dataObjects") !==
+                    "collapsed" &&  checkConnctionVisibility(edge, "dataObjects") !==
+                    "collapsedGroup") ? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
+                }}
+                start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
+                end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
+
+        {instanceObjectConnections.map(
+          (edge) =>
+            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
+            checkConnctionVisibility(edge, "riskDataObjects") && (
+              <Xarrow
+                // zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                color="#29A634"
+                headColor="#29A634"
+                tailColor="#29A634"
+                lineColor="#29A634"
+                showHead={
+                  checkConnctionVisibility(edge, "riskDataObjects") ===
+                  "collapsedGroup"
+                    ? false
+                    : checkConnctionVisibility(edge, "riskDataObjects") 
+                }
+
+                labels={{
+                  middle:
+                    (checkConnctionVisibility(edge, "riskDataObjects") !==
+                    "collapsed" && checkConnctionVisibility(edge, "riskDataObjects") !==
+                    "collapsedGroup" )? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
+                }}
+                start={String(
+                  (edge.objectType === "Input" ? "D-" : "R-") +
+                    riskAssessmentId +
+                    "-" +
+                    edge.sourceRef
+                )}
+                end={String(
+                  (edge.objectType === "Input" ? "R-" : "D-") +
+                    riskAssessmentId +
+                    "-" +
+                    edge.targetRef
+                )}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
+
+        {connections.map(
+          (edge) =>
+            checkConnctionVisibility(edge, "riskObjects") && (
+              <Xarrow
+                // zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                showHead={
+                  checkConnctionVisibility(edge, "riskObjects") ===
+                  "collapsedGroup"
+                    ? false
+                    : checkConnctionVisibility(edge, "riskObjects")
+                }
+                // showTail={checkConnctionVisibility(edge, "riskObjects")==="collapsedGroup"?false:undefined}
+                labels={{
+                  middle:
+                    (checkConnctionVisibility(edge, "riskObjects") !==
+                    "collapsed" && checkConnctionVisibility(edge, "riskObjects") !==
+                    "collapsedGroup") ? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
+                }}
+                start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
+                end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
+
+        {objectPropertyConnections.map((object) => (
+          <Xarrow
+            path="straight"
+            curveness={0.2}
+            strokeWidth={1.5}
+            start={`R-${riskAssessmentId}-${object}`}
+            end={`P-${riskAssessmentId}-${object}`}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+            headColor="orange"
+            tailColor="orange"
+            lineColor="orange"
+            // zIndex={1000000}
+          />
+        ))}
 
         <TransformWrapper
           zoomAnimation={{ disabled: true }}
@@ -428,150 +552,7 @@ export const RiskAssessment = ({
             </React.Fragment>
           )}
         </TransformWrapper>
-        {instanceConnections.map(
-          (edge) =>
-            checkConnctionVisibility(edge, "dataObjects") && (
-              <Xarrow
-                // zIndex={1000000}
-                key={
-                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
-                }
-                path="straight"
-                curveness={0.2}
-                strokeWidth={1.5}
-                color="#29A634"
-                headColor="#29A634"
-                tailColor="#29A634"
-                lineColor="#29A634"
-                showHead={
-                  checkConnctionVisibility(edge, "dataObjects") ===
-                  "collapsedGroup"
-                    ? false
-                    : checkConnctionVisibility(edge, "dataObjects")
-                }
-
-                labels={{
-                  middle:
-                    (checkConnctionVisibility(edge, "dataObjects") !==
-                    "collapsed" &&  checkConnctionVisibility(edge, "dataObjects") !==
-                    "collapsedGroup") ? (
-                      <div style={{ display: !true ? "none" : "inline" }}>
-                        {edge.name}
-                      </div>
-                    ) : (
-                      ``
-                    ),
-                }}
-                start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
-                end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
-                SVGcanvasStyle={{ overflow: "hidden" }}
-              />
-            )
-        )}
-
-        {instanceObjectConnections.map(
-          (edge) =>
-            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
-            checkConnctionVisibility(edge, "riskDataObjects") && (
-              <Xarrow
-                // zIndex={1000000}
-                key={
-                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
-                }
-                path="straight"
-                curveness={0.2}
-                strokeWidth={1.5}
-                color="#29A634"
-                headColor="#29A634"
-                tailColor="#29A634"
-                lineColor="#29A634"
-                showHead={
-                  checkConnctionVisibility(edge, "riskDataObjects") ===
-                  "collapsedGroup"
-                    ? false
-                    : checkConnctionVisibility(edge, "riskDataObjects") 
-                }
-
-                labels={{
-                  middle:
-                    (checkConnctionVisibility(edge, "riskDataObjects") !==
-                    "collapsed" && checkConnctionVisibility(edge, "riskDataObjects") !==
-                    "collapsedGroup" )? (
-                      <div style={{ display: !true ? "none" : "inline" }}>
-                        {edge.name}
-                      </div>
-                    ) : (
-                      ``
-                    ),
-                }}
-                start={String(
-                  (edge.objectType === "Input" ? "D-" : "R-") +
-                    riskAssessmentId +
-                    "-" +
-                    edge.sourceRef
-                )}
-                end={String(
-                  (edge.objectType === "Input" ? "R-" : "D-") +
-                    riskAssessmentId +
-                    "-" +
-                    edge.targetRef
-                )}
-                SVGcanvasStyle={{ overflow: "hidden" }}
-              />
-            )
-        )}
-
-        {connections.map(
-          (edge) =>
-            checkConnctionVisibility(edge, "riskObjects") && (
-              <Xarrow
-                // zIndex={1000000}
-                key={
-                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
-                }
-                path="straight"
-                curveness={0.2}
-                strokeWidth={1.5}
-                showHead={
-                  checkConnctionVisibility(edge, "riskObjects") ===
-                  "collapsedGroup"
-                    ? false
-                    : checkConnctionVisibility(edge, "riskObjects")
-                }
-                // showTail={checkConnctionVisibility(edge, "riskObjects")==="collapsedGroup"?false:undefined}
-                labels={{
-                  middle:
-                    (checkConnctionVisibility(edge, "riskObjects") !==
-                    "collapsed" && checkConnctionVisibility(edge, "riskObjects") !==
-                    "collapsedGroup") ? (
-                      <div style={{ display: !true ? "none" : "inline" }}>
-                        {edge.name}
-                      </div>
-                    ) : (
-                      ``
-                    ),
-                }}
-                start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
-                end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
-                SVGcanvasStyle={{ overflow: "hidden" }}
-              />
-            )
-        )}
-
-        {objectPropertyConnections.map((object) => (
-          <Xarrow
-            path="straight"
-            curveness={0.2}
-            strokeWidth={1.5}
-            start={`R-${riskAssessmentId}-${object}`}
-            end={`P-${riskAssessmentId}-${object}`}
-            SVGcanvasStyle={{ overflow: "hidden" }}
-            headColor="orange"
-            tailColor="orange"
-            lineColor="orange"
-            // zIndex={1000000}
-          />
-        ))}
+        
       </Xwrapper>
     );
   }
