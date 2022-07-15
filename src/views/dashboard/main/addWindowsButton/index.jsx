@@ -23,13 +23,8 @@ export const AddWindowsButton = ({ data }) => {
   const [isLoading, setIsLoading] = useState(false);
   const setWindowsState = useSetRecoilState(windowsState);
 
-  const onRiskObjectProperties = useRecoilCallback(({set}) => async ()=>{
-    setIsLoading(true);
-    const ids = selectedObjects.map(object=>object.id);
-    const payload = {ids:[...new Set([...ids])]};
-    const response = await getRiskObjectProperties(payload);
-    setSelectedObjects([]);
-
+  // function for onRiskObjectProperties
+  const onRiskObjectPropertiesRecoilCallback = useRecoilCallback(({set}) => async (response)=>{
     const generatedId = generateID()
 
     const windowData = {
@@ -43,8 +38,17 @@ export const AddWindowsButton = ({ data }) => {
     }
     set(windowsIds, (prev) => [generatedId, ...prev])
     set(windowFamily(generatedId), windowData)
+  },[selectedObjects,setWindowsState]);
 
-    /*
+  const onRiskObjectProperties = useCallback(async () => {
+    setIsLoading(true);
+    const ids = selectedObjects.map(object=>object.id);
+    const payload = {ids:[...new Set([...ids])]};
+    const response = await getRiskObjectProperties(payload);
+    setSelectedObjects([]);
+
+    onRiskObjectPropertiesRecoilCallback(response)
+        /*
     setWindowsState((prevWindows) => [
       {
         id: generateID(),
@@ -60,29 +64,11 @@ export const AddWindowsButton = ({ data }) => {
     */
 
     setIsLoading(false);
-  },[selectedObjects,setWindowsState]);
+  }, [])
 
-  const onRiskAssessmentPhysicalTable = useRecoilCallback( ({set}) =>
-    async (id, name) => {
-      setIsLoading(true);
-      const { data } = await getRiskAssessmentPhysicalTable(id);
-      const preparedData = data.data.map((object) => {
-        console.log("properties", object.riskObjectProperties);
-        return {
-          id: object.id,
-          name: object.name,
-          bpmnDataObjectId: object.bpmnDataObjectId,
-          fileId: object.fileId,
-          riskObjectProperties: object?.riskObjectProperties
-            ? object.riskObjectProperties.reduce((con, acc) => {
-                const returned =
-                  (con += ` ${acc.metaDataLevel2Id}-${acc.dataObjectElementId}`);
-                return returned;
-              }, "")
-            : null,
-        };
-      });
-
+  // function for onRiskAssessmentPhysicalTable
+  const onRiskAssessmentPhysicalTableRecoilCallback = useRecoilCallback( ({set}) =>
+    async (name, preparedData) => {
       const generatedId = generateID()
 
       const windowData = {
@@ -94,10 +80,36 @@ export const AddWindowsButton = ({ data }) => {
         height: windowDefault.height,
         maximized: false,
       }
+
       set(windowsIds, (prev) => [generatedId, ...prev])
       set(windowFamily(generatedId), windowData)
+    },
+    [setWindowsState]
+  );
 
-      /*
+  const onRiskAssessmentPhysicalTable = useCallback(async(id, name) => {
+    setIsLoading(true);
+
+    const { data } = await getRiskAssessmentPhysicalTable(id);
+    const preparedData = data.data.map((object) => {
+      console.log("properties", object.riskObjectProperties);
+      return {
+        id: object.id,
+        name: object.name,
+        bpmnDataObjectId: object.bpmnDataObjectId,
+        fileId: object.fileId,
+        riskObjectProperties: object?.riskObjectProperties
+          ? object.riskObjectProperties.reduce((con, acc) => {
+              const returned =
+                (con += ` ${acc.metaDataLevel2Id}-${acc.dataObjectElementId}`);
+              return returned;
+            }, "")
+          : null,
+      };
+    });
+
+    onRiskAssessmentPhysicalTableRecoilCallback(id, preparedData)
+          /*
       setWindowsState((prevWindows) => [
         {
           id: generateID(),
@@ -112,16 +124,12 @@ export const AddWindowsButton = ({ data }) => {
       ]);
       */
 
-      setIsLoading(false);
-    },
-    [setWindowsState]
-  );
+    setIsLoading(false);
+  }, [])
 
-  const onRiskAssessmentTable = useRecoilCallback( ({set}) =>
-    async (id, name) => {
-      setIsLoading(true);
-      const { data } = await getRiskAssessmentTable(id);
-
+  // function for onRiskAssessmentTable
+  const onRiskAssessmentTableRecoilCallback = useRecoilCallback( ({set}) =>
+    async (name, data) => {
       const generatedId = generateID()
 
       const windowData = {
@@ -136,7 +144,16 @@ export const AddWindowsButton = ({ data }) => {
 
       set(windowsIds, (prev) => [generatedId, ...prev])
       set(windowFamily(generatedId), windowData)
+    },
+    [setWindowsState]
+  );
 
+    const onRiskAssessmentTable = useCallback(async (id, name) => {
+      setIsLoading(true);
+
+      const { data } = await getRiskAssessmentTable(id);
+
+      onRiskAssessmentTableRecoilCallback(name, data)
       /*
       setWindowsState((prevWindows) => [
         {
@@ -153,14 +170,10 @@ export const AddWindowsButton = ({ data }) => {
       */
 
       setIsLoading(false);
-    },
-    [setWindowsState]
-  );
+    }, [])
 
-  const onAssociationsClick = useRecoilCallback(({set}) => async () => {
-    setIsLoading(true);
-    const { data } = await getBpmnAssociations();
-
+    // function for onAssociationsClick
+  const onAssociationsRecoilCallback = useRecoilCallback(({set}) => (data) => {
     const generatedId = generateID();
 
     const windowData = {
@@ -174,8 +187,14 @@ export const AddWindowsButton = ({ data }) => {
     }
     set(windowsIds, (prev) => [generatedId, ...prev])
     set(windowFamily(generatedId), windowData)
+  }, [setWindowsState]);
 
-    /*
+  const onAssociationsClick = useCallback(async () => {
+    setIsLoading(true);
+    const { data } = await getBpmnAssociations()
+
+    onAssociationsRecoilCallback(data)
+        /*
     setWindowsState((prevWindows) => [
       {
         id: generateID(),
@@ -189,14 +208,11 @@ export const AddWindowsButton = ({ data }) => {
       ...prevWindows,
     ]);
     */
-
     setIsLoading(false);
-  }, [setWindowsState]);
-
-  const onEntitiesClick = useRecoilCallback( ({set}) => async () => {
-    setIsLoading(true);
-    const { data } = await getBpmnEntities();
-
+  }, [])
+  
+  // function for onEntitiesClick
+  const onEntitiesRecoilCallback = useRecoilCallback( ({set}) => async (data) => {
     const generatedId = generateID()
 
     const windowData = {
@@ -210,7 +226,13 @@ export const AddWindowsButton = ({ data }) => {
     }
     set(windowsIds, (prev) => [generatedId, ...prev])
     set(windowFamily(generatedId), windowData)
+  }, [setWindowsState]);
 
+  const onEntitiesClick = useCallback(async () => {
+    setIsLoading(true);
+    const { data } = await getBpmnEntities();
+
+    onEntitiesRecoilCallback(data)
     /*
     setWindowsState((prevWindows) => [
       {
@@ -227,12 +249,10 @@ export const AddWindowsButton = ({ data }) => {
     */
 
     setIsLoading(false);
-  }, [setWindowsState]);
+  }, [])
 
-  const onSequenceFlowsClick = useRecoilCallback( ({ set }) => async () => {
-    setIsLoading(true);
-    const { data } = await getBpmnSequenceFlows();
-
+  // function for onSequenceFlowsClick
+  const onSequenceFlowsRecoilCallback = useRecoilCallback( ({ set }) => (data) => {
     const generatedId = generateID()
 
     const windowData = {
@@ -246,8 +266,14 @@ export const AddWindowsButton = ({ data }) => {
     }
     set(windowsIds, (prev) => [generatedId, ...prev])
     set(windowFamily(generatedId), windowData)
+  }, [setWindowsState]);
 
-    /*
+  const onSequenceFlowsClick = useCallback(async () => {
+    setIsLoading(true);
+    const { data } = await getBpmnSequenceFlows();
+
+    onSequenceFlowsRecoilCallback(data)
+        /*
     setWindowsState((prevWindows) => [
       {
         id: generateID(),
@@ -262,12 +288,10 @@ export const AddWindowsButton = ({ data }) => {
     ]);
     */
     setIsLoading(false);
-  }, [setWindowsState]);
+  }, [])
 
-  const onLanesClick = useRecoilCallback(({ set }) => async () => {
-    setIsLoading(true);
-    const { data } = await getBpmnLanes();
-
+  // function for onLanesClick
+  const onLanesRecoilCallback = useRecoilCallback(({ set }) => async (data) => {
     const generatedId = generateID()
 
     const windowData = {
@@ -282,7 +306,16 @@ export const AddWindowsButton = ({ data }) => {
     set(windowsIds, (prev) => [generatedId, ...prev])
     set(windowFamily(generatedId), windowData)
 
-/*
+
+  }, [setWindowsState]);
+
+
+  const onLanesClick = useCallback(async () => {
+    setIsLoading(true);
+    const { data } = await getBpmnLanes();
+
+    onLanesRecoilCallback(data)
+    /*
     setWindowsState((prevWindows) => [
       {
         id: generateID(),
@@ -297,17 +330,14 @@ export const AddWindowsButton = ({ data }) => {
     ]);
     */
     setIsLoading(false);
-  }, [setWindowsState]);
+  }, [])
 
-  const onLevelClick = useRecoilCallback(({set}) =>
-    (id) => {
-      const levelData = data.data.dataObjectLevels.find(
-        (level) => level.id === id
-      );
-
+  // function for onLevelClick
+  const onLevelRecoilCallback = useRecoilCallback(({set}) =>
+    (levelData) => {
       const generatedId = generateID()
 
-      const windowData =         {
+      const windowData = {
         id: generatedId,
         type: "data",
         data: {
@@ -342,8 +372,18 @@ export const AddWindowsButton = ({ data }) => {
       }
       set(windowsIds, (prev) => [generatedId, ...prev])
       set(windowFamily(generatedId), windowData)
+    },
+    [data.data.dataObjectLevels, setWindowsState, data.data.id]
+  );
+  
+  const onLevelClick = useCallback(async (id) => {
+    setIsLoading(true)
+    const levelData = data.data.dataObjectLevels.find(
+      (level) => level.id === id
+    );
 
-      /*
+    onLevelRecoilCallback(levelData)
+          /*
       setWindowsState((prevWindows) => [
         {
           id: generateID(),
@@ -383,9 +423,7 @@ export const AddWindowsButton = ({ data }) => {
       */
       setIsLoading(false);
       console.log(levelData);
-    },
-    [data.data.dataObjectLevels, setWindowsState, data.data.id]
-  );
+  }, [])
 
   return (
     <Popover2
