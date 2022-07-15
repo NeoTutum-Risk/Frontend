@@ -438,7 +438,7 @@ export const Portfolios = () => {
 
   const ServiceChainPopOverContent = useMemo(
     () => (
-      <div key="text3">
+      <div key="text3" style={{zIndex:99999999999}}> 
         <H5>{portfolioPopOver?.type}</H5>
         <form onSubmit={addElmentToPortfolio}>
           <FormGroup
@@ -643,9 +643,9 @@ export const Portfolios = () => {
 
   const PlatformPopOverContent = useMemo(
     () => (
-      <div key="text2">
+      <div key="text2" style={{zIndex:99999999999}}>
         <H5>New Platform</H5>
-        <form onSubmit={addPlatform}>
+        <form onSubmit={addPlatform} style={{zIndex:99999999999}}>
           <FormGroup
             label="Name"
             labelInfo="(required)"
@@ -944,11 +944,16 @@ export const Portfolios = () => {
           false,
         label: (
           <Popover2
+          
             popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
             content={ServiceChainPopOverContent}
             isOpen={portfolio.id === portfolioPopOverOpenId}
+            usePortal={true}
+            style={{zIndex:99999999999}}
           >
             <Popover2
+            usePortal={true}
+            style={{zIndex:99999999999}}
               content={
                 <Menu>
                   <MenuItem
@@ -1025,6 +1030,8 @@ export const Portfolios = () => {
                 ?.isExpanded ?? false,
             label: (
               <Popover2
+              usePortal={true}
+              style={{zIndex:99999999999}}
                 popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
                 content={
                   serviceChainAction === "platform" && serviceChainAction
@@ -1034,8 +1041,10 @@ export const Portfolios = () => {
                 isOpen={serviceChain.id === serviceChainPopOverOpenId}
               >
                 <Popover2
+                usePortal={true}
+                style={{zIndex:99999999999999}}
                   content={
-                    <Menu>
+                    <Menu style={{zIndex:99999999999}}>
                       <MenuItem
                         textClassName="target_menu"
                         icon="plus"
@@ -1095,11 +1104,15 @@ export const Portfolios = () => {
                     ?.isExpanded ?? false,
                 label: (
                   <Popover2
+                  usePortal={true}
+                  style={{zIndex:99999999999}}
                     isOpen={platform.id === PlatformPopOverOpenId}
                     popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
                     content={BpmnPopOverContent}
                   >
                     <Popover2
+                    usePortal={true}
+                    style={{zIndex:99999999999}}
                       content={
                         <Menu>
                           <MenuItem
@@ -1162,6 +1175,8 @@ export const Portfolios = () => {
                     ),
                     label: (
                       <Popover2
+                      usePortal={true}
+                      style={{zIndex:99999999999}}
                         isOpen={bpmnFile?.id === bpmnContextMenu}
                         content={
                           <Menu>
@@ -1292,7 +1307,7 @@ export const Portfolios = () => {
   );
 
   return (
-    <div>
+    <div style={{zIndex:99999999999}}>
       <Tree
         contents={nodes}
         onNodeClick={onNodeClick}

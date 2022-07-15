@@ -47,6 +47,7 @@ import {
   getRiskAssessmentViews,
   addRiskAssessmentView,
   updateRiskAssessmentView,
+  addObjectToGroup,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -56,7 +57,7 @@ import { objectSelectorState } from "../../../../../store/objectSelector";
 import { Window } from "../window";
 import { RiskAssessment } from "../../../../../components/riskAssessment";
 import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
-import { set } from "lodash";
+import { map, set } from "lodash";
 import { data } from "vis-network";
 export const RiskAssessmentWindow = ({
   onClose,
@@ -155,6 +156,7 @@ export const RiskAssessmentWindow = ({
     setObjectName(null);
     setObjectDescription(null);
     setEditElement(null);
+    setActiveObject(null);
   }, []);
 
   const checkObject = useCallback(
@@ -176,7 +178,7 @@ export const RiskAssessmentWindow = ({
             }
           }
 
-          if (object && group===null) {
+          if (object && group === null) {
             group = grp;
             //  console.log("grp-obj",object, grp,id, type);
             // console.log("obj", object, Date.now());
@@ -288,7 +290,9 @@ export const RiskAssessmentWindow = ({
             check =
               source.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
-                ? check==="collapsed" ?"collapsed": true
+                ? check === "collapsed"
+                  ? "collapsed"
+                  : true
                 : "collapsed";
           }
 
@@ -326,7 +330,7 @@ export const RiskAssessmentWindow = ({
             check =
               target.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
-                ?true
+                ? true
                 : "collapsed";
           }
 
@@ -334,7 +338,9 @@ export const RiskAssessmentWindow = ({
             check =
               source.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
-                ? check==="collapsed" ?"collapsed": true
+                ? check === "collapsed"
+                  ? "collapsed"
+                  : true
                 : "collapsed";
           }
           break;
@@ -386,13 +392,18 @@ export const RiskAssessmentWindow = ({
             check =
               source.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
-                ? check==="collapsed" ?"collapsed": true
+                ? check === "collapsed"
+                  ? "collapsed"
+                  : true
                 : "collapsed";
           }
           break;
 
         default:
           break;
+      }
+      if(check==="collapsed" && target.group?.id===source.group?.id){
+        check="collapsedGroup"
       }
       // console.log("check", check, connection,target,source);
       return check;
@@ -565,6 +576,159 @@ export const RiskAssessmentWindow = ({
       setTimeout(riskAssessmentData, 1000);
     }
   }, [window.data.id, getGlobalGroups, updateViewsList]);
+
+  const addToGroup = useCallback(
+    async (type, data) => {
+      console.log("--------", data);
+      let payload,
+        tempConnections = [],
+        tempInstObjConnections = [],
+        tempinstConnections = [];
+      if (type === "risk") {
+        payload = { riskObjectId: data.id };
+        connections.forEach((connection) => {
+          if (
+            connection.sourceRef === data.id ||
+            connection.targetRef === data.id
+          ) {
+            tempConnections = [...tempConnections, connection];
+          }
+        });
+        instanceObjectConnections.forEach((connection) => {
+          if (
+            (connection.sourceRef === data.id &&
+              connection.objectType === "Output") ||
+            (connection.targetRef === data.id &&
+              connection.objectType === "Input")
+          ) {
+            tempInstObjConnections = [...tempInstObjConnections, connection];
+          }
+        });
+        setConnections((prev) =>
+          prev.filter(
+            (connection) =>
+              connection.sourceRef !== data.id &&
+              connection.targetRef !== data.id
+          )
+        );
+        setInstanceObjectConnections((prev) =>
+          prev.filter(
+            (connection) =>
+              (connection.sourceRef !== data.id &&
+                connection.objectType === "Output") ||
+              (connection.targetRef !== data.id &&
+                connection.objectType === "Input")
+          )
+        );
+      } else {
+        payload = { dataObjectId: data.id };
+        instanceConnections.forEach((connection) => {
+          if (
+            connection.sourceRef === data.id ||
+            connection.targetRef === data.id
+          ) {
+            tempinstConnections = [...tempinstConnections, connection];
+          }
+        });
+        instanceObjectConnections.forEach((connection) => {
+          if (
+            (connection.sourceRef === data.id &&
+              connection.objectType === "Input") ||
+            (connection.targetRef === data.id &&
+              connection.objectType === "Output")
+          ) {
+            tempInstObjConnections = [...tempInstObjConnections, connection];
+          }
+        });
+        setInstanceConnections((prev) =>
+          prev.filter(
+            (connection) =>
+              connection.sourceRef !== data.id &&
+              connection.targetRef !== data.id
+          )
+        );
+        setInstanceObjectConnections((prev) =>
+          prev.filter(
+            (connection) =>
+              (connection.sourceRef !== data.id &&
+                connection.objectType === "Input") ||
+              (connection.targetRef !== data.id &&
+                connection.objectType === "Output")
+          )
+        );
+      }
+      const response = await addObjectToGroup({
+        ...payload,
+        riskAssessmentId: window.data.id,
+        riskGroupId: data.groupId,
+      });
+      // setConnections([]);
+      // setInstanceConnections([]);
+      // setInstanceObjectConnections([]);
+      // setTimeout(riskAssessmentData, 500);
+      // if (type === "risk") {setTimeout(riskAssessmentData, 1000);}else{riskAssessmentData();}
+      if (type === "risk") {
+        let riskObject;
+        setRiskObjects((prev) => prev.filter((item) => item.id !== data.id));
+        setGroups((prev) => {
+          return prev.map((group) => {
+            console.log("in", group.id, data.groupId);
+            if (Number(group.id) === Number(data.groupId)) {
+              // riskObject = {
+              //   ...group.elements.find((element) => element.id === data.id),
+              // };
+              return {
+                ...group,
+                elements: [...group.elements, data],
+              };
+            } else {
+              return group;
+            }
+          });
+        });
+
+        setConnections((prev) => [...prev, ...tempConnections]);
+        setInstanceObjectConnections((prev) => [
+          ...prev,
+          ...tempInstObjConnections,
+        ]);
+      } else {
+        let dataObject;
+        setDataObjectInstances((prev) =>
+          prev.filter((item) => item.id !== data.id)
+        );
+        setGroups((prev) => {
+          return prev.map((group) => {
+            if (Number(group.id) === Number(data.groupId)) {
+              // dataObject = {
+              //   ...group.dataObjects.find((object) => object.id === data.id),
+              // };
+              return {
+                ...group,
+                dataObjects: [...group.dataObjects, data],
+              };
+            } else {
+              return group;
+            }
+          });
+        });
+
+        setInstanceConnections((prev) => [...prev, ...tempinstConnections]);
+        setInstanceObjectConnections((prev) => [
+          ...prev,
+          ...tempInstObjConnections,
+        ]);
+      }
+      // setTimeout(riskAssessmentData, 3000);
+      // riskAssessmentData();
+    },
+    [
+      window.data.id,
+      connections,
+      instanceConnections,
+      instanceObjectConnections,
+    ]
+  );
 
   const removeFromGroup = useCallback(
     async (type, data) => {
@@ -898,6 +1062,10 @@ export const RiskAssessmentWindow = ({
 
   const handleContextMenu = useCallback(
     async (e, data) => {
+      if (firstContext === "risk" && selectedElements.length < 2) return;
+      if (data.id) {
+        setActiveObject(data.id);
+      }
       e.preventDefault();
       console.log(data, e);
       if (data && !data.from) {
@@ -1007,14 +1175,14 @@ export const RiskAssessmentWindow = ({
           dataObjects: selectedElements
             .filter((item) => item.type === "instance")
             .map((object) => object.id),
-          x: x+75,
-          y: y+75,
+          x: x + 75,
+          y: y + 75,
           name: groupName,
           expanded: 1,
         };
         const response = await addRiskAssessmentGroup(payload);
         resetContext();
-        
+
         setSelectedElements([]);
         setSelectedObjects([]);
         // setConnections([]);
@@ -1068,6 +1236,34 @@ export const RiskAssessmentWindow = ({
 
         if (editElement) {
           const response = await updateRiskObject(editElement, payload);
+          setRiskObjects((prev) =>
+            prev.map((obj) => {
+              if (Number(obj.id) === Number(editElement)) {
+                return {
+                  ...obj,
+                  name: objectName,
+                  description: objectDescription,
+                };
+              } else {
+                return obj;
+              }
+            })
+          );
+          setGroups((prev) =>
+            prev.map((grp) =>({...grp,...grp.elements.map((element) => {
+              if (Number(element?.id) === Number(editElement)) {
+                return {
+                  ...element,
+                  name: objectName,
+                  description: objectDescription,
+                };
+              } else {
+                return element;
+              }
+            })})
+              
+            )
+          );
           riskAssessmentData();
         } else {
           const response = await addNewRiskObject(payload);
@@ -1077,8 +1273,8 @@ export const RiskAssessmentWindow = ({
               response.data.data.riskObjectsPositions[0].x;
             newObject["position.y"] =
               response.data.data.riskObjectsPositions[0].y;
-              newObject["position.width"] =270;
-            newObject["position.height"] =170;
+            newObject["position.width"] = 270;
+            newObject["position.height"] = 170;
             newObject["position.enabled"] = 1;
             setRiskObjects((prev) => [...prev, newObject]);
           }
@@ -1147,8 +1343,8 @@ export const RiskAssessmentWindow = ({
   );
 
   const updateElementData = useCallback(async () => {
-    setEditElement(contextMenu.element);
-    const riskObject = await getRiskObject(contextMenu.element);
+    setEditElement(activeObject);
+    const riskObject = await getRiskObject(activeObject);
     if (riskObject.status === 200) {
       const { name, description } = riskObject.data.data;
       // console.log(name, description);
@@ -1157,7 +1353,7 @@ export const RiskAssessmentWindow = ({
       setContextMenu((prev) => ({ ...prev, type: "create object" }));
     }
     // const object =
-  }, [contextMenu.element]);
+  }, [activeObject]);
 
   const handleObjectAction = useCallback(
     async (element) => {
@@ -1294,7 +1490,7 @@ export const RiskAssessmentWindow = ({
   const updateElementStatus = useCallback(async () => {
     const response = await updateRiskObjectPosition(
       window.data.id,
-      contextMenu.element,
+      activeObject,
       {
         enabled: !elementEnable,
       }
@@ -1302,7 +1498,7 @@ export const RiskAssessmentWindow = ({
     if (response.status === 200) {
       setRiskObjects((prev) =>
         prev.map((object) => {
-          if (object.id === contextMenu.element) {
+          if (object?.id === activeObject) {
             const updatedObject = { ...object };
             updatedObject["position.enabled"] = !elementEnable;
             return updatedObject;
@@ -1316,7 +1512,7 @@ export const RiskAssessmentWindow = ({
         prev.map((group) => ({
           ...group,
           elements: group.elements.map((object) => {
-            if (object.id === contextMenu.element) {
+            if (object?.id === activeObject) {
               const updatedObject = { ...object };
               updatedObject["position.enabled"] = !elementEnable;
               return updatedObject;
@@ -1328,7 +1524,7 @@ export const RiskAssessmentWindow = ({
       );
       resetContext();
     }
-  }, [window.data.id, contextMenu.element, elementEnable, resetContext]);
+  }, [window.data.id, activeObject, elementEnable, resetContext]);
 
   useEffect(() => {
     let connection, connectionType;
@@ -1634,6 +1830,7 @@ export const RiskAssessmentWindow = ({
           menu={menu}
           handleProperties={handleProperties}
           removeFromGroup={removeFromGroup}
+          addToGroup={addToGroup}
           checkFilter={checkFilter}
           checkConnctionVisibility={checkConnctionVisibility}
           setGroups={setGroups}
@@ -1657,7 +1854,7 @@ export const RiskAssessmentWindow = ({
         style={{ zIndex: 9999999 }}
         onDragStop={(e, d) => updateDraftLocation(e, d)}
       >
-        {/* {contextMenu.active && contextMenu.type === "context" && (
+        {contextMenu.active && contextMenu.type === "context" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             {elementEnable ? menu : null}
 
@@ -1671,7 +1868,7 @@ export const RiskAssessmentWindow = ({
               <MenuItem text="Enable" onClick={updateElementStatus} />
             )}
           </Menu>
-        )} */}
+        )}
 
         {contextMenu.active && contextMenu.type === "connection" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>

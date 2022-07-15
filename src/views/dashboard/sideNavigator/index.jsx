@@ -139,11 +139,11 @@ export const SideNavigator = () => {
           </Tooltip2>
         )}
 
-        {fullScreenHandler && (
+        {/* {fullScreenHandler && (
           <Tooltip2 content={<span>{isFullScreen ? "Minimize" : "Full Screen"}</span>}>
             <Button icon="maximize" small onClick={handleFullScreen} />
           </Tooltip2>
-        )}
+        )} */}
 
         {menuOpen && (
           <H3 className={styles.userName}>

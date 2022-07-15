@@ -29,7 +29,9 @@ export const RiskGroup = ({
   handleObjectProperty,
   checkFilter,
   enviroDimension,
-  setGroups
+  setGroups,
+  groups,
+  addToGroup
 }) => {
   // console.log(`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
@@ -244,6 +246,8 @@ export const RiskGroup = ({
                 !object["position.enabled"]
               ) && (
                 <RiskElement
+                addToGroup={addToGroup}
+                groups={groups}
                   setFirstContext={setFirstContext}
                   expanded={expanded}
                   handleContextMenu={handleContextMenu}
@@ -284,6 +288,8 @@ export const RiskGroup = ({
                 object.disable
               ) && (
                 <DataObject
+                addToGroup={addToGroup}
+                groups={groups}
                   setFirstContext={setFirstContext}
                   expanded={expanded}
                   handleContextMenu={handleContextMenu}

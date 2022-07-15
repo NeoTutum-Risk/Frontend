@@ -1,9 +1,13 @@
 import { useCallback, useState } from "react";
-import { Button, TextArea, H3 } from "@blueprintjs/core";
+import { Button, TextArea, H5,HTMLSelect,FormGroup } from "@blueprintjs/core";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { Rnd } from "react-rnd";
 import { updateNewDataObjectInstance } from "../../services";
 import { size } from "lodash";
+import {
+  Classes,
+  Popover2,
+} from "@blueprintjs/popover2";
 export const DataObject = ({
   riskAssessmentId,
   data,
@@ -17,13 +21,16 @@ export const DataObject = ({
   expandPosition,
   groupId,
   removeFromGroup,
-  enviroDimension
+  enviroDimension,
+  addToGroup,
+  groups
 }) => {
   const [size, setSize] = useState({ w: data.width, h: data.height });
   const [viewedAttribute, setViewedAttribute] = useState(data.textType);
   const [usingService, setUsingService] = useState(false);
   const [edit, setEdit] = useState(false);
   const [editingValue, setEditingValue] = useState(null);
+  const [editGrp, setEditGrp] = useState(false);
   const [editGroup, setEditGroup] = useState(false);
   const updateXarrow = useXarrow();
   const [drag, setDrag] = useState({
@@ -139,6 +146,15 @@ export const DataObject = ({
     const response = await removeFromGroup("data", { id: data.id, groupId });
   }, [data.id, groupId, removeFromGroup]);
 
+  const handleAddToGroup = useCallback(async ()=>{
+    setUsingService(true);
+    const response = await addToGroup("data",{...data,groupId:editingValue})
+    setUsingService(false);
+    if(response!=="done"){
+      
+    }
+  },[addToGroup,data,editingValue])
+
   return (
     <Rnd
       id={`D-${riskAssessmentId}-${data.id}`}
@@ -177,7 +193,7 @@ export const DataObject = ({
             setHoveredElement(null);
           }}
           onMouseEnter={() => {
-            setFirstContext("element");
+            setFirstContext("risk");
             setHoveredElement(data);
           }}
           onContextMenu={(e) => {
@@ -319,16 +335,88 @@ export const DataObject = ({
                   ></Button>
                 </>
               ) : (
-                <Button
-                className="panningDisabled pinchDisabled wheelDisabled"
-                  small={true}
-                  onClick={handleGroup}
-                  intent={!data.disable ? "success" : "none"}
-                  disabled={data.disable}
-                >
-                  {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
-                </Button>
-              )}
+          (groupId?(<Button
+            disabled={data.disable}
+            small={true}
+            onClick={()=>{setEditGroup(true)}}
+            intent={!data.disable ? "primary" : "none"}
+          >
+            {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
+          </Button>):(
+            <Popover2
+            usePortal={false}
+            popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
+            boundary={"scrollParent"}
+            enforceFocus={false}
+            isOpen={editGrp }
+            content={
+              <div className="bp4-popover2-content">
+                <div key="text">
+                  <H5>Add To Group</H5>
+                  <span>
+                    
+                  </span>
+                  <FormGroup
+                    label="Select Group"
+                    labelInfo="(required)"
+                    labelFor="grp"
+                  >
+                    <HTMLSelect
+                      required
+                      value={editingValue}
+                      fill={true}
+                      id="Text"
+                      onChange={(event) => {
+                        setEditingValue(event.target.value);
+                      }}
+                    >
+                      <option selected disabled>Select Group</option>
+                      {groups.map(grp=><option value={grp.id}>{grp.name}</option>)}
+                      </HTMLSelect>
+                  </FormGroup>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      marginTop: 15,
+                    }}
+                  >
+                    <Button
+                      className="bp4-button bp4-intent-danger bp4-popover2-dismiss"
+                      style={{ marginRight: 10 }}
+                      onClick={() => {
+                        setEditGrp(false);
+                        setEditingValue(null);
+                      }}
+                      loading={usingService}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      intent="primary"
+                      className="bp4-button bp4-popover2-dismiss"
+                      onClick={handleAddToGroup}
+                      loading={usingService}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            }
+          >
+            <Button
+              disabled={data.disable}
+              small={true}
+              onClick={()=>{setEditGrp(true)}}
+              intent={!data.disable ? "primary" : "none"}
+            >
+              G
+            </Button>
+          </Popover2>
+          ))
+          
+        )}
               {!edit ? (
                 <Button
                   // fill={true}
@@ -410,7 +498,7 @@ export const DataObject = ({
               </tr>
             </table>
           ) : (
-            <div className="panningDisabled pinchDisabled wheelDisabled" style={{ paddingTop: "10px",overflow: "auto", }}>
+            <div className="panningDisabled pinchDisabled wheelDisabled" style={{ paddingTop: "10px",overflow: "auto", whiteSpace:"pre-wrap"}}>
               {edit ? (
                 <TextArea
                   className="panningDisabled pinchDisabled wheelDisabled"

@@ -1,4 +1,6 @@
-import { Button, TextArea } from "@blueprintjs/core";
+import { Button, H5, FormGroup, HTMLSelect, TextArea } from "@blueprintjs/core";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
+import { useEffect } from "react";
 import { useState, useCallback } from "react";
 export const ClosedFace = ({
   data,
@@ -14,10 +16,13 @@ export const ClosedFace = ({
   setGroupIdState,
   handleObjectProperty,
   showProperties,
+  groups,
+  addToGroup,
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
   const [edit, setEdit] = useState(false);
+  const [editGrp, setEditGrp] = useState(false);
   const [editingValue, setEditingValue] = useState(null);
   const [usingService, setUsingService] = useState(false);
   const [editGroup, setEditGroup] = useState(false);
@@ -86,6 +91,17 @@ export const ClosedFace = ({
     setGroupIdState(null);
   }, [data.id, groupId, removeFromGroup, setGroupIdState]);
 
+  const handleAddToGroup = useCallback(async () => {
+    setUsingService(true);
+    const response = await addToGroup("risk", {
+      ...data,
+      groupId: editingValue,
+    });
+    setUsingService(false);
+    if (response !== "done") {
+    }
+  }, [addToGroup, data, editingValue]);
+
   return (
     <>
       <div className="risk-object-closed-header panningDisabled">
@@ -128,15 +144,93 @@ export const ClosedFace = ({
               loading={usingService}
             ></Button>
           </>
-        ) : (
+        ) : groupId ? (
           <Button
             disabled={!data["position.enabled"]}
             small={true}
-            onClick={handleGroup}
+            onClick={() => {
+              setEditGroup(true);
+            }}
             intent={data["position.enabled"] ? "primary" : "none"}
           >
             {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
           </Button>
+        ) : (
+          <Popover2
+            usePortal={false}
+            popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
+            boundary={"scrollParent"}
+            enforceFocus={false}
+            isOpen={editGrp}
+            content={
+              <div className="bp4-popover2-content">
+                <div key="text">
+                  <H5>Add To Group</H5>
+                  <span></span>
+                  <FormGroup
+                    label="Select Group"
+                    labelInfo="(required)"
+                    labelFor="grp"
+                  >
+                    <HTMLSelect
+                      required
+                      value={editingValue}
+                      fill={true}
+                      id="Text"
+                      onChange={(event) => {
+                        setEditingValue(event.target.value);
+                      }}
+                    >
+                      <option selected disabled>
+                        Select Group
+                      </option>
+                      {groups.map((grp) => (
+                        <option value={grp.id}>{grp.name}</option>
+                      ))}
+                    </HTMLSelect>
+                  </FormGroup>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      marginTop: 15,
+                    }}
+                  >
+                    <Button
+                      className="bp4-button bp4-intent-danger bp4-popover2-dismiss"
+                      style={{ marginRight: 10 }}
+                      onClick={() => {
+                        setEditGrp(false);
+                        setEditingValue(null);
+                      }}
+                      loading={usingService}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      intent="primary"
+                      className="bp4-button bp4-popover2-dismiss"
+                      onClick={handleAddToGroup}
+                      loading={usingService}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            }
+          >
+            <Button
+              disabled={!data["position.enabled"]}
+              small={true}
+              onClick={() => {
+                setEditGrp(true);
+              }}
+              intent={data["position.enabled"] ? "primary" : "none"}
+            >
+              G
+            </Button>
+          </Popover2>
         )}
         <Button
           small={true}
@@ -155,7 +249,7 @@ export const ClosedFace = ({
             setShowProperties(false);
             handleObjectProperty({
               id: data.id,
-              action: "remove" ,
+              action: "remove",
             });
             handleObjectAction({
               id: data.id,
@@ -331,6 +425,7 @@ export const ClosedFace = ({
               backgroundColor: "lightsteelblue",
               height: "100%",
               overflow: "scroll",
+              whiteSpace:"pre-wrap"
             }}
           >
             <span style={{ height: "100%" }}>{viewedAttribute}</span>

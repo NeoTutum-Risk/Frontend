@@ -1,12 +1,7 @@
 import { Rnd } from "react-rnd";
 import {
   Classes,
-  Placement,
-  PlacementOptions,
   Popover2,
-  Popover2InteractionKind,
-  Popover2SharedProps,
-  StrictModifierNames,
 } from "@blueprintjs/popover2";
 import {
   Button,

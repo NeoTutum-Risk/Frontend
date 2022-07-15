@@ -12,7 +12,7 @@ export const Dashboard = () => {
   const showDashboard = useRecoilValue(showDashboardState);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} >
       <SideNavigator />
       {showDashboard === "default" && (
         <>

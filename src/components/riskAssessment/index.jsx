@@ -1,5 +1,5 @@
 import Xarrow, { useXarrow, xarrowPropsType, Xwrapper } from "react-xarrows";
-import { DraggableBox } from "./draggableBox";
+import { Button, TextArea } from "@blueprintjs/core";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
 import { RiskGroup } from "./riskGroup";
@@ -7,7 +7,7 @@ import { useCallback, useState, Fragment, useRef } from "react";
 import { objectSelectorState } from "../../store/objectSelector";
 import { useRecoilState } from "recoil";
 import { DataObject } from "./dataObject";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   getRiskAssessmentWindowSettings,
   updateRiskAssessmentWindowSettings,
@@ -33,6 +33,7 @@ export const RiskAssessment = ({
   menu,
   handleProperties,
   removeFromGroup,
+  addToGroup,
   checkFilter,
   checkConnctionVisibility,
   setGroups,
@@ -56,26 +57,27 @@ export const RiskAssessment = ({
 
   useEffect(() => {
     const getWindowSettings = async () => {
-      const res = await getRiskAssessmentWindowSettings(riskAssessmentId);
+      // const res = await getRiskAssessmentWindowSettings(riskAssessmentId);
 
-      const { id, positionX, positionY, previousScale, scale } = res.data.data;
-      console.log("state comming from database: ", res.data);
+      // const { id, positionX, positionY, previousScale, scale } = res.data.data;
+      // console.log("state comming from database: ", res.data);
 
-      let reposition;
-      switch(scale) {
-        case scale < 0.7:
-          reposition = 500;
-        default:
-          reposition = 300;
-      }
-      const condX = (positionX + reposition) > 0 ? 0 : positionX + reposition
-      const condY = (positionY + reposition) > 0 ? 0 : positionY + reposition
+      // let reposition;
+      // switch (scale) {
+      //   case scale < 0.7:
+      //     reposition = 500;
+      //     break;
+      //   default:
+      //     reposition = 300;
+      // }
+      // const condX = positionX + reposition > 0 ? 0 : positionX + reposition;
+      // const condY = positionY + reposition > 0 ? 0 : positionY + reposition;
       setRASettings({
-        id,
-        positionX: condX,
-        positionY: condY,
-        previousScale,
-        scale,
+        id: 0,
+        positionX: -Math.floor(enviroDimension.width / 2),
+        positionY: -Math.floor(enviroDimension.height / 2),
+        scale: 1,
+        previousScale: 1,
       });
     };
     getWindowSettings().then((res) => {
@@ -98,7 +100,7 @@ export const RiskAssessment = ({
 
     //   setloadingZoomSettings(false);
     // });
-  }, []);
+  }, [riskAssessmentId]);
 
   useEffect(() => {
     if (raSettings.hasOwnProperty("id")) {
@@ -106,8 +108,8 @@ export const RiskAssessment = ({
     }
     // console.log("RA Settings before update to the server: ", raSettings);
 
-    updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
-  }, [raSettings]);
+    // updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
+  }, [raSettings, riskAssessmentId]);
 
   const elementSelection = useCallback(
     (elementData, state) => {
@@ -151,7 +153,7 @@ export const RiskAssessment = ({
         positionX: e.offsetX * -1,
         positionY: e.offsetY * -1,
         scale: ref.state.scale,
-        previousScale: ref.state.previousScale
+        previousScale: ref.state.previousScale,
       });
       updateXarrow();
       setTimeout(updateXarrow, 0);
@@ -166,7 +168,7 @@ export const RiskAssessment = ({
   // console.log("raSettingssssss", raSettings);
 
   if (loadingZoomSettings) {
-    return "LOADING!";
+    return "";
   } else {
     return (
       // <div
@@ -177,9 +179,30 @@ export const RiskAssessment = ({
       // >
 
       <Xwrapper>
+        <div style={{ display: "inline", position: "absolute", zIndex: 99 }}>
+          {/* <Button
+            fill={false}
+            small={true}
+            icon="reset"
+            title="Reset View"
+            onClick={() => {
+              setRASettings({
+                // id: 0,
+                positionX: -Math.floor(enviroDimension.width / 2),
+                positionY: -Math.floor(enviroDimension.height / 2),
+                previousScale: 1,
+                scale: 1,
+              });
+              setGlobalScale(1);
+              updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
+              updateXarrow();
+            }}
+          /> */}
+        </div>
+
         <TransformWrapper
           zoomAnimation={{ disabled: true }}
-          initialScale={1}
+          initialScale={globalScale}
           initialPositionX={raSettings.positionX}
           initialPositionY={raSettings.positionY}
           minScale={0.1}
@@ -222,270 +245,333 @@ export const RiskAssessment = ({
           }}
           ref={transformWrapperRef}
         >
-          {instanceConnections.map(
-            (edge) =>
-              checkConnctionVisibility(edge, "dataObjects") && (
-                <Xarrow
-                  // zIndex={1000000}
-                  key={
-                    riskAssessmentId +
-                    " " +
-                    edge.sourceRef +
-                    " " +
-                    edge.targetRef
-                  }
-                  path="straight"
-                  curveness={0.2}
-                  strokeWidth={1.5}
-                  color="#29A634"
-                  headColor="#29A634"
-                  tailColor="#29A634"
-                  lineColor="#29A634"
-                  labels={{
-                    middle:
-                      checkConnctionVisibility(edge, "dataObjects") !==
-                      "collapsed" ? (
-                        <div style={{ display: !true ? "none" : "inline" }}>
-                          {edge.name}
-                        </div>
-                      ) : (
-                        ``
-                      ),
-                  }}
-                  start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
-                  end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
-                  SVGcanvasStyle={{ overflow: "hidden" }}
+          {({ zoomIn, zoomOut, resetTransform, setTransform, ...rest }) => (
+            <React.Fragment>
+              <div
+                style={{
+                  display: "inline",
+                  position: "absolute",
+                  zIndex: "99",
+                }}
+              >
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="plus"
+                  onClick={() => zoomIn()}
                 />
-              )
-          )}
-
-          {instanceObjectConnections.map(
-            (edge) =>
-              // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
-              checkConnctionVisibility(edge, "riskDataObjects") && (
-                <Xarrow
-                  // zIndex={1000000}
-                  key={
-                    riskAssessmentId +
-                    " " +
-                    edge.sourceRef +
-                    " " +
-                    edge.targetRef
-                  }
-                  path="straight"
-                  curveness={0.2}
-                  strokeWidth={1.5}
-                  color="#29A634"
-                  headColor="#29A634"
-                  tailColor="#29A634"
-                  lineColor="#29A634"
-                  labels={{
-                    middle:
-                      checkConnctionVisibility(edge, "riskDataObjects") !==
-                      "collapsed" ? (
-                        <div style={{ display: !true ? "none" : "inline" }}>
-                          {edge.name}
-                        </div>
-                      ) : (
-                        ``
-                      ),
-                  }}
-                  start={String(
-                    (edge.objectType === "Input" ? "D-" : "R-") +
-                      riskAssessmentId +
-                      "-" +
-                      edge.sourceRef
-                  )}
-                  end={String(
-                    (edge.objectType === "Input" ? "R-" : "D-") +
-                      riskAssessmentId +
-                      "-" +
-                      edge.targetRef
-                  )}
-                  SVGcanvasStyle={{ overflow: "hidden" }}
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="minus"
+                  onClick={() => zoomOut()}
                 />
-              )
-          )}
-
-          {connections.map(
-            (edge) =>
-              checkConnctionVisibility(edge, "riskObjects") && (
-                <Xarrow
-                  // zIndex={1000000}
-                  key={
-                    riskAssessmentId +
-                    " " +
-                    edge.sourceRef +
-                    " " +
-                    edge.targetRef
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="reset"
+                  onClick={() =>
+                    setTransform(
+                      -Math.floor(enviroDimension.width / 2),
+                      -Math.floor(enviroDimension.height / 2),
+                      1
+                    )
                   }
-                  path="straight"
-                  curveness={0.2}
-                  strokeWidth={1.5}
-                  labels={{
-                    middle:
-                      checkConnctionVisibility(edge, "riskObjects") !==
-                      "collapsed" ? (
-                        <div style={{ display: !true ? "none" : "inline" }}>
-                          {edge.name}
-                        </div>
-                      ) : (
-                        ``
-                      ),
-                  }}
-                  start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
-                  end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
-                  SVGcanvasStyle={{ overflow: "hidden" }}
                 />
-              )
+              </div>
+              <TransformComponent
+                wrapperStyle={{
+                  width: "100%",
+                  height: "100%",
+                }}
+                contentStyle={{
+                  width: `${enviroDimension.width}px`,
+                  height: `${enviroDimension.height}px`,
+                  // backgroundColor: "white",
+                }}
+              >
+                <div
+                  style={{
+                    overflow: "auto",
+                    height: `${enviroDimension.height}px`,
+                    width: `${enviroDimension.width}px`,
+                    position: "relative",
+                    border: "5px solid grey",
+                  }}
+                  onScroll={updateXarrow}
+                  onContextMenu={(e) => {
+                    // console.log(e);
+                    handleContextMenu(e, { from: "main" });
+                  }}
+                  onClick={resetContext}
+                >
+                  {groups.length > 0 && checkFilter("group")
+                    ? groups.map(
+                        (group, index) =>
+                          Number(
+                            group.elements.filter((element) => element).length
+                          ) +
+                            Number(
+                              group.dataObjects.filter((element) => element)
+                                .length
+                            ) >
+                            0 && (
+                            <RiskGroup
+                              groups={groups.map((grp) => ({
+                                id: grp.id,
+                                name: grp.name,
+                              }))}
+                              setFirstContext={setFirstContext}
+                              updateXarrow={updateXarrow}
+                              handleContextMenu={handleContextMenu}
+                              selectedElements={selectedElements}
+                              elementSelection={elementSelection}
+                              index={index}
+                              data={group}
+                              key={`grp-${riskAssessmentId}-${group.id}`}
+                              riskAssessmentId={riskAssessmentId}
+                              position={{
+                                x: group.currentX,
+                                y: group.currentY,
+                              }}
+                              editRiskObject={editRiskObject}
+                              closedFace={closedFace}
+                              scale={globalScale}
+                              setHoveredElement={setHoveredElement}
+                              handleObjectAction={handleObjectAction}
+                              menu={menu}
+                              handleProperties={handleProperties}
+                              removeFromGroup={removeFromGroup}
+                              handleObjectProperty={handleObjectProperty}
+                              checkFilter={checkFilter}
+                              enviroDimension={enviroDimension}
+                              setGroups={setGroups}
+                              addToGroup={addToGroup}
+                            />
+                          )
+                      )
+                    : null}
+
+                  {objects.length > 0
+                    ? objects.map(
+                        (object, index) =>
+                          checkFilter(
+                            object.type,
+                            object.status,
+                            !object["position.enabled"]
+                          ) && (
+                            <RiskElement
+                              groups={groups.map((grp) => ({
+                                id: grp.id,
+                                name: grp.name,
+                              }))}
+                              setFirstContext={setFirstContext}
+                              expanded={true}
+                              handleContextMenu={handleContextMenu}
+                              selectedElements={selectedElements}
+                              elementSelection={elementSelection}
+                              key={`r-${riskAssessmentId}-${object.id}`}
+                              data={object}
+                              riskAssessmentId={riskAssessmentId}
+                              position={{
+                                x: object["position.x"],
+                                y: object["position.y"],
+                              }}
+                              editRiskObject={editRiskObject}
+                              closedFace={closedFace}
+                              scale={globalScale}
+                              setHoveredElement={setHoveredElement}
+                              handleObjectAction={handleObjectAction}
+                              menu={menu}
+                              handleProperties={handleProperties}
+                              removeFromGroup={removeFromGroup}
+                              handleObjectProperty={handleObjectProperty}
+                              enviroDimension={enviroDimension}
+                              addToGroup={addToGroup}
+                            />
+                          )
+                      )
+                    : null}
+
+                  {dataObjectInstances.length > 0
+                    ? dataObjectInstances.map(
+                        (dataObjectInstance) =>
+                          checkFilter(
+                            dataObjectInstance.dataObjectNew.IOtype,
+                            dataObjectInstance.status,
+                            dataObjectInstance.disable
+                          ) && (
+                            <DataObject
+                              groups={groups.map((grp) => ({
+                                id: grp.id,
+                                name: grp.name,
+                              }))}
+                              riskAssessmentId={riskAssessmentId}
+                              scale={globalScale}
+                              expanded={true}
+                              data={dataObjectInstance}
+                              selectedElements={selectedElements}
+                              elementSelection={elementSelection}
+                              setFirstContext={setFirstContext}
+                              setHoveredElement={setHoveredElement}
+                              handleObjectAction={handleObjectAction}
+                              removeFromGroup={removeFromGroup}
+                              addToGroup={addToGroup}
+                              key={`o-${riskAssessmentId}-${dataObjectInstance.id}`}
+                              enviroDimension={enviroDimension}
+                            />
+                          )
+                      )
+                    : null}
+                </div>
+              </TransformComponent>
+            </React.Fragment>
           )}
-
-          {objectPropertyConnections.map((object) => (
-            <Xarrow
-              path="straight"
-              curveness={0.2}
-              strokeWidth={1.5}
-              start={`R-${riskAssessmentId}-${object}`}
-              end={`P-${riskAssessmentId}-${object}`}
-              SVGcanvasStyle={{ overflow: "hidden" }}
-              headColor="orange"
-              tailColor="orange"
-              lineColor="orange"
-              // zIndex={1000000}
-            />
-          ))}
-
-          <TransformComponent
-            wrapperStyle={{
-              width: "100%",
-              height: "100%",
-            }}
-            contentStyle={{
-              width: `${enviroDimension.width}px`,
-              height: `${enviroDimension.height}px`,
-              // backgroundColor: "white",
-            }}
-          >
-            <div
-              style={{
-                overflow: "auto",
-                height: `${enviroDimension.height}px`,
-                width: `${enviroDimension.width}px`,
-                position: "relative",
-                border: "5px solid grey",
-              }}
-              onScroll={updateXarrow}
-              onContextMenu={(e) => {
-                // console.log(e);
-                handleContextMenu(e, { from: "main" });
-              }}
-              onClick={resetContext}
-            >
-              {groups.length > 0 && checkFilter("group")
-                ? groups.map(
-                    (group, index) =>
-                      Number(
-                        group.elements.filter((element) => element).length
-                      ) +
-                        Number(
-                          group.dataObjects.filter((element) => element).length
-                        ) >
-                        0 && (
-                        <RiskGroup
-                          setFirstContext={setFirstContext}
-                          updateXarrow={updateXarrow}
-                          handleContextMenu={handleContextMenu}
-                          selectedElements={selectedElements}
-                          elementSelection={elementSelection}
-                          index={index}
-                          data={group}
-                          key={`grp-${riskAssessmentId}-${group.id}`}
-                          riskAssessmentId={riskAssessmentId}
-                          position={{
-                            x: group.currentX,
-                            y: group.currentY,
-                          }}
-                          editRiskObject={editRiskObject}
-                          closedFace={closedFace}
-                          scale={globalScale}
-                          setHoveredElement={setHoveredElement}
-                          handleObjectAction={handleObjectAction}
-                          menu={menu}
-                          handleProperties={handleProperties}
-                          removeFromGroup={removeFromGroup}
-                          handleObjectProperty={handleObjectProperty}
-                          checkFilter={checkFilter}
-                          enviroDimension={enviroDimension}
-                          setGroups={setGroups}
-                        />
-                      )
-                  )
-                : null}
-
-              {objects.length > 0
-                ? objects.map(
-                    (object, index) =>
-                      checkFilter(
-                        object.type,
-                        object.status,
-                        !object["position.enabled"]
-                      ) && (
-                        <RiskElement
-                          setFirstContext={setFirstContext}
-                          expanded={true}
-                          handleContextMenu={handleContextMenu}
-                          selectedElements={selectedElements}
-                          elementSelection={elementSelection}
-                          key={`r-${riskAssessmentId}-${object.id}`}
-                          data={object}
-                          riskAssessmentId={riskAssessmentId}
-                          position={{
-                            x: object["position.x"],
-                            y: object["position.y"],
-                          }}
-                          editRiskObject={editRiskObject}
-                          closedFace={closedFace}
-                          scale={globalScale}
-                          setHoveredElement={setHoveredElement}
-                          handleObjectAction={handleObjectAction}
-                          menu={menu}
-                          handleProperties={handleProperties}
-                          removeFromGroup={removeFromGroup}
-                          handleObjectProperty={handleObjectProperty}
-                          enviroDimension={enviroDimension}
-                        />
-                      )
-                  )
-                : null}
-
-              {dataObjectInstances.length > 0
-                ? dataObjectInstances.map(
-                    (dataObjectInstance) =>
-                      checkFilter(
-                        dataObjectInstance.dataObjectNew.IOtype,
-                        dataObjectInstance.status,
-                        dataObjectInstance.disable
-                      ) && (
-                        <DataObject
-                          riskAssessmentId={riskAssessmentId}
-                          scale={globalScale}
-                          expanded={true}
-                          data={dataObjectInstance}
-                          selectedElements={selectedElements}
-                          elementSelection={elementSelection}
-                          setFirstContext={setFirstContext}
-                          setHoveredElement={setHoveredElement}
-                          handleObjectAction={handleObjectAction}
-                          removeFromGroup={removeFromGroup}
-                          key={`o-${riskAssessmentId}-${dataObjectInstance.id}`}
-                          enviroDimension={enviroDimension}
-                        />
-                      )
-                  )
-                : null}
-            </div>
-          </TransformComponent>
         </TransformWrapper>
+        {instanceConnections.map(
+          (edge) =>
+            checkConnctionVisibility(edge, "dataObjects") && (
+              <Xarrow
+                // zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                color="#29A634"
+                headColor="#29A634"
+                tailColor="#29A634"
+                lineColor="#29A634"
+                showHead={
+                  checkConnctionVisibility(edge, "dataObjects") ===
+                  "collapsedGroup"
+                    ? false
+                    : checkConnctionVisibility(edge, "dataObjects")
+                }
+
+                labels={{
+                  middle:
+                    (checkConnctionVisibility(edge, "dataObjects") !==
+                    "collapsed" &&  checkConnctionVisibility(edge, "dataObjects") !==
+                    "collapsedGroup") ? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
+                }}
+                start={String("D-" + riskAssessmentId + "-" + edge.sourceRef)}
+                end={String("D-" + riskAssessmentId + "-" + edge.targetRef)}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
+
+        {instanceObjectConnections.map(
+          (edge) =>
+            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
+            checkConnctionVisibility(edge, "riskDataObjects") && (
+              <Xarrow
+                // zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                color="#29A634"
+                headColor="#29A634"
+                tailColor="#29A634"
+                lineColor="#29A634"
+                showHead={
+                  checkConnctionVisibility(edge, "riskDataObjects") ===
+                  "collapsedGroup"
+                    ? false
+                    : checkConnctionVisibility(edge, "riskDataObjects") 
+                }
+
+                labels={{
+                  middle:
+                    (checkConnctionVisibility(edge, "riskDataObjects") !==
+                    "collapsed" && checkConnctionVisibility(edge, "riskDataObjects") !==
+                    "collapsedGroup" )? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
+                }}
+                start={String(
+                  (edge.objectType === "Input" ? "D-" : "R-") +
+                    riskAssessmentId +
+                    "-" +
+                    edge.sourceRef
+                )}
+                end={String(
+                  (edge.objectType === "Input" ? "R-" : "D-") +
+                    riskAssessmentId +
+                    "-" +
+                    edge.targetRef
+                )}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
+
+        {connections.map(
+          (edge) =>
+            checkConnctionVisibility(edge, "riskObjects") && (
+              <Xarrow
+                // zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                showHead={
+                  checkConnctionVisibility(edge, "riskObjects") ===
+                  "collapsedGroup"
+                    ? false
+                    : checkConnctionVisibility(edge, "riskObjects")
+                }
+                // showTail={checkConnctionVisibility(edge, "riskObjects")==="collapsedGroup"?false:undefined}
+                labels={{
+                  middle:
+                    (checkConnctionVisibility(edge, "riskObjects") !==
+                    "collapsed" && checkConnctionVisibility(edge, "riskObjects") !==
+                    "collapsedGroup") ? (
+                      <div style={{ display: !true ? "none" : "inline" }}>
+                        {edge.name}
+                      </div>
+                    ) : (
+                      ``
+                    ),
+                }}
+                start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
+                end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
+
+        {objectPropertyConnections.map((object) => (
+          <Xarrow
+            path="straight"
+            curveness={0.2}
+            strokeWidth={1.5}
+            start={`R-${riskAssessmentId}-${object}`}
+            end={`P-${riskAssessmentId}-${object}`}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+            headColor="orange"
+            tailColor="orange"
+            lineColor="orange"
+            // zIndex={1000000}
+          />
+        ))}
       </Xwrapper>
     );
   }

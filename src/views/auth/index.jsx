@@ -43,12 +43,12 @@ export const Auth = () => {
           </Button>
         </form>
       </Card>
-      <div className='bp3-text-muted bp3-text-small'>
+      {/* <div className='bp3-text-muted bp3-text-small'>
         * Enter any arbitrary username and password
-      </div>
+      </div> */}
       <div className='bp3-text-muted bp3-text-small'>
-        * Build 1.5.5d
-        * Build Time 2022-07-14 11:50
+        * Build 1.6 beta 1
+        * Build Time 2022-07-15 17:00
       </div>
     </div>
   )
