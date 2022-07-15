@@ -59,55 +59,25 @@ export const RiskAssessment = ({
     const getWindowSettings = async () => {
       // const res = await getRiskAssessmentWindowSettings(riskAssessmentId);
 
-      const { id, positionX, positionY, previousScale, scale } = res.data.data;
+      // const { id, positionX, positionY, previousScale, scale } = res.data.data;
       // console.log("state comming from database: ", res.data);
 
-      let repositionX;
-      let repositionY;
-
-      switch (true) {
-        case scale >= 1.2 && scale < 1.5:
-          repositionX = 600;
-          repositionY = 100;
-          break;
-        case scale >= 0.8 && scale < 1.2:
-          repositionX = 600;
-          repositionY = 400;
-          break;
-        case scale >= 0.5 && scale < 0.8:
-          repositionX = 750;
-          repositionY = 400;
-          break;
-        case scale >= 0.3 && scale < 0.5:
-          repositionX = 1000;
-          repositionY = 350;
-          break;
-        case scale >= 0.2 && scale < 0.3:
-          repositionX = 1120;
-          repositionY = 300;
-          break;
-        case scale >= 0.1 && scale < 0.2:
-          repositionX = 1200;
-          repositionY = 250;
-          break;
-        default:
-          repositionX = 300;
-          repositionY = 300;
-      }
-
-      // if (scale === 1) repositionX = 600;
-      // console.log(repositionY);
-      const condX =
-        positionX + repositionX > 0 ? -100 : positionX + repositionX;
-      const condY =
-        positionY + repositionY > 0 ? -100 : positionY + repositionY;
-
+      // let reposition;
+      // switch (scale) {
+      //   case scale < 0.7:
+      //     reposition = 500;
+      //     break;
+      //   default:
+      //     reposition = 300;
+      // }
+      // const condX = positionX + reposition > 0 ? 0 : positionX + reposition;
+      // const condY = positionY + reposition > 0 ? 0 : positionY + reposition;
       setRASettings({
-        id,
-        positionX: Number(condX),
-        positionY: Number(condY),
-        previousScale,
-        scale,
+        id: 0,
+        positionX: -Math.floor(enviroDimension.width / 2),
+        positionY: -Math.floor(enviroDimension.height / 2),
+        scale: 1,
+        previousScale: 1,
       });
     };
     getWindowSettings().then((res) => {
@@ -177,11 +147,11 @@ export const RiskAssessment = ({
   const handleZoomPanPinch = useCallback(
     (ref, e) => {
       const raState = ref.state;
-      // console.log("RA State before update settings:", raState.scale);
+      // console.log("RA State before update settings:", raState);
       // setRASettings({ ...raState });
       setRASettings({
-        positionX: Number(e.offsetX * -1),
-        positionY: Number(e.offsetY * -1),
+        positionX: e.offsetX * -1,
+        positionY: e.offsetY * -1,
         scale: ref.state.scale,
         previousScale: ref.state.previousScale,
       });
@@ -190,13 +160,12 @@ export const RiskAssessment = ({
       setTimeout(updateXarrow, 100);
       setTimeout(updateXarrow, 300);
       setTimeout(updateXarrow, 500);
-      // console.log("ZOOMPANPINCH");
+      console.log("ZOOMPANPINCH");
     },
     [updateXarrow]
   );
 
-  // console.log("offsetX", raSettings.positionX);
-  // console.log("offsetY", raSettings.positionY);
+  // console.log("raSettingssssss", raSettings);
 
   if (loadingZoomSettings) {
     return "";
@@ -231,12 +200,12 @@ export const RiskAssessment = ({
                     ? false
                     : checkConnctionVisibility(edge, "dataObjects")
                 }
+
                 labels={{
                   middle:
-                    checkConnctionVisibility(edge, "dataObjects") !==
-                      "collapsed" &&
-                    checkConnctionVisibility(edge, "dataObjects") !==
-                      "collapsedGroup" ? (
+                    (checkConnctionVisibility(edge, "dataObjects") !==
+                    "collapsed" &&  checkConnctionVisibility(edge, "dataObjects") !==
+                    "collapsedGroup") ? (
                       <div style={{ display: !true ? "none" : "inline" }}>
                         {edge.name}
                       </div>
@@ -271,14 +240,14 @@ export const RiskAssessment = ({
                   checkConnctionVisibility(edge, "riskDataObjects") ===
                   "collapsedGroup"
                     ? false
-                    : checkConnctionVisibility(edge, "riskDataObjects")
+                    : checkConnctionVisibility(edge, "riskDataObjects") 
                 }
+
                 labels={{
                   middle:
-                    checkConnctionVisibility(edge, "riskDataObjects") !==
-                      "collapsed" &&
-                    checkConnctionVisibility(edge, "riskDataObjects") !==
-                      "collapsedGroup" ? (
+                    (checkConnctionVisibility(edge, "riskDataObjects") !==
+                    "collapsed" && checkConnctionVisibility(edge, "riskDataObjects") !==
+                    "collapsedGroup" )? (
                       <div style={{ display: !true ? "none" : "inline" }}>
                         {edge.name}
                       </div>
@@ -323,10 +292,9 @@ export const RiskAssessment = ({
                 // showTail={checkConnctionVisibility(edge, "riskObjects")==="collapsedGroup"?false:undefined}
                 labels={{
                   middle:
-                    checkConnctionVisibility(edge, "riskObjects") !==
-                      "collapsed" &&
-                    checkConnctionVisibility(edge, "riskObjects") !==
-                      "collapsedGroup" ? (
+                    (checkConnctionVisibility(edge, "riskObjects") !==
+                    "collapsed" && checkConnctionVisibility(edge, "riskObjects") !==
+                    "collapsedGroup") ? (
                       <div style={{ display: !true ? "none" : "inline" }}>
                         {edge.name}
                       </div>
@@ -376,7 +344,15 @@ export const RiskAssessment = ({
             setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
             // setGlobalScale(ref.state.scale);
             // console.log("event zoom1", e);
-            // console.log("event zoom1", ref);
+            console.log("event zoom1", ref);
+
+            // console.log("offsetX", e.offsetX);
+            // console.log("offsetY", e.offsetY);
+            // setRASettings({
+            //   positionX: e.offsetX * -1,
+            //   positionY: e.offsetY * -1,
+            //   scale: ref.state.scale,
+            // });
           }}
           onPinching={updateXarrow}
           onPinchingStop={handleZoomPanPinch}
@@ -418,7 +394,7 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="reset"
-                  onClick={() => {
+                  onClick={() =>{
                     setRASettings({
                       id: 0,
                       positionX: -Math.floor(enviroDimension.width / 2),
@@ -430,10 +406,12 @@ export const RiskAssessment = ({
                       -Math.floor(enviroDimension.width / 2),
                       -Math.floor(enviroDimension.height / 2),
                       1
-                    );
-
-                    setGlobalScale(1);
-                  }}
+                    )
+                    
+                    setGlobalScale(1)
+                  }
+                    
+                  }
                 />
               </div>
               <TransformComponent
@@ -585,6 +563,7 @@ export const RiskAssessment = ({
             </React.Fragment>
           )}
         </TransformWrapper>
+        
       </Xwrapper>
     );
   }
