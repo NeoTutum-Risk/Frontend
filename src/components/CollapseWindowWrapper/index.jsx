@@ -87,8 +87,16 @@ const CollapseWindowWrapper = ({ windowId }) => {
           window={window}
           title={
             window.type === "bpmn"
-              ? window.data.fileName
-              : `${window.data.name} (${window.type})`
+            ? window.data.fileName
+            : window.data.type === "Level Data"
+            ? window.data.levelName
+            : window.type === "riskTable"
+            ? window.data.name + " Data"
+            : window.data.type === "riskPhysicalTable"
+            ? window.data.name + " Physical RO"
+            : window.data.name + "risk"
+            ? window.data.name
+            : window.data.type
           }
           onRestore={() => windowRestoreHandler(window.id)}
         />
