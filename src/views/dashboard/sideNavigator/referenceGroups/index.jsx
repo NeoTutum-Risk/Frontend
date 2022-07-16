@@ -684,6 +684,19 @@ export const ReferenceGroups = () => {
     // console.log("context",nodeData);
   }, []);
 
+  const checkMaximized = useRecoilCallback(
+    ({ set, snapshot }) =>
+      () => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+
+        return getWindowsIdsList.find(
+          (element) =>
+            snapshot.getLoadable(windowFamily(element)).contents.maximized
+        );
+      },
+    []
+  );
+
   // handle the add new reference group window
   // if a reference group window exists then don't add a new reference group window
   // if it doesn't exists then add a new reference group window
@@ -694,22 +707,34 @@ export const ReferenceGroups = () => {
     const windowId = getWindowsIdsList.find(windowId => {
       const window = snapshot.getLoadable(windowFamily(windowId)).contents;
 
-      return (window.data.id === nodeData.data.data.id && window.type === "flowchart")
+      return window.data.id === nodeData.data.data.id && window.type === "flowchart"
     })
 
     if(windowId) {
       return
     }
 
+    const check = checkMaximized();
+    
+    if(check){
+      let old = snapshot.getLoadable(windowFamily(check)).contents
+      console.log(old);
+      set(windowFamily(check), {
+        ...old,
+        maximized: false,
+        collapse:true
+      });
+    }
+
     const id = generateID();
     const windowData = {
       type: "flowchart",
       data: nodeData.data.data,
-      id: generateID(),
+      id,
       collapse: false,
       width: windowDefault.width,
       height: windowDefault.height,
-      maximized: false
+      maximized: check?true:false
     }
 
     set(windowsIds, (prev) => [id, ...prev])

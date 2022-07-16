@@ -142,6 +142,7 @@ export const GraphWindow = ({
 
   const handleOnChange = useCallback(
     async (data) => {
+      setContextMenu((prev) => ({ ...prev, active: false, element: null }));
       console.log(windows);
       setbpmn({ xml: data, changed: !autoSave });
       if (autoSave) {
