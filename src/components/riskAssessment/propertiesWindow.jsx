@@ -1,8 +1,5 @@
 import { Rnd } from "react-rnd";
-import {
-  Classes,
-  Popover2,
-} from "@blueprintjs/popover2";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
 import {
   Button,
   Menu,
@@ -28,7 +25,7 @@ export const PropertiesWindow = ({
   scale,
   menu,
   handleProperties,
-  setShowProperties
+  setShowProperties,
 }) => {
   const [properties, setProperties] = useState([]);
   const [edit, setEdit] = useState(null);
@@ -111,14 +108,25 @@ export const PropertiesWindow = ({
           padding: "5px",
         }}
       >
-        <div className="panningDisabled pinchDisabled wheelDisabled">
+        <div
+          className="panningDisabled pinchDisabled wheelDisabled"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Popover2
-          usePortal={false}
-          boundary
-          style={{zIndex:99999999999}}
+            usePortal={false}
+            boundary
+            style={{ zIndex: 99999999999 }}
             disabled={!enabled}
             fill={false}
-            content={<div><Menu >{menu}</Menu></div>}
+            content={
+              <div>
+                <Menu>{menu}</Menu>
+              </div>
+            }
             placement="right"
             onClose={() => {
               setTimeout(getProperties, 500);
@@ -133,10 +141,13 @@ export const PropertiesWindow = ({
               disabled={!enabled}
             />
           </Popover2>
+          <H5 style={{ display: "inline", paddingLeft: "15px" }}>
+            RO# {data.id}
+          </H5>
         </div>
         <div
           className="panningDisabled pinchDisabled wheelDisabled"
-          style={{ height: "100%", padding: "2px" , overflowY: "auto"}}
+          style={{ height: "100%", padding: "2px", overflowY: "auto" }}
         >
           <table
             // className="panningDisabled pinchDisabled wheelDisabled"
@@ -144,7 +155,6 @@ export const PropertiesWindow = ({
               width: "100%",
               border: "solid 1px grey",
               textAlign: "left",
-              
             }}
           >
             <thead>
@@ -160,12 +170,14 @@ export const PropertiesWindow = ({
               {properties.map((property) => (
                 <tr>
                   <td>{property.metaDataLevel2Name}</td>
-                  <td>{property.value?` ${property.value}`:property.dataObjectElementName}</td>
+                  <td>
+                    {property.value
+                      ? ` ${property.value}`
+                      : property.dataObjectElementName}
+                  </td>
                   <td>{property.level_value}</td>
                   <td>
-                    <span title={property.text}>
-                    {property.text}
-                    </span>
+                    <span title={property.text}>{property.text}</span>
                   </td>
                   <td>
                     {
@@ -180,7 +192,7 @@ export const PropertiesWindow = ({
                           small={true}
                         ></Button> */}
                         <Popover2
-                        usePortal={false}
+                          usePortal={false}
                           popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
                           boundary={"scrollParent"}
                           enforceFocus={false}
@@ -252,7 +264,7 @@ export const PropertiesWindow = ({
                             loading={isLoading}
                           ></Button>
                         </Popover2>
-                        
+
                         {/* <Button
                           small={true}
                           onClick={() => {

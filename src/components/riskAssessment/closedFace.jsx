@@ -289,12 +289,13 @@ export const ClosedFace = ({
           disabled={!data["position.enabled"]}
           intent={data["position.enabled"] ? "primary" : "none"}
           onClick={() => {
+            handleProperties(data.id);
             setShowProperties((prev) => !prev);
             handleObjectProperty({
               id: data.id,
               action: showProperties ? "remove" : "add",
             });
-            handleProperties(data.id);
+            
           }}
         >
           Properties

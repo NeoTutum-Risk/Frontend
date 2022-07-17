@@ -156,7 +156,7 @@ export const RiskAssessmentWindow = ({
     setObjectName(null);
     setObjectDescription(null);
     setEditElement(null);
-    setActiveObject(null);
+    // setActiveObject(null);
   }, []);
 
   const checkObject = useCallback(
@@ -1760,6 +1760,7 @@ export const RiskAssessmentWindow = ({
       // setContextMenu((prev) => ({ ...prev, element: id }));
       // setContextMenu({ element: id });
       setActiveObject(id);
+
       console.log(activeObject);
     },
     [activeObject]
