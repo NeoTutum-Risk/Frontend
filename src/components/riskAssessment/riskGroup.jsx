@@ -357,7 +357,7 @@ export const RiskGroup = ({
               : "white",
               color: !expanded
               ? "white"
-              : "lack",
+              : "rgb(56	142	142	)",
             borderRadius: "150px",
             padding: "5px",
             textAlign: "center",
