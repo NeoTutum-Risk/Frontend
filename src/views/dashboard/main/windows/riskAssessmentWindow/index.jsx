@@ -86,6 +86,7 @@ export const RiskAssessmentWindow = ({
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [dataObjectInstances, setDataObjectInstances] = useState([]);
   const [activeObject, setActiveObject] = useState(null);
+  const [dataLoaded,setDataLoaded] = useState(false);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -565,6 +566,7 @@ export const RiskAssessmentWindow = ({
         );
         getGlobalGroups();
         updateViewsList();
+        setDataLoaded(true);
         // getDeleted();
       } else {
         showDangerToaster(`Error Retrieving Risk Assessment Data`);
@@ -1809,7 +1811,7 @@ export const RiskAssessmentWindow = ({
             <H5 style={{ color: "white" }}>Add Physical Object Properties</H5>
           </div>
         )}
-        <RiskAssessment
+        {dataLoaded && <RiskAssessment
           objects={riskObjects}
           groups={groups}
           metaData={metaData}
@@ -1835,7 +1837,7 @@ export const RiskAssessmentWindow = ({
           checkFilter={checkFilter}
           checkConnctionVisibility={checkConnctionVisibility}
           setGroups={setGroups}
-        />
+        />}
       </Window>
       {/* <div
         className=""

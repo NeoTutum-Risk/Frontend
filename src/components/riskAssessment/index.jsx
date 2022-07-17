@@ -38,8 +38,41 @@ export const RiskAssessment = ({
   checkConnctionVisibility,
   setGroups,
 }) => {
+  const [enviroDimension, setEnviroDimension] = useState({
+    height: 50000,
+    width: 50000,
+  });
+
+  const getCenter = useCallback(() => {
+    let objectsArray = [...objects];
+    let top = enviroDimension.height;
+    let left = enviroDimension.width;
+    let right = 0,
+      bottom = 0;
+    groups.forEach((grp) => {
+      if (grp.elements.length > 1) {
+        objectsArray = [...objectsArray, ...grp.elements];
+      }
+    });
+
+    objectsArray.forEach((obj) => {
+      top = obj["position.y"] < top ? obj["position.y"] : top;
+      left = obj["position.x"] < left ? obj["position.x"] : left;
+      bottom = obj["position.y"] > bottom ? obj["position.y"] : bottom;
+      right = obj["position.x"] > right ? obj["position.x"] : right;
+      console.log(top, bottom, left, right);
+    });
+    console.log("center", {
+      x: (right - left) / 2 + left,
+      y: (bottom - top) / 2 + top,
+    });
+    console.log("========");
+
+    return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top };
+  }, [enviroDimension, objects, groups]);
+
   const transformWrapperRef = useRef(null);
-  const enviroDimension = { height: 50000, width: 50000 };
+
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
   );
@@ -48,8 +81,8 @@ export const RiskAssessment = ({
   const [globalScale, setGlobalScale] = useState(1);
   const [raSettings, setRASettings] = useState({
     id: 0,
-    positionX: -Math.floor(enviroDimension.width / 2),
-    positionY: -Math.floor(enviroDimension.height / 2),
+    positionX: -Math.floor(getCenter().x),
+    positionY: -Math.floor(getCenter().y),
     previousScale: 1,
     scale: 1,
   });
@@ -74,8 +107,8 @@ export const RiskAssessment = ({
       // const condY = positionY + reposition > 0 ? 0 : positionY + reposition;
       setRASettings({
         id: 0,
-        positionX: -Math.floor(enviroDimension.width / 2),
-        positionY: -Math.floor(enviroDimension.height / 2),
+        positionX: -Number(getCenter().x),
+        positionY: -Number(getCenter().y),
         scale: 1,
         previousScale: 1,
       });
@@ -100,7 +133,7 @@ export const RiskAssessment = ({
 
     //   setloadingZoomSettings(false);
     // });
-  }, [riskAssessmentId]);
+  }, [riskAssessmentId, enviroDimension,]);
 
   useEffect(() => {
     if (raSettings.hasOwnProperty("id")) {
@@ -200,12 +233,12 @@ export const RiskAssessment = ({
                     ? false
                     : checkConnctionVisibility(edge, "dataObjects")
                 }
-
                 labels={{
                   middle:
-                    (checkConnctionVisibility(edge, "dataObjects") !==
-                    "collapsed" &&  checkConnctionVisibility(edge, "dataObjects") !==
-                    "collapsedGroup") ? (
+                    checkConnctionVisibility(edge, "dataObjects") !==
+                      "collapsed" &&
+                    checkConnctionVisibility(edge, "dataObjects") !==
+                      "collapsedGroup" ? (
                       <div style={{ display: !true ? "none" : "inline" }}>
                         {edge.name}
                       </div>
@@ -240,14 +273,14 @@ export const RiskAssessment = ({
                   checkConnctionVisibility(edge, "riskDataObjects") ===
                   "collapsedGroup"
                     ? false
-                    : checkConnctionVisibility(edge, "riskDataObjects") 
+                    : checkConnctionVisibility(edge, "riskDataObjects")
                 }
-
                 labels={{
                   middle:
-                    (checkConnctionVisibility(edge, "riskDataObjects") !==
-                    "collapsed" && checkConnctionVisibility(edge, "riskDataObjects") !==
-                    "collapsedGroup" )? (
+                    checkConnctionVisibility(edge, "riskDataObjects") !==
+                      "collapsed" &&
+                    checkConnctionVisibility(edge, "riskDataObjects") !==
+                      "collapsedGroup" ? (
                       <div style={{ display: !true ? "none" : "inline" }}>
                         {edge.name}
                       </div>
@@ -292,9 +325,10 @@ export const RiskAssessment = ({
                 // showTail={checkConnctionVisibility(edge, "riskObjects")==="collapsedGroup"?false:undefined}
                 labels={{
                   middle:
-                    (checkConnctionVisibility(edge, "riskObjects") !==
-                    "collapsed" && checkConnctionVisibility(edge, "riskObjects") !==
-                    "collapsedGroup") ? (
+                    checkConnctionVisibility(edge, "riskObjects") !==
+                      "collapsed" &&
+                    checkConnctionVisibility(edge, "riskObjects") !==
+                      "collapsedGroup" ? (
                       <div style={{ display: !true ? "none" : "inline" }}>
                         {edge.name}
                       </div>
@@ -394,24 +428,22 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="reset"
-                  onClick={() =>{
+                  onClick={() => {
                     setRASettings({
                       id: 0,
-                      positionX: -Math.floor(enviroDimension.width / 2),
-                      positionY: -Math.floor(enviroDimension.height / 2),
+                      positionX: -Math.floor(getCenter().x),
+                      positionY: -Math.floor(getCenter().y),
                       scale: 1,
                       previousScale: 1,
                     });
                     setTransform(
-                      -Math.floor(enviroDimension.width / 2),
-                      -Math.floor(enviroDimension.height / 2),
+                      -Math.floor(getCenter().x),
+                      -Math.floor(getCenter().y),
                       1
-                    )
-                    
-                    setGlobalScale(1)
-                  }
-                    
-                  }
+                    );
+
+                    setGlobalScale(1);
+                  }}
                 />
               </div>
               <TransformComponent
@@ -563,7 +595,6 @@ export const RiskAssessment = ({
             </React.Fragment>
           )}
         </TransformWrapper>
-        
       </Xwrapper>
     );
   }
