@@ -352,15 +352,21 @@ export const RiskGroup = ({
             border: !expanded
               ? "5px solid rgb(56	142	142	)"
               : "5px dashed rgb(56	142	142	)",
+              backgroundColor: !expanded
+              ? "navy"
+              : "white",
+              color: !expanded
+              ? "white"
+              : "lack",
             borderRadius: "150px",
-            backgroundColor: "white",
             padding: "5px",
             textAlign: "center",
             display: "flex",
           }}
         >
-          <span>{data.name}</span>
-          <span>{data.id - 2000000}</span>
+          <span></span>
+          <span><b>{data.name}</b></span>
+          <span><b>{data.id - 2000000}</b></span>
           {/* {!expanded &&
             data.elements.map((object, index) =>
               object
