@@ -133,7 +133,7 @@ export const RiskAssessment = ({
 
     //   setloadingZoomSettings(false);
     // });
-  }, [riskAssessmentId, enviroDimension,]);
+  }, [riskAssessmentId, enviroDimension]);
 
   useEffect(() => {
     if (raSettings.hasOwnProperty("id")) {
@@ -239,7 +239,11 @@ export const RiskAssessment = ({
                       "collapsed" &&
                     checkConnctionVisibility(edge, "dataObjects") !==
                       "collapsedGroup" ? (
-                      <div style={{ display: !true ? "none" : "inline" }}>
+                        <div
+                        style={{
+                          fontSize: `${globalScale*2.2}em`,
+                        }}
+                      >
                         {edge.name}
                       </div>
                     ) : (
@@ -281,7 +285,11 @@ export const RiskAssessment = ({
                       "collapsed" &&
                     checkConnctionVisibility(edge, "riskDataObjects") !==
                       "collapsedGroup" ? (
-                      <div style={{ display: !true ? "none" : "inline" }}>
+                      <div
+                        style={{
+                          fontSize: `${globalScale*2.2}em`,
+                        }}
+                      >
                         {edge.name}
                       </div>
                     ) : (
@@ -329,7 +337,11 @@ export const RiskAssessment = ({
                       "collapsed" &&
                     checkConnctionVisibility(edge, "riskObjects") !==
                       "collapsedGroup" ? (
-                      <div style={{ display: !true ? "none" : "inline" }}>
+                        <div
+                        style={{
+                          fontSize: `${globalScale*2.2}em`,
+                        }}
+                      >
                         {edge.name}
                       </div>
                     ) : (
@@ -366,11 +378,14 @@ export const RiskAssessment = ({
           minScale={0.1}
           maxScale={5}
           doubleClick={{ disabled: true }}
-          onZoom={(e) => {
-            if (e.state.scale < 0.1) {
-              e.state.scale = 0.1;
+          onZoom={(ref,e) => {
+            console.log(e)
+            if (ref.state.scale < 0.1) {
+              ref.state.scale = 0.1;
               e.zoomOut(0.1);
+              
             }
+            setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
             updateXarrow();
           }}
           onZoomStop={(ref, e) => {
