@@ -241,7 +241,7 @@ export const RiskAssessment = ({
                       "collapsedGroup" ? (
                         <div
                         style={{
-                          fontSize: `${globalScale*2.2}em`,
+                          fontSize: `${globalScale*24}px`,
                         }}
                       >
                         {edge.name}
@@ -287,7 +287,7 @@ export const RiskAssessment = ({
                       "collapsedGroup" ? (
                       <div
                         style={{
-                          fontSize: `${globalScale*2.2}em`,
+                          fontSize: `${globalScale*24}px`,
                         }}
                       >
                         {edge.name}
@@ -339,7 +339,7 @@ export const RiskAssessment = ({
                       "collapsedGroup" ? (
                         <div
                         style={{
-                          fontSize: `${globalScale*2.2}em`,
+                          fontSize: `${globalScale*24}px`,
                         }}
                       >
                         {edge.name}

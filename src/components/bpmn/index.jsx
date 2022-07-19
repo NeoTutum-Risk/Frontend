@@ -73,7 +73,7 @@ export const Bpmn = memo(
       if (!modeler) return;
 
       if (
-        BPMNLayers.find((bpmn) => bpmn.id === bpmnId).currentBPMN !==
+        BPMNLayers.find((bpmn) => bpmn.id === bpmnId)?.currentBPMN !==
         modeler.get("canvas").getRootElement().id
       ) {
         setBPMNLayers((bpmns) => {

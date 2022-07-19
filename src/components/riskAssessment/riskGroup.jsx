@@ -353,7 +353,7 @@ export const RiskGroup = ({
               ? "5px solid rgb(56	142	142	)"
               : "5px dashed rgb(56	142	142	)",
               backgroundColor: !expanded
-              ? "navy"
+              ? "DarkBlue"
               : "white",
               color: !expanded
               ? "white"
