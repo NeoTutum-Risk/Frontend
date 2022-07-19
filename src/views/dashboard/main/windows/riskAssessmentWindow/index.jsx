@@ -86,7 +86,7 @@ export const RiskAssessmentWindow = ({
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [dataObjectInstances, setDataObjectInstances] = useState([]);
   const [activeObject, setActiveObject] = useState(null);
-  const [dataLoaded,setDataLoaded] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -403,8 +403,8 @@ export const RiskAssessmentWindow = ({
         default:
           break;
       }
-      if(check==="collapsed" && target.group?.id===source.group?.id){
-        check="collapsedGroup"
+      if (check === "collapsed" && target.group?.id === source.group?.id) {
+        check = "collapsedGroup";
       }
       // console.log("check", check, connection,target,source);
       return check;
@@ -1252,19 +1252,20 @@ export const RiskAssessmentWindow = ({
             })
           );
           setGroups((prev) =>
-            prev.map((grp) =>({...grp,...grp.elements.map((element) => {
-              if (Number(element?.id) === Number(editElement)) {
-                return {
-                  ...element,
-                  name: objectName,
-                  description: objectDescription,
-                };
-              } else {
-                return element;
-              }
-            })})
-              
-            )
+            prev.map((grp) => ({
+              ...grp,
+              ...grp.elements.map((element) => {
+                if (Number(element?.id) === Number(editElement)) {
+                  return {
+                    ...element,
+                    name: objectName,
+                    description: objectDescription,
+                  };
+                } else {
+                  return element;
+                }
+              }),
+            }))
           );
           riskAssessmentData();
         } else {
@@ -1811,33 +1812,35 @@ export const RiskAssessmentWindow = ({
             <H5 style={{ color: "white" }}>Add Physical Object Properties</H5>
           </div>
         )}
-        {dataLoaded && <RiskAssessment
-          objects={riskObjects}
-          groups={groups}
-          metaData={metaData}
-          dataObjectInstances={dataObjectInstances}
-          riskAssessmentId={window.data.id}
-          handleContextMenu={handleContextMenu}
-          selectedElements={selectedElements}
-          setSelectedElements={setSelectedElements}
-          connections={connections}
-          instanceConnections={instanceConnections}
-          instanceObjectConnections={instanceObjectConnections}
-          resetContext={resetContext}
-          setFirstContext={setFirstContext}
-          editRiskObject={editRiskObject}
-          closedFace={closedFace}
-          setHoveredElement={setHoveredElement}
-          handleObjectAction={handleObjectAction}
-          // onContext={handleRiskViewContext}
-          menu={menu}
-          handleProperties={handleProperties}
-          removeFromGroup={removeFromGroup}
-          addToGroup={addToGroup}
-          checkFilter={checkFilter}
-          checkConnctionVisibility={checkConnctionVisibility}
-          setGroups={setGroups}
-        />}
+        {dataLoaded && (
+          <RiskAssessment
+            objects={riskObjects}
+            groups={groups}
+            metaData={metaData}
+            dataObjectInstances={dataObjectInstances}
+            riskAssessmentId={window.data.id}
+            handleContextMenu={handleContextMenu}
+            selectedElements={selectedElements}
+            setSelectedElements={setSelectedElements}
+            connections={connections}
+            instanceConnections={instanceConnections}
+            instanceObjectConnections={instanceObjectConnections}
+            resetContext={resetContext}
+            setFirstContext={setFirstContext}
+            editRiskObject={editRiskObject}
+            closedFace={closedFace}
+            setHoveredElement={setHoveredElement}
+            handleObjectAction={handleObjectAction}
+            // onContext={handleRiskViewContext}
+            menu={menu}
+            handleProperties={handleProperties}
+            removeFromGroup={removeFromGroup}
+            addToGroup={addToGroup}
+            checkFilter={checkFilter}
+            checkConnctionVisibility={checkConnctionVisibility}
+            setGroups={setGroups}
+          />
+        )}
       </Window>
       {/* <div
         className=""
@@ -2812,6 +2815,7 @@ export const RiskAssessmentWindow = ({
                 labelFor="Group"
               >
                 <HTMLSelect
+                  required
                   onChange={(e) => setImportGroupId(Number(e.target.value))}
                 >
                   <option selected disabled>

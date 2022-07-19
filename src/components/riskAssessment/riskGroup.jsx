@@ -350,10 +350,10 @@ export const RiskGroup = ({
           className="risk-object-container panningDisabled"
           style={{
             border: !expanded
-              ? "5px solid rgb(56	142	142	)"
+              ? "5px solid #173c67"
               : "5px dashed rgb(56	142	142	)",
               backgroundColor: !expanded
-              ? "DarkBlue"
+              ? "#173c67"
               : "white",
               color: !expanded
               ? "white"
