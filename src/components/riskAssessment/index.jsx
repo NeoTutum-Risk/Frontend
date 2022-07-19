@@ -56,17 +56,14 @@ export const RiskAssessment = ({
     });
 
     objectsArray.forEach((obj) => {
-      top = obj["position.y"] < top ? obj["position.y"] : top;
-      left = obj["position.x"] < left ? obj["position.x"] : left;
-      bottom = obj["position.y"] > bottom ? obj["position.y"] : bottom;
-      right = obj["position.x"] > right ? obj["position.x"] : right;
-      console.log(top, bottom, left, right);
+      if(obj!==null){
+        top = obj["position.y"] < top ? obj["position.y"] : top;
+        left = obj["position.x"] < left ? obj["position.x"] : left;
+        bottom = obj["position.y"] > bottom ? obj["position.y"] : bottom;
+        right = obj["position.x"] > right ? obj["position.x"] : right;
+      }
+      
     });
-    console.log("center", {
-      x: (right - left) / 2 + left,
-      y: (bottom - top) / 2 + top,
-    });
-    console.log("========");
 
     return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top };
   }, [enviroDimension, objects, groups]);
@@ -241,7 +238,7 @@ export const RiskAssessment = ({
                       "collapsedGroup" ? (
                         <div
                         style={{
-                          fontSize: `${globalScale*2.2}em`,
+                          fontSize: `${globalScale*24}px`,
                         }}
                       >
                         {edge.name}
@@ -287,7 +284,7 @@ export const RiskAssessment = ({
                       "collapsedGroup" ? (
                       <div
                         style={{
-                          fontSize: `${globalScale*2.2}em`,
+                          fontSize: `${globalScale*24}px`,
                         }}
                       >
                         {edge.name}
@@ -339,7 +336,7 @@ export const RiskAssessment = ({
                       "collapsedGroup" ? (
                         <div
                         style={{
-                          fontSize: `${globalScale*2.2}em`,
+                          fontSize: `${globalScale*24}px`,
                         }}
                       >
                         {edge.name}
