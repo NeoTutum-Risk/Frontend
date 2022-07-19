@@ -61,15 +61,9 @@ export const RiskAssessment = ({
         left = obj["position.x"] < left ? obj["position.x"] : left;
         bottom = obj["position.y"] > bottom ? obj["position.y"] : bottom;
         right = obj["position.x"] > right ? obj["position.x"] : right;
-        console.log(top, bottom, left, right);
       }
       
     });
-    console.log("center", {
-      x: (right - left) / 2 + left,
-      y: (bottom - top) / 2 + top,
-    });
-    console.log("========");
 
     return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top };
   }, [enviroDimension, objects, groups]);

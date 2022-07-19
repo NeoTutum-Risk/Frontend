@@ -63,7 +63,7 @@ export const DataObject = ({
         enabled: data["position.enabled"],
       });
     },
-    [data, updateXarrow]
+    [data, updateXarrow,size]
   );
 
   const handleGroup = useCallback(async () => {

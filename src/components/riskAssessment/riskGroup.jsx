@@ -33,8 +33,9 @@ export const RiskGroup = ({
   groups,
   addToGroup
 }) => {
-  // console.log(`element rerendered ${data.id}`)
+  console.log(data.id)
   // const updateXarrow = useXarrow();
+  const [size,setSize] = useState({ w: data.currentWidth, h: data.currentHeight });
   const [expanded, setExpanded] = useState(data.currentExpanded);
   const [drag, setDrag] = useState({
     active: false,
@@ -220,6 +221,34 @@ export const RiskGroup = ({
     },
     [tooltipTimer]
   );
+
+  const updateSize = useCallback(
+    async (delta, direction, position) => {
+      // console.log(data,delta,position);
+      const w = Math.round(size.w + delta.width);
+      const h = Math.round(size.h + delta.height);
+      setSize({ w, h });
+      setDrag((prev) => ({ ...prev, cy: position.y, cx: position.x }));
+      if (position.x < 0) {
+        setDrag((prev) => ({ ...prev, cx: 0 }));
+        position.x = 0;
+      }
+
+      if (position.y < 0) {
+        setDrag((prev) => ({ ...prev, cy: 0 }));
+        position.y = 0;
+      }
+      updateXarrow();
+      const updateOjectPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
+        x: Math.round(position.x),
+        y: Math.round(position.y),
+        width: w,
+        height: h,
+        expanded
+      });
+    },
+    [data, updateXarrow,size,riskAssessmentId,expanded]
+  );
   return (
     <>
       {/* {expanded &&
@@ -323,10 +352,18 @@ export const RiskGroup = ({
         default={{
           x: drag.cx,
           y: drag.cy,
-          width: 150,
-          height: 150,
+          width: size.w,
+          height: size.h,
         }}
-        minWidth={100}
+        position={{
+          x: drag.cx,
+          y: drag.cy ,
+        }}
+        size={{
+          width: size.w,
+          height: size.h,
+        }}
+        minWidth={75}
         minHeight={75}
         bounds="window"
         onDrag={(e, d) => {
@@ -336,6 +373,9 @@ export const RiskGroup = ({
         }}
         onDragStop={(e, d) => updateLocation(e, d)}
         onResize={updateXarrow}
+        onResizeStop={(e, direction, ref, delta, position) => {
+          updateSize(delta, direction, position);
+        }}
         scale={scale}
       >
         <div
