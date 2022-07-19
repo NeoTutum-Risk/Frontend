@@ -48,7 +48,7 @@ export const Auth = () => {
       </div> */}
       <div className='bp3-text-muted bp3-text-small'>
         * Build 1.6 b7
-        * Build Time 2022-07-19 09:55
+        * Build Time 2022-07-19 11:45
       </div>
     </div>
   )
