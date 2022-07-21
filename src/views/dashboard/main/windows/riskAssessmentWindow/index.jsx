@@ -420,6 +420,7 @@ export const RiskAssessmentWindow = ({
   );
 
   const updateViewsList = useCallback(async () => {
+    setIsServiceLoading(true);
     try {
       const response = await getRiskAssessmentViews(window.data.id);
       if (response.status >= 200 && response.status < 300) {
@@ -434,6 +435,7 @@ export const RiskAssessmentWindow = ({
     } catch (error) {
       showDangerToaster(`Couldn't get views: ${error}`);
     }
+    setIsServiceLoading(false);
   }, [window.data.id]);
 
   const changeView = useCallback(
@@ -581,11 +583,13 @@ export const RiskAssessmentWindow = ({
 
   const addToGroup = useCallback(
     async (type, data) => {
-      console.log("--------", data);
+      
+      setIsServiceLoading(true);
       let payload,
         tempConnections = [],
         tempInstObjConnections = [],
         tempinstConnections = [];
+      try {
       if (type === "risk") {
         payload = { riskObjectId: data.id };
         connections.forEach((connection) => {
@@ -659,70 +663,69 @@ export const RiskAssessmentWindow = ({
           )
         );
       }
+
       const response = await addObjectToGroup({
         ...payload,
         riskAssessmentId: window.data.id,
         riskGroupId: data.groupId,
       });
-      // setConnections([]);
-      // setInstanceConnections([]);
-      // setInstanceObjectConnections([]);
-      // setTimeout(riskAssessmentData, 500);
-      // if (type === "risk") {setTimeout(riskAssessmentData, 1000);}else{riskAssessmentData();}
-      if (type === "risk") {
-        let riskObject;
-        setRiskObjects((prev) => prev.filter((item) => item.id !== data.id));
-        setGroups((prev) => {
-          return prev.map((group) => {
-            console.log("in", group.id, data.groupId);
-            if (Number(group.id) === Number(data.groupId)) {
-              // riskObject = {
-              //   ...group.elements.find((element) => element.id === data.id),
-              // };
-              return {
-                ...group,
-                elements: [...group.elements, data],
-              };
-            } else {
-              return group;
-            }
-          });
-        });
 
-        setConnections((prev) => [...prev, ...tempConnections]);
-        setInstanceObjectConnections((prev) => [
-          ...prev,
-          ...tempInstObjConnections,
-        ]);
-      } else {
-        let dataObject;
-        setDataObjectInstances((prev) =>
-          prev.filter((item) => item.id !== data.id)
-        );
-        setGroups((prev) => {
-          return prev.map((group) => {
-            if (Number(group.id) === Number(data.groupId)) {
-              // dataObject = {
-              //   ...group.dataObjects.find((object) => object.id === data.id),
-              // };
-              return {
-                ...group,
-                dataObjects: [...group.dataObjects, data],
-              };
-            } else {
-              return group;
-            }
+      if(response.status >= 200 && response.status < 300){
+        if (type === "risk") {
+          let riskObject;
+          setRiskObjects((prev) => prev.filter((item) => item.id !== data.id));
+          setGroups((prev) => {
+            return prev.map((group) => {
+              console.log("in", group.id, data.groupId);
+              if (Number(group.id) === Number(data.groupId)) {
+                return {
+                  ...group,
+                  elements: [...group.elements, data],
+                };
+              } else {
+                return group;
+              }
+            });
           });
-        });
-
-        setInstanceConnections((prev) => [...prev, ...tempinstConnections]);
-        setInstanceObjectConnections((prev) => [
-          ...prev,
-          ...tempInstObjConnections,
-        ]);
+  
+          setConnections((prev) => [...prev, ...tempConnections]);
+          setInstanceObjectConnections((prev) => [
+            ...prev,
+            ...tempInstObjConnections,
+          ]);
+        } else {
+          let dataObject;
+          setDataObjectInstances((prev) =>
+            prev.filter((item) => item.id !== data.id)
+          );
+          setGroups((prev) => {
+            return prev.map((group) => {
+              if (Number(group.id) === Number(data.groupId)) {
+                return {
+                  ...group,
+                  dataObjects: [...group.dataObjects, data],
+                };
+              } else {
+                return group;
+              }
+            });
+          });
+  
+          setInstanceConnections((prev) => [...prev, ...tempinstConnections]);
+          setInstanceObjectConnections((prev) => [
+            ...prev,
+            ...tempInstObjConnections,
+          ]);
+        }
+      }else{
+        showDangerToaster(`Can't add to group`);
       }
-      // setTimeout(riskAssessmentData, 3000);
-      // riskAssessmentData();
+
+      
+      } catch (error) {
+        showDangerToaster(`Can't add to group`);
+      }
+      setIsServiceLoading(false);
     },
     [
       window.data.id,
@@ -734,10 +737,12 @@ export const RiskAssessmentWindow = ({
 
   const removeFromGroup = useCallback(
     async (type, data) => {
+      setIsServiceLoading(true);
       let payload,
-        tempConnections = [],
-        tempInstObjConnections = [],
-        tempinstConnections = [];
+      tempConnections = [],
+      tempInstObjConnections = [],
+      tempinstConnections = [];
+      try {
       if (type === "risk") {
         payload = { riskObjects: [data.id], dataObjects: [] };
         connections.forEach((connection) => {
@@ -811,67 +816,71 @@ export const RiskAssessmentWindow = ({
           )
         );
       }
-      const response = await editGroup(window.data.id, data.groupId, payload);
-      // setConnections([]);
-      // setInstanceConnections([]);
-      // setInstanceObjectConnections([]);
-      // setTimeout(riskAssessmentData, 500);
-      // if (type === "risk") {setTimeout(riskAssessmentData, 1000);}else{riskAssessmentData();}
-      if (type === "risk") {
-        let riskObject;
-
-        setGroups((prev) => {
-          return prev.map((group) => {
-            if (group.id === data.groupId) {
-              riskObject = {
-                ...group.elements.find((element) => element.id === data.id),
-              };
-              return {
-                ...group,
-                elements: group.elements.filter(
-                  (element) => element.id !== data.id
-                ),
-              };
-            } else {
-              return group;
-            }
-          });
-        });
-        setRiskObjects((prev) => [...prev, riskObject]);
-        setConnections((prev) => [...prev, ...tempConnections]);
-        setInstanceObjectConnections((prev) => [
-          ...prev,
-          ...tempInstObjConnections,
-        ]);
-      } else {
-        let dataObject;
-
-        setGroups((prev) => {
-          return prev.map((group) => {
-            if (group.id === data.groupId) {
-              dataObject = {
-                ...group.dataObjects.find((object) => object.id === data.id),
-              };
-              return {
-                ...group,
-                dataObjects: group.dataObjects.filter(
-                  (object) => object.id !== data.id
-                ),
-              };
-            } else {
-              return group;
-            }
-          });
-        });
-        setDataObjectInstances((prev) => [...prev, dataObject]);
-        setInstanceConnections((prev) => [...prev, ...tempinstConnections]);
-        setInstanceObjectConnections((prev) => [
-          ...prev,
-          ...tempInstObjConnections,
-        ]);
+      } catch (error) {
+        showDangerToaster(`Can't remove from group`)
       }
-      // setTimeout(riskAssessmentData, 3000);
-      // riskAssessmentData();
+      
+      const response = await editGroup(window.data.id, data.groupId, payload);
+      if(response.status >= 200 && response.status < 300){
+        if (type === "risk") {
+          let riskObject;
+  
+          setGroups((prev) => {
+            return prev.map((group) => {
+              if (group.id === data.groupId) {
+                riskObject = {
+                  ...group.elements.find((element) => element.id === data.id),
+                };
+                return {
+                  ...group,
+                  elements: group.elements.filter(
+                    (element) => element.id !== data.id
+                  ),
+                };
+              } else {
+                return group;
+              }
+            });
+          });
+          setRiskObjects((prev) => [...prev, riskObject]);
+          setConnections((prev) => [...prev, ...tempConnections]);
+          setInstanceObjectConnections((prev) => [
+            ...prev,
+            ...tempInstObjConnections,
+          ]);
+        } else {
+          let dataObject;
+  
+          setGroups((prev) => {
+            return prev.map((group) => {
+              if (group.id === data.groupId) {
+                dataObject = {
+                  ...group.dataObjects.find((object) => object.id === data.id),
+                };
+                return {
+                  ...group,
+                  dataObjects: group.dataObjects.filter(
+                    (object) => object.id !== data.id
+                  ),
+                };
+              } else {
+                return group;
+              }
+            });
+          });
+          setDataObjectInstances((prev) => [...prev, dataObject]);
+          setInstanceConnections((prev) => [...prev, ...tempinstConnections]);
+          setInstanceObjectConnections((prev) => [
+            ...prev,
+            ...tempInstObjConnections,
+          ]);
+        }
+      }else{
+        showDangerToaster(`Can't remove from group`);
+      }
+
+      setIsServiceLoading(false);
+
     },
     [
       window.data.id,
@@ -934,6 +943,7 @@ export const RiskAssessmentWindow = ({
 
   const handleConnection = useCallback(
     async (data) => {
+      setIsServiceLoading(true);
       if (data.type === "connect") {
         if (
           selectedElements[0].type !== "instance" &&
@@ -1011,6 +1021,7 @@ export const RiskAssessmentWindow = ({
           element: null,
         });
       }
+      setIsServiceLoading(false);
     },
     [
       window.data.id,
@@ -1094,7 +1105,7 @@ export const RiskAssessmentWindow = ({
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
         // y = e.nativeEvent.layerY + 50;
-      } else if (e.target.id.split("-").length === 2) {
+      } else if (firstContext === "group") {
         type = "template";
         setFirstContext("template");
         id = e.target.id.split("-")[1];
@@ -1137,22 +1148,29 @@ export const RiskAssessmentWindow = ({
   );
 
   const addNewTemplate = useCallback(async () => {
+    setIsServiceLoading(true);
     const payload = {
       riskGroupId: contextMenu.element,
       name: templateName,
     };
 
     const response = await addRiskTemplate(payload);
-    setContextMenu({
-      active: false,
-      type: "",
-      x: 0,
-      y: 0,
-      contextX: 0,
-      contextY: 0,
-      element: null,
-    });
-    setTimeout(riskAssessmentData, 100);
+    if(response.status>=200 && response.status<300){
+      setContextMenu({
+        active: false,
+        type: "",
+        x: 0,
+        y: 0,
+        contextX: 0,
+        contextY: 0,
+        element: null,
+      });
+      setTimeout(riskAssessmentData, 100);
+    }else{
+      showDangerToaster(`Can't Import Template`);
+    }
+    
+    setIsServiceLoading(false);
     // const redraw = await riskAssessmentData();
   }, [riskAssessmentData, contextMenu, templateName]);
 
@@ -1182,41 +1200,42 @@ export const RiskAssessmentWindow = ({
           name: groupName,
           expanded: 1,
         };
+        setIsServiceLoading(true);
         const response = await addRiskAssessmentGroup(payload);
-        resetContext();
+        if(response.status>=200 && response.status<300){
+          resetContext();
 
-        setSelectedElements([]);
-        setSelectedObjects([]);
-        // setConnections([]);
-        // setInstanceObjectConnections([]);
-        setTimeout(riskAssessmentData, 500);
-        // riskAssessmentData();
-        // const redraw = await riskAssessmentData();
+          setSelectedElements([]);
+          setSelectedObjects([]);
+          setTimeout(riskAssessmentData, 500);
+        }else{
+          showDangerToaster(`Can't Create Group`);
+        }
+        
+        setIsServiceLoading(false);
       }
     },
     [
-      // removeObjectConnections,
       riskAssessmentData,
       window.data.id,
       selectedElements,
-      // contextMenu,
       groupName,
       setSelectedObjects,
       resetContext,
-      // removeObjectConnections
     ]
   );
 
   const editRiskObject = useCallback(
     async (id, payload, groupId) => {
-      // console.log("main", payload);
+      setIsServiceLoading(true);
       const response = await updateRiskObject(id, payload);
       if (response.status === 200) {
         riskAssessmentData();
+      }else{
+        showDangerToaster(`Update Faild`);
       }
-      return "Done";
+      setIsServiceLoading(false);
     },
-    [riskAssessmentData]
   );
 
   const addRiskObject = useCallback(
@@ -1314,6 +1333,7 @@ export const RiskAssessmentWindow = ({
   const createGroupFromTemplate = useCallback(
     async (e) => {
       e.preventDefault();
+      setIsServiceLoading(true);
       try {
         const payload = {
           riskAssessmentId: window.data.id,
@@ -1329,7 +1349,11 @@ export const RiskAssessmentWindow = ({
         setImportTemplateName(null);
         setImportTemplateNameError(null);
         riskAssessmentData();
-      } catch (error) {}
+      } catch (error) {
+        showDangerToaster(`Faild to create group from template`)
+        setIsServiceLoading(false);
+      }
+      setIsServiceLoading(false);
     },
     [
       window.data.id,
@@ -1347,6 +1371,7 @@ export const RiskAssessmentWindow = ({
 
   const updateElementData = useCallback(async () => {
     setEditElement(activeObject);
+    setIsServiceLoading(true);
     const riskObject = await getRiskObject(activeObject);
     if (riskObject.status === 200) {
       const { name, description } = riskObject.data.data;
@@ -1355,7 +1380,7 @@ export const RiskAssessmentWindow = ({
       setObjectDescription(description);
       setContextMenu((prev) => ({ ...prev, type: "create object" }));
     }
-    // const object =
+    setIsServiceLoading(false);
   }, [activeObject]);
 
   const handleObjectAction = useCallback(
@@ -1424,13 +1449,17 @@ export const RiskAssessmentWindow = ({
                 }
               })
             );
-
+            setIsServiceLoading(true);
         const response =
           element.operation === "enable"
             ? await updateRiskObjectPosition(window.data.id, element.id, {
                 enabled: element.payload,
               })
             : await updateRiskObject(element.id, { status: element.payload });
+              if(response.status<200 || response.status>=300){
+                showDangerToaster(`Update Faild`)
+              }
+            setIsServiceLoading(false);
       } else {
         !element.groupId
           ? setDataObjectInstances((prev) =>
@@ -1468,7 +1497,7 @@ export const RiskAssessmentWindow = ({
                 }
               })
             );
-
+            setIsServiceLoading(true);
         const response =
           element.operation === "enable"
             ? await updateNewDataObjectInstance(element.id, {
@@ -1477,6 +1506,11 @@ export const RiskAssessmentWindow = ({
             : await updateNewDataObjectInstance(element.id, {
                 status: element.payload,
               });
+
+              if(response.status<200 || response.status>=300){
+                showDangerToaster(`Update Faild`)
+              }
+              setIsServiceLoading(false);
       }
       setFirstContext("main");
       setSelectedElements([]);
@@ -1491,6 +1525,7 @@ export const RiskAssessmentWindow = ({
   );
 
   const updateElementStatus = useCallback(async () => {
+    setIsServiceLoading(true);
     const response = await updateRiskObjectPosition(
       window.data.id,
       activeObject,
@@ -1526,6 +1561,7 @@ export const RiskAssessmentWindow = ({
         }))
       );
       resetContext();
+      setIsServiceLoading(false);
     }
   }, [window.data.id, activeObject, elementEnable, resetContext]);
 
@@ -1622,6 +1658,7 @@ export const RiskAssessmentWindow = ({
 
   const handleDisconnect = useCallback(async () => {
     let response;
+    setIsServiceLoading(true);
     switch (selectedConnection?.type) {
       case "riskObjects":
         response = await deleteRiskConnection(selectedConnection.id);
@@ -1657,7 +1694,7 @@ export const RiskAssessmentWindow = ({
     } else {
       showDangerToaster(`Can't Remove Connection #${selectedConnection.id}`);
     }
-
+    setIsServiceLoading(false);
     setSelectedConnection(null);
   }, [
     selectedConnection,
@@ -1667,6 +1704,7 @@ export const RiskAssessmentWindow = ({
   ]);
 
   const importSharedGroup = useCallback(async () => {
+
     const payload = {
       riskAssessmentId: window.data.id,
       riskGroupId: importGroupId,
@@ -1674,11 +1712,17 @@ export const RiskAssessmentWindow = ({
       y: contextMenu.offsetY,
       shared: true,
     };
-
+setIsServiceLoading(true);
     const response = await importGroup(payload);
-    resetContext();
-    setImportGroupId(null);
-    riskAssessmentData();
+    if(response.status>=200 && response.status<300){
+      resetContext();
+      setImportGroupId(null);
+      riskAssessmentData();
+    }else{
+      showDangerToaster(`Importing Shared Group Faild`);
+    }
+    setIsServiceLoading(false);
+    
   }, [
     contextMenu.offsetX,
     contextMenu.offsetY,
@@ -1689,6 +1733,7 @@ export const RiskAssessmentWindow = ({
   ]);
 
   const handleShareGroup = useCallback(async () => {
+    setIsServiceLoading(true);
     const response = await updateRiskAssessmentGroup(
       contextMenu.element,
       window.data.id,
@@ -1706,6 +1751,7 @@ export const RiskAssessmentWindow = ({
         `Error Sharing Group #${contextMenu.element}: ${response.data.error}`
       );
     }
+    setIsServiceLoading(false);
   }, [window.data.id, contextMenu.element, resetContext, riskAssessmentData]);
 
   const fetchDataObjects = useCallback(async () => {
@@ -1718,6 +1764,7 @@ export const RiskAssessmentWindow = ({
   }, []);
 
   const importDataObject = useCallback(async () => {
+    setIsServiceLoading(true);
     console.log(importObjectFile);
     let payload = new FormData();
     //  payload = {
@@ -1736,7 +1783,8 @@ export const RiskAssessmentWindow = ({
     payload.append("url", url);
     payload.append("fileCSV", importObjectFile);
 
-    const response = await addNewDataObjectInstance(payload);
+    try {
+      const response = await addNewDataObjectInstance(payload);
     if (response.status === 200) {
       resetContext();
       setImportObjectId(null);
@@ -1744,7 +1792,15 @@ export const RiskAssessmentWindow = ({
       setImportObjectText(null);
       setImportObjectFile(null);
       riskAssessmentData();
+    }else{
+      showDangerToaster(`Error Adding Data Object`);
     }
+    } catch (error) {
+      showDangerToaster(`Error Adding Data Object`);
+    }
+    
+
+    setIsServiceLoading(false);
   }, [
     contextMenu.offsetX,
     contextMenu.offsetY,
