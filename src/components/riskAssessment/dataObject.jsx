@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { Button, TextArea, H5,HTMLSelect,FormGroup } from "@blueprintjs/core";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { Rnd } from "react-rnd";
-import { updateNewDataObjectInstance } from "../../services";
+import { updateNewDataObjectInstance,updateNewDataObjectInstanceNew } from "../../services";
 import { size } from "lodash";
 import {
   Classes,
@@ -113,13 +113,13 @@ export const DataObject = ({
         d.y = enviroDimension.height - 200;
       }
       updateXarrow();
-      const updateOjectPosition = await updateNewDataObjectInstance(data.id, {
+      const updateOjectPosition = await updateNewDataObjectInstanceNew(riskAssessmentId,data.id, {
         x: Math.round(d.x),
         y: Math.round(d.y),
         enabled: data["position.enabled"],
       });
     },
-    [data, updateXarrow]
+    [data, updateXarrow,enviroDimension,riskAssessmentId]
   );
 
   const handleClick = useCallback(
