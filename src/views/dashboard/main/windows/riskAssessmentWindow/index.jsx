@@ -1235,6 +1235,7 @@ export const RiskAssessmentWindow = ({
         showDangerToaster(`Update Faild`);
       }
       setIsServiceLoading(false);
+      return "Done";
     },
   );
 
