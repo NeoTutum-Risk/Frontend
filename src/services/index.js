@@ -170,7 +170,7 @@ export const addNewDataObjectInstance = (data) => serviceProvider.post(`dataObje
 
 export const updateNewDataObjectInstance = (id,data) => serviceProvider.put(`dataObjectNewProperties/${id}`,data);
 
-export const updateNewDataObjectInstanceNew = (riskAssessmenId,id,data) => serviceProvider.put(`positions/${riskAssessmenId}/${id}`,data);
+export const updateNewDataObjectInstanceNew = (riskAssessmenId,id,data) => serviceProvider.put(`dataObjectNewProperties/positions/${riskAssessmenId}/${id}`,data);
 
 export const addInstanceConnection = (data) => serviceProvider.post(`dataObjectNewConnections`,data);
 
@@ -193,7 +193,7 @@ export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews
 
 export const updateRiskAssessmentView = (id,data) => serviceProvider.put(`filterViews/${id}`,data);
 
-export const testGetRiskAssessment = (id) => testServiceProvider(`riskAssessments/v2/RA-Analytics/${id}`)
+export const testGetRiskAssessment = (id) => serviceProvider(`riskAssessments/v2/RA-Analytics/${id}`)
 
 export const updateRiskAssessmentWindowSettings = (id, data) => serviceProvider.put(`riskAssessments/${id}`, data)
 
