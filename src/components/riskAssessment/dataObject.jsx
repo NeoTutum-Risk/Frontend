@@ -31,6 +31,7 @@ export const DataObject = ({
   enviroDimension,
   addToGroup,
   groups,
+  handleContextMenu
 }) => {
   const [importObjectFile, setImportObjectFile] = useState(null);
   const [size, setSize] = useState({ w: data.width, h: data.height });
@@ -147,7 +148,9 @@ export const DataObject = ({
 
   const handleClick = useCallback(
     (e) => {
-      console.log(e);
+      
+     if(e.target.className!=="bp3-file-upload-input"){
+      console.log(e.target.className,e.target);
       e.preventDefault();
       if (e.detail !== 2) return;
       if (data.disable) return;
@@ -160,6 +163,8 @@ export const DataObject = ({
           ? false
           : true
       );
+     }
+     
     },
     [elementSelection, data, selectedElements]
   );
@@ -218,12 +223,14 @@ export const DataObject = ({
             setHoveredElement(null);
           }}
           onMouseEnter={() => {
-            setFirstContext("risk");
+            setFirstContext("DO");
             setHoveredElement(data);
           }}
           onContextMenu={(e) => {
             e.preventDefault();
-            // handleContextMenu(e, data);
+            setFirstContext("DO");
+            setHoveredElement(data);
+            handleContextMenu(e, data);
           }}
           // title={data.description}
           onClick={handleClick}
@@ -539,27 +546,6 @@ export const DataObject = ({
             >
               {edit ? (
                 <>
-                  {/* <FormGroup
-                    label={`Attachment`}
-                    labelInfo="(required)"
-                    intent="primary"
-                    labelFor="Type"
-                  >
-                    <FileInput
-                      style={{ zIndex: 9 }}
-                      fill={true}
-                      hasSelection={importObjectFile}
-                      text={
-                        importObjectFile?.name
-                          ? importObjectFile?.name
-                          : "Choose file..."
-                      }
-                      onInputChange={(e) => {
-                        console.log(e);
-                        setImportObjectFile(e.target.files[0]);
-                      }}
-                    ></FileInput>
-                  </FormGroup> */}
                   <TextArea
                     className="panningDisabled pinchDisabled wheelDisabled"
                     fill={true}

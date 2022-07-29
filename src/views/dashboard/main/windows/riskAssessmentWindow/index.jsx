@@ -583,145 +583,144 @@ export const RiskAssessmentWindow = ({
 
   const addToGroup = useCallback(
     async (type, data) => {
-      
       setIsServiceLoading(true);
       let payload,
         tempConnections = [],
         tempInstObjConnections = [],
         tempinstConnections = [];
       try {
-      if (type === "risk") {
-        payload = { riskObjectId: data.id };
-        connections.forEach((connection) => {
-          if (
-            connection.sourceRef === data.id ||
-            connection.targetRef === data.id
-          ) {
-            tempConnections = [...tempConnections, connection];
-          }
-        });
-        instanceObjectConnections.forEach((connection) => {
-          if (
-            (connection.sourceRef === data.id &&
-              connection.objectType === "Output") ||
-            (connection.targetRef === data.id &&
-              connection.objectType === "Input")
-          ) {
-            tempInstObjConnections = [...tempInstObjConnections, connection];
-          }
-        });
-        setConnections((prev) =>
-          prev.filter(
-            (connection) =>
-              connection.sourceRef !== data.id &&
-              connection.targetRef !== data.id
-          )
-        );
-        setInstanceObjectConnections((prev) =>
-          prev.filter(
-            (connection) =>
-              (connection.sourceRef !== data.id &&
-                connection.objectType === "Output") ||
-              (connection.targetRef !== data.id &&
-                connection.objectType === "Input")
-          )
-        );
-      } else {
-        payload = { dataObjectId: data.id };
-        instanceConnections.forEach((connection) => {
-          if (
-            connection.sourceRef === data.id ||
-            connection.targetRef === data.id
-          ) {
-            tempinstConnections = [...tempinstConnections, connection];
-          }
-        });
-        instanceObjectConnections.forEach((connection) => {
-          if (
-            (connection.sourceRef === data.id &&
-              connection.objectType === "Input") ||
-            (connection.targetRef === data.id &&
-              connection.objectType === "Output")
-          ) {
-            tempInstObjConnections = [...tempInstObjConnections, connection];
-          }
-        });
-        setInstanceConnections((prev) =>
-          prev.filter(
-            (connection) =>
-              connection.sourceRef !== data.id &&
-              connection.targetRef !== data.id
-          )
-        );
-        setInstanceObjectConnections((prev) =>
-          prev.filter(
-            (connection) =>
-              (connection.sourceRef !== data.id &&
-                connection.objectType === "Input") ||
-              (connection.targetRef !== data.id &&
-                connection.objectType === "Output")
-          )
-        );
-      }
-
-      const response = await addObjectToGroup({
-        ...payload,
-        riskAssessmentId: window.data.id,
-        riskGroupId: data.groupId,
-      });
-
-      if(response.status >= 200 && response.status < 300){
         if (type === "risk") {
-          let riskObject;
-          setRiskObjects((prev) => prev.filter((item) => item.id !== data.id));
-          setGroups((prev) => {
-            return prev.map((group) => {
-              console.log("in", group.id, data.groupId);
-              if (Number(group.id) === Number(data.groupId)) {
-                return {
-                  ...group,
-                  elements: [...group.elements, data],
-                };
-              } else {
-                return group;
-              }
-            });
+          payload = { riskObjectId: data.id };
+          connections.forEach((connection) => {
+            if (
+              connection.sourceRef === data.id ||
+              connection.targetRef === data.id
+            ) {
+              tempConnections = [...tempConnections, connection];
+            }
           });
-  
-          setConnections((prev) => [...prev, ...tempConnections]);
-          setInstanceObjectConnections((prev) => [
-            ...prev,
-            ...tempInstObjConnections,
-          ]);
-        } else {
-          let dataObject;
-          setDataObjectInstances((prev) =>
-            prev.filter((item) => item.id !== data.id)
+          instanceObjectConnections.forEach((connection) => {
+            if (
+              (connection.sourceRef === data.id &&
+                connection.objectType === "Output") ||
+              (connection.targetRef === data.id &&
+                connection.objectType === "Input")
+            ) {
+              tempInstObjConnections = [...tempInstObjConnections, connection];
+            }
+          });
+          setConnections((prev) =>
+            prev.filter(
+              (connection) =>
+                connection.sourceRef !== data.id &&
+                connection.targetRef !== data.id
+            )
           );
-          setGroups((prev) => {
-            return prev.map((group) => {
-              if (Number(group.id) === Number(data.groupId)) {
-                return {
-                  ...group,
-                  dataObjects: [...group.dataObjects, data],
-                };
-              } else {
-                return group;
-              }
-            });
+          setInstanceObjectConnections((prev) =>
+            prev.filter(
+              (connection) =>
+                (connection.sourceRef !== data.id &&
+                  connection.objectType === "Output") ||
+                (connection.targetRef !== data.id &&
+                  connection.objectType === "Input")
+            )
+          );
+        } else {
+          payload = { dataObjectId: data.id };
+          instanceConnections.forEach((connection) => {
+            if (
+              connection.sourceRef === data.id ||
+              connection.targetRef === data.id
+            ) {
+              tempinstConnections = [...tempinstConnections, connection];
+            }
           });
-  
-          setInstanceConnections((prev) => [...prev, ...tempinstConnections]);
-          setInstanceObjectConnections((prev) => [
-            ...prev,
-            ...tempInstObjConnections,
-          ]);
+          instanceObjectConnections.forEach((connection) => {
+            if (
+              (connection.sourceRef === data.id &&
+                connection.objectType === "Input") ||
+              (connection.targetRef === data.id &&
+                connection.objectType === "Output")
+            ) {
+              tempInstObjConnections = [...tempInstObjConnections, connection];
+            }
+          });
+          setInstanceConnections((prev) =>
+            prev.filter(
+              (connection) =>
+                connection.sourceRef !== data.id &&
+                connection.targetRef !== data.id
+            )
+          );
+          setInstanceObjectConnections((prev) =>
+            prev.filter(
+              (connection) =>
+                (connection.sourceRef !== data.id &&
+                  connection.objectType === "Input") ||
+                (connection.targetRef !== data.id &&
+                  connection.objectType === "Output")
+            )
+          );
         }
-      }else{
-        showDangerToaster(`Can't add to group`);
-      }
 
-      
+        const response = await addObjectToGroup({
+          ...payload,
+          riskAssessmentId: window.data.id,
+          riskGroupId: data.groupId,
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+          if (type === "risk") {
+            let riskObject;
+            setRiskObjects((prev) =>
+              prev.filter((item) => item.id !== data.id)
+            );
+            setGroups((prev) => {
+              return prev.map((group) => {
+                console.log("in", group.id, data.groupId);
+                if (Number(group.id) === Number(data.groupId)) {
+                  return {
+                    ...group,
+                    elements: [...group.elements, data],
+                  };
+                } else {
+                  return group;
+                }
+              });
+            });
+
+            setConnections((prev) => [...prev, ...tempConnections]);
+            setInstanceObjectConnections((prev) => [
+              ...prev,
+              ...tempInstObjConnections,
+            ]);
+          } else {
+            let dataObject;
+            setDataObjectInstances((prev) =>
+              prev.filter((item) => item.id !== data.id)
+            );
+            setGroups((prev) => {
+              return prev.map((group) => {
+                if (Number(group.id) === Number(data.groupId)) {
+                  return {
+                    ...group,
+                    dataObjects: [...group.dataObjects, data],
+                  };
+                } else {
+                  return group;
+                }
+              });
+            });
+
+            setInstanceConnections((prev) => [...prev, ...tempinstConnections]);
+            setInstanceObjectConnections((prev) => [
+              ...prev,
+              ...tempInstObjConnections,
+            ]);
+          }
+        } else {
+          showDangerToaster(`Can't add to group`);
+        }
       } catch (error) {
         showDangerToaster(`Can't add to group`);
       }
@@ -739,92 +738,92 @@ export const RiskAssessmentWindow = ({
     async (type, data) => {
       setIsServiceLoading(true);
       let payload,
-      tempConnections = [],
-      tempInstObjConnections = [],
-      tempinstConnections = [];
+        tempConnections = [],
+        tempInstObjConnections = [],
+        tempinstConnections = [];
       try {
-      if (type === "risk") {
-        payload = { riskObjects: [data.id], dataObjects: [] };
-        connections.forEach((connection) => {
-          if (
-            connection.sourceRef === data.id ||
-            connection.targetRef === data.id
-          ) {
-            tempConnections = [...tempConnections, connection];
-          }
-        });
-        instanceObjectConnections.forEach((connection) => {
-          if (
-            (connection.sourceRef === data.id &&
-              connection.objectType === "Output") ||
-            (connection.targetRef === data.id &&
-              connection.objectType === "Input")
-          ) {
-            tempInstObjConnections = [...tempInstObjConnections, connection];
-          }
-        });
-        setConnections((prev) =>
-          prev.filter(
-            (connection) =>
-              connection.sourceRef !== data.id &&
-              connection.targetRef !== data.id
-          )
-        );
-        setInstanceObjectConnections((prev) =>
-          prev.filter(
-            (connection) =>
-              (connection.sourceRef !== data.id &&
+        if (type === "risk") {
+          payload = { riskObjects: [data.id], dataObjects: [] };
+          connections.forEach((connection) => {
+            if (
+              connection.sourceRef === data.id ||
+              connection.targetRef === data.id
+            ) {
+              tempConnections = [...tempConnections, connection];
+            }
+          });
+          instanceObjectConnections.forEach((connection) => {
+            if (
+              (connection.sourceRef === data.id &&
                 connection.objectType === "Output") ||
-              (connection.targetRef !== data.id &&
+              (connection.targetRef === data.id &&
                 connection.objectType === "Input")
-          )
-        );
-      } else {
-        payload = { riskObjects: [], dataObjects: [data.id] };
-        instanceConnections.forEach((connection) => {
-          if (
-            connection.sourceRef === data.id ||
-            connection.targetRef === data.id
-          ) {
-            tempinstConnections = [...tempinstConnections, connection];
-          }
-        });
-        instanceObjectConnections.forEach((connection) => {
-          if (
-            (connection.sourceRef === data.id &&
-              connection.objectType === "Input") ||
-            (connection.targetRef === data.id &&
-              connection.objectType === "Output")
-          ) {
-            tempInstObjConnections = [...tempInstObjConnections, connection];
-          }
-        });
-        setInstanceConnections((prev) =>
-          prev.filter(
-            (connection) =>
-              connection.sourceRef !== data.id &&
-              connection.targetRef !== data.id
-          )
-        );
-        setInstanceObjectConnections((prev) =>
-          prev.filter(
-            (connection) =>
-              (connection.sourceRef !== data.id &&
+            ) {
+              tempInstObjConnections = [...tempInstObjConnections, connection];
+            }
+          });
+          setConnections((prev) =>
+            prev.filter(
+              (connection) =>
+                connection.sourceRef !== data.id &&
+                connection.targetRef !== data.id
+            )
+          );
+          setInstanceObjectConnections((prev) =>
+            prev.filter(
+              (connection) =>
+                (connection.sourceRef !== data.id &&
+                  connection.objectType === "Output") ||
+                (connection.targetRef !== data.id &&
+                  connection.objectType === "Input")
+            )
+          );
+        } else {
+          payload = { riskObjects: [], dataObjects: [data.id] };
+          instanceConnections.forEach((connection) => {
+            if (
+              connection.sourceRef === data.id ||
+              connection.targetRef === data.id
+            ) {
+              tempinstConnections = [...tempinstConnections, connection];
+            }
+          });
+          instanceObjectConnections.forEach((connection) => {
+            if (
+              (connection.sourceRef === data.id &&
                 connection.objectType === "Input") ||
-              (connection.targetRef !== data.id &&
+              (connection.targetRef === data.id &&
                 connection.objectType === "Output")
-          )
-        );
-      }
+            ) {
+              tempInstObjConnections = [...tempInstObjConnections, connection];
+            }
+          });
+          setInstanceConnections((prev) =>
+            prev.filter(
+              (connection) =>
+                connection.sourceRef !== data.id &&
+                connection.targetRef !== data.id
+            )
+          );
+          setInstanceObjectConnections((prev) =>
+            prev.filter(
+              (connection) =>
+                (connection.sourceRef !== data.id &&
+                  connection.objectType === "Input") ||
+                (connection.targetRef !== data.id &&
+                  connection.objectType === "Output")
+            )
+          );
+        }
       } catch (error) {
-        showDangerToaster(`Can't remove from group`)
+        showDangerToaster(`Can't remove from group`);
       }
-      
+
       const response = await editGroup(window.data.id, data.groupId, payload);
-      if(response.status >= 200 && response.status < 300){
+      if (response.status >= 200 && response.status < 300) {
         if (type === "risk") {
           let riskObject;
-  
+
           setGroups((prev) => {
             return prev.map((group) => {
               if (group.id === data.groupId) {
@@ -850,7 +849,7 @@ export const RiskAssessmentWindow = ({
           ]);
         } else {
           let dataObject;
-  
+
           setGroups((prev) => {
             return prev.map((group) => {
               if (group.id === data.groupId) {
@@ -875,12 +874,11 @@ export const RiskAssessmentWindow = ({
             ...tempInstObjConnections,
           ]);
         }
-      }else{
+      } else {
         showDangerToaster(`Can't remove from group`);
       }
 
       setIsServiceLoading(false);
-
     },
     [
       window.data.id,
@@ -1075,12 +1073,13 @@ export const RiskAssessmentWindow = ({
 
   const handleContextMenu = useCallback(
     async (e, data) => {
+      console.log(data, e);
       if (firstContext === "risk" && selectedElements.length < 2) return;
       if (data.id) {
         setActiveObject(data.id);
       }
       e.preventDefault();
-      console.log(data, e);
+
       if (data && !data.from) {
         if (data["position.enabled"]) {
           setElementEnable(true);
@@ -1109,11 +1108,30 @@ export const RiskAssessmentWindow = ({
         type = "template";
         setFirstContext("template");
         id = e.target.id.split("-")[1];
-      } else {
+      } else if (firstContext === "DO") {
         // if (e.target.id.split("-").length === 3){
         //   id = e.target.id.split("-")[3];
         // }
         if (selectedElements.length === 0) {
+          console.log(data.type)
+          type = "contextDO" ;
+          setFirstContext("contextDO");
+        } else if (selectedElements.length === 2) {
+          type = "connection";
+          setFirstContext("connection");
+        } else if (selectedElements.length > 2) {
+          type = "grouping";
+          setFirstContext("grouping");
+        } else {
+          type = "object";
+          setFirstContext("object");
+        }
+      }else if (firstContext === "element") {
+        // if (e.target.id.split("-").length === 3){
+        //   id = e.target.id.split("-")[3];
+        // }
+        if (selectedElements.length === 0) {
+          console.log(data.type)
           type = "context";
           setFirstContext("context");
         } else if (selectedElements.length === 2) {
@@ -1131,7 +1149,7 @@ export const RiskAssessmentWindow = ({
         ? Number(id)
         : Number(e.target.parentElement.id.split("-")[2]);
 
-      // console.log(type, e.target.parentElement.id, element);
+      console.log(data.type,type);
       setContextMenu((prev) => ({
         active: true,
         type,
@@ -1155,7 +1173,7 @@ export const RiskAssessmentWindow = ({
     };
 
     const response = await addRiskTemplate(payload);
-    if(response.status>=200 && response.status<300){
+    if (response.status >= 200 && response.status < 300) {
       setContextMenu({
         active: false,
         type: "",
@@ -1166,10 +1184,10 @@ export const RiskAssessmentWindow = ({
         element: null,
       });
       setTimeout(riskAssessmentData, 100);
-    }else{
+    } else {
       showDangerToaster(`Can't Import Template`);
     }
-    
+
     setIsServiceLoading(false);
     // const redraw = await riskAssessmentData();
   }, [riskAssessmentData, contextMenu, templateName]);
@@ -1202,16 +1220,16 @@ export const RiskAssessmentWindow = ({
         };
         setIsServiceLoading(true);
         const response = await addRiskAssessmentGroup(payload);
-        if(response.status>=200 && response.status<300){
+        if (response.status >= 200 && response.status < 300) {
           resetContext();
 
           setSelectedElements([]);
           setSelectedObjects([]);
           setTimeout(riskAssessmentData, 500);
-        }else{
+        } else {
           showDangerToaster(`Can't Create Group`);
         }
-        
+
         setIsServiceLoading(false);
       }
     },
@@ -1225,19 +1243,17 @@ export const RiskAssessmentWindow = ({
     ]
   );
 
-  const editRiskObject = useCallback(
-    async (id, payload, groupId) => {
-      setIsServiceLoading(true);
-      const response = await updateRiskObject(id, payload);
-      if (response.status === 200) {
-        riskAssessmentData();
-      }else{
-        showDangerToaster(`Update Faild`);
-      }
-      setIsServiceLoading(false);
-      return "Done";
-    },
-  );
+  const editRiskObject = useCallback(async (id, payload, groupId) => {
+    setIsServiceLoading(true);
+    const response = await updateRiskObject(id, payload);
+    if (response.status === 200) {
+      riskAssessmentData();
+    } else {
+      showDangerToaster(`Update Faild`);
+    }
+    setIsServiceLoading(false);
+    return "Done";
+  });
 
   const addRiskObject = useCallback(
     async (e) => {
@@ -1351,7 +1367,7 @@ export const RiskAssessmentWindow = ({
         setImportTemplateNameError(null);
         riskAssessmentData();
       } catch (error) {
-        showDangerToaster(`Faild to create group from template`)
+        showDangerToaster(`Faild to create group from template`);
         setIsServiceLoading(false);
       }
       setIsServiceLoading(false);
@@ -1450,17 +1466,17 @@ export const RiskAssessmentWindow = ({
                 }
               })
             );
-            setIsServiceLoading(true);
+        setIsServiceLoading(true);
         const response =
           element.operation === "enable"
             ? await updateRiskObjectPosition(window.data.id, element.id, {
                 enabled: element.payload,
               })
             : await updateRiskObject(element.id, { status: element.payload });
-              if(response.status<200 || response.status>=300){
-                showDangerToaster(`Update Faild`)
-              }
-            setIsServiceLoading(false);
+        if (response.status < 200 || response.status >= 300) {
+          showDangerToaster(`Update Faild`);
+        }
+        setIsServiceLoading(false);
       } else {
         !element.groupId
           ? setDataObjectInstances((prev) =>
@@ -1498,7 +1514,7 @@ export const RiskAssessmentWindow = ({
                 }
               })
             );
-            setIsServiceLoading(true);
+        setIsServiceLoading(true);
         const response =
           element.operation === "enable"
             ? await updateNewDataObjectInstance(element.id, {
@@ -1508,10 +1524,10 @@ export const RiskAssessmentWindow = ({
                 status: element.payload,
               });
 
-              if(response.status<200 || response.status>=300){
-                showDangerToaster(`Update Faild`)
-              }
-              setIsServiceLoading(false);
+        if (response.status < 200 || response.status >= 300) {
+          showDangerToaster(`Update Faild`);
+        }
+        setIsServiceLoading(false);
       }
       setFirstContext("main");
       setSelectedElements([]);
@@ -1705,7 +1721,6 @@ export const RiskAssessmentWindow = ({
   ]);
 
   const importSharedGroup = useCallback(async () => {
-
     const payload = {
       riskAssessmentId: window.data.id,
       riskGroupId: importGroupId,
@@ -1713,17 +1728,16 @@ export const RiskAssessmentWindow = ({
       y: contextMenu.offsetY,
       shared: true,
     };
-setIsServiceLoading(true);
+    setIsServiceLoading(true);
     const response = await importGroup(payload);
-    if(response.status>=200 && response.status<300){
+    if (response.status >= 200 && response.status < 300) {
       resetContext();
       setImportGroupId(null);
       riskAssessmentData();
-    }else{
+    } else {
       showDangerToaster(`Importing Shared Group Faild`);
     }
     setIsServiceLoading(false);
-    
   }, [
     contextMenu.offsetX,
     contextMenu.offsetY,
@@ -1786,20 +1800,19 @@ setIsServiceLoading(true);
 
     try {
       const response = await addNewDataObjectInstance(payload);
-    if (response.status === 200) {
-      resetContext();
-      setImportObjectId(null);
-      setImportObject(null);
-      setImportObjectText(null);
-      setImportObjectFile(null);
-      riskAssessmentData();
-    }else{
-      showDangerToaster(`Error Adding Data Object`);
-    }
+      if (response.status === 200) {
+        resetContext();
+        setImportObjectId(null);
+        setImportObject(null);
+        setImportObjectText(null);
+        setImportObjectFile(null);
+        riskAssessmentData();
+      } else {
+        showDangerToaster(`Error Adding Data Object`);
+      }
     } catch (error) {
       showDangerToaster(`Error Adding Data Object`);
     }
-    
 
     setIsServiceLoading(false);
   }, [
@@ -1838,6 +1851,18 @@ setIsServiceLoading(true);
       d.y = 0;
     }
   }, []);
+
+  const attachFileToDO = useCallback(async ()=>{
+    setIsServiceLoading(true);
+    let payload = new FormData();
+    payload.append("fileCSV", importObjectFile);
+    const response= await updateNewDataObjectInstance(activeObject,payload);
+    if(response.status>=200 && response.status<300){
+      riskAssessmentData();
+      setImportObjectFile(null);
+      resetContext()
+    }
+  },[activeObject,importObjectFile,riskAssessmentData,resetContext]) 
 
   return (
     <>
@@ -1899,16 +1924,6 @@ setIsServiceLoading(true);
           />
         )}
       </Window>
-      {/* <div
-        className=""
-        style={{
-          zIndex: 10000000000,
-          fontSize: "10px",
-          position: "absolute",
-          top: contextMenu.contextY,
-          left: contextMenu.contextX,
-        }}
-      > */}
       <Rnd
         position={{
           x: Number(contextMenu.contextX),
@@ -1934,6 +1949,79 @@ setIsServiceLoading(true);
           </Menu>
         )}
 
+        {contextMenu.active && contextMenu.type === "contextDO" && (
+          <Menu className={` ${Classes.ELEVATION_1}`}>
+            <MenuItem text="Attach" onClick={()=>setContextMenu(prev=>({...prev,type:"uploadDO"}))} />
+          </Menu>
+        )}
+
+        {contextMenu.active && contextMenu.type === "uploadDO" && (
+          <div
+            key="text3"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>New Data Object Attachment</H5>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                attachFileToDO();
+              }}
+            >
+              <FormGroup
+                label={`Attachment`}
+                labelInfo="(required)"
+                intent="primary"
+                labelFor="Type"
+              >
+                <FileInput
+                  style={{ zIndex: 9999999999999 }}
+                  fill={true}
+                  hasSelection={importObjectFile}
+                  text={
+                    importObjectFile?.name
+                      ? importObjectFile?.name
+                      : "Choose file..."
+                  }
+                  onInputChange={(e) => {
+                    console.log(e);
+                    setImportObjectFile(e.target.files[0]);
+                  }}
+                ></FileInput>
+              </FormGroup>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    setNewViewName(null);
+                    setImportObjectFile(null);
+                    resetContext();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                >
+                  Attach
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
         {contextMenu.active && contextMenu.type === "connection" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             <MenuItem
@@ -2609,13 +2697,6 @@ setIsServiceLoading(true);
             </form>
           </div>
         )}
-
-        {/* {contextMenu.active && contextMenu.type === "create" && (
-          <Menu className={` ${Classes.ELEVATION_1}`}>
-            <MenuItem disabled text="Create Virtual Risk Object" />
-            <MenuItem disabled text="Create Model Risk Object" />
-          </Menu>
-        )} */}
 
         {contextMenu.active && contextMenu.type === "connection name" && (
           <div

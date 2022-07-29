@@ -585,6 +585,7 @@ export const RiskAssessment = ({
                                 id: grp.id,
                                 name: grp.name,
                               }))}
+                              handleContextMenu={handleContextMenu}
                               riskAssessmentId={riskAssessmentId}
                               scale={globalScale}
                               expanded={true}
