@@ -1,13 +1,20 @@
 import { useCallback, useState } from "react";
-import { Button, TextArea, H5,HTMLSelect,FormGroup } from "@blueprintjs/core";
+import {
+  Button,
+  TextArea,
+  H5,
+  HTMLSelect,
+  FormGroup,
+  FileInput,
+} from "@blueprintjs/core";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { Rnd } from "react-rnd";
-import { updateNewDataObjectInstance,updateNewDataObjectInstanceNew } from "../../services";
-import { size } from "lodash";
 import {
-  Classes,
-  Popover2,
-} from "@blueprintjs/popover2";
+  updateNewDataObjectInstance,
+  updateNewDataObjectInstanceNew,
+} from "../../services";
+import { size } from "lodash";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
 export const DataObject = ({
   riskAssessmentId,
   data,
@@ -23,8 +30,9 @@ export const DataObject = ({
   removeFromGroup,
   enviroDimension,
   addToGroup,
-  groups
+  groups,
 }) => {
+  const [importObjectFile, setImportObjectFile] = useState(null);
   const [size, setSize] = useState({ w: data.width, h: data.height });
   const [viewedAttribute, setViewedAttribute] = useState(data.textType);
   const [usingService, setUsingService] = useState(false);
@@ -55,15 +63,26 @@ export const DataObject = ({
         position.y = 0;
       }
       updateXarrow();
-      const updateOjectPosition = await updateNewDataObjectInstance(data.id, {
-        x: Math.round(position.x),
-        y: Math.round(position.y),
-        width: w,
-        height: h,
-        enabled: data["position.enabled"],
-      });
+      const updateOjectPosition = await updateNewDataObjectInstanceNew(
+        riskAssessmentId,
+        data.id,
+        {
+          x: Math.round(position.x),
+          y: Math.round(position.y),
+          width: w,
+          height: h,
+          enabled: data["position.enabled"],
+        }
+      );
+      // const updateOjectPosition = await updateNewDataObjectInstance(data.id, {
+      //   x: Math.round(position.x),
+      //   y: Math.round(position.y),
+      //   width: w,
+      //   height: h,
+      //   enabled: data["position.enabled"],
+      // });
     },
-    [data, updateXarrow,size]
+    [data, updateXarrow, size]
   );
 
   const handleGroup = useCallback(async () => {
@@ -113,13 +132,17 @@ export const DataObject = ({
         d.y = enviroDimension.height - 200;
       }
       updateXarrow();
-      const updateOjectPosition = await updateNewDataObjectInstanceNew(riskAssessmentId,data.id, {
-        x: Math.round(d.x),
-        y: Math.round(d.y),
-        enabled: data["position.enabled"],
-      });
+      const updateOjectPosition = await updateNewDataObjectInstanceNew(
+        riskAssessmentId,
+        data.id,
+        {
+          x: Math.round(d.x),
+          y: Math.round(d.y),
+          enabled: data["position.enabled"],
+        }
+      );
     },
-    [data, updateXarrow,enviroDimension,riskAssessmentId]
+    [data, updateXarrow, enviroDimension, riskAssessmentId]
   );
 
   const handleClick = useCallback(
@@ -146,14 +169,16 @@ export const DataObject = ({
     const response = await removeFromGroup("data", { id: data.id, groupId });
   }, [data.id, groupId, removeFromGroup]);
 
-  const handleAddToGroup = useCallback(async ()=>{
+  const handleAddToGroup = useCallback(async () => {
     setUsingService(true);
-    const response = await addToGroup("data",{...data,groupId:editingValue})
+    const response = await addToGroup("data", {
+      ...data,
+      groupId: editingValue,
+    });
     setUsingService(false);
-    if(response!=="done"){
-      
+    if (response !== "done") {
     }
-  },[addToGroup,data,editingValue])
+  }, [addToGroup, data, editingValue]);
 
   return (
     <Rnd
@@ -213,7 +238,6 @@ export const DataObject = ({
             borderRadius: "15px",
             backgroundColor: "white",
             padding: "5px",
-            
           }}
         >
           <div
@@ -221,7 +245,6 @@ export const DataObject = ({
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-around",
-              
             }}
             className="panningDisabled pinchDisabled wheelDisabled"
           >
@@ -334,89 +357,94 @@ export const DataObject = ({
                     loading={usingService}
                   ></Button>
                 </>
+              ) : groupId ? (
+                <Button
+                  disabled={data.disable}
+                  small={true}
+                  onClick={() => {
+                    setEditGroup(true);
+                  }}
+                  intent={!data.disable ? "primary" : "none"}
+                >
+                  {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
+                </Button>
               ) : (
-          (groupId?(<Button
-            disabled={data.disable}
-            small={true}
-            onClick={()=>{setEditGroup(true)}}
-            intent={!data.disable ? "primary" : "none"}
-          >
-            {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
-          </Button>):(
-            <Popover2
-            usePortal={false}
-            popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
-            boundary={"scrollParent"}
-            enforceFocus={false}
-            isOpen={editGrp }
-            content={
-              <div className="bp4-popover2-content">
-                <div key="text">
-                  <H5>Add To Group</H5>
-                  <span>
-                    
-                  </span>
-                  <FormGroup
-                    label="Select Group"
-                    labelInfo="(required)"
-                    labelFor="grp"
-                  >
-                    <HTMLSelect
-                      required
-                      value={editingValue}
-                      fill={true}
-                      id="Text"
-                      onChange={(event) => {
-                        setEditingValue(event.target.value);
-                      }}
-                    >
-                      <option selected disabled>Select Group</option>
-                      {groups.map(grp=><option value={grp.id}>{grp.name}</option>)}
-                      </HTMLSelect>
-                  </FormGroup>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      marginTop: 15,
+                <Popover2
+                  usePortal={false}
+                  popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
+                  boundary={"scrollParent"}
+                  enforceFocus={false}
+                  isOpen={editGrp}
+                  content={
+                    <div className="bp4-popover2-content">
+                      <div key="text">
+                        <H5>Add To Group</H5>
+                        <span></span>
+                        <FormGroup
+                          label="Select Group"
+                          labelInfo="(required)"
+                          labelFor="grp"
+                        >
+                          <HTMLSelect
+                            required
+                            value={editingValue}
+                            fill={true}
+                            id="Text"
+                            onChange={(event) => {
+                              setEditingValue(event.target.value);
+                            }}
+                          >
+                            <option selected disabled>
+                              Select Group
+                            </option>
+                            {groups.map((grp) => (
+                              <option value={grp.id}>{grp.name}</option>
+                            ))}
+                          </HTMLSelect>
+                        </FormGroup>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            marginTop: 15,
+                          }}
+                        >
+                          <Button
+                            className="bp4-button bp4-intent-danger bp4-popover2-dismiss"
+                            style={{ marginRight: 10 }}
+                            onClick={() => {
+                              setEditGrp(false);
+                              setEditingValue(null);
+                            }}
+                            loading={usingService}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            intent="primary"
+                            className="bp4-button bp4-popover2-dismiss"
+                            onClick={handleAddToGroup}
+                            loading={usingService}
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                >
+                  <Button
+                    disabled={data.disable}
+                    small={true}
+                    onClick={() => {
+                      setEditGrp(true);
                     }}
+                    intent={!data.disable ? "primary" : "none"}
                   >
-                    <Button
-                      className="bp4-button bp4-intent-danger bp4-popover2-dismiss"
-                      style={{ marginRight: 10 }}
-                      onClick={() => {
-                        setEditGrp(false);
-                        setEditingValue(null);
-                      }}
-                      loading={usingService}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      intent="primary"
-                      className="bp4-button bp4-popover2-dismiss"
-                      onClick={handleAddToGroup}
-                      loading={usingService}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            }
-          >
-            <Button
-              disabled={data.disable}
-              small={true}
-              onClick={()=>{setEditGrp(true)}}
-              intent={!data.disable ? "primary" : "none"}
-            >
-              G
-            </Button>
-          </Popover2>
-          ))
-          
-        )}
+                    G
+                  </Button>
+                </Popover2>
+              )}
               {!edit ? (
                 <Button
                   // fill={true}
@@ -480,7 +508,10 @@ export const DataObject = ({
           </div>
 
           {data.dataObjectNew.arrayName ? (
-            <table className="bp4-html-table-bordered panningDisabled" style={{textAlign:"left",paddingTop:"5px"}}>
+            <table
+              className="bp4-html-table-bordered panningDisabled"
+              style={{ textAlign: "left", paddingTop: "5px" }}
+            >
               <tr>
                 <th>Array Name</th>
                 <td>{data.dataObjectNew.arrayName}</td>
@@ -498,17 +529,50 @@ export const DataObject = ({
               </tr>
             </table>
           ) : (
-            <div className="panningDisabled pinchDisabled wheelDisabled" style={{ paddingTop: "10px",overflow: "auto", whiteSpace:"pre-wrap"}}>
+            <div
+              className="panningDisabled pinchDisabled wheelDisabled"
+              style={{
+                paddingTop: "10px",
+                overflow: "auto",
+                whiteSpace: "pre-wrap",
+              }}
+            >
               {edit ? (
-                <TextArea
-                  className="panningDisabled pinchDisabled wheelDisabled"
-                  fill={true}
-                  growVertically={true}
-                  onChange={(e) => setEditingValue(e.target.value)}
-                  value={editingValue}
-                ></TextArea>
+                <>
+                  {/* <FormGroup
+                    label={`Attachment`}
+                    labelInfo="(required)"
+                    intent="primary"
+                    labelFor="Type"
+                  >
+                    <FileInput
+                      style={{ zIndex: 9 }}
+                      fill={true}
+                      hasSelection={importObjectFile}
+                      text={
+                        importObjectFile?.name
+                          ? importObjectFile?.name
+                          : "Choose file..."
+                      }
+                      onInputChange={(e) => {
+                        console.log(e);
+                        setImportObjectFile(e.target.files[0]);
+                      }}
+                    ></FileInput>
+                  </FormGroup> */}
+                  <TextArea
+                    className="panningDisabled pinchDisabled wheelDisabled"
+                    fill={true}
+                    growVertically={true}
+                    onChange={(e) => setEditingValue(e.target.value)}
+                    value={editingValue}
+                  ></TextArea>
+                </>
               ) : (
-                <span className="panningDisabled pinchDisabled wheelDisabled" style={{ overflow: "auto", height: "100%" }}>
+                <span
+                  className="panningDisabled pinchDisabled wheelDisabled"
+                  style={{ overflow: "auto", height: "100%" }}
+                >
                   {viewedAttribute}
                 </span>
               )}
@@ -524,7 +588,7 @@ export const DataObject = ({
         </table>
         <hr width="100%" color="grey" size="1"/> */}
         </div>
-      ):null}
+      ) : null}
     </Rnd>
   );
 };

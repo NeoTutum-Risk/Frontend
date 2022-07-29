@@ -1916,6 +1916,7 @@ setIsServiceLoading(true);
         }}
         style={{ zIndex: 9999999 }}
         onDragStop={(e, d) => updateDraftLocation(e, d)}
+        enableResizing={false}
       >
         {contextMenu.active && contextMenu.type === "context" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
