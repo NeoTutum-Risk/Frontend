@@ -150,8 +150,8 @@ export const DataObject = ({
     (e) => {
       
      if(e.target.className!=="bp3-file-upload-input"){
-      console.log(e.target.className,e.target);
-      e.preventDefault();
+      console.log(e,e.target.name);
+      if(e.target.localName!=="a") e.preventDefault();
       if (e.detail !== 2) return;
       if (data.disable) return;
       console.log("Selecting ....");
@@ -555,12 +555,23 @@ export const DataObject = ({
                   ></TextArea>
                 </>
               ) : (
+                <>
+                {data.filePath ? <a
+                  className="panningDisabled pinchDisabled wheelDisabled"
+                  style={{ overflow: "auto", height: "100%" }}
+                  href={data.filePath}
+                  target
+                >
+                  {data.filePath.split("/")[data.filePath.split("/").length-1]}
+                </a>:"No Attachment"}
+                <br />
                 <span
                   className="panningDisabled pinchDisabled wheelDisabled"
                   style={{ overflow: "auto", height: "100%" }}
                 >
                   {viewedAttribute}
                 </span>
+                </>
               )}
             </div>
           )}
