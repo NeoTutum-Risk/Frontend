@@ -237,6 +237,7 @@ export const RiskElement = ({
               borderRadius: "15px",
               backgroundColor: "white",
               padding: "5px",
+              overflow:"hidden"
             }}
           >
             {face /*&& data['position.enabled'] */ && (

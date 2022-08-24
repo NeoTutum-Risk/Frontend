@@ -197,7 +197,6 @@ export const ClosedFace = ({
                     }}
                   >
                     <Button
-                    
                       className="bp4-button bp4-intent-danger bp4-popover2-dismiss"
                       style={{ marginRight: 10 }}
                       onClick={() => {
@@ -209,7 +208,7 @@ export const ClosedFace = ({
                       Cancel
                     </Button>
                     <Button
-                    disabled={!editingValue}
+                      disabled={!editingValue}
                       intent="primary"
                       className="bp4-button bp4-popover2-dismiss"
                       onClick={handleAddToGroup}
@@ -297,7 +296,6 @@ export const ClosedFace = ({
               id: data.id,
               action: showProperties ? "remove" : "add",
             });
-            
           }}
         >
           Properties
@@ -426,12 +424,17 @@ export const ClosedFace = ({
             className="panningDisabled pinchDisabled wheelDisabled"
             style={{
               backgroundColor: "lightsteelblue",
-              height: "100%",
-              overflow: "scroll",
-              whiteSpace:"pre-wrap"
+              // height: "100%",
+              overflow: "auto",
+              whiteSpace: "pre-wrap",
             }}
           >
-            <span style={{ height: "100%" }}>{viewedAttribute}</span>
+            <span
+              className="panningDisabled pinchDisabled wheelDisabled"
+              style={{ overflow: "auto", height: "100%" }}
+            >
+              {viewedAttribute}
+            </span>
           </div>
         )}
       </div>

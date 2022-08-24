@@ -428,13 +428,13 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="plus"
-                  onClick={() => zoomIn()}
+                  onClick={(e) => {zoomIn();setGlobalScale(prev=>(prev+=.2))}}
                 />
                 <Button
                   small={true}
                   fill={false}
                   icon="minus"
-                  onClick={() => zoomOut()}
+                  onClick={() => {zoomOut();setGlobalScale(prev=>(prev-=.2))}}
                 />
                 <Button
                   small={true}
