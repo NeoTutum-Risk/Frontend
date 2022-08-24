@@ -302,7 +302,7 @@ export const RiskGroup = ({
                   removeFromGroup={removeFromGroup}
                   handleObjectProperty={handleObjectProperty}
                   enviroDimension={enviroDimension}
-                  shared={data.shared}
+                  shared={data.shared && !data.mainShared}
                 />
               )
             : null
@@ -342,7 +342,7 @@ export const RiskGroup = ({
                   handleObjectAction={handleObjectAction}
                   removeFromGroup={removeFromGroup}
                   enviroDimension={enviroDimension}
-                  shared={data.shared}
+                  shared={data.shared && !data.mainShared}
                 />
               )
             : null
@@ -407,7 +407,7 @@ export const RiskGroup = ({
             display: "flex",
           }}
         >
-          <span></span>
+          <span>{data.shared && !data.mainShared?"S":""}</span>
           <span><b>{data.name}</b></span>
           <span><b>{data.id - 2000000}</b></span>
           {/* {!expanded &&
