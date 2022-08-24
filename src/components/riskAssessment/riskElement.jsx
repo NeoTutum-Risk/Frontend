@@ -32,7 +32,8 @@ export const RiskElement = ({
   handleObjectProperty,
   enviroDimension,
   groups,
-  addToGroup
+  addToGroup,
+  shared
 }) => {
   const [size, setSize] = useState({
     w: data["position.width"],
@@ -260,6 +261,7 @@ export const RiskElement = ({
                 handleObjectProperty={handleObjectProperty}
                 groups={groups}
                 addToGroup={addToGroup}
+                shared={shared}
               />
             )}
             {/* {!data['position.enabled'] && } */}

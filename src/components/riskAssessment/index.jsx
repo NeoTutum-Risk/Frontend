@@ -567,6 +567,7 @@ export const RiskAssessment = ({
                               handleObjectProperty={handleObjectProperty}
                               enviroDimension={enviroDimension}
                               addToGroup={addToGroup}
+                              shared={0}
                             />
                           )
                       )
@@ -599,6 +600,7 @@ export const RiskAssessment = ({
                               addToGroup={addToGroup}
                               key={`o-${riskAssessmentId}-${dataObjectInstance.id}`}
                               enviroDimension={enviroDimension}
+                              shared={0}
                             />
                           )
                       )

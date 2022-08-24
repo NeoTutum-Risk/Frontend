@@ -301,6 +301,7 @@ export const RiskGroup = ({
                   removeFromGroup={removeFromGroup}
                   handleObjectProperty={handleObjectProperty}
                   enviroDimension={enviroDimension}
+                  shared={data.shared}
                 />
               )
             : null
@@ -340,6 +341,7 @@ export const RiskGroup = ({
                   handleObjectAction={handleObjectAction}
                   removeFromGroup={removeFromGroup}
                   enviroDimension={enviroDimension}
+                  shared={data.shared}
                 />
               )
             : null
