@@ -48,6 +48,7 @@ import {
   addRiskAssessmentView,
   updateRiskAssessmentView,
   addObjectToGroup,
+  unshareGroup,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -1113,8 +1114,8 @@ export const RiskAssessmentWindow = ({
         //   id = e.target.id.split("-")[3];
         // }
         if (selectedElements.length === 0) {
-          console.log(data.type)
-          type = "contextDO" ;
+          console.log(data.type);
+          type = "contextDO";
           setFirstContext("contextDO");
         } else if (selectedElements.length === 2) {
           type = "connection";
@@ -1126,12 +1127,12 @@ export const RiskAssessmentWindow = ({
           type = "object";
           setFirstContext("object");
         }
-      }else if (firstContext === "element") {
+      } else if (firstContext === "element") {
         // if (e.target.id.split("-").length === 3){
         //   id = e.target.id.split("-")[3];
         // }
         if (selectedElements.length === 0) {
-          console.log(data.type)
+          console.log(data.type);
           type = "context";
           setFirstContext("context");
         } else if (selectedElements.length === 2) {
@@ -1149,7 +1150,7 @@ export const RiskAssessmentWindow = ({
         ? Number(id)
         : Number(e.target.parentElement.id.split("-")[2]);
 
-      console.log(data.type,type);
+      console.log(data.type, type);
       setContextMenu((prev) => ({
         active: true,
         type,
@@ -1852,17 +1853,37 @@ export const RiskAssessmentWindow = ({
     }
   }, []);
 
-  const attachFileToDO = useCallback(async ()=>{
+  const attachFileToDO = useCallback(async () => {
     setIsServiceLoading(true);
     let payload = new FormData();
     payload.append("fileCSV", importObjectFile);
-    const response= await updateNewDataObjectInstance(activeObject,payload);
-    if(response.status>=200 && response.status<300){
+    const response = await updateNewDataObjectInstance(activeObject, payload);
+    if (response.status >= 200 && response.status < 300) {
       riskAssessmentData();
       setImportObjectFile(null);
-      resetContext()
+      resetContext();
     }
-  },[activeObject,importObjectFile,riskAssessmentData,resetContext]) 
+  }, [activeObject, importObjectFile, riskAssessmentData, resetContext]);
+
+  const handleUnshareGroup = useCallback(
+    async () => {
+      try {
+        const response = await unshareGroup({
+          riskAssessmentId: window.data.id,
+          riskGroupId: activeObject,
+        });
+        if (response.status >= 200 && response.status < 300) {
+          setGroups((prev) => prev.filter((grp) => grp.id !== activeObject));
+          resetContext();
+        } else {
+          showDangerToaster(`Error unsharing group`);
+        }
+      } catch (error) {
+        showDangerToaster(`Error unsharing group: ${error}`);
+      }
+    },
+    [window.data.id,activeObject,resetContext]
+  );
 
   return (
     <>
@@ -1921,6 +1942,7 @@ export const RiskAssessmentWindow = ({
             checkFilter={checkFilter}
             checkConnctionVisibility={checkConnctionVisibility}
             setGroups={setGroups}
+            handleUnshareGroup={handleUnshareGroup}
           />
         )}
       </Window>
@@ -1951,7 +1973,12 @@ export const RiskAssessmentWindow = ({
 
         {contextMenu.active && contextMenu.type === "contextDO" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
-            <MenuItem text="Attach" onClick={()=>setContextMenu(prev=>({...prev,type:"uploadDO"}))} />
+            <MenuItem
+              text="Attach"
+              onClick={() =>
+                setContextMenu((prev) => ({ ...prev, type: "uploadDO" }))
+              }
+            />
           </Menu>
         )}
 
@@ -2076,6 +2103,13 @@ export const RiskAssessmentWindow = ({
             />
 
             <MenuItem text="Share Group" onClick={handleShareGroup} />
+            
+              
+                {groups.find((grp) => grp.id === activeObject && grp.shared)
+                  ? <MenuItem text="Unshare" onClick={handleUnshareGroup}/>
+                  : null
+              }
+             
           </Menu>
         )}
 

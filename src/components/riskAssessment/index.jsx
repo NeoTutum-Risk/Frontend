@@ -37,6 +37,7 @@ export const RiskAssessment = ({
   checkFilter,
   checkConnctionVisibility,
   setGroups,
+  handleUnshareGroup
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
@@ -526,6 +527,7 @@ export const RiskAssessment = ({
                               enviroDimension={enviroDimension}
                               setGroups={setGroups}
                               addToGroup={addToGroup}
+                              handleUnshareGroup={handleUnshareGroup}
                             />
                           )
                       )

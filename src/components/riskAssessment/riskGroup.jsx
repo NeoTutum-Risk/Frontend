@@ -31,7 +31,8 @@ export const RiskGroup = ({
   enviroDimension,
   setGroups,
   groups,
-  addToGroup
+  addToGroup,
+  handleUnshareGroup
 }) => {
   console.log(data.id)
   // const updateXarrow = useXarrow();
@@ -406,7 +407,7 @@ export const RiskGroup = ({
             display: "flex",
           }}
         >
-          <span></span>
+          <span>{data.shared?(<Button icon="share" />):null}</span>
           <span><b>{data.name}</b></span>
           <span><b>{data.id - 2000000}</b></span>
           {/* {!expanded &&

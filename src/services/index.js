@@ -200,3 +200,5 @@ export const updateRiskAssessmentWindowSettings = (id, data) => serviceProvider.
 export const getRiskAssessmentWindowSettings = (id) => serviceProvider(`/riskAssessments/WindowSettings/${id}`)
 
 export const addObjectToGroup = (data) => serviceProvider.post(`riskObjectGroups/addObject/Group`,data);
+
+export const unshareGroup = (data) => serviceProvider.post(`riskGroupPositions/unShareGroup`,data);
