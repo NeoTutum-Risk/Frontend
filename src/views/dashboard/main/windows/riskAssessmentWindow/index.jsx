@@ -2105,7 +2105,7 @@ export const RiskAssessmentWindow = ({
             <MenuItem text="Share Group" onClick={handleShareGroup} />
             
               
-                {groups.find((grp) => grp.id === activeObject && grp.shared)
+                {groups.find((grp) => grp.id === activeObject && grp.shared && !grp.mainShared)
                   ? <MenuItem text="Unshare" onClick={handleUnshareGroup}/>
                   : null
               }
