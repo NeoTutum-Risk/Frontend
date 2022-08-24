@@ -407,7 +407,7 @@ export const RiskGroup = ({
             display: "flex",
           }}
         >
-          <span>{data.shared?(<Button icon="share" />):null}</span>
+          <span></span>
           <span><b>{data.name}</b></span>
           <span><b>{data.id - 2000000}</b></span>
           {/* {!expanded &&
