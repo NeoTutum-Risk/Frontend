@@ -111,20 +111,20 @@ export const emptyDatabase = () => serviceProvider.delete("/deleteAll");
 
 export const getRiskAssessment = (id) => serviceProvider(`/riskAssessments/${id}`);
 
-export const addRiskObjectProperties = (id,data) => serviceProvider.put(`/riskObjectProperties/${id}`,data);
+export const addRiskObjectProperties = (id, data) => serviceProvider.put(`/riskObjectProperties/${id}`, data);
 
 export const getRiskAssessmentTable = (id) => serviceProvider(`/riskAssessments/table/${id}`);
 
-export const updateReferenceGroupStatus = (id,data) => serviceProvider.put(`/referenceGroups/${id}`,data);
+export const updateReferenceGroupStatus = (id, data) => serviceProvider.put(`/referenceGroups/${id}`, data);
 
 export const UploadLookupFile = (data) => serviceProvider.post('/lookup', data);
 
 export const getAllLookup = () => serviceProvider('/lookup');
-export const getRiskAssessmentPhysicalTable  = (id) => serviceProvider(`/riskAssessments/physical/${id}`);
+export const getRiskAssessmentPhysicalTable = (id) => serviceProvider(`/riskAssessments/physical/${id}`);
 
-export const updateRiskObjectPosition = (riskAssessmenId,id, data) => serviceProvider.put(`/riskObjects/positions/${riskAssessmenId}/${id}`, data);
+export const updateRiskObjectPosition = (riskAssessmenId, id, data) => serviceProvider.put(`/riskObjects/positions/${riskAssessmenId}/${id}`, data);
 
-export const addRiskConnection = (data) => serviceProvider.post(`/riskConnections`,data);
+export const addRiskConnection = (data) => serviceProvider.post(`/riskConnections`, data);
 
 export const deleteRiskConnection = (id) => serviceProvider.delete(`/riskConnections/${id}`);
 
@@ -132,21 +132,21 @@ export const deleteInstanceRiskConnection = (id) => serviceProvider.delete(`/dat
 
 export const deleteInstanceConnection = (id) => serviceProvider.delete(`/dataObjectNewConnections/${id}`);
 
-export const addRiskAssessmentGroup = (data) => serviceProvider.post(`/riskObjectGroups`,data);
+export const addRiskAssessmentGroup = (data) => serviceProvider.post(`/riskObjectGroups`, data);
 
-export const updateRiskAssessmentGroup = (groupId,riskAssessmenId, data) => serviceProvider.put(`/riskObjectGroups/${riskAssessmenId}/${groupId}`,data);
+export const updateRiskAssessmentGroup = (groupId, riskAssessmenId, data) => serviceProvider.put(`/riskObjectGroups/${riskAssessmenId}/${groupId}`, data);
 
 export const deleteRiskAssessmentGroup = (id) => serviceProvider.delete(`/riskObjectGroups/${id}`);
 
-export const addRiskTemplate = (data) => serviceProvider.post(`/riskTemplates`,data);
+export const addRiskTemplate = (data) => serviceProvider.post(`/riskTemplates`, data);
 
-export const addGroupFromTemplate = (data) => serviceProvider.post(`/riskTemplates/createRiskObjectGroup`,data);
+export const addGroupFromTemplate = (data) => serviceProvider.post(`/riskTemplates/createRiskObjectGroup`, data);
 
 export const getTemplates = () => serviceProvider(`/riskTemplates`);
 
-export const getRiskObjectProperties = (data) => serviceProvider.post(`/riskObjects/properties`,data);
+export const getRiskObjectProperties = (data) => serviceProvider.post(`/riskObjects/properties`, data);
 
-export const updateRiskObject = (id,data) => serviceProvider.put(`/riskObjects/edit/${id}`,data);
+export const updateRiskObject = (id, data) => serviceProvider.put(`/riskObjects/edit/${id}`, data);
 
 export const getRiskObject = (id) => serviceProvider(`/riskObjects/${id}`);
 
@@ -154,9 +154,9 @@ export const getAllPortfolios = () => serviceProvider('/portfolios');
 
 export const getGroups = () => serviceProvider(`/riskObjectGroups`);
 
-export const importGroup = (data) => serviceProvider.post(`/riskGroupPositions`,data);
+export const importGroup = (data) => serviceProvider.post(`/riskGroupPositions`, data);
 
-export const getRiskAssessmentHeatMap = ({riskAssessmentId, lookupPropertyId = 169}, riskType = null) => serviceProvider(`/platData/${riskAssessmentId}/${lookupPropertyId}${riskType ? `?riskType=${riskType}` : ''}`)
+export const getRiskAssessmentHeatMap = ({ riskAssessmentId, lookupPropertyId = 169 }, riskType = null) => serviceProvider(`/platData/${riskAssessmentId}/${lookupPropertyId}${riskType ? `?riskType=${riskType}` : ''}`)
 
 export const getRiskAssessmentDrillDown = (data) => serviceProvider.post('/platData/drillDownCharts', data)
 
@@ -164,23 +164,23 @@ export const getAllTreeMap = () => serviceProvider('/platData/drillDownTreeMap')
 
 export const getNewDataObjects = () => serviceProvider(`dataObjectNew`);
 
-export const addNewDataObjects = (data) => serviceProvider.post(`dataObjectNew`,data);
+export const addNewDataObjects = (data) => serviceProvider.post(`dataObjectNew`, data);
 
-export const addNewDataObjectInstance = (data) => serviceProvider.post(`dataObjectNewProperties`,data);
+export const addNewDataObjectInstance = (data) => serviceProvider.post(`dataObjectNewProperties`, data);
 
-export const updateNewDataObjectInstance = (id,data) => serviceProvider.put(`dataObjectNewProperties/${id}`,data);
+export const updateNewDataObjectInstance = (id, data) => serviceProvider.put(`dataObjectNewProperties/${id}`, data);
 
-export const updateNewDataObjectInstanceNew = (riskAssessmenId,id,data) => serviceProvider.put(`dataObjectNewProperties/positions/${riskAssessmenId}/${id}`,data);
+export const updateNewDataObjectInstanceNew = (riskAssessmenId, id, data) => serviceProvider.put(`dataObjectNewProperties/positions/${riskAssessmenId}/${id}`, data);
 
-export const addInstanceConnection = (data) => serviceProvider.post(`dataObjectNewConnections`,data);
+export const addInstanceConnection = (data) => serviceProvider.post(`dataObjectNewConnections`, data);
 
-export const addInstanceObjectConnection = (data) => serviceProvider.post(`dataObjectNewRiskObjectConnections`,data);
+export const addInstanceObjectConnection = (data) => serviceProvider.post(`dataObjectNewRiskObjectConnections`, data);
 
-export const editGroup = (riskAssessmentId,riskGroupId,data) => serviceProvider.put(`riskObjectGroups/editGroup/${riskAssessmentId}/${riskGroupId}`,data);
+export const editGroup = (riskAssessmentId, riskGroupId, data) => serviceProvider.put(`riskObjectGroups/editGroup/${riskAssessmentId}/${riskGroupId}`, data);
 
 export const deleteProperty = (id) => serviceProvider.delete(`/riskObjects/properties/${id}`);
 
-export const updateProperty = (id,data) => serviceProvider.put(`riskObjects/properties/${id}`,data);
+export const updateProperty = (id, data) => serviceProvider.put(`riskObjects/properties/${id}`, data);
 
 export const findJSONData = (data) => serviceProvider.post("JSONAnalytics/JsonIO", data);
 
@@ -189,14 +189,14 @@ export const checkDeletedPhysicalDataObj = (bpmnId) => serviceProvider(`bpmnFile
 
 export const getRiskAssessmentViews = (id) => serviceProvider(`filterViews/riskAssessment/${id}`);
 
-export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews`,data);
+export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews`, data);
 
-export const updateRiskAssessmentView = (id,data) => serviceProvider.put(`filterViews/${id}`,data);
+export const updateRiskAssessmentView = (id, data) => serviceProvider.put(`filterViews/${id}`, data);
 
-export const testGetRiskAssessment = (id) => serviceProvider(`riskAssessments/v2/RA-Analytics/${id}`)
+export const testGetRiskAssessment = (id) => serviceProvider(`JSONAnalytics/RA-Analytics-IO/${id}`)
 
 export const updateRiskAssessmentWindowSettings = (id, data) => serviceProvider.put(`riskAssessments/${id}`, data)
 
 export const getRiskAssessmentWindowSettings = (id) => serviceProvider(`/riskAssessments/WindowSettings/${id}`)
 
-export const addObjectToGroup = (data) => serviceProvider.post(`riskObjectGroups/addObject/Group`,data);
+export const addObjectToGroup = (data) => serviceProvider.post(`riskObjectGroups/addObject/Group`, data);
