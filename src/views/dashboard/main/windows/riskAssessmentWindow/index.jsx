@@ -48,6 +48,7 @@ import {
   addRiskAssessmentView,
   updateRiskAssessmentView,
   addObjectToGroup,
+  unshareGroup,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -1868,6 +1869,23 @@ export const RiskAssessmentWindow = ({
     }
   }, [activeObject, importObjectFile, riskAssessmentData, resetContext]);
 
+  const handleUnshareGroup = useCallback(async () => {
+    try {
+      const response = await unshareGroup({
+        riskAssessmentId: window.data.id,
+        riskGroupId: activeObject,
+      });
+      if (response.status >= 200 && response.status < 300) {
+        setGroups((prev) => prev.filter((grp) => grp.id !== activeObject));
+        resetContext();
+      } else {
+        showDangerToaster(`Error unsharing group`);
+      }
+    } catch (error) {
+      showDangerToaster(`Error unsharing group: ${error}`);
+    }
+  }, [window.data.id, activeObject, resetContext]);
+
   return (
     <>
       <Window
@@ -1925,6 +1943,7 @@ export const RiskAssessmentWindow = ({
             checkFilter={checkFilter}
             checkConnctionVisibility={checkConnctionVisibility}
             setGroups={setGroups}
+            handleUnshareGroup={handleUnshareGroup}
           />
         )}
       </Window>
@@ -2085,6 +2104,10 @@ export const RiskAssessmentWindow = ({
             />
 
             <MenuItem text="Share Group" onClick={handleShareGroup} />
+
+            {groups.find((grp) => grp.id === activeObject && grp.shared) ? (
+              <MenuItem text="Unshare" onClick={handleUnshareGroup} />
+            ) : null}
           </Menu>
         )}
 

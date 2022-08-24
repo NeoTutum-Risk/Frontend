@@ -31,7 +31,8 @@ export const DataObject = ({
   enviroDimension,
   addToGroup,
   groups,
-  handleContextMenu
+  handleContextMenu,
+  shared
 }) => {
   const [importObjectFile, setImportObjectFile] = useState(null);
   const [size, setSize] = useState({ w: data.width, h: data.height });
@@ -299,6 +300,7 @@ export const DataObject = ({
               className="panningDisabled pinchDisabled wheelDisabled"
             >
               <Button
+              disabled={shared}
                 small={true}
                 intent={!data.disable ? "warning" : "primary"}
                 onClick={() =>
@@ -315,7 +317,7 @@ export const DataObject = ({
                 {!data.disable ? "Disable" : "Enable"}
               </Button>
               <Button
-                disabled={data.disable}
+                disabled={shared || data.disable}
                 small={true}
                 className="panningDisabled pinchDisabled wheelDisabled"
                 intent={data.status === "invisible" ? "primary" : "warning"}
@@ -366,7 +368,7 @@ export const DataObject = ({
                 </>
               ) : groupId ? (
                 <Button
-                  disabled={data.disable}
+                  disabled={shared || data.disable}
                   small={true}
                   onClick={() => {
                     setEditGroup(true);
@@ -456,7 +458,7 @@ export const DataObject = ({
                 <Button
                   // fill={true}
                   className="panningDisabled pinchDisabled wheelDisabled"
-                  disabled={data.disable}
+                  disabled={shared || data.disable}
                   title="Edit"
                   intent="primary"
                   small={true}
@@ -493,7 +495,7 @@ export const DataObject = ({
                 </>
               )}
               <Button
-                disabled={data.disable}
+                disabled={shared || data.disable}
                 small={true}
                 className="panningDisabled pinchDisabled wheelDisabled"
                 intent={data.status === "delete" ? "warning" : "danger"}

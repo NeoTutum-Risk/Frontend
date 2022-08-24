@@ -18,6 +18,7 @@ export const ClosedFace = ({
   showProperties,
   groups,
   addToGroup,
+  shared
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
@@ -146,7 +147,7 @@ export const ClosedFace = ({
           </>
         ) : groupId ? (
           <Button
-            disabled={!data["position.enabled"]}
+            disabled={shared || !data["position.enabled"]}
             small={true}
             onClick={() => {
               setEditGroup(true);
@@ -245,6 +246,7 @@ export const ClosedFace = ({
       <div className="risk-object-closed-header panningDisabled">
         <Button
           small={true}
+          disabled={shared}
           intent={data["position.enabled"] ? "warning" : "primary"}
           onClick={() => {
             setShowProperties(false);
@@ -265,7 +267,7 @@ export const ClosedFace = ({
           {data["position.enabled"] ? "Disable" : "Enable"}
         </Button>
         <Button
-          disabled={!data["position.enabled"]}
+          disabled={shared || !data["position.enabled"]}
           small={true}
           intent={data.status === "invisible" ? "primary" : "warning"}
           active={activeAttribute === "N"}
@@ -301,7 +303,7 @@ export const ClosedFace = ({
           Properties
         </Button>
         <Button
-          disabled={!data["position.enabled"]}
+          disabled={shared || !data["position.enabled"]}
           small={true}
           intent={data.status === "delete" ? "warning" : "danger"}
           active={activeAttribute === "N"}
@@ -371,7 +373,7 @@ export const ClosedFace = ({
         {!edit ? (
           <Button
             fill={true}
-            disabled={!data["position.enabled"]}
+            disabled={shared || !data["position.enabled"]}
             title="Edit"
             intent="primary"
             small={true}
