@@ -242,7 +242,7 @@ export const RiskAssessment = ({
                           fontSize: `${globalScale*24}px`,
                         }}
                       >
-                        {edge.name}
+                        {edge.name!=="No name"?edge.name:''}
                       </div>
                     ) : (
                       ``
@@ -288,7 +288,7 @@ export const RiskAssessment = ({
                           fontSize: `${globalScale*24}px`,
                         }}
                       >
-                        {edge.name}
+                        {edge.name!=="No name"?edge.name:''}
                       </div>
                     ) : (
                       ``
@@ -340,7 +340,7 @@ export const RiskAssessment = ({
                           fontSize: `${globalScale*24}px`,
                         }}
                       >
-                        {edge.name}
+                        {edge.name!=="No name"?edge.name:''}
                       </div>
                     ) : (
                       ``
@@ -489,10 +489,10 @@ export const RiskAssessment = ({
                     ? groups.map(
                         (group, index) =>
                           Number(
-                            group.elements.filter((element) => element).length
+                            group.elements.filter((element) => element && element.status!=="delete").length
                           ) +
                             Number(
-                              group.dataObjects.filter((element) => element)
+                              group.dataObjects.filter((element) => element && element.status!=="delete")
                                 .length
                             ) >
                             0 && (

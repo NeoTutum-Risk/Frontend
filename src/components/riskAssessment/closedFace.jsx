@@ -186,7 +186,7 @@ export const ClosedFace = ({
                         Select Group
                       </option>
                       {groups.map((grp) => (
-                        <option value={grp.id}>{grp.name}</option>
+                        <option value={grp.id}>{`${Number(grp.id)-2000000}-${grp.name}`}</option>
                       ))}
                     </HTMLSelect>
                   </FormGroup>

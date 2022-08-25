@@ -2757,7 +2757,7 @@ export const RiskAssessmentWindow = ({
                 labelFor="newLinkName"
               >
                 <InputGroup
-                  required
+                  // required
                   id="newLinkName"
                   onChange={(event) => {
                     setLinkNameError(null);
