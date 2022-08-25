@@ -1038,7 +1038,11 @@ export const RiskAssessmentWindow = ({
   const getChildren = useCallback(
     (object) => {
       return object?.children.length > 0 ? (
-        <MenuItem MenuItem text={object.name}>
+        <MenuItem
+          MenuItem
+          text={object.name}
+          onClick={() => contextMenuAction([...object.testPath, object.id])}
+        >
           {object.children.map((subObject) => getChildren(subObject))}
         </MenuItem>
       ) : object.path ? (
@@ -1865,25 +1869,22 @@ export const RiskAssessmentWindow = ({
     }
   }, [activeObject, importObjectFile, riskAssessmentData, resetContext]);
 
-  const handleUnshareGroup = useCallback(
-    async () => {
-      try {
-        const response = await unshareGroup({
-          riskAssessmentId: window.data.id,
-          riskGroupId: activeObject,
-        });
-        if (response.status >= 200 && response.status < 300) {
-          setGroups((prev) => prev.filter((grp) => grp.id !== activeObject));
-          resetContext();
-        } else {
-          showDangerToaster(`Error unsharing group`);
-        }
-      } catch (error) {
-        showDangerToaster(`Error unsharing group: ${error}`);
+  const handleUnshareGroup = useCallback(async () => {
+    try {
+      const response = await unshareGroup({
+        riskAssessmentId: window.data.id,
+        riskGroupId: activeObject,
+      });
+      if (response.status >= 200 && response.status < 300) {
+        setGroups((prev) => prev.filter((grp) => grp.id !== activeObject));
+        resetContext();
+      } else {
+        showDangerToaster(`Error unsharing group`);
       }
-    },
-    [window.data.id,activeObject,resetContext]
-  );
+    } catch (error) {
+      showDangerToaster(`Error unsharing group: ${error}`);
+    }
+  }, [window.data.id, activeObject, resetContext]);
 
   return (
     <>
@@ -2103,13 +2104,12 @@ export const RiskAssessmentWindow = ({
             />
 
             <MenuItem text="Share Group" onClick={handleShareGroup} />
-            
-              
-                {groups.find((grp) => grp.id === activeObject && grp.shared && !grp.mainShared)
-                  ? <MenuItem text="Unshare" onClick={handleUnshareGroup}/>
-                  : null
-              }
-             
+
+            {groups.find(
+              (grp) => grp.id === activeObject && grp.shared && !grp.mainShared
+            ) ? (
+              <MenuItem text="Unshare" onClick={handleUnshareGroup} />
+            ) : null}
           </Menu>
         )}
 
