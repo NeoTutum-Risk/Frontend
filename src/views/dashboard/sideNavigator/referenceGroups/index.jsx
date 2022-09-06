@@ -11,6 +11,7 @@ import {
   Tree,
   HTMLSelect,
   FileInput,
+  Checkbox 
 } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Papa from "papaparse";
@@ -36,6 +37,7 @@ import { mapStatusToIcon } from "../../../../utils/mapStatusToIcon";
 import {windowDefault} from "../../../../constants";
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [append, setAppend] = useState(false);
   const [errors, setErrors] = useState([]);
   const setWindows = useSetRecoilState(windowsState);
   const [referenceGroups, setReferenceGroups] =
@@ -100,6 +102,7 @@ export const ReferenceGroups = () => {
     setDataObjectLevels(1);
     setDataObjectLevelsInput([]);
     setIsLoading(false);
+    setAppend(false);
   }, [
     setReferenceGroupPopOverOpenId,
     setDataObjectType,
@@ -357,6 +360,7 @@ export const ReferenceGroups = () => {
           // name: referenceGroupPopOverOpenName,
           referenceGroupId: referenceGroupPopOverOpenId,
           metaDataLevel2Id: dataObjectType,
+          append,
           levelsArray: dataObjectLevelsInput.map((level) => {
             return {
               name: level.name,
@@ -365,8 +369,12 @@ export const ReferenceGroups = () => {
                   index: array[0],
                   label: array[1],
                   rank: array[2],
-                  name: array[3],
-                  description: array[4],
+                  level: array[3],
+                  color: array[4],
+                  name: array[5],
+                  description: array[6],
+                  type: array[7].split(','),
+                  scalar: array[8].split(',')
                 };
               }),
             };
@@ -413,7 +421,7 @@ export const ReferenceGroups = () => {
         setIsLoading(false);
       }
     },
-    [
+    [append,
       clearData,
       dataObjectLevelsInput,
       dataObjectType,
@@ -463,6 +471,8 @@ export const ReferenceGroups = () => {
               )}
             </HTMLSelect>
           </FormGroup>
+
+            <Checkbox label="Append" value={append} onChange={()=>setAppend(prev=>!prev)}/>
           <FormGroup
             label="Levels"
             labelInfo="(required)"

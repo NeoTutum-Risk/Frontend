@@ -30,9 +30,16 @@ export const FlowChartWindow = ({
         id: element.id,
         x:element.x,
         y:element.y,
+        width:element.width,
+        height:element.height,
+        rank:element.rank,
+        color:element.color,
+        type:element.Type,
+        scalar:element.Scalar,
         level_value: level.level_value,
         level_name: level.name,
         level_id: level.id,
+        level:element.level,
         connections:element.dataObjectConnections
       };
     });
