@@ -46,8 +46,8 @@ export const DataObject = ({
   const updateXarrow = useXarrow();
   const [drag, setDrag] = useState({
     active: false,
-    cy: data.y >= 0 ? data.y+25000 : 0,
-    cx: data.x >= 0 ? data.x+25000 : 0,
+    cy: data.y >= 0 ? data.y : 0,
+    cx: data.x >= 0 ? data.x : 0,
   });
   const updateSize = useCallback(
     async (delta, direction, position) => {
@@ -69,8 +69,8 @@ export const DataObject = ({
       const updateOjectPosition = await updateDataObjectElement(
         data.id,
         {
-          x: Math.round(position.x)-25000,
-          y: Math.round(position.y)-25000,
+          x: Math.round(position.x),
+          y: Math.round(position.y),
           width: w,
           height: h,
           // enabled: data["position.enabled"],
@@ -138,8 +138,8 @@ export const DataObject = ({
       const updateOjectPosition = await updateDataObjectElement(
         data.id,
         {
-          x: Math.round(d.x)-25000,
-          y: Math.round(d.y)-25000,
+          x: Math.round(d.x),
+          y: Math.round(d.y),
           // enabled: data["position.enabled"],
         }
       );
