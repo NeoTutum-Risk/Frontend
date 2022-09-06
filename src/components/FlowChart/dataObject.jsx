@@ -144,7 +144,7 @@ export const DataObject = ({
         }
       );
     },
-    [data, updateXarrow, enviroDimension, riskAssessmentId]
+    [data, updateXarrow, enviroDimension]
   );
 
   const handleClick = useCallback(
