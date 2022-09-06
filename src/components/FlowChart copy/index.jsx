@@ -1,71 +1,18 @@
 import { DataElement } from "./dataElement";
-import { Button, TextArea } from "@blueprintjs/core";
 import { ConnetionContext } from "./connectionContext";
-import React, {
-  useEffect,
-  useCallback,
-  useState,
-  useMemo,
-  useRef,
-} from "react";
+import { useEffect, useCallback, useState,useMemo } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { getDataObjectConnections } from "../../services";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { useRecoilState } from "recoil";
 import { windowsState } from "../../store/windows";
-import { DataObject } from "./dataObject";
-
 import {
   addNewElementsConnection,
   removeNewElementsConnection,
-  updateDataObjectElement,
+  updateDataObjectElement
 } from "../../services";
-export const FlowChart = ({
-  graph,
-  handleContextMenu,
-  setFirstContext,
-  setHoveredElement,
-  handleObjectAction,
-  removeFromGroup,
-  addToGroup,
-}) => {
-  const [enviroDimension, setEnviroDimension] = useState({
-    height: 50000,
-    width: 50000,
-  });
+export const FlowChart = ({ graph }) => {
 
-  const getCenter = useCallback(() => {
-    let objectsArray = [...graph.nodes];
-    let top = enviroDimension.height;
-    let left = enviroDimension.width;
-    let right = 0,
-      bottom = 0;
-    // groups.forEach((grp) => {
-    //   if (grp.elements.length > 1) {
-    //     objectsArray = [...objectsArray, ...grp.elements];
-    //   }
-    // });
-
-    objectsArray.forEach((obj) => {
-      if (obj !== null) {
-        top = obj["position.y"] < top ? obj["position.y"] : top;
-        left = obj["position.x"] < left ? obj["position.x"] : left;
-        bottom = obj["position.y"] > bottom ? obj["position.y"] : bottom;
-        right = obj["position.x"] > right ? obj["position.x"] : right;
-      }
-    });
-
-    return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top };
-  }, [enviroDimension, graph.nodes /* groups*/]);
-
-  const [raSettings, setRASettings] = useState({
-    id: 0,
-    positionX: -Math.floor(getCenter().x),
-    positionY: -Math.floor(getCenter().y),
-    previousScale: 1,
-    scale: 1,
-  });
-  const [globalScale, setGlobalScale] = useState(1);
   console.log("flow rerendered");
   const updateXarrow = useXarrow();
   const [selectedElements, setSelectedElements] = useState([]);
@@ -77,9 +24,8 @@ export const FlowChart = ({
   const getEdges = useCallback(async () => {
     const response = await getDataObjectConnections();
     setEdges(response.data.data);
+    
   }, []);
-
-  const transformWrapperRef = useRef(null);
 
   useEffect(() => {
     getEdges();
@@ -293,190 +239,61 @@ export const FlowChart = ({
     console.log("ZOOMPANPINCH");
   }, [updateXarrow]);
 
-  const updateAndDeselect = useCallback(() => {
-    let updatableElement, updateElementPosition;
-    selectedElements.forEach(async (element) => {
-      updatableElement = nodes.find((item) => item.id === element.id);
-      updateElementPosition = await updateDataObjectElement(
-        updatableElement.id,
-        {
-          x: updatableElement.x,
-          y: updatableElement.y,
-        }
-      );
+  const updateAndDeselect = useCallback(()=>{
+    let updatableElement,updateElementPosition;
+    selectedElements.forEach(async(element)=>{
+      updatableElement= nodes.find(item=>item.id===element.id);
+       updateElementPosition = await updateDataObjectElement(updatableElement.id, {
+        x: updatableElement.x,
+        y: updatableElement.y,
+      });
     });
 
     setSelectedElements([]);
-  }, [selectedElements, nodes]);
+  },[selectedElements,nodes])
 
   return (
     <Xwrapper>
-      {/* {edges.map((edge) => (
-        <Xarrow
-          path="smooth"
-          curveness={0.2}
-          strokeWidth={1}
-          start={String(edge.sourceId)}
-          end={String(edge.targetId)}
-          SVGcanvasStyle={{ overflow: "hidden" }}
-        />
-      ))} */}
-
       <TransformWrapper
-        zoomAnimation={{ disabled: true }}
-        initialScale={globalScale}
-        initialPositionX={raSettings.positionX}
-        initialPositionY={raSettings.positionY}
+        initialScale={0.5}
         minScale={0.1}
-        maxScale={5}
+        maxScale={1.8}
         doubleClick={{ disabled: true }}
-        onZoom={(ref, e) => {
-          console.log(e);
-          if (ref.state.scale < 0.1) {
-            ref.state.scale = 0.1;
-            e.zoomOut(0.1);
-          }
-          setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
-          updateXarrow();
-        }}
-        onZoomStop={(ref, e) => {
-          handleZoomPanPinch(ref, e);
-          setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
-          // setGlobalScale(ref.state.scale);
-          // console.log("event zoom1", e);
-          console.log("event zoom1", ref);
-
-          // console.log("offsetX", e.offsetX);
-          // console.log("offsetY", e.offsetY);
-          // setRASettings({
-          //   positionX: e.offsetX * -1,
-          //   positionY: e.offsetY * -1,
-          //   scale: ref.state.scale,
-          // });
-        }}
+        onZoom={updateXarrow}
+        onZoomStop={handleZoomPanPinch}
         onPinching={updateXarrow}
         onPinchingStop={handleZoomPanPinch}
         onPanning={updateXarrow}
         onPanningStop={handleZoomPanPinch}
-        panning={{
-          excluded: ["panningDisabled"],
-          activationKeys: ["Control"],
-        }}
-        pinch={{ excluded: ["pinchDisabled"] }}
-        wheel={{
-          excluded: ["wheelDisabled"],
-          step: 0.2,
-        }}
-        ref={transformWrapperRef}
       >
-        {({ zoomIn, zoomOut, resetTransform, setTransform, ...rest }) => (
-          <React.Fragment>
-            <div
-              style={{
-                display: "inline",
-                position: "absolute",
-                zIndex: "99",
-              }}
-            >
-              <Button
-                small={true}
-                fill={false}
-                icon="plus"
-                onClick={(e) => {
-                  zoomIn();
-                  setGlobalScale((prev) => (prev += 0.2));
-                }}
+        <TransformComponent
+          wrapperStyle={{ width: "600%", height: "600%" }}
+          contentStyle={{ width: "600%", height: "600%" }}
+        >
+          <svg width={"600%"} height={"600%"} onClick={handleClick}>
+            {nodes.map((node) => (
+              <DataElement
+                data={node}
+                elementSelection={elementSelection}
+                showContext={showContext}
+                selectedElements={selectedElements}
+                setNodes={setNodes}
               />
-              <Button
-                small={true}
-                fill={false}
-                icon="minus"
-                onClick={() => {
-                  zoomOut();
-                  setGlobalScale((prev) => (prev -= 0.2));
-                }}
-              />
-              <Button
-                small={true}
-                fill={false}
-                icon="reset"
-                onClick={() => {
-                  setRASettings({
-                    id: 0,
-                    positionX: -Math.floor(getCenter().x),
-                    positionY: -Math.floor(getCenter().y),
-                    scale: 1,
-                    previousScale: 1,
-                  });
-                  setTransform(
-                    -Math.floor(getCenter().x),
-                    -Math.floor(getCenter().y),
-                    1
-                  );
+            ))}
 
-                  setGlobalScale(1);
-                }}
-              />
-            </div>
-            <TransformComponent
-              wrapperStyle={{
-                width: "100%",
-                height: "100%",
-              }}
-              contentStyle={{
-                width: `${enviroDimension.width}px`,
-                height: `${enviroDimension.height}px`,
-                // backgroundColor: "white",
-              }}
-            >
-              <div
-                style={{
-                  overflow: "auto",
-                  height: `${enviroDimension.height}px`,
-                  width: `${enviroDimension.width}px`,
-                  position: "relative",
-                  border: "5px solid grey",
-                }}
-                onScroll={updateXarrow}
-                onContextMenu={(e) => {
-                  // console.log(e);
-                  // handleContextMenu(e, { from: "main" });
-                }}
-                // onClick={resetContext}
-              >
-                {nodes.map((node) => (
-                  <DataObject
-                    // groups={groups.map((grp) => ({
-                    //   id: grp.id,
-                    //   name: grp.name,
-                    // }))}
-                    handleContextMenu={handleContextMenu}
-                    scale={globalScale}
-                    expanded={true}
-                    data={node}
-                    selectedElements={selectedElements}
-                    elementSelection={elementSelection}
-                    setFirstContext={setFirstContext}
-                    setHoveredElement={setHoveredElement}
-                    handleObjectAction={handleObjectAction}
-                    removeFromGroup={removeFromGroup}
-                    addToGroup={addToGroup}
-                    key={`rf-${node.id}`}
-                    enviroDimension={enviroDimension}
-                    shared={0}
-                  />
-                ))}
-
-                {contextMenu.show && (
-                  <ConnetionContext
-                    data={contextMenu}
-                    updateAndDeselect={updateAndDeselect}
-                  />
-                )}
-              </div>
-            </TransformComponent>
-          </React.Fragment>
-        )}
+            {contextMenu.show && <ConnetionContext data={contextMenu} updateAndDeselect={updateAndDeselect} />}
+          </svg>
+        </TransformComponent>
+        {edges.map((edge) => (
+          <Xarrow
+            path="smooth"
+            curveness={0.2}
+            strokeWidth={1}
+            start={String(edge.sourceId)}
+            end={String(edge.targetId)}
+            SVGcanvasStyle={{ overflow: "hidden" }}
+          />
+        ))}
       </TransformWrapper>
     </Xwrapper>
   );

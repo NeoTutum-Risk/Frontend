@@ -365,8 +365,12 @@ export const ReferenceGroups = () => {
                   index: array[0],
                   label: array[1],
                   rank: array[2],
-                  name: array[3],
-                  description: array[4],
+                  level: array[3],
+                  color: array[4],
+                  name: array[5],
+                  description: array[6],
+                  type: array[7].split(','),
+                  scalar: array[8].split(',')
                 };
               }),
             };

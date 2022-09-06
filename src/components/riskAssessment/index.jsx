@@ -131,7 +131,7 @@ export const RiskAssessment = ({
 
     //   setloadingZoomSettings(false);
     // });
-  }, [riskAssessmentId, enviroDimension]);
+  }, [riskAssessmentId, enviroDimension,getCenter]);
 
   useEffect(() => {
     if (raSettings.hasOwnProperty("id")) {
