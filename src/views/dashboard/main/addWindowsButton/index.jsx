@@ -434,13 +434,13 @@ export const AddWindowsButton = ({ data }) => {
         <Menu>
           {data.type === "flowchart" ? (
             <>
-              {data.data.dataObjectLevels.map((level) => (
+              {/* {data.data.dataObjectLevels.map((level) => (
                 <MenuItem
                   icon="th"
                   text={level.name}
                   onClick={() => onLevelClick(level.id)}
                 />
-              ))}
+              ))} */}
             </>
           ) : data.type === "risk" ? (
             <>
