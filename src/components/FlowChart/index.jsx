@@ -21,21 +21,29 @@ import {
   updateDataObjectElement,
 } from "../../services";
 export const FlowChart = ({
-  graph,
+  objects,
+  groups,
+  connections,
   handleContextMenu,
   setFirstContext,
   setHoveredElement,
   handleObjectAction,
   removeFromGroup,
   addToGroup,
+  rootCall,
+  selectedElements,
+  setSelectedElements,
+  globalViewIndex,
+  views,
 }) => {
+  // console.log(`nodes`,graph.nodes)
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
     width: 50000,
   });
 
   const getCenter = useCallback(() => {
-    let objectsArray = [...graph.nodes];
+    let objectsArray = [...objects];
     let top = enviroDimension.height;
     let left = enviroDimension.width;
     let right = 0,
@@ -48,15 +56,15 @@ export const FlowChart = ({
 
     objectsArray.forEach((obj) => {
       if (obj !== null) {
-        top = obj["position.y"] < top ? obj["position.y"] : top;
-        left = obj["position.x"] < left ? obj["position.x"] : left;
-        bottom = obj["position.y"] > bottom ? obj["position.y"] : bottom;
-        right = obj["position.x"] > right ? obj["position.x"] : right;
+        top = obj.y < top ? obj.y : top;
+        left = obj.x < left ? obj.x : left;
+        bottom = obj.y > bottom ? obj.y : bottom;
+        right = obj.x > right ? obj.x : right;
       }
     });
 
     return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top };
-  }, [enviroDimension, graph.nodes /* groups*/]);
+  }, [enviroDimension, objects /* groups*/]);
 
   const [raSettings, setRASettings] = useState({
     id: 0,
@@ -68,9 +76,9 @@ export const FlowChart = ({
   const [globalScale, setGlobalScale] = useState(1);
   console.log("flow rerendered");
   const updateXarrow = useXarrow();
-  const [selectedElements, setSelectedElements] = useState([]);
+  //
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
-  const [nodes, setNodes] = useState(graph.nodes);
+  const [nodes, setNodes] = useState(objects);
   // const [nodes,setNodes] = useState()
   const [edges, setEdges] = useState([]);
 
@@ -307,20 +315,20 @@ export const FlowChart = ({
     });
 
     setSelectedElements([]);
-  }, [selectedElements, nodes]);
+  }, [selectedElements, nodes, setSelectedElements]);
 
   return (
     <Xwrapper>
-      {/* {edges.map((edge) => (
+      {connections.map((edge) => (
         <Xarrow
           path="smooth"
           curveness={0.2}
           strokeWidth={1}
-          start={String(edge.sourceId)}
-          end={String(edge.targetId)}
+          start={String(`RF-D-${edge.sourceId}`)}
+          end={String(`RF-D-${edge.targetId}`)}
           SVGcanvasStyle={{ overflow: "hidden" }}
         />
-      ))} */}
+      ))}
 
       <TransformWrapper
         zoomAnimation={{ disabled: true }}
@@ -440,16 +448,19 @@ export const FlowChart = ({
                 onScroll={updateXarrow}
                 onContextMenu={(e) => {
                   // console.log(e);
-                  // handleContextMenu(e, { from: "main" });
+                  rootCall("context", { e, type: "mainContextMenu" });
                 }}
-                // onClick={resetContext}
+                onClick={() => rootCall("resetContext")}
               >
-                {nodes.map((node) => (
+                {objects.map((node) => (
                   <DataObject
                     // groups={groups.map((grp) => ({
                     //   id: grp.id,
                     //   name: grp.name,
                     // }))}
+
+                    globalViewIndex={globalViewIndex}
+                    views={views}
                     handleContextMenu={handleContextMenu}
                     scale={globalScale}
                     expanded={true}
@@ -464,6 +475,56 @@ export const FlowChart = ({
                     key={`rf-${node.id}`}
                     enviroDimension={enviroDimension}
                     shared={0}
+                    rootCall={rootCall}
+                    editableValues={[
+                      {
+                        name: "description",
+                        title: "Description",
+                        abbr: "Desc",
+                        label: true,
+                      },
+                      {
+                        name: "Type",
+                        title: "Type",
+                        abbr: "Type",
+                        label: true,
+                      },
+                      {
+                        name: "Scalar",
+                        title: "Scalar",
+                        abbr: "Scalar",
+                        label: true,
+                      },
+                      {
+                        name: "name",
+                        title: "Name",
+                        abbr: "Name",
+                        label: true,
+                      },
+                    ]}
+                    headerValues={[
+                      {
+                        name: "label",
+                        title: "Label",
+                        abbr: "Label",
+                        editable: true,
+                        label: false,
+                      },
+                      {
+                        name: "levelValue",
+                        title: "Level",
+                        abbr: "Level",
+                        editable: false,
+                        label: true,
+                      },
+                      {
+                        name: "",
+                        title: "REF",
+                        abbr: "",
+                        editable: false,
+                        label: true,
+                      },
+                    ]}
                   />
                 ))}
 
