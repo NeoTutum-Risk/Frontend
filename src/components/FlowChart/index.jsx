@@ -122,7 +122,7 @@ export const FlowChart = ({
       setTimeout(() => {
         setGlobalScale(raSettings.scale)
         initializeGlobalScale(false)
-      }, 1000);
+      }, 500);
     }
 })()
 

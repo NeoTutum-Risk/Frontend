@@ -170,7 +170,7 @@ export const RiskAssessment = ({
           setTimeout(() => {
             setGlobalScale(raSettings.scale)
             initializeGlobalScale(false)
-          }, 1000);
+          }, 500);
         }
     })()
    
@@ -440,7 +440,7 @@ export const RiskAssessment = ({
                   onClick={(e) => {
                     zoomIn();
                     setGlobalScale((prev) => (prev += 0.2));
-                  }}
+                  }} 
                 />
                 <Button
                   small={true}
