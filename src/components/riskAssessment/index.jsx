@@ -40,8 +40,8 @@ export const RiskAssessment = ({
   handleUnshareGroup,
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
-    height: 5000,
-    width: 5000,
+    height: 50000,
+    width: 50000,
   });
 
   const getCenter = useCallback(() => {
@@ -188,7 +188,7 @@ export const RiskAssessment = ({
       const raState = ref.state;
       // console.log("RA State before update settings:", raState);
       // setRASettings({ ...raState });
-      console.log(raState);
+      // console.log(raState);
       // setRASettings({
       //   positionX: -Math.floor(e.offsetX),
       //   positionY: -Math.floor(e.offsetY),
@@ -396,10 +396,10 @@ export const RiskAssessment = ({
           doubleClick={{ disabled: true }}
           onZoom={(ref, e) => {
             // console.log(ref);
-            // if (ref.state.scale < 0.1) {
-            //   ref.state.scale = 0.1;
-            //   e.zoomOut(0.1);
-            // }
+            if (ref.state.scale < 0.1) {
+              ref.state.scale = 0.1;
+              e.zoomOut(0.1);
+            }
             setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
             updateXarrow();
           }}
