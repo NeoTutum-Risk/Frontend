@@ -40,8 +40,8 @@ export const RiskAssessment = ({
   handleUnshareGroup,
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
-    height: 50000,
-    width: 50000,
+    height: 5000,
+    width: 5000,
   });
 
   const getCenter = useCallback(() => {
@@ -76,20 +76,23 @@ export const RiskAssessment = ({
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [globalScale, setGlobalScale] = useState(1);
+  const [initialGlobalScale, initializeGlobalScale] = useState(true)
   const [raSettings, setRASettings] = useState({
     id: 0,
     positionX: -Math.floor(getCenter().x),
     positionY: -Math.floor(getCenter().y),
     previousScale: 1,
     scale: 1,
+
   });
   const [loadingZoomSettings, setloadingZoomSettings] = useState(true);
 
   const getWindowSettings = async () => {
+    setloadingZoomSettings(true)
     const res = await getRiskAssessmentWindowSettings(riskAssessmentId);
 
     const { id, positionX, positionY, previousScale, scale } = res.data.data;
-
+    
     // const condX = positionX  > 0 ? -100 : positionX;
     // const condY = positionY  > 0 ? -100 : positionY;
 
@@ -101,10 +104,13 @@ export const RiskAssessment = ({
     //   previousScale: 1,
     // });
 
+      // setGlobalScale(scale)
+      // setGlobalScale(scale < 0.1 ? 0.1 : scale);
+      
     setRASettings({
-      id: 0,
-      positionX: Math.floor(positionX),
-      positionY: Math.floor(positionY),
+      id,
+      positionX,
+      positionY,
       scale,
       previousScale,
     });
@@ -158,7 +164,16 @@ export const RiskAssessment = ({
     [setSelectedElements, setSelectedObjects, selectedObjects]
   );
 
-  // console.log("selectedObjects", selectedObjects);
+    (() => {
+        if (initialGlobalScale) {
+          console.log('Setting Initial Global Scale');
+          setTimeout(() => {
+            setGlobalScale(raSettings.scale)
+            initializeGlobalScale(false)
+          }, 1000);
+        }
+    })()
+   
 
   const handleObjectProperty = useCallback(({ id, action }) => {
     if (action === "add") {
@@ -181,11 +196,14 @@ export const RiskAssessment = ({
       //   previousScale: ref.state.previousScale,
       // });
       setRASettings({
+        id: raSettings.id,
         positionX: raState.positionX,
         positionY: raState.positionY,
         scale: raState.scale,
         previousScale: raState.previousScale,
       });
+      setGlobalScale(raState.scale < 0.1 ? 0.1 : raState.scale);
+
       updateXarrow();
       setTimeout(updateXarrow, 0);
       setTimeout(updateXarrow, 100);
@@ -195,9 +213,11 @@ export const RiskAssessment = ({
     },
     [updateXarrow]
   );
+  
+  // console.log('raSettings -> ',raSettings);    
+  // console.log('globalScale -> ',globalScale);    
 
-// console.log(raSettings.positionX, raSettings.positionY);    
-  if (loadingZoomSettings) {
+  if (loadingZoomSettings || initialGlobalScale) {
     return "";
   } else {
     return (
@@ -207,7 +227,6 @@ export const RiskAssessment = ({
       //   onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
       //   onClick={resetContext}
       // >
-
       <Xwrapper>
         {instanceConnections.map(
           (edge) =>
@@ -437,13 +456,6 @@ export const RiskAssessment = ({
                   fill={false}
                   icon="reset"
                   onClick={() => {
-                    setRASettings({
-                      id: 0,
-                      positionX: -Math.floor(getCenter().x),
-                      positionY: -Math.floor(getCenter().y),
-                      scale: 1,
-                      previousScale: 1,
-                    });
                     setTransform(
                       -Math.floor(getCenter().x),
                       -Math.floor(getCenter().y),
@@ -464,12 +476,10 @@ export const RiskAssessment = ({
                 wrapperStyle={{
                   width: "100%",
                   height: "100%",
-                  backgroundImage: 'linear-gradient(red, yellow)'
                 }}
                 contentStyle={{
                   width: `${enviroDimension.width}px`,
                   height: `${enviroDimension.height}px`,
-                  backgroundColor: "green",
                 }}
               >
                 <div
@@ -482,7 +492,6 @@ export const RiskAssessment = ({
                   }}
                   onScroll={updateXarrow}
                   onContextMenu={(e) => {
-                    // console.log(e);
                     handleContextMenu(e, { from: "main" });
                   }}
                   onClick={resetContext}
