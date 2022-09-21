@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import { editableValues, headerValues } from "./data/refElementStructure";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { getDataObjectConnections } from "../../services";
+import { getDataObjectConnections, getReferenceWindowSettings, updateReferenceWindowSettings } from "../../services";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { useRecoilState } from "recoil";
 import { windowsState } from "../../store/windows";
@@ -37,12 +37,14 @@ export const FlowChart = ({
   setSelectedElements,
   globalViewIndex,
   views,
+  dataObjectId
 }) => {
   // console.log(`nodes`,graph.nodes)
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
     width: 50000,
   });
+
 
   const getCenter = useCallback(() => {
     let objectsArray = [...objects];
@@ -76,6 +78,9 @@ export const FlowChart = ({
     scale: 1,
   });
   const [globalScale, setGlobalScale] = useState(1);
+  const [initialGlobalScale, initializeGlobalScale] = useState(true)
+  const [loadingZoomSettings, setloadingZoomSettings] = useState(true);
+
   console.log("flow rerendered");
   const updateXarrow = useXarrow();
   //
@@ -83,6 +88,47 @@ export const FlowChart = ({
   const [nodes, setNodes] = useState(objects);
   // const [nodes,setNodes] = useState()
   const [edges, setEdges] = useState([]);
+
+  
+  const getWindowSettings = async () => {
+    setloadingZoomSettings(true)
+    const res = await getReferenceWindowSettings(dataObjectId);
+
+    const { id, positionX, positionY, previousScale, scale } = res.data.data;
+    setRASettings({
+      id,
+      positionX,
+      positionY,
+      scale,
+      previousScale,
+    });
+  };
+
+  useEffect(() => {
+    getWindowSettings().then(() => {
+      setloadingZoomSettings(false);
+    });
+  }, [dataObjectId, enviroDimension, getCenter]);
+
+  const updateRAWindowSettings = async () => {
+    console.log('beforeupdate', raSettings);
+
+    await updateReferenceWindowSettings(dataObjectId, raSettings);
+
+    console.log("RA Setting Updated updated");
+  };
+
+  (() => {
+    if (initialGlobalScale) {
+      console.log('Setting Initial Global Scale');
+      setTimeout(() => {
+        setGlobalScale(raSettings.scale)
+        initializeGlobalScale(false)
+      }, 500);
+    }
+})()
+
+
 
   const getEdges = useCallback(async () => {
     const response = await getDataObjectConnections();
@@ -294,7 +340,17 @@ export const FlowChart = ({
     setContextMenu((prev) => ({ ...prev, show: false }));
   }, []);
 
-  const handleZoomPanPinch = useCallback(() => {
+  const handleZoomPanPinch = useCallback((ref, e) => {
+    const raState = ref.state;
+    setRASettings({
+      id: raSettings.id,
+      positionX: raState.positionX,
+      positionY: raState.positionY,
+      scale: raState.scale,
+      previousScale: raState.previousScale,
+    });
+    setGlobalScale(raState.scale < 0.1 ? 0.1 : raState.scale);
+
     updateXarrow();
     // setTimeout(updateXarrow, 0);
     setTimeout(updateXarrow, 100);
@@ -319,6 +375,9 @@ export const FlowChart = ({
     setSelectedElements([]);
   }, [selectedElements, nodes, setSelectedElements]);
 
+  if (loadingZoomSettings || initialGlobalScale) {
+    return "";
+  } else {
   return (
     <Xwrapper>
       {connections.map((edge) => (
@@ -334,7 +393,7 @@ export const FlowChart = ({
 
       <TransformWrapper
         zoomAnimation={{ disabled: true }}
-        initialScale={globalScale}
+        initialScale={raSettings.scale}
         initialPositionX={raSettings.positionX}
         initialPositionY={raSettings.positionY}
         minScale={0.1}
@@ -427,6 +486,12 @@ export const FlowChart = ({
                   setGlobalScale(1);
                 }}
               />
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="tick"
+                  onClick={updateRAWindowSettings}
+                />
             </div>
             <TransformComponent
               wrapperStyle={{
@@ -531,3 +596,4 @@ export const FlowChart = ({
     </Xwrapper>
   );
 };
+}

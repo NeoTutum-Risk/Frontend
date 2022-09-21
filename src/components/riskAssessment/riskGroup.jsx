@@ -34,7 +34,7 @@ export const RiskGroup = ({
   addToGroup,
   handleUnshareGroup
 }) => {
-  console.log(data.id)
+  // console.log(data.id)
   // const updateXarrow = useXarrow();
   const [size,setSize] = useState({ w: data.currentWidth, h: data.currentHeight });
   const [expanded, setExpanded] = useState(data.currentExpanded);
