@@ -7,6 +7,11 @@ import {
   getDataObjectConnections,
   getDataObject,
   removeNewElementsConnection,
+  updateDataObjectElement,
+  addElementGroup,
+  updateElementGroup,
+  addElementToGroup,
+  removeElementFromGroup,
 } from "../../../../../services";
 import { platformState } from "../../../../../store/portfolios";
 import { elementSelectorState } from "../../../../../store/elementSelector";
@@ -15,6 +20,8 @@ import { Window } from "../window";
 import { FlowChart } from "../../../../../components/FlowChart";
 import { FloatingContext } from "../../../../../components/FlowChart/context/floatingContext";
 import { ContextMenuComponent } from "../../../../../components/FlowChart/context/contextMenuComponent";
+import { type } from "@testing-library/user-event/dist/type";
+import { GroupFrom } from "../../../../../components/FlowChart/forms/groupForm";
 export const FlowChartWindow = ({
   onClose,
   onCollapse,
@@ -50,6 +57,7 @@ export const FlowChartWindow = ({
 
   const [selectedElements, setSelectedElements] = useState([]);
   const [objectMenu, setObjectMenu] = useState([]);
+
   const getData = useCallback(async () => {
     try {
       const response = await getDataObject(window.data.id);
@@ -69,68 +77,6 @@ export const FlowChartWindow = ({
     getData();
   }, [getData]);
 
-  /* 
-  // console.log("pn",preparedNodes);
-  const getEdges = useCallback(async () => {
-    const response = await getDataObjectConnections();
-    setEdges(response.data.data.map(edge=>({from:edge.sourceId,to:edge.targetId})));
-    // console.log(response.data.data);
-  },[]);
-
-  const getNodes = useCallback(async () => {
-    const response = await getDataObject(window.data.id);
-    setRefGroupData(response.data.data);
-    // console.log(response.data.data);
-  },[window.data.id]);
-
-  useEffect(()=>{
-    console.log("rfd",refGroupData)
-    if(refGroupData){
-      setPreparedNodes(refGroupData.dataObjectLevels.map((level) => {
-        return level.dataObjectElements.map((element) => {
-          return {
-            label: element.label,
-            name: element.name,
-            description: element.description,
-            id: element.id,
-            x:element.x,
-            y:element.y,
-            width:element.width,
-            height:element.height,
-            rank:element.rank,
-            color:element.color,
-            type:element.Type,
-            scalar:element.Scalar,
-            level_value: level.level_value,
-            level_name: level.name,
-            level_id: level.id,
-            level:element.level,
-            connections:element.dataObjectConnections
-          };
-        });
-      }))
-    }
-  },[refGroupData])
-
-  useEffect(()=>{console.log("preparedNodes",preparedNodes)},[preparedNodes])
-
-  useEffect(() => {
-    getEdges();
-    getNodes();
-  }, [getEdges,getNodes]);
-  // console.log(preparedNodes);
-  const onNetworkChange = useCallback(async (data) => {
-    const { sourceId, targetId, option } = data;
-    if (!sourceId || !targetId) {
-      // console.log(data);
-      return;
-    }
-    //if(edges.length===0)return;
-
-    const response = await addNewElementsConnection(data);
-    console.log("working on network", data);
-  },[]);
-*/
   const resetContext = useCallback(() => {
     setContextMenu({
       active: false,
@@ -175,7 +121,36 @@ export const FlowChartWindow = ({
     }
   }, []);
 
-  const groupObjects = useCallback(async () => {}, []);
+  const groupObjects = useCallback(
+    async ({ newGroupName, NewGroupDesc }) => {
+      console.log(`New Group`);
+      try {
+        const payload = {
+          refDataObjects: selectedElements.map((element) => element.id),
+          dataObjectId: window.data.id,
+          name: newGroupName,
+          description: NewGroupDesc,
+          y: selectedElements[selectedElements.length - 1].y + 150,
+          x: selectedElements[selectedElements.length - 1].x,
+          expanded: 0,
+        };
+        const response = await addElementGroup(payload);
+        if (response.status >= 200 && response.status < 300) {
+          // setObjects((prev) =>
+          //   prev.map((obj) => (obj.id !== id ? obj : { ...obj, ...payload }))
+          // );
+          getData();
+          return "Done";
+        } else {
+          throw Error(`Request Faild`);
+        }
+      } catch (error) {
+        showDangerToaster(`Error: ${error}`);
+        return "Faild";
+      }
+    },
+    [selectedElements, window.data.id]
+  );
 
   const ungroupObjects = useCallback(async () => {}, []);
 
@@ -183,7 +158,23 @@ export const FlowChartWindow = ({
 
   const removeFromGroup = useCallback(async () => {}, []);
 
-  const updateObject = useCallback(async () => {}, []);
+  const updateObject = useCallback(async (id, payload) => {
+    console.log(`Updating ${id}`);
+    try {
+      const response = await updateDataObjectElement(id, payload);
+      if (response.status >= 200 && response.status < 300) {
+        setObjects((prev) =>
+          prev.map((obj) => (obj.id !== id ? obj : { ...obj, ...payload }))
+        );
+        return "Done";
+      } else {
+        throw Error(`Request Faild`);
+      }
+    } catch (error) {
+      showDangerToaster(`Error: ${error}`);
+      return "Faild";
+    }
+  }, []);
 
   useEffect(() => {
     resetContext();
@@ -216,8 +207,6 @@ export const FlowChartWindow = ({
             connections.targetId === targetId
         )?.id;
 
-        // let singularityCheck = false;
-        // selectedElements.forEach(element=>)
         setObjectMenu([
           {
             name: connectionId ? "Disconnect" : "Connect",
@@ -238,7 +227,7 @@ export const FlowChartWindow = ({
           {
             name: "Group",
             handleClick: () =>
-              groupObjects(selectedElements.map((element) => element.id)),
+              setContextMenu((prev) => ({ ...prev, type: "groupForm" })),
           },
         ]);
       }
@@ -247,7 +236,7 @@ export const FlowChartWindow = ({
         {
           name: "Group",
           handleClick: () =>
-            groupObjects(selectedElements.map((element) => element.id)),
+            setContextMenu((prev) => ({ ...prev, type: "groupForm" })),
         },
       ]);
     } else {
@@ -301,12 +290,32 @@ export const FlowChartWindow = ({
         case "objectOut":
           setEmptySpace(true);
           break;
+        case "edit":
+          return updateObject(payload.id, payload.payload);
+
+        // case "updateLocation":
+        // return updateObject(payload.id, payload.payload);
+
+        case "updateSize":
+          return updateObject(payload.id, payload.payload);
+
+        case "group":
+          return groupObjects(payload);
+
+        case "ungroup":
+          return updateObject(payload.id, payload.payload);
+
+        case "addTogroup":
+          return updateObject(payload.id, payload.payload);
+
+        case "removeFromgroup":
+          return updateObject(payload.id, payload.payload);
 
         default:
           break;
       }
     },
-    [handleContext, resetContext]
+    [handleContext, resetContext, updateObject]
   );
   return (
     <Window
@@ -343,11 +352,12 @@ export const FlowChartWindow = ({
         {contextMenu.type === "mainContextMenu" && (
           <ContextMenuComponent
             menu={views.map((view, index) => ({
-              name: view[0].toLocaleUpperCase()+view.slice(1,view.length),
+              name: view[0].toLocaleUpperCase() + view.slice(1, view.length),
               handleClick: () => setGlobalViewIndex(index),
             }))}
           />
         )}
+        {contextMenu.type === "groupForm" && <GroupFrom rootCall={rootCall} />}
       </FloatingContext>
       {/* )} */}
     </Window>

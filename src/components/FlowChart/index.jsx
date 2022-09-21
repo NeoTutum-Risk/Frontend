@@ -8,6 +8,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
+import { editableValues, headerValues } from "./data/refElementStructure";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { getDataObjectConnections } from "../../services";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
@@ -20,6 +21,7 @@ import {
   removeNewElementsConnection,
   updateDataObjectElement,
 } from "../../services";
+import { ObjectsGroup } from "./objectsGroup";
 export const FlowChart = ({
   objects,
   groups,
@@ -452,13 +454,45 @@ export const FlowChart = ({
                 }}
                 onClick={() => rootCall("resetContext")}
               >
+{groups.map((group) => (
+                  <>
+                    <ObjectsGroup
+                      key={`group-object-${group.id}`}
+                      data={group}
+                      rootCall={rootCall}
+                      scale={globalScale}
+                      updateXarrow={updateXarrow}
+                      enviroDimension={enviroDimension}
+                    />
+                    {!group.expanded &&
+                      group.elements.map((node) => (
+                        <DataObject
+                          globalViewIndex={globalViewIndex}
+                          views={views}
+                          handleContextMenu={handleContextMenu}
+                          scale={globalScale}
+                          expanded={true}
+                          data={node}
+                          selectedElements={selectedElements}
+                          elementSelection={elementSelection}
+                          setFirstContext={setFirstContext}
+                          setHoveredElement={setHoveredElement}
+                          handleObjectAction={handleObjectAction}
+                          removeFromGroup={removeFromGroup}
+                          addToGroup={addToGroup}
+                          key={`rf-${node.id}`}
+                          enviroDimension={enviroDimension}
+                          shared={0}
+                          rootCall={rootCall}
+                          editableValues={editableValues}
+                          headerValues={headerValues}
+                        />
+                      ))}
+                  </>
+                ))}
+
                 {objects.map((node) => (
                   <DataObject
-                    // groups={groups.map((grp) => ({
-                    //   id: grp.id,
-                    //   name: grp.name,
-                    // }))}
-
                     globalViewIndex={globalViewIndex}
                     views={views}
                     handleContextMenu={handleContextMenu}
@@ -476,57 +510,12 @@ export const FlowChart = ({
                     enviroDimension={enviroDimension}
                     shared={0}
                     rootCall={rootCall}
-                    editableValues={[
-                      {
-                        name: "description",
-                        title: "Description",
-                        abbr: "Desc",
-                        label: true,
-                      },
-                      {
-                        name: "Type",
-                        title: "Type",
-                        abbr: "Type",
-                        label: true,
-                      },
-                      {
-                        name: "Scalar",
-                        title: "Scalar",
-                        abbr: "Scalar",
-                        label: true,
-                      },
-                      {
-                        name: "name",
-                        title: "Name",
-                        abbr: "Name",
-                        label: true,
-                      },
-                    ]}
-                    headerValues={[
-                      {
-                        name: "label",
-                        title: "Label",
-                        abbr: "Label",
-                        editable: true,
-                        label: false,
-                      },
-                      {
-                        name: "levelValue",
-                        title: "Level",
-                        abbr: "Level",
-                        editable: false,
-                        label: true,
-                      },
-                      {
-                        name: "",
-                        title: "REF",
-                        abbr: "",
-                        editable: false,
-                        label: true,
-                      },
-                    ]}
+                    editableValues={editableValues}
+                    headerValues={headerValues}
                   />
                 ))}
+
+                
 
                 {contextMenu.show && (
                   <ConnetionContext
