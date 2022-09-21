@@ -87,6 +87,7 @@ export const DataObject = ({
   useEffect(() => {
     setViewIndex(globalViewIndex);
   }, [globalViewIndex]);
+
   const updateSize = useCallback(
     async (delta, direction, position) => {
       // console.log(data,delta,position);
@@ -136,28 +137,24 @@ export const DataObject = ({
 
   const updateRiskObject = useCallback(async () => {
     setUsingService(true);
-    let payload;
-    payload = { textType: editingValue };
+    let payload = {};
 
-    const response = await updateNewDataObjectInstance(data.id, payload);
-    if (response.status === 200) {
+    payload[editableValues.find((val) => val.abbr === activeAttribute).name] =
+      editingValue;
+    const response = await rootCall("edit", { id: data.id, payload });
+    if (response === "Done") {
       setViewedAttribute(editingValue);
       resetFace();
     }
     setUsingService(false);
-  }, [editingValue, data.id, resetFace]);
-
-  const updateObject = useCallback(async (type, fieldName) => {
-    switch (type) {
-      case "edit":
-        const response = rootCall(type, { fieldName: editingValue });
-        console.log(response);
-        break;
-
-      default:
-        break;
-    }
-  }, []);
+  }, [
+    editingValue,
+    data.id,
+    resetFace,
+    activeAttribute,
+    editableValues,
+    rootCall,
+  ]);
 
   const updateLocation = useCallback(
     async (e, d) => {
@@ -182,6 +179,7 @@ export const DataObject = ({
         d.y = enviroDimension.height - 200;
       }
       updateXarrow();
+      
       const updateOjectPosition = await updateDataObjectElement(data.id, {
         x: Math.round(d.x),
         y: Math.round(d.y),
@@ -320,6 +318,7 @@ export const DataObject = ({
             editGrp={editGrp}
             setEditGrp={setEditGrp}
             setEditingValue={setEditingValue}
+            editingValue={editingValue}
             handleAddToGroup={handleAddToGroup}
             viewedAttribute={viewedAttribute}
             edit={edit}
@@ -383,6 +382,7 @@ export const DataObject = ({
             editGrp={editGrp}
             setEditGrp={setEditGrp}
             setEditingValue={setEditingValue}
+            editingValue={editingValue}
             handleAddToGroup={handleAddToGroup}
             viewedAttribute={viewedAttribute}
             edit={edit}
