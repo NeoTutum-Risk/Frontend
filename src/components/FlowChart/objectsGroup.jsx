@@ -4,7 +4,7 @@ import { Button } from "@blueprintjs/core";
 import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
-import { updateRiskAssessmentGroup } from "../../services";
+import { updateElementGroup } from "../../services";
 import { showDangerToaster } from "../../utils/toaster";
 export const ObjectsGroup = ({
   data,
@@ -21,7 +21,7 @@ export const ObjectsGroup = ({
   const updateXarrow = useXarrow();
   // const updateXarrow = useXarrow();
   const [size,setSize] = useState({ w: data.width, h: data.height });
-  const [expanded, setExpanded] = useState(data.currentExpanded);
+  const [expanded, setExpanded] = useState(data.expanded);
   const [drag, setDrag] = useState({
     active: false,
     cy: data.y >= 0 ? data.y : 0,
@@ -53,10 +53,11 @@ export const ObjectsGroup = ({
         d.y = enviroDimension.height - 500;
       }
       updateXarrow();
-      const updateElementPosition = await updateRiskAssessmentGroup(
-        data.id,
-        riskAssessmentId,
+      const updateElementPosition = await updateElementGroup(
+        
         {
+          dataObjectId:data.dataObjectId,
+          refDataObjectGroupId :data.id,
           x: Math.round(d.x),
           y: Math.round(d.y),
           expanded: data.currentExpanded,
@@ -65,7 +66,7 @@ export const ObjectsGroup = ({
 
       console.log(updateElementPosition);
     },
-    [data.id, data.currentExpanded, riskAssessmentId, updateXarrow,enviroDimension]
+    [data.id, data.currentExpanded, updateXarrow,enviroDimension,data.dataObjectId]
   );
 
   const updateExpanded = useCallback(async () => {
@@ -84,10 +85,11 @@ export const ObjectsGroup = ({
 
     updateXarrow();
     try{
-      const updateElementPosition = await updateRiskAssessmentGroup(
-        data.id,
-        riskAssessmentId,
+      const updateElementPosition = await updateElementGroup(
+        
         {
+          dataObjectId:data.dataObjectId,
+          refDataObjectGroupId :data.id,
           x: Math.round(drag.cx),
           y: Math.round(drag.cy),
           expanded: !expanded,
@@ -132,9 +134,9 @@ export const ObjectsGroup = ({
     drag.cy,
     expanded,
     updateXarrow,
-    riskAssessmentId,
     data.currentExpanded,
     setGroups,
+    data.dataObjectId
   ]);
 
 
@@ -165,7 +167,9 @@ export const ObjectsGroup = ({
         position.y = 0;
       }
       updateXarrow();
-      const updateOjectPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
+      const updateOjectPosition = await updateElementGroup({
+        dataObjectId:data.dataObjectId,
+        refDataObjectGroupId :data.id,
         x: Math.round(position.x),
         y: Math.round(position.y),
         width: w,
@@ -173,14 +177,14 @@ export const ObjectsGroup = ({
         expanded
       });
     },
-    [data, updateXarrow,size,riskAssessmentId,expanded]
+    [data, updateXarrow,size,expanded]
   );
   return (
     <>
 
       <Rnd
-        id={`group-${data.id}`}
-        key={`group-${data.id}`}
+        id={`group-object-${data.id}`}
+        key={`group-object-${data.id}`}
         default={{
           x: drag.cx,
           y: drag.cy,

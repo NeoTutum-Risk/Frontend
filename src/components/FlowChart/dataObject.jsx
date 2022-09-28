@@ -21,8 +21,9 @@ import { size } from "lodash";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { DefaultFace } from "./faces/defaultFace";
 import { OpenFace } from "./faces/openFace";
-import { useEffect } from "react";
-export const DataObject = ({
+import React,{ useEffect } from "react";
+import { showDangerToaster } from "../../utils/toaster";
+export const DataObject = React.memo(({
   riskAssessmentId,
   data,
   scale,
@@ -48,7 +49,7 @@ export const DataObject = ({
   emptySpace,
   setEmptySpace,
 }) => {
-  // console.log("-----------", editableValues);
+  console.log(`Object Loaded ${data.id}`);
 
   const [viewIndex, setViewIndex] = useState(globalViewIndex);
 
@@ -136,24 +137,30 @@ export const DataObject = ({
   }, []);
 
   const updateRiskObject = useCallback(async () => {
-    setUsingService(true);
+    try {
+      setUsingService(true);
     let payload = {};
 
     payload[editableValues.find((val) => val.abbr === activeAttribute).name] =
       editingValue;
-    const response = await rootCall("edit", { id: data.id, payload });
-    if (response === "Done") {
-      setViewedAttribute(editingValue);
-      resetFace();
+      const response = await updateDataObjectElement(data.id, payload);
+      if (response.status >= 200 && response.status < 300) {
+        setViewedAttribute(editingValue);
+        resetFace();
+      } else {
+        throw Error(`Request Faild`);
+      }
+    } catch (error) {
+      showDangerToaster(`Error: ${error}`);
     }
-    setUsingService(false);
+    setUsingService(false)
+    
   }, [
     editingValue,
     data.id,
     resetFace,
     activeAttribute,
     editableValues,
-    rootCall,
   ]);
 
   const updateLocation = useCallback(
@@ -400,4 +407,5 @@ export const DataObject = ({
       </FaceWrapper>
     </Rnd>
   );
-};
+});
+

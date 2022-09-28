@@ -22,7 +22,9 @@ import { FloatingContext } from "../../../../../components/FlowChart/context/flo
 import { ContextMenuComponent } from "../../../../../components/FlowChart/context/contextMenuComponent";
 import { type } from "@testing-library/user-event/dist/type";
 import { GroupFrom } from "../../../../../components/FlowChart/forms/groupForm";
-export const FlowChartWindow = ({
+import { find } from "lodash";
+import React,{ useMemo } from "react";
+export const FlowChartWindow = React.memo(({
   onClose,
   onCollapse,
   onRestore,
@@ -38,7 +40,7 @@ export const FlowChartWindow = ({
   const [objects, setObjects] = useState([]);
   const [groups, setGroups] = useState([]);
   const [connections, setConnections] = useState([]);
-
+  const [tempConnections, setTempConnections] = useState([]);
   const [globalViewIndex, setGlobalViewIndex] = useState(1);
 
   const [contextMenu, setContextMenu] = useState({
@@ -94,10 +96,17 @@ export const FlowChartWindow = ({
   const connectObjects = useCallback(async ({ sourceId, targetId }) => {
     console.log(`Connecting ${sourceId} &  ${targetId}`);
     try {
+      setTempConnections((prev) => [
+        ...prev,
+        { id: `${sourceId}-${targetId}`, sourceId, targetId },
+      ]);
       const response = await addNewElementsConnection({ sourceId, targetId });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) => [...prev, response.data.data]);
         setSelectedElements([]);
+        setTempConnections((prev) =>
+          prev.filter((con) => con.id !== `${sourceId}-${targetId}`)
+        );
       } else {
         throw Error(`Request Faild`);
       }
@@ -122,31 +131,43 @@ export const FlowChartWindow = ({
   }, []);
 
   const groupObjects = useCallback(
-    async ({ newGroupName, NewGroupDesc }) => {
+    async ({ newGroupName, newGroupDesc }) => {
       console.log(`New Group`);
       try {
         const payload = {
           refDataObjects: selectedElements.map((element) => element.id),
           dataObjectId: window.data.id,
           name: newGroupName,
-          description: NewGroupDesc,
+          description: newGroupDesc,
           y: selectedElements[selectedElements.length - 1].y + 150,
           x: selectedElements[selectedElements.length - 1].x,
           expanded: 0,
         };
         const response = await addElementGroup(payload);
         if (response.status >= 200 && response.status < 300) {
+          let group = {...response.data.data,elements:[...selectedElements]}
+          setSelectedElements([]);
+          // setTimeout(getData, 5000);
+          //
+          // return "Done";
+
           // setObjects((prev) =>
-          //   prev.map((obj) => (obj.id !== id ? obj : { ...obj, ...payload }))
+          //   prev.filter(
+          //     (obj) => !payload.refDataObjects.find((rdo) => rdo === obj.id)
+          //   )
           // );
-          getData();
-          return "Done";
+          setObjects((prev) =>
+            prev.map(
+              (obj) => !payload.refDataObjects.find((rdo) => rdo === obj.id)?obj:null
+            )
+          );
+          setGroups(prev=>[...prev,group])
         } else {
           throw Error(`Request Faild`);
         }
       } catch (error) {
         showDangerToaster(`Error: ${error}`);
-        return "Faild";
+        // return "Faild";
       }
     },
     [selectedElements, window.data.id]
@@ -217,8 +238,7 @@ export const FlowChartWindow = ({
           {
             name: singularityCheck ? "Group" : "Ungroup",
             handleClick: singularityCheck
-              ? () =>
-                  groupObjects(selectedElements.map((element) => element.id))
+              ? () => setContextMenu((prev) => ({ ...prev, type: "groupForm" }))
               : () => ungroupObjects(groupedElements),
           },
         ]);
@@ -315,7 +335,7 @@ export const FlowChartWindow = ({
           break;
       }
     },
-    [handleContext, resetContext, updateObject]
+    [handleContext, resetContext, updateObject, groupObjects]
   );
   return (
     <Window
@@ -333,6 +353,7 @@ export const FlowChartWindow = ({
         objects={objects}
         groups={groups}
         connections={connections}
+        tempConnections={tempConnections}
         rootCall={rootCall}
         // onNetworkChange={onNetworkChange}
         dataObjectId={window.data.id}
@@ -340,6 +361,7 @@ export const FlowChartWindow = ({
         setSelectedElements={setSelectedElements}
         globalViewIndex={globalViewIndex}
         views={views}
+        setGroups={setGroups}
       />
       {/* {contextMenu.active && ( */}
       <FloatingContext
@@ -357,9 +379,11 @@ export const FlowChartWindow = ({
             }))}
           />
         )}
-        {contextMenu.type === "groupForm" && <GroupFrom rootCall={rootCall} />}
+        {contextMenu.type === "groupForm" && (
+          <GroupFrom rootCall={rootCall} groupObjects={groupObjects} />
+        )}
       </FloatingContext>
       {/* )} */}
     </Window>
   );
-};
+});

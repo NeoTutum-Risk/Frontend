@@ -19,7 +19,7 @@ import {
 import { set } from "lodash";
 import { useCallback } from "react";
 import { useState } from "react";
-export const GroupFrom = ({ rootCall }) => {
+export const GroupFrom = ({ rootCall,groupObjects }) => {
   const [newGroupName, setNewGroupName] = useState(null);
   const [newGroupNameError, setNewGroupNameError] = useState(null);
   const [newGroupDesc, setNewGroupDesc] = useState(null);
