@@ -158,7 +158,7 @@ export const FlowChartWindow = React.memo(({
           // );
           setObjects((prev) =>
             prev.map(
-              (obj) => !payload.refDataObjects.find((rdo) => rdo === obj.id)?obj:null
+              (obj) => !selectedElements.find((rdo) => rdo.id === obj.id)?obj:null
             )
           );
           setGroups(prev=>[...prev,group])
@@ -375,7 +375,7 @@ export const FlowChartWindow = React.memo(({
           <ContextMenuComponent
             menu={views.map((view, index) => ({
               name: view[0].toLocaleUpperCase() + view.slice(1, view.length),
-              handleClick: () => setGlobalViewIndex(index),
+              handleClick: () => {setGlobalViewIndex(index);resetContext()},
             }))}
           />
         )}

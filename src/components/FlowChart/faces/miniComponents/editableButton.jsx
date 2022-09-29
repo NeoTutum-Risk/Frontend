@@ -3,16 +3,22 @@ export const EditableButton = ({
   activeAttribute,
   handleAttributeClick,
   value,
-  data
+  data,
 }) => {
   return (
     <Button
-      fill={true}
+      fill={!value.shrink}
       title={value.title}
       small={true}
       active={activeAttribute === value.abbr}
-      onClick={() => handleAttributeClick(data,value.abbr)}
-      text={value.label?value.abbr:data}
+      onClick={() => handleAttributeClick(data, value.abbr)}
+      text={
+        value.value && value.label
+          ? `${value.title}: ${data}`
+          : value.label
+          ? value.abbr
+          : data
+      }
     />
   );
 };

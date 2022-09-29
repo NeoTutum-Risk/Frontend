@@ -40,10 +40,12 @@ export const editableValues=[
       label: true,
     },
     {
-      name: "",
-      title: "REF",
-      abbr: "",
-      editable: false,
-      label: true,
+      name: "color",
+      title: "Color",
+      abbr: "Color",
+      editable: true,
+      label: false,
+      background:"color",
+      editor:"colorPicker",
     },
   ]

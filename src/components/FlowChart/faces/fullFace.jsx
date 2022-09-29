@@ -13,6 +13,7 @@ import { EditableGroup } from "./miniComponents/editableGroup";
 import { IdButton } from "./miniComponents/idButton";
 import { ObjectHeader } from "./miniComponents/objectHeader";
 import { FaceWrapper } from "./miniComponents/faceWrapper";
+import { EditableButton } from "./miniComponents/editableButton";
 export const FullFace = ({
   handleClick,
   selectedElements,
@@ -71,23 +72,19 @@ export const FullFace = ({
           }}
           className="panningDisabled pinchDisabled wheelDisabled"
         >
-          <Button
-            disabled={shared}
-            small={true}
-            intent={!data.disable ? "warning" : "primary"}
-            onClick={() =>
-              handleObjectAction({
-                id: data.id,
-                type: "instance",
-                operation: "enable",
-                payload: !data.disable,
-                groupId,
-              })
-            }
-            className="panningDisabled pinchDisabled wheelDisabled"
-          >
-            {!data.disable ? "Disable" : "Enable"}
-          </Button>
+          <EditableButton
+            activeAttribute={activeAttribute}
+            handleAttributeClick={handleAttributeClick}
+            value={{
+              name: "rank",
+              title: "Rank",
+              abbr: "Rank",
+              label: true,
+              shrink: true,
+              value:true
+            }}
+            data={data["rank"]}
+          />
           <Button
             disabled={shared || data.disable}
             small={true}
