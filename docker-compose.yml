@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  frontend:
+    image: frontend-neotutum-aws
+    restart: unless-stopped
+    build:
+      context: .
+      args:
+        REACT_APP_BACKEND_URI: ${REACT_APP_BACKEND_URI}
+    env_file:
+      - ./.env
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+  backend:
+    image: backend-neotutum-aws
+    restart: unless-stopped
+    build: .
+    ports:
+      - "5000:5000"
