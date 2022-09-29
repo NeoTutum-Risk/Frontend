@@ -43,6 +43,7 @@ export const FullFace = ({
   editView,
   editableValues,
   headerValues,
+  allAttributesName
 }) => {
   return (
     <>
@@ -81,7 +82,8 @@ export const FullFace = ({
               abbr: "Rank",
               label: true,
               shrink: true,
-              value:true
+              value:true,
+              editable:true
             }}
             data={data["rank"]}
           />

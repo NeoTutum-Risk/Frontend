@@ -1,3 +1,17 @@
+export const allAttributesName = [
+  {
+    name: "color",
+    abbr: "Color",
+  },
+  {
+    name: "rank",
+    abbr: "Rank",
+  },
+  {
+    name: "label",
+    abbr: "Label",
+  },
+]
 export const editableValues=[
     {
       name: "description",

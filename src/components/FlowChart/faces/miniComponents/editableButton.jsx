@@ -7,11 +7,15 @@ export const EditableButton = ({
 }) => {
   return (
     <Button
+      style={data[0] === "#" ? { backgroundColor: data } : null}
       fill={!value.shrink}
       title={value.title}
       small={true}
       active={activeAttribute === value.abbr}
-      onClick={() => handleAttributeClick(data, value.abbr)}
+      onClick={() => {
+        handleAttributeClick(data, value.abbr);
+        console.log(`Editable Clicked ${data}, ${value.abbr}`);
+      }}
       text={
         value.value && value.label
           ? `${value.title}: ${data}`

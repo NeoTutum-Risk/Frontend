@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { editableValues, headerValues } from "./data/refElementStructure";
+import { editableValues, headerValues ,allAttributesName} from "./data/refElementStructure";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import {
   getDataObjectConnections,
@@ -493,6 +493,7 @@ export const FlowChart = ({
                       rootCall={rootCall}
                       editableValues={editableValues}
                       headerValues={headerValues}
+                      allAttributesName={allAttributesName}
                     />
                   ))}
                   {groups.map((group) => (
@@ -528,6 +529,7 @@ export const FlowChart = ({
                             rootCall={rootCall}
                             editableValues={editableValues}
                             headerValues={headerValues}
+                            allAttributesName={allAttributesName}
                           />
                         ))}
                     </>

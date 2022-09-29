@@ -33,7 +33,7 @@ export const EditButton = ({
             intent="success"
             small={true}
             icon="confirm"
-            onClick={updateRiskObject}
+            onClick={()=>{updateRiskObject();console.log("Save Clicked")}}
             loading={usingService}
           ></Button>
           <Button
