@@ -1,5 +1,5 @@
-export const BACKEND_URI = process.env.REACT_APP_BACKEND_URI
-console.log(process.env.REACT_APP_BACKEND_URI);
+export const BACKEND_URI = window.__RUNTIME_CONFIG__.REACT_APP_BACKEND_URI
+
 
 export const TEST_BACKEND_URI = 'https://test-service-dot-neotutum.nw.r.appspot.com/'
 
