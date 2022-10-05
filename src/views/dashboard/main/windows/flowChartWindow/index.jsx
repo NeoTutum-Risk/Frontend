@@ -41,7 +41,7 @@ export const FlowChartWindow = React.memo(({
   const [groups, setGroups] = useState([]);
   const [connections, setConnections] = useState([]);
   const [tempConnections, setTempConnections] = useState([]);
-  const [globalViewIndex, setGlobalViewIndex] = useState(1);
+  const [globalViewIndex, setGlobalViewIndex] = useState(3);
 
   const [contextMenu, setContextMenu] = useState({
     active: false,

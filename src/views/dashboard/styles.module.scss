@@ -15,6 +15,19 @@
   //min-width: 250px;
   overflow: auto;
   flex-shrink: 0;
+  padding-top: 0px;
+}
+
+.systemNavigationMenu{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: sticky;
+  top: 0px;
+  width: 100%;
+  background-color: rgb(41, 55, 66);
+  padding-bottom: 10px;
+  z-index: 1000000;
 }
 
 .mainContainer {

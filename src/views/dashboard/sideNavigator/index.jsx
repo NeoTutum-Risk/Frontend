@@ -30,7 +30,6 @@ export const SideNavigator = () => {
   const setActiveDashboardPanel = useSetRecoilState(activeDashboardPanelState);
   const fullScreenHandler = useRecoilValue(fullScreenHandlerState);
 
-
   /**
    * handles the open of the dialog for confirmation of emptying database
    */
@@ -79,11 +78,11 @@ export const SideNavigator = () => {
   };
 
   const handleFullScreen = (e) => {
-    if(!isFullScreen) fullScreenHandler.enter(e)
-    else fullScreenHandler.exit(e)
+    if (!isFullScreen) fullScreenHandler.enter(e);
+    else fullScreenHandler.exit(e);
 
-    setIsFullScreen(!isFullScreen)
-  }
+    setIsFullScreen(!isFullScreen);
+  };
 
   return (
     <div
@@ -98,9 +97,17 @@ export const SideNavigator = () => {
       </Dialog>
       <div
         style={{
+          width: "100%",
           display: "flex",
           alignItems: "center",
+          flexDirection: menuOpen ? "row" : "column",
           gap: showDashboard === "admin" ? "10px" : "20px",
+          position: "sticky",
+          top: "0px",
+          backgroundColor: "#293742",
+          paddingBottom: "10px",
+          paddingTop: "10px",
+          zIndex:"10000"
         }}
       >
         <Tooltip2
@@ -112,7 +119,7 @@ export const SideNavigator = () => {
             onClick={() => setMenuOpen((prev) => !prev)}
           />
         </Tooltip2>
-        {menuOpen && showDashboard !== "admin" && (
+        {showDashboard !== "admin" && (
           <Tooltip2 content={<span>Admin Panel</span>}>
             <Button icon="person" small onClick={handleAdminOpen} />
           </Tooltip2>
