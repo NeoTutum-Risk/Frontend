@@ -462,7 +462,7 @@ export const ReferenceGroups = () => {
             ></InputGroup>
           </FormGroup> */}
           <FormGroup
-            label="Type"
+            label="Target Data Object"
             labelInfo="(required)"
             intent={false ? Intent.DANGER : Intent.NONE}
             // helperText="Error"
@@ -491,7 +491,7 @@ export const ReferenceGroups = () => {
             </HTMLSelect>
           </FormGroup>
           {!append && (
-            <FormGroup>
+            <FormGroup label="Source Data Object" labelInfo="(optional)">
               <HTMLSelect
                 onChange={(e) => setDataObjectClone(Number(e.target.value))}
               >
