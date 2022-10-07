@@ -11,7 +11,7 @@ import {
   Tree,
   HTMLSelect,
   FileInput,
-  Checkbox 
+  Checkbox,
 } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Papa from "papaparse";
@@ -24,17 +24,26 @@ import {
   getMetaData,
   getMetaDataL2,
   getDataObject,
+  CloneDataObject,
 } from "../../../../services";
-import { addDataObject, updateDataObject,updateReferenceGroupStatus } from "../../../../services";
+import {
+  addDataObject,
+  updateDataObject,
+  updateReferenceGroupStatus,
+} from "../../../../services";
 import {
   showDangerToaster,
   showSuccessToaster,
   showWarningToaster,
 } from "../../../../utils/toaster";
-import { windowFamily, windowsIds, windowsState } from "../../../../store/windows";
+import {
+  windowFamily,
+  windowsIds,
+  windowsState,
+} from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import { mapStatusToIcon } from "../../../../utils/mapStatusToIcon";
-import {windowDefault} from "../../../../constants";
+import { windowDefault } from "../../../../constants";
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [append, setAppend] = useState(false);
@@ -44,6 +53,7 @@ export const ReferenceGroups = () => {
     useRecoilState(referenceGroupsState);
   const [referenceGroupPopOverOpenId, setReferenceGroupPopOverOpenId] =
     useState(null);
+  console.log("RF", referenceGroups);
   const [referenceGroupPopOverOpenName, setReferenceGroupPopOverOpenName] =
     useState("");
   const [referenceGroupsNodes, setReferenceGroupsNodes] = useState(null);
@@ -53,6 +63,7 @@ export const ReferenceGroups = () => {
   const [metaData, setMetaData] = useState([]);
   const [metaDataL2, setMetaDataL2] = useState([]);
   const [dataObjectType, setDataObjectType] = useState(null);
+  const [dataObjectClone, setDataObjectClone] = useState(null);
   const [dataObjectLevels, setDataObjectLevels] = useState(1);
   const [dataObjectLevelsInput, setDataObjectLevelsInput] = useState([]);
   const fetchMetaData = useCallback(async () => {
@@ -103,6 +114,7 @@ export const ReferenceGroups = () => {
     setDataObjectLevelsInput([]);
     setIsLoading(false);
     setAppend(false);
+    setDataObjectClone(null);
   }, [
     setReferenceGroupPopOverOpenId,
     setDataObjectType,
@@ -116,9 +128,11 @@ export const ReferenceGroups = () => {
         const response = await updateDataObject(dataObjectId, {
           status: status,
         });
-        if(status==="commit"){
-          const updateRGStatus = await updateReferenceGroupStatus(referenceGroupId,{status:"commit"});
-        
+        if (status === "commit") {
+          const updateRGStatus = await updateReferenceGroupStatus(
+            referenceGroupId,
+            { status: "commit" }
+          );
         }
         setReferenceGroups((prev) => ({
           ...prev,
@@ -335,7 +349,7 @@ export const ReferenceGroups = () => {
         return;
       }
 
-      if (dataObjectLevelsInput.length < dataObjectLevels) {
+      if (dataObjectLevelsInput.length < dataObjectLevels && !dataObjectClone) {
         showWarningToaster("Levels Entered are less than Levels Count");
         setIsLoading(false);
         return;
@@ -361,29 +375,32 @@ export const ReferenceGroups = () => {
           referenceGroupId: referenceGroupPopOverOpenId,
           metaDataLevel2Id: dataObjectType,
           append,
-          levelsArray: dataObjectLevelsInput.map((level) => {
-            return {
-              name: level.name,
-              elements: level.levelData.data.map((array) => {
+          clone: dataObjectClone,
+          levelsArray: dataObjectClone
+            ? null
+            : dataObjectLevelsInput.map((level) => {
                 return {
-                  index: array[0],
-                  label: array[1],
-                  rank: array[2],
-                  level: array[3],
-                  color: array[4],
-                  name: array[5],
-                  description: array[6],
-                  type: array[7].split(','),
-                  scalar: array[8].split(',')
+                  name: level.name,
+                  elements: level.levelData.data.map((array) => {
+                    return {
+                      index: array[0],
+                      label: array[1],
+                      rank: array[2],
+                      level: array[3],
+                      color: array[4],
+                      name: array[5],
+                      description: array[6],
+                      type: array[7].split(","),
+                      scalar: array[8].split(","),
+                    };
+                  }),
                 };
               }),
-            };
-          }),
         };
-        
+
         const response = await addDataObject(payload);
-        console.log("payload", payload,response,response.status);
-        if (response.data.error && response.status!==200) {
+        console.log("payload", payload, response, response.status);
+        if (response.data.error && response.status !== 200) {
           showDangerToaster(
             `Error Creating Data Object: ${response.data.error}`
           );
@@ -421,7 +438,8 @@ export const ReferenceGroups = () => {
         setIsLoading(false);
       }
     },
-    [append,
+    [
+      append,
       clearData,
       dataObjectLevelsInput,
       dataObjectType,
@@ -429,12 +447,13 @@ export const ReferenceGroups = () => {
       setReferenceGroups,
       dataObjectLevels,
       metaDataL2,
+      dataObjectClone,
     ]
   );
 
   const dataObjectPopOverContent = useMemo(
     () => (
-      <div key="text3">
+      <div key="text3" style={{ zIndex: 9000000 }}>
         <H5>Data Object</H5>
         <form onSubmit={createDataObject}>
           {/* <FormGroup label="Name" labelInfo="(required)">
@@ -471,22 +490,66 @@ export const ReferenceGroups = () => {
               )}
             </HTMLSelect>
           </FormGroup>
+          {!append && (
+            <FormGroup>
+              <HTMLSelect
+                onChange={(e) => setDataObjectClone(Number(e.target.value))}
+              >
+                <option selected={!dataObjectClone} disabled>
+                  Clone Data Object
+                </option>
+                {referenceGroups ? (
+                  referenceGroups.data.map((refGrp) => {
+                    const mainLevel = [
+                      <option disabled>{refGrp.name}</option>,
+                      ...refGrp.dataObjects.map((obj) => (
+                        <option value={obj.metaDataLevel2.id}>
+                          {obj.metaDataLevel2.name}
+                        </option>
+                      )),
+                    ];
+                    // console.log("options",mainLevel);
+                    return mainLevel;
+                  })
+                ) : (
+                  <option>Loading Data</option>
+                )}
+              </HTMLSelect>
+              {
+                dataObjectClone && <Button
+                  style={{ paddingLeft: "15px" }}
+                  text="Clear Cloning"
+                  onClick={() => setDataObjectClone(null)}
+                />
+              }
+            </FormGroup>
+          )}
 
-            <Checkbox label="Append" value={append} onChange={()=>setAppend(prev=>!prev)}/>
-          <FormGroup
-            label="Levels"
-            labelInfo="(required)"
-            intent={false ? Intent.DANGER : Intent.NONE}
-            // helperText="Error"
-          >
-            <NumericInput
-              min="1"
-              max="5"
-              defaultValue="1"
-              onValueChange={(e) => setDataObjectLevels(e)}
-            ></NumericInput>
-          </FormGroup>
-          {levelsInputContent}
+          {!dataObjectClone && (
+            <>
+              {" "}
+              <Checkbox
+                disabled={dataObjectClone}
+                label="Append"
+                value={append}
+                onChange={() => setAppend((prev) => !prev)}
+              />
+              <FormGroup
+                label="Levels"
+                labelInfo="(required)"
+                intent={false ? Intent.DANGER : Intent.NONE}
+                // helperText="Error"
+              >
+                <NumericInput
+                  min="1"
+                  max="5"
+                  defaultValue="1"
+                  onValueChange={(e) => setDataObjectLevels(e)}
+                ></NumericInput>
+              </FormGroup>
+            </>
+          )}
+          {!dataObjectClone && levelsInputContent}
           <div
             style={{
               display: "flex",
@@ -505,16 +568,25 @@ export const ReferenceGroups = () => {
             <Button
               type="submit"
               loading={isLoading}
-              intent={Intent.SUCCESS}
+              intent={append ? Intent.SUCCESS : Intent.DANGER}
               className={Classes.POPOVER2_DISMISS}
             >
-              Add
+              {append ? "Append" : "Create New"}
             </Button>
           </div>
         </form>
       </div>
     ),
-    [metaData, levelsInputContent, isLoading, clearData, createDataObject]
+    [
+      metaData,
+      levelsInputContent,
+      isLoading,
+      clearData,
+      createDataObject,
+      append,
+      referenceGroups,
+      dataObjectClone
+    ]
   );
   const newDataObject = (id) => {
     setReferenceGroupPopOverOpenId(id);
@@ -710,46 +782,52 @@ export const ReferenceGroups = () => {
   // handle the add new reference group window
   // if a reference group window exists then don't add a new reference group window
   // if it doesn't exists then add a new reference group window
-  const setWindowCallBack = useRecoilCallback(({set, snapshot}) => (nodeData) => {
+  const setWindowCallBack = useRecoilCallback(
+    ({ set, snapshot }) =>
+      (nodeData) => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
 
-    const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+        const windowId = getWindowsIdsList.find((windowId) => {
+          const window = snapshot.getLoadable(windowFamily(windowId)).contents;
 
-    const windowId = getWindowsIdsList.find(windowId => {
-      const window = snapshot.getLoadable(windowFamily(windowId)).contents;
+          return (
+            window.data.id === nodeData.data.data.id &&
+            window.type === "flowchart"
+          );
+        });
 
-      return window.data.id === nodeData.data.data.id && window.type === "flowchart"
-    })
+        if (windowId) {
+          return;
+        }
 
-    if(windowId) {
-      return
-    }
+        const check = checkMaximized();
 
-    const check = checkMaximized();
-    
-    if(check){
-      let old = snapshot.getLoadable(windowFamily(check)).contents
-      console.log(old);
-      set(windowFamily(check), {
-        ...old,
-        maximized: false,
-        collapse:true
-      });
-    }
+        if (check) {
+          let old = snapshot.getLoadable(windowFamily(check)).contents;
+          console.log(old);
+          set(windowFamily(check), {
+            ...old,
+            maximized: false,
+            collapse: true,
+          });
+        }
 
-    const id = generateID();
-    const windowData = {
-      type: "flowchart",
-      data: nodeData.data.data,
-      id,
-      collapse: false,
-      width: windowDefault.width,
-      height: windowDefault.height,
-      maximized: check?true:false
-    }
+        const id = generateID();
+        const windowData = {
+          type: "flowchart",
+          data: nodeData.data.data,
+          id,
+          collapse: false,
+          width: windowDefault.width,
+          height: windowDefault.height,
+          maximized: check ? true : false,
+        };
 
-    set(windowsIds, (prev) => [id, ...prev])
-    set(windowFamily(id), windowData)
-  }, [])
+        set(windowsIds, (prev) => [id, ...prev]);
+        set(windowFamily(id), windowData);
+      },
+    []
+  );
 
   const onNodeClick = useCallback(
     async (node) => {
@@ -757,7 +835,7 @@ export const ReferenceGroups = () => {
       if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
 
-      setWindowCallBack(nodeData)
+      setWindowCallBack(nodeData);
       /*
       setWindows((prevWindows) =>
         prevWindows.find(

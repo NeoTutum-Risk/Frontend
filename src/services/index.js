@@ -219,3 +219,5 @@ export const addElementToGroup = (data) => serviceProvider.put(`referenceDataObj
 
 export const removeElementFromGroup = (data) => serviceProvider.put(`referenceDataObjectGroups/removeObject/Group`, data);
 
+export const CloneDataObject = (data) => serviceProvider.post(`dataObjects/cloneDataObject`, data);
+

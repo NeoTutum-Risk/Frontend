@@ -107,7 +107,7 @@ export const SideNavigator = () => {
           backgroundColor: "#293742",
           paddingBottom: "10px",
           paddingTop: "10px",
-          zIndex:"10000"
+          zIndex:"1"
         }}
       >
         <Tooltip2
