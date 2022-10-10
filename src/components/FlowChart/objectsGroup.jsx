@@ -17,7 +17,6 @@ export const ObjectsGroup = ({
   setGroups,
   rootCall
 }) => {
-  (data.id)
   const updateXarrow = useXarrow();
   // const updateXarrow = useXarrow();
   const [size,setSize] = useState({ w: data.width, h: data.height });
@@ -64,7 +63,6 @@ export const ObjectsGroup = ({
         }
       );
 
-      (updateElementPosition);
     },
     [data.id, data.currentExpanded, updateXarrow,enviroDimension,data.dataObjectId]
   );
@@ -144,7 +142,6 @@ export const ObjectsGroup = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      ("Selecting ....");
       updateExpanded();
     },
     [updateExpanded]

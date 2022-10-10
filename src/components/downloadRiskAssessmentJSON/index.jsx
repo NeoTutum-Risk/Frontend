@@ -37,7 +37,6 @@ const DownloadRiskAssessmentJSON = () => {
       );
       if (response.status === 200) {
         const result = response.data;
-        (result)
 
         result.metaData && delete result.metaData;
 
@@ -56,7 +55,6 @@ const DownloadRiskAssessmentJSON = () => {
         showDangerToaster(`Error Retrieving Risk Assessment Data`);
       }
     } catch (error) {
-      (error.message);
     }
   };
 
@@ -74,7 +72,6 @@ const DownloadRiskAssessmentJSON = () => {
       const data = portfoliosRes.data.data;
       setPortfolios(data);
     } catch (error) {
-      (error.message);
     }
   }, []);
 
