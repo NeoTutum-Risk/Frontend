@@ -232,7 +232,6 @@ export const Portfolios = () => {
         addNewWindow({ type: "bpmn", data: data.data });
         showSuccessToaster(`New bpmn file uploaded successfully`);
       } catch (error) {
-        (error);
         showDangerToaster(`Failed to upload bpmn file : ${error}`);
       }
     },

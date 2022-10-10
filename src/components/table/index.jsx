@@ -21,11 +21,9 @@ export const Table = ({
   operations = {},
   tableFullWidth = false,
 }) => {
-  ("table", data, columns);
   const gridRef = useRef();
   const [elementSelector, setElementSelector] =
     useRecoilState(elementSelectorState);
-  (elementSelector);
   const autoSizeAll = useCallback((skipHeader) => {
     const allColumnIds = [];
     gridRef.current.columnApi.getAllColumns().forEach((column) => {

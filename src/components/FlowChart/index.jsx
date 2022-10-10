@@ -86,7 +86,6 @@ export const FlowChart = ({
   const [initialGlobalScale, initializeGlobalScale] = useState(true);
   const [loadingZoomSettings, setloadingZoomSettings] = useState(true);
 
-  ("flow rerendered");
   const updateXarrow = useXarrow();
   //
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
@@ -115,16 +114,13 @@ export const FlowChart = ({
   }, [dataObjectId, enviroDimension, getCenter, getWindowSettings]);
 
   const updateRAWindowSettings = async () => {
-    ("beforeupdate", raSettings);
 
     await updateReferenceWindowSettings(dataObjectId, raSettings);
 
-    ("RA Setting Updated updated");
   };
 
   (() => {
     if (initialGlobalScale) {
-      ("Setting Initial Global Scale");
       setTimeout(() => {
         setGlobalScale(raSettings.scale);
         initializeGlobalScale(false);
@@ -145,7 +141,6 @@ export const FlowChart = ({
 
   const contextAction = useCallback(
     async (option) => {
-      (option, selectedElements);
       if (option === "Connect") {
         const sourceElement =
           selectedElements[0].level_value < selectedElements[1].level_value
@@ -161,7 +156,6 @@ export const FlowChart = ({
           targetId: targetElement.id,
         };
         const response = await addNewElementsConnection(payload);
-        ("new connection", response.data.data);
         setEdges((prev) => [...prev, response.data.data]);
         setSelectedElements([]);
       } else if (option === "Disconnect") {
@@ -184,7 +178,6 @@ export const FlowChart = ({
         setEdges((prev) => prev.filter((edge) => edge.id !== connection.id));
 
         setSelectedElements([]);
-        (connection, response);
         // onNetworkChange({ sourceId, targetId, option: "disconnect" });
       }
     },
@@ -193,13 +186,7 @@ export const FlowChart = ({
 
   const showContext = useCallback(
     (data) => {
-      ("RCM", data);
       let option;
-      (
-        "check",
-        selectedElements,
-        selectedElements.find((element) => element.id === data.id)
-      );
       if (selectedElements.find((element) => element.id === data.id)) {
         if (selectedElements.length === 2) {
           if (
@@ -225,15 +212,12 @@ export const FlowChart = ({
             ) {
               option = "Disconnect";
             } else {
-              ("Connect");
               option = "Connect";
             }
           } else {
-            ("Invalid Connect");
             option = "Invalid Connection";
           }
         } else {
-          ("Not Two");
           option = `Invalid Connection`;
         }
       } else {
@@ -253,9 +237,7 @@ export const FlowChart = ({
 
   const elementSelection = useCallback(
     (elementData, state) => {
-      (elementData, state);
       if (state) {
-        ("selecting");
         setSelectedElements((prev) => {
           return [...new Set([...prev, elementData])];
         });
@@ -289,7 +271,6 @@ export const FlowChart = ({
       setTimeout(updateXarrow, 100);
       setTimeout(updateXarrow, 400);
       // setTimeout(updateXarrow, 500);
-      ("ZOOMPANPINCH");
     },
     [updateXarrow,raSettings.id]
   );
@@ -319,7 +300,6 @@ export const FlowChart = ({
           if (grp.elements.find((element) => element.id === id))
             o= String(`group-object-${grp.id}`);
         });
-        (o)
       return o;
     },
     [groups]
@@ -363,7 +343,6 @@ export const FlowChart = ({
           maxScale={5}
           doubleClick={{ disabled: true }}
           onZoom={(ref, e) => {
-            (e);
             if (ref.state.scale < 0.1) {
               ref.state.scale = 0.1;
               e.zoomOut(0.1);

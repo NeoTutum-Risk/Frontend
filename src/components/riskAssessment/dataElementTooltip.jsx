@@ -9,7 +9,6 @@ export const Tooltip = ({ x, y, data }) => {
   //   setLevels(Math.ceil(description.length/41));
   // },[])
   const description = "Desciption: "+data.description;
-  (description.length)
   const levels =Math.ceil(description.length/41);
   let descriptionArray =[];
   let levelText;
@@ -21,7 +20,6 @@ export const Tooltip = ({ x, y, data }) => {
     }
     descriptionArray.push(levelText);
   }
-  (description,descriptionArray)
   return (
     <g >
       <rect

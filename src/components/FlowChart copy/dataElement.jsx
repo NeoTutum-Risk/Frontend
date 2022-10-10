@@ -26,7 +26,6 @@ export const DataElement = ({
       y: drag.cy - 20,
     });
     
-    (updateElementPosition);
   }, [data.id, data.level_value, drag.cx, drag.cy]);
 
   useEffect(() => {
@@ -48,7 +47,6 @@ export const DataElement = ({
   const startDrag = useCallback((e) => {
     ("Drag Start");
     e.preventDefault();
-    (e);
     const element = e.target;
     const bbox = e.target.getBoundingClientRect();
     const x = e.clientX - bbox.left;
@@ -133,7 +131,6 @@ export const DataElement = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      ("Selecting ....");
       elementSelection(
         data,
         selectedElements.find((element) => element.id === data.id)

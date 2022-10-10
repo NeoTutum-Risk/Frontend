@@ -14,7 +14,6 @@ export const EditableButton = ({
       active={activeAttribute === value.abbr}
       onClick={() => {
         handleAttributeClick(data, value.abbr);
-        (`Editable Clicked ${data}, ${value.abbr}`);
       }}
       text={
         value.value && value.label

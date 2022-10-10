@@ -4,10 +4,6 @@ import * as d3 from "d3";
 const D3HeatMap = ({displayedCellData, setSelectedPlatforms, heatmapBackground, xLabels, yLabels, rules, defaultHexColorCode, axis}) => {
     const svgRef = useRef(null);
 
-    ("displayed cell data: ", displayedCellData)
-    ("heat map background data: ", heatmapBackground)
-    ("labels", {xLabels, yLabels})
-
     const handleShownContenents = (heatmapData) => {
       const resultArrLength = displayedCellData.filter(
         (cellData) => 

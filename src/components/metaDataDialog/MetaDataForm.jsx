@@ -85,7 +85,6 @@ const MetaDataForm = () => {
       if(metaData.level === 2){
         const { metaDataLevel1Id } = metaData
         res = await addMetaDataLevel2({metaDataLevel1Id, name: metaData.name });
-        (res)
         if (res.status === 200) {
           closeDialog();
           setLoadList(!loadList);

@@ -35,7 +35,6 @@ export const ObjectHeader = ({
             );
           }
           if (value.editable) {
-            ("editable", data, value,data[value.name])
             return (
               <EditableButton
                 activeAttribute={activeAttribute}

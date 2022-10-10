@@ -33,7 +33,6 @@ export const FlowChart = ({ graph }) => {
 
   const contextAction = useCallback(
     async (option) => {
-      (option, selectedElements);
       if (option === "Connect") {
         const sourceElement =
           selectedElements[0].level_value < selectedElements[1].level_value
@@ -83,7 +82,6 @@ export const FlowChart = ({ graph }) => {
             }
           });
         });*/
-        ("new connection", response.data.data);
         setEdges((prev) => [...prev, response.data.data]);
         setSelectedElements([]);
 
@@ -142,7 +140,6 @@ export const FlowChart = ({ graph }) => {
           });
         });*/
         setSelectedElements([]);
-        (connection, response);
         // onNetworkChange({ sourceId, targetId, option: "disconnect" });
       }
     },
@@ -151,13 +148,7 @@ export const FlowChart = ({ graph }) => {
 
   const showContext = useCallback(
     (data) => {
-      ("RCM", data);
       let option;
-      (
-        "check",
-        selectedElements,
-        selectedElements.find((element) => element.id === data.id)
-      );
       if (selectedElements.find((element) => element.id === data.id)) {
         if (selectedElements.length === 2) {
           if (
@@ -183,15 +174,12 @@ export const FlowChart = ({ graph }) => {
             ) {
               option = "Disconnect";
             } else {
-              ("Connect");
               option = "Connect";
             }
           } else {
-            ("Invalid Connect");
             option = "Invalid Connection";
           }
         } else {
-          ("Not Two");
           option = `Invalid Connection`;
         }
       } else {
@@ -211,9 +199,7 @@ export const FlowChart = ({ graph }) => {
 
   const elementSelection = useCallback(
     (elementData, state) => {
-      (elementData, state);
       if (state) {
-        ("selecting");
         setSelectedElements((prev) => {
           return [...new Set([...prev, elementData])];
         });
@@ -236,7 +222,6 @@ export const FlowChart = ({ graph }) => {
     setTimeout(updateXarrow, 100);
     setTimeout(updateXarrow, 400);
     // setTimeout(updateXarrow, 500);
-    ("ZOOMPANPINCH");
   }, [updateXarrow]);
 
   const updateAndDeselect = useCallback(()=>{

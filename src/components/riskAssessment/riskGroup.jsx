@@ -50,7 +50,6 @@ export const RiskGroup = ({
   const startDrag = useCallback((e) => {
     ("Drag Start");
     e.preventDefault();
-    (e);
     const element = e.target;
     const bbox = e.target.getBoundingClientRect();
     const x = e.clientX - bbox.left;
@@ -111,7 +110,6 @@ export const RiskGroup = ({
         }
       );
 
-      (updateElementPosition);
     },
     [data.id, data.currentExpanded, riskAssessmentId, updateXarrow]
   );
@@ -204,7 +202,6 @@ export const RiskGroup = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      ("Selecting ....");
       updateExpanded();
     },
     [updateExpanded]
@@ -370,7 +367,6 @@ export const RiskGroup = ({
         minHeight={75}
         bounds="window"
         onDrag={(e, d) => {
-          (e, d);
           updateXarrow();
           setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
         }}

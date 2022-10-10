@@ -152,7 +152,6 @@ const DashboardCharts = () => {
           drillDown: riskAssessmentDrillDown,
         });
       } catch (error) {
-        (error.message);
       }
     }
   }, [selectedRiskAssessment.riskAssessmentId, currentDataLevel.propertyId]);
@@ -176,7 +175,6 @@ const DashboardCharts = () => {
         }))
       );
     } catch (error) {
-      (error.message);
     }
   }, []);
 
@@ -243,7 +241,6 @@ const DashboardCharts = () => {
         // change the old datalevel to the new datalevel that was made
         setDataLevel(dlPayload);
       } catch (error) {
-        (error.message);
       }
     },
     [currentDataLevel, selectedRiskAssessment, dataLevel]
@@ -285,7 +282,6 @@ const DashboardCharts = () => {
       setSelectedRiskAssessment({ ...selectedRiskAssessment, heatMap });
       setSelectedRiskType(riskType);
     } catch (error) {
-      (error.message);
     }
   };
 

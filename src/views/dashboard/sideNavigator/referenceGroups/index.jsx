@@ -53,7 +53,6 @@ export const ReferenceGroups = () => {
     useRecoilState(referenceGroupsState);
   const [referenceGroupPopOverOpenId, setReferenceGroupPopOverOpenId] =
     useState(null);
-  ("RF", referenceGroups);
   const [referenceGroupPopOverOpenName, setReferenceGroupPopOverOpenName] =
     useState("");
   const [referenceGroupsNodes, setReferenceGroupsNodes] = useState(null);
@@ -68,13 +67,11 @@ export const ReferenceGroups = () => {
   const [dataObjectLevelsInput, setDataObjectLevelsInput] = useState([]);
   const fetchMetaData = useCallback(async () => {
     const { data } = await getMetaData();
-    (data);
     setMetaData(data.data);
   }, []);
 
   const fetchMetaDataL2 = useCallback(async () => {
     const { data } = await getMetaDataL2();
-    (data);
     setMetaDataL2(data.data);
   }, []);
 
@@ -187,24 +184,18 @@ export const ReferenceGroups = () => {
     const files = e.target.files;
     //  (files);
     if (files) {
-      (files[0].name, i);
       Papa.parse(files[0], {
         complete: function (results) {
           let csvError = false;
-          (
-            "empty last row check",
-            results.data[results.data.length - 1]
-          );
+
           if (results.data[results.data.length - 1].length === 1) {
             const lastRow = results.data.pop();
-            ("Fixed File", results.data);
             showWarningToaster(
               `CSV row#${results.data.length} is an empty row and is removed`
             );
           }
 
           //return;
-          ("header Check", results.data[0][0], results.data[0][2]);
           if (
             !(
               Number.isInteger(Number(results.data[0][0])) &&
@@ -212,7 +203,6 @@ export const ReferenceGroups = () => {
             )
           ) {
             const header = results.data.shift();
-            ("igoring the header", results.data, header);
             showWarningToaster(`CSV row#1 is considered as header`);
           }
 
@@ -232,13 +222,6 @@ export const ReferenceGroups = () => {
               });
 
               // Check Index & Rank Integers
-              (
-                "Checking Index & Rank",
-                row[0],
-                Number(row[0]),
-                row[2],
-                Number(row[2])
-              );
               if (
                 !(
                   Number.isInteger(Number(row[0])) &&
@@ -252,7 +235,6 @@ export const ReferenceGroups = () => {
               }
             }
           });
-          (results.data);
           if (csvError) return;
           setDataObjectLevelsInput((prev) => {
             if (
@@ -399,7 +381,6 @@ export const ReferenceGroups = () => {
         };
 
         const response = await addDataObject(payload);
-        ("payload", payload, response, response.status);
         if (response.data.error && response.status !== 200) {
           showDangerToaster(
             `Error Creating Data Object: ${response.data.error}`
@@ -804,7 +785,6 @@ export const ReferenceGroups = () => {
 
         if (check) {
           let old = snapshot.getLoadable(windowFamily(check)).contents;
-          (old);
           set(windowFamily(check), {
             ...old,
             maximized: false,
@@ -831,7 +811,6 @@ export const ReferenceGroups = () => {
 
   const onNodeClick = useCallback(
     async (node) => {
-      (node);
       if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
 
@@ -862,7 +841,6 @@ export const ReferenceGroups = () => {
     [setWindows]
   );
 
-  (referenceGroupsNodes, referenceGroups);
   return (
     <Tree
       contents={referenceGroupsNodes}

@@ -34,7 +34,6 @@ export const FlowChartWindow = React.memo(({
 }) => {
   const [refGroupData, setRefGroupData] = useState(null);
   const [edges, setEdges] = useState([]);
-  ("Window Data", window.data);
   const [preparedNodes, setPreparedNodes] = useState([]);
 
   const [objects, setObjects] = useState([]);
@@ -94,7 +93,6 @@ export const FlowChartWindow = React.memo(({
   }, []);
 
   const connectObjects = useCallback(async ({ sourceId, targetId }) => {
-    (`Connecting ${sourceId} &  ${targetId}`);
     try {
       setTempConnections((prev) => [
         ...prev,
@@ -116,7 +114,6 @@ export const FlowChartWindow = React.memo(({
   }, []);
 
   const disconnectObjects = useCallback(async (id) => {
-    (`Disconnecting ${id}`);
     try {
       const response = await removeNewElementsConnection({ id });
       if (response.status >= 200 && response.status < 300) {
@@ -132,7 +129,6 @@ export const FlowChartWindow = React.memo(({
 
   const groupObjects = useCallback(
     async ({ newGroupName, newGroupDesc }) => {
-      (`New Group`);
       try {
         const payload = {
           refDataObjects: selectedElements.map((element) => element.id),
@@ -180,7 +176,6 @@ export const FlowChartWindow = React.memo(({
   const removeFromGroup = useCallback(async () => {}, []);
 
   const updateObject = useCallback(async (id, payload) => {
-    (`Updating ${id}`);
     try {
       const response = await updateDataObjectElement(id, payload);
       if (response.status >= 200 && response.status < 300) {
@@ -296,7 +291,6 @@ export const FlowChartWindow = React.memo(({
 
   const rootCall = useCallback(
     async (call, payload) => {
-      ("root call. ", call, payload);
       switch (call) {
         case "context":
           handleContext(payload);

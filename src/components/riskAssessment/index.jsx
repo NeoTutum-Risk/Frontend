@@ -123,7 +123,6 @@ export const RiskAssessment = ({
   }, [riskAssessmentId, enviroDimension, getCenter]);
 
   const updateRAWindowSettings = async () => {
-    ('beforeupdate', raSettings);
     // if (selectedObjects.length > 0 && selectedObjects[0]) {
     //   const objectPosX = -Math.abs(selectedObjects[0]["position.x"] ?? selectedObjects[0]["x"]) + 300;
     //   const objectPosY = -Math.abs(selectedObjects[0]["position.y"] ?? selectedObjects[0]["y"]) + 300;
@@ -136,14 +135,11 @@ export const RiskAssessment = ({
     // }
     await updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
 
-    ("RA Setting Updated updated");
   };
 
   const elementSelection = useCallback(
     (elementData, state) => {
-      (elementData, state);
       if (state) {
-        ("selecting");
         setSelectedElements((prev) => {
           return [...new Set([...prev, elementData])];
         });
@@ -151,7 +147,6 @@ export const RiskAssessment = ({
           return [...new Set([...prev, elementData])];
         });
 
-        ("store", selectedObjects);
       } else {
         setSelectedElements((prev) =>
           prev.filter((element) => element.id !== elementData.id)
@@ -166,7 +161,6 @@ export const RiskAssessment = ({
 
     (() => {
         if (initialGlobalScale) {
-          ('Setting Initial Global Scale');
           setTimeout(() => {
             setGlobalScale(raSettings.scale)
             initializeGlobalScale(false)
@@ -209,9 +203,8 @@ export const RiskAssessment = ({
       setTimeout(updateXarrow, 100);
       setTimeout(updateXarrow, 300);
       setTimeout(updateXarrow, 500);
-      ("ZOOMPANPINCH");
     },
-    [updateXarrow]
+    [updateXarrow,raSettings]
   );
   
   // ('raSettings -> ',raSettings);    
@@ -407,7 +400,6 @@ export const RiskAssessment = ({
             handleZoomPanPinch(ref, e);
             setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
             // ("event zoom1", e);
-            ("event zoom1", ref);
           }}
           onPinching={updateXarrow}
           onPinchingStop={handleZoomPanPinch}

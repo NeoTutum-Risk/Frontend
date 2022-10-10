@@ -51,8 +51,6 @@ export const DataObject = React.memo(
     emptySpace,
     setEmptySpace,
   }) => {
-    (`Object Loaded ${data.id}`);
-
     const [viewIndex, setViewIndex] = useState(globalViewIndex);
 
     const editView = useCallback(
@@ -152,7 +150,6 @@ export const DataObject = React.memo(
           ? allAttributesName.find((val) => val.abbr === activeAttribute).name
           : null;
         payload[attribute] = editingValue;
-        ("Updating");
         const response = await updateDataObjectElement(data.id, payload);
         if (response.status >= 200 && response.status < 300) {
           setViewedAttribute(editingValue);
@@ -164,7 +161,15 @@ export const DataObject = React.memo(
         showDangerToaster(`Error: ${error}`);
       }
       setUsingService(false);
-    }, [editingValue, data.id, resetFace, activeAttribute, editableValues]);
+    }, [
+      editingValue,
+      data.id,
+      resetFace,
+      activeAttribute,
+      editableValues,
+      allAttributesName,
+      headerValues,
+    ]);
 
     const updateLocation = useCallback(
       async (e, d) => {
@@ -202,11 +207,9 @@ export const DataObject = React.memo(
     const handleClick = useCallback(
       (e) => {
         if (e.target.className !== "bp3-file-upload-input") {
-          (e, e.target.name);
           if (e.target.localName !== "a") e.preventDefault();
           if (e.detail !== 2) return;
           if (data.disable) return;
-          ("Selecting ....");
           elementSelection(
             data,
             selectedElements.find(
@@ -221,7 +224,6 @@ export const DataObject = React.memo(
     );
 
     const removeFromGroupHandler = useCallback(async () => {
-      ({ id: data.id, groupId });
       const response = await removeFromGroup("data", { id: data.id, groupId });
     }, [data.id, groupId, removeFromGroup]);
 

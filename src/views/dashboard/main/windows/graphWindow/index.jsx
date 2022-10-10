@@ -62,7 +62,6 @@ export const GraphWindow = ({
       e.preventDefault();
       if (e.element.type !== "bpmn:DataObjectReference") return;
       if (contextMenu.active) return;
-      (e);
       setContextMenu((prev) => ({
         active: true,
         type:"context",
@@ -85,13 +84,11 @@ export const GraphWindow = ({
       } else {
         setElementSelector({ elementId, type, fileId: window.data.id });
       }
-      ({ elementId, type, fileId: window.data.id });
     },
     [setElementSelector, window.data.id]
   );
   const saveBpmn = useCallback(
     async (fileData) => {
-      ("update bpmn", fileData);
       try {
         setAutoSaveLoading(true);
 
@@ -143,7 +140,6 @@ export const GraphWindow = ({
   const handleOnChange = useCallback(
     async (data) => {
       setContextMenu((prev) => ({ ...prev, active: false, element: null }));
-      (windows);
       setbpmn({ xml: data, changed: !autoSave });
       if (autoSave) {
         saveBpmn(data);
@@ -155,7 +151,7 @@ export const GraphWindow = ({
         setOtherWindows(sequenceFlows, entities);
       }, 500);
     },
-    [autoSave, saveBpmn, setbpmn, /*setWindows*/ windows, setOtherWindows]
+    [autoSave, saveBpmn, setbpmn, /*setWindows*/ , setOtherWindows]
   );
 
   const contextMenuAction = useCallback( () => {

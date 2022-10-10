@@ -21,9 +21,7 @@ export const RiskAssessment = ({
     useRecoilState(objectSelectorState);
   const elementSelection = useCallback(
     (elementData, state) => {
-      (elementData, state);
       if (state) {
-        ("selecting");
         setSelectedElements((prev) => {
           return [...new Set([...prev, elementData])];
         });
@@ -31,7 +29,6 @@ export const RiskAssessment = ({
           return [...new Set([...prev, elementData])];
         });
 
-        ("store", selectedObjects);
       } else {
         setSelectedElements((prev) =>
           prev.filter((element) => element.id !== elementData.id)
@@ -50,7 +47,6 @@ export const RiskAssessment = ({
     setTimeout(updateXarrow, 100);
     setTimeout(updateXarrow, 300);
     setTimeout(updateXarrow, 500);
-    ("ZOOMPANPINCH");
   }, [updateXarrow]);
   return (
     <Xwrapper>

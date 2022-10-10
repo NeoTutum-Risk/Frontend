@@ -92,7 +92,6 @@ export const AddWindowsButton = ({ data }) => {
 
     const { data } = await getRiskAssessmentPhysicalTable(id);
     const preparedData = data.data.map((object) => {
-      ("properties", object.riskObjectProperties);
       return {
         id: object.id,
         name: object.name,
@@ -422,8 +421,7 @@ export const AddWindowsButton = ({ data }) => {
       ]);
       */
       setIsLoading(false);
-      (levelData);
-  }, [])
+  }, [data])
 
   return (
     <Popover2

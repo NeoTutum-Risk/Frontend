@@ -7,7 +7,7 @@ export const ContextMenuComponent = ({ menu }) => {
         <MenuItem text={item.name} onClick={item.handleClick}>
           {menu.children
             ? menu.children.map((item) => (
-                <MenuItem text={item.name} onClick={()=>{('clicked')}} />
+                <MenuItem text={item.name} onClick={item.handleClick} />
               ))
             : null}
         </MenuItem>

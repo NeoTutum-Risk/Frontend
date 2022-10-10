@@ -38,7 +38,6 @@ export const RiskElement = ({
   const startDrag = useCallback((e) => {
     ("Drag Start");
     e.preventDefault();
-    (e);
     const element = e.target;
     const bbox = e.target.getBoundingClientRect();
     const x = e.clientX - bbox.left;
@@ -86,7 +85,6 @@ export const RiskElement = ({
         enabled: data["position.enabled"],
       }
     );
-    (updateElementPosition);
   }, [riskAssessmentId, data, drag.cx, drag.cy, index]);
   const endDrag = useCallback(
     async (e) => {
@@ -104,7 +102,6 @@ export const RiskElement = ({
       e.preventDefault();
       if (e.detail !== 2) return;
       if (!data["position.enabled"]) return;
-      ("Selecting ....");
       elementSelection(
         data,
         selectedElements.find((element) => element.id === data.id)

@@ -678,7 +678,6 @@ export const RiskAssessmentWindow = ({
             );
             setGroups((prev) => {
               return prev.map((group) => {
-                ("in", group.id, data.groupId);
                 if (Number(group.id) === Number(data.groupId)) {
                   return {
                     ...group,
@@ -1078,7 +1077,6 @@ export const RiskAssessmentWindow = ({
 
   const handleContextMenu = useCallback(
     async (e, data) => {
-      (data, e);
       if (firstContext === "risk" && selectedElements.length < 2) return;
       if (data.id) {
         setActiveObject(data.id);
@@ -1118,7 +1116,6 @@ export const RiskAssessmentWindow = ({
         //   id = e.target.id.split("-")[3];
         // }
         if (selectedElements.length === 0) {
-          (data.type);
           type = "contextDO";
           setFirstContext("contextDO");
         } else if (selectedElements.length === 2) {
@@ -1136,7 +1133,6 @@ export const RiskAssessmentWindow = ({
         //   id = e.target.id.split("-")[3];
         // }
         if (selectedElements.length === 0) {
-          (data.type);
           type = "context";
           setFirstContext("context");
         } else if (selectedElements.length === 2) {
@@ -1154,7 +1150,6 @@ export const RiskAssessmentWindow = ({
         ? Number(id)
         : Number(e.target.parentElement.id.split("-")[2]);
 
-      (data.type, type);
       setContextMenu((prev) => ({
         active: true,
         type,
@@ -1453,7 +1448,6 @@ export const RiskAssessmentWindow = ({
                   return {
                     ...group,
                     elements: group.elements.map((object) => {
-                      ("inside", object, element);
                       if (object?.id === element.id) {
                         const updatedObject = { ...object };
                         element.operation === "enable"
@@ -1646,7 +1640,6 @@ export const RiskAssessmentWindow = ({
           object = selectedElements[0];
         }
 
-        (object, instance);
 
         if (instance.dataObjectNew.IOtype === "Output") {
           connection = instanceObjectConnections.find(
@@ -1785,7 +1778,6 @@ export const RiskAssessmentWindow = ({
 
   const importDataObject = useCallback(async () => {
     setIsServiceLoading(true);
-    (importObjectFile);
     let payload = new FormData();
     //  payload = {
     //   riskAssessmentId: window.data.id,
@@ -1834,14 +1826,12 @@ export const RiskAssessmentWindow = ({
 
   const handleProperties = useCallback(
     (id) => {
-      (id);
       // setContextMenu((prev) => ({ ...prev, element: id }));
       // setContextMenu({ element: id });
       setActiveObject(id);
 
-      (activeObject);
     },
-    [activeObject]
+    []
   );
 
   const updateDraftLocation = useCallback(async (e, d) => {
@@ -2016,7 +2006,6 @@ export const RiskAssessmentWindow = ({
                       : "Choose file..."
                   }
                   onInputChange={(e) => {
-                    (e);
                     setImportObjectFile(e.target.files[0]);
                   }}
                 ></FileInput>
@@ -3110,7 +3099,6 @@ export const RiskAssessmentWindow = ({
                           : "Choose file..."
                       }
                       onInputChange={(e) => {
-                        (e);
                         setImportObjectFile(e.target.files[0]);
                       }}
                     ></FileInput>

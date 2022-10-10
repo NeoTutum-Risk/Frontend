@@ -29,7 +29,6 @@ export const RiskGroup = ({
   const startDrag = useCallback((e) => {
     ("Drag Start");
     e.preventDefault();
-    (e);
     const element = e.target;
     const bbox = e.target.getBoundingClientRect();
     const x = e.clientX - bbox.left;
@@ -73,7 +72,6 @@ export const RiskGroup = ({
       expanded: data.currentExpanded,
     });
 
-    (updateElementPosition);
   }, [data.id, drag.cx, drag.cy, index, data.currentExpanded, riskAssessmentId,updateXarrow]);
 
   const updateExpanded = useCallback(async () => {
@@ -86,7 +84,6 @@ export const RiskGroup = ({
     setExpanded((prev) => !prev);
     updateXarrow();
     setInterval(updateXarrow, 200);
-    (updateElementPosition);
   }, [data.id, drag.cx, drag.cy, index, expanded, updateXarrow,riskAssessmentId]);
 
   const endDrag = useCallback(
@@ -104,7 +101,6 @@ export const RiskGroup = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      ("Selecting ....");
       updateExpanded();
     },
     [updateExpanded]

@@ -15,11 +15,10 @@ export const Auth = () => {
     e => {
       e.preventDefault()
 
-      ('user,password', user, password)
 
       navigate('/dashboard')
     },
-    [user, password, navigate]
+    [navigate]
   )
 
   return (

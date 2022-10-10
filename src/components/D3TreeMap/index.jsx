@@ -6,8 +6,6 @@ const D3TreeMap = ({ treeMapData }) => {
   const [selectedData, setSelectedData] = useState(treeMapData[0]);
   const [currentDescription, setCurrentDescription] = useState(null)
 
-  (selectedData)
-
   const mouseover = (e, d) => {
     setCurrentDescription(d.data.description)
   }
@@ -44,8 +42,6 @@ const D3TreeMap = ({ treeMapData }) => {
         childrenCount: children.length,
       })
     );
-
-    (tempTreeMapData)
 
     const MARGINS = { top: 20, right: 20, bottom: 20, left: 20 };
 
