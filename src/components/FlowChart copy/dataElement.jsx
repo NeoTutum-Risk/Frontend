@@ -10,7 +10,7 @@ export const DataElement = ({
   selectedElements,
   setNodes,
 }) => {
-  // console.log(`element rerendered ${data.id} ${data.x}  ${data.y}`);
+  // (`element rerendered ${data.id} ${data.x}  ${data.y}`);
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
@@ -26,7 +26,7 @@ export const DataElement = ({
       y: drag.cy - 20,
     });
     
-    console.log(updateElementPosition);
+    (updateElementPosition);
   }, [data.id, data.level_value, drag.cx, drag.cy]);
 
   useEffect(() => {
@@ -46,16 +46,16 @@ export const DataElement = ({
   const [tooltipTimer, setTooltipTimer] = useState(null);
 
   const startDrag = useCallback((e) => {
-    console.log("Drag Start");
+    ("Drag Start");
     e.preventDefault();
-    console.log(e);
+    (e);
     const element = e.target;
     const bbox = e.target.getBoundingClientRect();
     const x = e.clientX - bbox.left;
     const y = e.clientY - bbox.top;
     element.setPointerCapture(e.pointerId);
     setDrag((prev) => ({ ...prev, active: true, offset: { x, y } }));
-    // console.log("start drag", e.target);
+    // ("start drag", e.target);
   }, []);
 
   const handleDragging = useCallback(
@@ -133,7 +133,7 @@ export const DataElement = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      console.log("Selecting ....");
+      ("Selecting ....");
       elementSelection(
         data,
         selectedElements.find((element) => element.id === data.id)
@@ -156,7 +156,7 @@ export const DataElement = ({
         y: drag.cy,
         x: drag.cx,
       });
-      // console.log("cm", data);
+      // ("cm", data);
     },
     [showContext, drag, data]
   );
@@ -169,7 +169,7 @@ export const DataElement = ({
           setShowTooltip(true);
         }, 1000)
       );
-      // console.log("Mouse Over");
+      // ("Mouse Over");
     },
     [tooltipTimer]
   );

@@ -21,11 +21,11 @@ export const Table = ({
   operations = {},
   tableFullWidth = false,
 }) => {
-  console.log("table", data, columns);
+  ("table", data, columns);
   const gridRef = useRef();
   const [elementSelector, setElementSelector] =
     useRecoilState(elementSelectorState);
-  console.log(elementSelector);
+  (elementSelector);
   const autoSizeAll = useCallback((skipHeader) => {
     const allColumnIds = [];
     gridRef.current.columnApi.getAllColumns().forEach((column) => {

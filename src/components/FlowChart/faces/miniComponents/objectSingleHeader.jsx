@@ -48,7 +48,7 @@ export const ObjectSingleHeader = ({
             prev === editableValues.length - 1 ? 0 : prev + 1
           )
           
-          console.log(editableIndex);
+          (editableIndex);
           
         }}
       />

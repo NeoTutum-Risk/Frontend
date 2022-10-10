@@ -1,5 +1,5 @@
 export const ConnetionContext = ({ data, updateAndDeselect }) => {
-  console.log("cc", data);
+  ("cc", data);
   return (
     <>
     <g style={{ cursor: "pointer" }}  onClick={()=>data.function(data.option)}>

@@ -34,7 +34,7 @@ export const FlowChartWindow = React.memo(({
 }) => {
   const [refGroupData, setRefGroupData] = useState(null);
   const [edges, setEdges] = useState([]);
-  console.log("Window Data", window.data);
+  ("Window Data", window.data);
   const [preparedNodes, setPreparedNodes] = useState([]);
 
   const [objects, setObjects] = useState([]);
@@ -94,7 +94,7 @@ export const FlowChartWindow = React.memo(({
   }, []);
 
   const connectObjects = useCallback(async ({ sourceId, targetId }) => {
-    console.log(`Connecting ${sourceId} &  ${targetId}`);
+    (`Connecting ${sourceId} &  ${targetId}`);
     try {
       setTempConnections((prev) => [
         ...prev,
@@ -116,7 +116,7 @@ export const FlowChartWindow = React.memo(({
   }, []);
 
   const disconnectObjects = useCallback(async (id) => {
-    console.log(`Disconnecting ${id}`);
+    (`Disconnecting ${id}`);
     try {
       const response = await removeNewElementsConnection({ id });
       if (response.status >= 200 && response.status < 300) {
@@ -132,7 +132,7 @@ export const FlowChartWindow = React.memo(({
 
   const groupObjects = useCallback(
     async ({ newGroupName, newGroupDesc }) => {
-      console.log(`New Group`);
+      (`New Group`);
       try {
         const payload = {
           refDataObjects: selectedElements.map((element) => element.id),
@@ -180,7 +180,7 @@ export const FlowChartWindow = React.memo(({
   const removeFromGroup = useCallback(async () => {}, []);
 
   const updateObject = useCallback(async (id, payload) => {
-    console.log(`Updating ${id}`);
+    (`Updating ${id}`);
     try {
       const response = await updateDataObjectElement(id, payload);
       if (response.status >= 200 && response.status < 300) {
@@ -214,7 +214,7 @@ export const FlowChartWindow = React.memo(({
             ? selectedElements[1].id
             : selectedElements[0].id;
 
-        // console.log("A7A Check",selectedElements,sourceId,targetId)
+        // ("A7A Check",selectedElements,sourceId,targetId)
         let singularityCheck = true;
         let groupedElements = [];
         selectedElements.forEach((element) => {
@@ -296,7 +296,7 @@ export const FlowChartWindow = React.memo(({
 
   const rootCall = useCallback(
     async (call, payload) => {
-      console.log("root call. ", call, payload);
+      ("root call. ", call, payload);
       switch (call) {
         case "context":
           handleContext(payload);

@@ -139,7 +139,7 @@ export const Portfolios = () => {
     
     if(check){
       let old = snapshot.getLoadable(windowFamily(check)).contents
-      console.log(old);
+      (old);
       set(windowFamily(check), {
         ...old,
         maximized: false,
@@ -232,7 +232,7 @@ export const Portfolios = () => {
         addNewWindow({ type: "bpmn", data: data.data });
         showSuccessToaster(`New bpmn file uploaded successfully`);
       } catch (error) {
-        console.log(error);
+        (error);
         showDangerToaster(`Failed to upload bpmn file : ${error}`);
       }
     },

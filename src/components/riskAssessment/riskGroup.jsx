@@ -34,7 +34,7 @@ export const RiskGroup = ({
   addToGroup,
   handleUnshareGroup
 }) => {
-  // console.log(data.id)
+  // (data.id)
   // const updateXarrow = useXarrow();
   const [size,setSize] = useState({ w: data.currentWidth, h: data.currentHeight });
   const [expanded, setExpanded] = useState(data.currentExpanded);
@@ -48,16 +48,16 @@ export const RiskGroup = ({
   const [tooltipTimer, setTooltipTimer] = useState(null);
 
   const startDrag = useCallback((e) => {
-    console.log("Drag Start");
+    ("Drag Start");
     e.preventDefault();
-    console.log(e);
+    (e);
     const element = e.target;
     const bbox = e.target.getBoundingClientRect();
     const x = e.clientX - bbox.left;
     const y = e.clientY - bbox.top;
     element.setPointerCapture(e.pointerId);
     setDrag((prev) => ({ ...prev, active: true, offset: { x, y } }));
-    // console.log("start drag", e.target);
+    // ("start drag", e.target);
   }, []);
 
   const handleDragging = useCallback(
@@ -111,7 +111,7 @@ export const RiskGroup = ({
         }
       );
 
-      console.log(updateElementPosition);
+      (updateElementPosition);
     },
     [data.id, data.currentExpanded, riskAssessmentId, updateXarrow]
   );
@@ -177,7 +177,7 @@ export const RiskGroup = ({
 
     
     // setInterval(updateXarrow, 200);
-    // console.log(updateElementPosition);
+    // (updateElementPosition);
   }, [
     data.id,
     drag.cx,
@@ -204,7 +204,7 @@ export const RiskGroup = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      console.log("Selecting ....");
+      ("Selecting ....");
       updateExpanded();
     },
     [updateExpanded]
@@ -218,14 +218,14 @@ export const RiskGroup = ({
           setShowTooltip(true);
         }, 1000)
       );
-      // console.log("Mouse Over");
+      // ("Mouse Over");
     },
     [tooltipTimer]
   );
 
   const updateSize = useCallback(
     async (delta, direction, position) => {
-      // console.log(data,delta,position);
+      // (data,delta,position);
       const w = Math.round(size.w + delta.width);
       const h = Math.round(size.h + delta.height);
       setSize({ w, h });
@@ -370,7 +370,7 @@ export const RiskGroup = ({
         minHeight={75}
         bounds="window"
         onDrag={(e, d) => {
-          console.log(e, d);
+          (e, d);
           updateXarrow();
           setDrag((prev) => ({ ...prev, cy: d.y, cx: d.x }));
         }}

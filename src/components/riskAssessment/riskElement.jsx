@@ -68,7 +68,7 @@ export const RiskElement = ({
       const w = Math.round(size.w + delta.width);
       const h = Math.round(size.h + delta.height);
       setSize({ w, h });
-      console.log(data);
+      (data);
       setDrag((prev) => ({ ...prev, cy: position.y, cx: position.x }));
       if (position.x < 0) {
         setDrag((prev) => ({ ...prev, cx: 0 }));
@@ -93,7 +93,7 @@ export const RiskElement = ({
         }
       );
 
-      console.log(updateElementPosition);
+      (updateElementPosition);
     },
     [riskAssessmentId, data, updateXarrow, size]
   );
@@ -130,7 +130,7 @@ export const RiskElement = ({
           enabled: data["position.enabled"],
         }
       );
-      console.log(updateElementPosition);
+      (updateElementPosition);
     },
     [riskAssessmentId, data, updateXarrow]
   );
@@ -140,7 +140,7 @@ export const RiskElement = ({
       e.preventDefault();
       if (e.detail !== 2) return;
       if (!data["position.enabled"]) return;
-      console.log("Selecting ....");
+      ("Selecting ....");
       elementSelection(
         data,
         selectedElements.find(

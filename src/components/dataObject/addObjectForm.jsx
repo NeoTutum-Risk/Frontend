@@ -51,7 +51,7 @@ export const AddObjectForm = ({ setAddNewObjectDialog, getData }) => {
   }, [setAddNewObjectDialog]);
 
   const handleSubmit = useCallback(async () => {
-    console.log("payload array",array);
+    ("payload array",array);
     let payload = new FormData();
     if (objectType === "array") {
       payload.append("IOtype",IOType);
@@ -94,7 +94,7 @@ export const AddObjectForm = ({ setAddNewObjectDialog, getData }) => {
   const clearEmpty = useCallback((results)=>{
     if (results.data[results.data.length - 1][0].length === 0) {
       const lastRow = results.data.pop();
-      console.log("Fixed File", results.data);
+      ("Fixed File", results.data);
       showWarningToaster(
         `CSV row#${results.data.length} is an empty row and is removed`
       );
@@ -111,13 +111,13 @@ export const AddObjectForm = ({ setAddNewObjectDialog, getData }) => {
           clearEmpty(results);
           // if (results.data[results.data.length - 1].length === 1) {
           //   const lastRow = results.data.pop();
-          //   console.log("Fixed File", results.data);
+          //   ("Fixed File", results.data);
           //   showWarningToaster(
           //     `CSV row#${results.data.length} is an empty row and is removed`
           //   );
           // }
 
-          console.log(results.data);
+          (results.data);
           setArray(results.data);
         }
       });
@@ -269,7 +269,7 @@ export const AddObjectForm = ({ setAddNewObjectDialog, getData }) => {
                       ? importObjectFile?.name
                       : "Choose file..."
                   }
-                  onInputChange={(e) => {console.log(e);setImportObjectFile(e.target.files[0]);}}
+                  onInputChange={(e) => {(e);setImportObjectFile(e.target.files[0]);}}
                 ></FileInput>
               </FormGroup>
               <FormGroup label="URL" labelInfo="(required)" labelFor="newObjectURL">

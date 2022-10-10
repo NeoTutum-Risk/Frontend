@@ -51,7 +51,7 @@ export const DataObject = React.memo(
     emptySpace,
     setEmptySpace,
   }) => {
-    console.log(`Object Loaded ${data.id}`);
+    (`Object Loaded ${data.id}`);
 
     const [viewIndex, setViewIndex] = useState(globalViewIndex);
 
@@ -77,7 +77,7 @@ export const DataObject = React.memo(
     const [editGroup, setEditGroup] = useState(false);
     const updateXarrow = useXarrow();
     const handleAttributeClick = useCallback((view, active) => {
-      // console.log(view, active);
+      // (view, active);
       setViewedAttribute(view);
       setActiveAttribute(active);
     }, []);
@@ -93,7 +93,7 @@ export const DataObject = React.memo(
 
     const updateSize = useCallback(
       async (delta, direction, position) => {
-        // console.log(data,delta,position);
+        // (data,delta,position);
         const w = Math.round(size.w + delta.width);
         const h = Math.round(size.h + delta.height);
         setSize({ w, h });
@@ -133,7 +133,7 @@ export const DataObject = React.memo(
     }, [groupId]);
 
     const resetFace = useCallback(() => {
-      console.log("Reset");
+      ("Reset");
       setEdit(false);
       setEditingValue(null);
     }, []);
@@ -152,7 +152,7 @@ export const DataObject = React.memo(
           ? allAttributesName.find((val) => val.abbr === activeAttribute).name
           : null;
         payload[attribute] = editingValue;
-        console.log("Updating");
+        ("Updating");
         const response = await updateDataObjectElement(data.id, payload);
         if (response.status >= 200 && response.status < 300) {
           setViewedAttribute(editingValue);
@@ -202,11 +202,11 @@ export const DataObject = React.memo(
     const handleClick = useCallback(
       (e) => {
         if (e.target.className !== "bp3-file-upload-input") {
-          console.log(e, e.target.name);
+          (e, e.target.name);
           if (e.target.localName !== "a") e.preventDefault();
           if (e.detail !== 2) return;
           if (data.disable) return;
-          console.log("Selecting ....");
+          ("Selecting ....");
           elementSelection(
             data,
             selectedElements.find(
@@ -221,7 +221,7 @@ export const DataObject = React.memo(
     );
 
     const removeFromGroupHandler = useCallback(async () => {
-      console.log({ id: data.id, groupId });
+      ({ id: data.id, groupId });
       const response = await removeFromGroup("data", { id: data.id, groupId });
     }, [data.id, groupId, removeFromGroup]);
 

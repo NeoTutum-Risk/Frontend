@@ -15,7 +15,7 @@ export const Auth = () => {
     e => {
       e.preventDefault()
 
-      console.log('user,password', user, password)
+      ('user,password', user, password)
 
       navigate('/dashboard')
     },

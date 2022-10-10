@@ -14,7 +14,7 @@ export const RiskGroup = ({
   riskAssessmentId,
   updateXarrow,
 }) => {
-  // console.log(`element rerendered ${data.id}`)
+  // (`element rerendered ${data.id}`)
   // const updateXarrow = useXarrow();
   const [expanded, setExpanded] = useState(data.currentExpanded);
   const [drag, setDrag] = useState({
@@ -27,16 +27,16 @@ export const RiskGroup = ({
   const [tooltipTimer, setTooltipTimer] = useState(null);
 
   const startDrag = useCallback((e) => {
-    console.log("Drag Start");
+    ("Drag Start");
     e.preventDefault();
-    console.log(e);
+    (e);
     const element = e.target;
     const bbox = e.target.getBoundingClientRect();
     const x = e.clientX - bbox.left;
     const y = e.clientY - bbox.top;
     element.setPointerCapture(e.pointerId);
     setDrag((prev) => ({ ...prev, active: true, offset: { x, y } }));
-    // console.log("start drag", e.target);
+    // ("start drag", e.target);
   }, []);
 
   const handleDragging = useCallback(
@@ -73,7 +73,7 @@ export const RiskGroup = ({
       expanded: data.currentExpanded,
     });
 
-    console.log(updateElementPosition);
+    (updateElementPosition);
   }, [data.id, drag.cx, drag.cy, index, data.currentExpanded, riskAssessmentId,updateXarrow]);
 
   const updateExpanded = useCallback(async () => {
@@ -86,7 +86,7 @@ export const RiskGroup = ({
     setExpanded((prev) => !prev);
     updateXarrow();
     setInterval(updateXarrow, 200);
-    console.log(updateElementPosition);
+    (updateElementPosition);
   }, [data.id, drag.cx, drag.cy, index, expanded, updateXarrow,riskAssessmentId]);
 
   const endDrag = useCallback(
@@ -104,7 +104,7 @@ export const RiskGroup = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      console.log("Selecting ....");
+      ("Selecting ....");
       updateExpanded();
     },
     [updateExpanded]
@@ -118,7 +118,7 @@ export const RiskGroup = ({
           setShowTooltip(true);
         }, 1000)
       );
-      // console.log("Mouse Over");
+      // ("Mouse Over");
     },
     [tooltipTimer]
   );

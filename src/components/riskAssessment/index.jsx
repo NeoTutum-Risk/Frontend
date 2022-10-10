@@ -123,7 +123,7 @@ export const RiskAssessment = ({
   }, [riskAssessmentId, enviroDimension, getCenter]);
 
   const updateRAWindowSettings = async () => {
-    console.log('beforeupdate', raSettings);
+    ('beforeupdate', raSettings);
     // if (selectedObjects.length > 0 && selectedObjects[0]) {
     //   const objectPosX = -Math.abs(selectedObjects[0]["position.x"] ?? selectedObjects[0]["x"]) + 300;
     //   const objectPosY = -Math.abs(selectedObjects[0]["position.y"] ?? selectedObjects[0]["y"]) + 300;
@@ -136,14 +136,14 @@ export const RiskAssessment = ({
     // }
     await updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
 
-    console.log("RA Setting Updated updated");
+    ("RA Setting Updated updated");
   };
 
   const elementSelection = useCallback(
     (elementData, state) => {
-      console.log(elementData, state);
+      (elementData, state);
       if (state) {
-        console.log("selecting");
+        ("selecting");
         setSelectedElements((prev) => {
           return [...new Set([...prev, elementData])];
         });
@@ -151,7 +151,7 @@ export const RiskAssessment = ({
           return [...new Set([...prev, elementData])];
         });
 
-        console.log("store", selectedObjects);
+        ("store", selectedObjects);
       } else {
         setSelectedElements((prev) =>
           prev.filter((element) => element.id !== elementData.id)
@@ -166,7 +166,7 @@ export const RiskAssessment = ({
 
     (() => {
         if (initialGlobalScale) {
-          console.log('Setting Initial Global Scale');
+          ('Setting Initial Global Scale');
           setTimeout(() => {
             setGlobalScale(raSettings.scale)
             initializeGlobalScale(false)
@@ -186,9 +186,9 @@ export const RiskAssessment = ({
   const handleZoomPanPinch = useCallback(
     (ref, e) => {
       const raState = ref.state;
-      // console.log("RA State before update settings:", raState);
+      // ("RA State before update settings:", raState);
       // setRASettings({ ...raState });
-      // console.log(raState);
+      // (raState);
       // setRASettings({
       //   positionX: -Math.floor(e.offsetX),
       //   positionY: -Math.floor(e.offsetY),
@@ -209,13 +209,13 @@ export const RiskAssessment = ({
       setTimeout(updateXarrow, 100);
       setTimeout(updateXarrow, 300);
       setTimeout(updateXarrow, 500);
-      console.log("ZOOMPANPINCH");
+      ("ZOOMPANPINCH");
     },
     [updateXarrow]
   );
   
-  // console.log('raSettings -> ',raSettings);    
-  // console.log('globalScale -> ',globalScale);    
+  // ('raSettings -> ',raSettings);    
+  // ('globalScale -> ',globalScale);    
 
   if (loadingZoomSettings || initialGlobalScale) {
     return "";
@@ -275,7 +275,7 @@ export const RiskAssessment = ({
 
         {instanceObjectConnections.map(
           (edge) =>
-            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
+            // (String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
                 // zIndex={1000000}
@@ -395,7 +395,7 @@ export const RiskAssessment = ({
           maxScale={5}
           doubleClick={{ disabled: true }}
           onZoom={(ref, e) => {
-            // console.log(ref);
+            // (ref);
             if (ref.state.scale < 0.1) {
               ref.state.scale = 0.1;
               e.zoomOut(0.1);
@@ -406,8 +406,8 @@ export const RiskAssessment = ({
           onZoomStop={(ref, e) => {
             handleZoomPanPinch(ref, e);
             setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
-            // console.log("event zoom1", e);
-            console.log("event zoom1", ref);
+            // ("event zoom1", e);
+            ("event zoom1", ref);
           }}
           onPinching={updateXarrow}
           onPinchingStop={handleZoomPanPinch}

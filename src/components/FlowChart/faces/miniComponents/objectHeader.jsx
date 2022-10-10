@@ -35,7 +35,7 @@ export const ObjectHeader = ({
             );
           }
           if (value.editable) {
-            console.log("editable", data, value,data[value.name])
+            ("editable", data, value,data[value.name])
             return (
               <EditableButton
                 activeAttribute={activeAttribute}

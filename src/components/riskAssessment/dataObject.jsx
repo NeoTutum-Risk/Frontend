@@ -50,7 +50,7 @@ export const DataObject = ({
   });
   const updateSize = useCallback(
     async (delta, direction, position) => {
-      // console.log(data,delta,position);
+      // (data,delta,position);
       const w = Math.round(size.w + delta.width);
       const h = Math.round(size.h + delta.height);
       setSize({ w, h });
@@ -151,11 +151,11 @@ export const DataObject = ({
     (e) => {
       
      if(e.target.className!=="bp3-file-upload-input"){
-      console.log(e,e.target.name);
+      (e,e.target.name);
       if(e.target.localName!=="a") e.preventDefault();
       if (e.detail !== 2) return;
       if (data.disable) return;
-      console.log("Selecting ....");
+      ("Selecting ....");
       elementSelection(
         data,
         selectedElements.find(
@@ -171,7 +171,7 @@ export const DataObject = ({
   );
 
   const removeFromGroupHandler = useCallback(async () => {
-    console.log({ id: data.id, groupId });
+    ({ id: data.id, groupId });
     const response = await removeFromGroup("data", { id: data.id, groupId });
   }, [data.id, groupId, removeFromGroup]);
 

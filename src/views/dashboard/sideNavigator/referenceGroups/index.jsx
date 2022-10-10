@@ -53,7 +53,7 @@ export const ReferenceGroups = () => {
     useRecoilState(referenceGroupsState);
   const [referenceGroupPopOverOpenId, setReferenceGroupPopOverOpenId] =
     useState(null);
-  console.log("RF", referenceGroups);
+  ("RF", referenceGroups);
   const [referenceGroupPopOverOpenName, setReferenceGroupPopOverOpenName] =
     useState("");
   const [referenceGroupsNodes, setReferenceGroupsNodes] = useState(null);
@@ -68,13 +68,13 @@ export const ReferenceGroups = () => {
   const [dataObjectLevelsInput, setDataObjectLevelsInput] = useState([]);
   const fetchMetaData = useCallback(async () => {
     const { data } = await getMetaData();
-    console.log(data);
+    (data);
     setMetaData(data.data);
   }, []);
 
   const fetchMetaDataL2 = useCallback(async () => {
     const { data } = await getMetaDataL2();
-    console.log(data);
+    (data);
     setMetaDataL2(data.data);
   }, []);
 
@@ -169,7 +169,7 @@ export const ReferenceGroups = () => {
         prev.map((item) => item.levelId).indexOf(i) === -1 ||
         prev.length === 0
       ) {
-        //console.log(prev.map((item) => item.levelId).indexOf(i));
+        //(prev.map((item) => item.levelId).indexOf(i));
         return [...prev, { levelId: i, name: e.target.value }];
       } else {
         return prev.map((item) => {
@@ -185,26 +185,26 @@ export const ReferenceGroups = () => {
 
   const csvFileParser = (e, i) => {
     const files = e.target.files;
-    //  console.log(files);
+    //  (files);
     if (files) {
-      console.log(files[0].name, i);
+      (files[0].name, i);
       Papa.parse(files[0], {
         complete: function (results) {
           let csvError = false;
-          console.log(
+          (
             "empty last row check",
             results.data[results.data.length - 1]
           );
           if (results.data[results.data.length - 1].length === 1) {
             const lastRow = results.data.pop();
-            console.log("Fixed File", results.data);
+            ("Fixed File", results.data);
             showWarningToaster(
               `CSV row#${results.data.length} is an empty row and is removed`
             );
           }
 
           //return;
-          console.log("header Check", results.data[0][0], results.data[0][2]);
+          ("header Check", results.data[0][0], results.data[0][2]);
           if (
             !(
               Number.isInteger(Number(results.data[0][0])) &&
@@ -212,7 +212,7 @@ export const ReferenceGroups = () => {
             )
           ) {
             const header = results.data.shift();
-            console.log("igoring the header", results.data, header);
+            ("igoring the header", results.data, header);
             showWarningToaster(`CSV row#1 is considered as header`);
           }
 
@@ -232,7 +232,7 @@ export const ReferenceGroups = () => {
               });
 
               // Check Index & Rank Integers
-              console.log(
+              (
                 "Checking Index & Rank",
                 row[0],
                 Number(row[0]),
@@ -252,14 +252,14 @@ export const ReferenceGroups = () => {
               }
             }
           });
-          console.log(results.data);
+          (results.data);
           if (csvError) return;
           setDataObjectLevelsInput((prev) => {
             if (
               prev.map((item) => item.levelId).indexOf(i) === -1 ||
               prev.length === 0
             ) {
-              //console.log(prev.map((item) => item.levelId).indexOf(i));
+              //(prev.map((item) => item.levelId).indexOf(i));
               return [
                 ...prev,
                 {
@@ -284,7 +284,7 @@ export const ReferenceGroups = () => {
               });
             }
 
-            // console.log(prev);
+            // (prev);
             // return prev.map((level) => {
             //   if (level.levelId === i) {
             //     return {
@@ -297,7 +297,7 @@ export const ReferenceGroups = () => {
             //   }
             // });
           });
-          // console.log("Finished:", results.data);
+          // ("Finished:", results.data);
         },
       });
     }
@@ -338,7 +338,7 @@ export const ReferenceGroups = () => {
     }
     return levelsFormGroup;
   }, [dataObjectLevels, dataObjectLevelsInput]);
-  //console.log("Levels Input",levelsInputContent);
+  //("Levels Input",levelsInputContent);
   const createDataObject = useCallback(
     async (e) => {
       e.preventDefault();
@@ -399,7 +399,7 @@ export const ReferenceGroups = () => {
         };
 
         const response = await addDataObject(payload);
-        console.log("payload", payload, response, response.status);
+        ("payload", payload, response, response.status);
         if (response.data.error && response.status !== 200) {
           showDangerToaster(
             `Error Creating Data Object: ${response.data.error}`
@@ -482,7 +482,7 @@ export const ReferenceGroups = () => {
                       <option value={l2.id}>{l2.name}</option>
                     )),
                   ];
-                  // console.log("options",mainLevel);
+                  // ("options",mainLevel);
                   return mainLevel;
                 })
               ) : (
@@ -508,7 +508,7 @@ export const ReferenceGroups = () => {
                         </option>
                       )),
                     ];
-                    // console.log("options",mainLevel);
+                    // ("options",mainLevel);
                     return mainLevel;
                   })
                 ) : (
@@ -763,7 +763,7 @@ export const ReferenceGroups = () => {
       setReferenceGroupContextMenu(nodeData.id);
     }
 
-    // console.log("context",nodeData);
+    // ("context",nodeData);
   }, []);
 
   const checkMaximized = useRecoilCallback(
@@ -804,7 +804,7 @@ export const ReferenceGroups = () => {
 
         if (check) {
           let old = snapshot.getLoadable(windowFamily(check)).contents;
-          console.log(old);
+          (old);
           set(windowFamily(check), {
             ...old,
             maximized: false,
@@ -831,7 +831,7 @@ export const ReferenceGroups = () => {
 
   const onNodeClick = useCallback(
     async (node) => {
-      console.log(node);
+      (node);
       if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
 
@@ -862,7 +862,7 @@ export const ReferenceGroups = () => {
     [setWindows]
   );
 
-  console.log(referenceGroupsNodes, referenceGroups);
+  (referenceGroupsNodes, referenceGroups);
   return (
     <Tree
       contents={referenceGroupsNodes}
