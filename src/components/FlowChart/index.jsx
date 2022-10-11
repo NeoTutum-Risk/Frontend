@@ -8,7 +8,11 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { editableValues, headerValues ,allAttributesName} from "./data/refElementStructure";
+import {
+  editableValues,
+  headerValues,
+  allAttributesName,
+} from "./data/refElementStructure";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import {
   getDataObjectConnections,
@@ -111,22 +115,24 @@ export const FlowChart = ({
     getWindowSettings().then(() => {
       setloadingZoomSettings(false);
     });
-  }, [dataObjectId, enviroDimension, getCenter, getWindowSettings]);
+  }, [getWindowSettings]);
 
   const updateRAWindowSettings = async () => {
-
     await updateReferenceWindowSettings(dataObjectId, raSettings);
-
   };
 
-  (() => {
+  const initializeWindow = useCallback(() => {
     if (initialGlobalScale) {
       setTimeout(() => {
         setGlobalScale(raSettings.scale);
         initializeGlobalScale(false);
       }, 500);
     }
-  })();
+  }, [initialGlobalScale, raSettings.scale]);
+
+  useEffect(() => {
+    initializeWindow();
+  }, [initializeWindow]);
 
   // const getEdges = useCallback(async () => {
   //   const response = await getDataObjectConnections();
@@ -181,7 +187,7 @@ export const FlowChart = ({
         // onNetworkChange({ sourceId, targetId, option: "disconnect" });
       }
     },
-    [selectedElements, edges,setSelectedElements]
+    [selectedElements, edges, setSelectedElements]
   );
 
   const showContext = useCallback(
@@ -272,7 +278,7 @@ export const FlowChart = ({
       setTimeout(updateXarrow, 400);
       // setTimeout(updateXarrow, 500);
     },
-    [updateXarrow,raSettings.id]
+    [updateXarrow, raSettings.id]
   );
 
   const updateAndDeselect = useCallback(() => {
@@ -293,12 +299,12 @@ export const FlowChart = ({
 
   const checkConnection = useCallback(
     (id) => {
-      let o=String(`RF-D-${id}`);
+      let o = String(`RF-D-${id}`);
       groups
         .filter((grp) => !grp.expanded)
         .forEach((grp) => {
           if (grp.elements.find((element) => element.id === id))
-            o= String(`group-object-${grp.id}`);
+            o = String(`group-object-${grp.id}`);
         });
       return o;
     },
@@ -450,31 +456,33 @@ export const FlowChart = ({
                   }}
                   onClick={() => rootCall("resetContext")}
                 >
-                  {objects.map((node,index) => (
-                    node?.id && 
-                    <DataObject
-                      globalViewIndex={globalViewIndex}
-                      views={views}
-                      handleContextMenu={handleContextMenu}
-                      scale={globalScale}
-                      expanded={true}
-                      data={node}
-                      selectedElements={selectedElements}
-                      elementSelection={elementSelection}
-                      setFirstContext={setFirstContext}
-                      setHoveredElement={setHoveredElement}
-                      handleObjectAction={handleObjectAction}
-                      removeFromGroup={removeFromGroup}
-                      addToGroup={addToGroup}
-                      key={`rf-${node.id}-g`}
-                      enviroDimension={enviroDimension}
-                      shared={0}
-                      rootCall={rootCall}
-                      editableValues={editableValues}
-                      headerValues={headerValues}
-                      allAttributesName={allAttributesName}
-                    />
-                  ))}
+                  {objects.map(
+                    (node, index) =>
+                      node?.id && (
+                        <DataObject
+                          globalViewIndex={globalViewIndex}
+                          views={views}
+                          handleContextMenu={handleContextMenu}
+                          scale={globalScale}
+                          expanded={true}
+                          data={node}
+                          selectedElements={selectedElements}
+                          elementSelection={elementSelection}
+                          setFirstContext={setFirstContext}
+                          setHoveredElement={setHoveredElement}
+                          handleObjectAction={handleObjectAction}
+                          removeFromGroup={removeFromGroup}
+                          addToGroup={addToGroup}
+                          key={`rf-${node.id}-g`}
+                          enviroDimension={enviroDimension}
+                          shared={0}
+                          rootCall={rootCall}
+                          editableValues={editableValues}
+                          headerValues={headerValues}
+                          allAttributesName={allAttributesName}
+                        />
+                      )
+                  )}
                   {groups.map((group) => (
                     <>
                       <ObjectsGroup
@@ -513,8 +521,6 @@ export const FlowChart = ({
                         ))}
                     </>
                   ))}
-
-                  
 
                   {contextMenu.show && (
                     <ConnetionContext

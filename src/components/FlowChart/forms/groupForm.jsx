@@ -19,8 +19,8 @@ import {
 import { set } from "lodash";
 import { useCallback } from "react";
 import { useState } from "react";
-export const GroupFrom = ({ rootCall,groupObjects }) => {
-  const [newGroupName, setNewGroupName] = useState(null);
+export const GroupFrom = ({ rootCall, groupObjects, groupsCount }) => {
+  const [newGroupName, setNewGroupName] = useState(`G-${groupsCount}`);
   const [newGroupNameError, setNewGroupNameError] = useState(null);
   const [newGroupDesc, setNewGroupDesc] = useState(null);
   const [newGroupDescError, setNewGroupDescError] = useState(null);
@@ -67,6 +67,7 @@ export const GroupFrom = ({ rootCall,groupObjects }) => {
         >
           <InputGroup
             required
+            value={newGroupName}
             id="newGroupName"
             onChange={(event) => {
               setNewGroupNameError(null);
@@ -82,7 +83,7 @@ export const GroupFrom = ({ rootCall,groupObjects }) => {
           labelFor="newGroupDesc"
         >
           <InputGroup
-            required
+            // required
             id="newGroupDesc"
             onChange={(event) => {
               setNewGroupDescError(null);
