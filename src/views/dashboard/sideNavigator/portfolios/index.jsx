@@ -139,7 +139,6 @@ export const Portfolios = () => {
     
     if(check){
       let old = snapshot.getLoadable(windowFamily(check)).contents
-      (old);
       set(windowFamily(check), {
         ...old,
         maximized: false,
