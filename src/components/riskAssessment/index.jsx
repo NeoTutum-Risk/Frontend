@@ -43,7 +43,15 @@ export const RiskAssessment = ({
     height: 50000,
     width: 50000,
   });
+  const transformWrapperRef = useRef(null);
 
+  const [objectPropertyConnections, setObjectPropertyConnections] = useState(
+    []
+  );
+  const [selectedObjects, setSelectedObjects] =
+    useRecoilState(objectSelectorState);
+  const [globalScale, setGlobalScale] = useState(1);
+  const [initialGlobalScale, initializeGlobalScale] = useState(true);
   const getCenter = useCallback(() => {
     let objectsArray = [...objects];
     let top = enviroDimension.height;
@@ -67,46 +75,29 @@ export const RiskAssessment = ({
 
     return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top };
   }, [enviroDimension, objects, groups]);
-
-  const transformWrapperRef = useRef(null);
-
-  const [objectPropertyConnections, setObjectPropertyConnections] = useState(
-    []
-  );
-  const [selectedObjects, setSelectedObjects] =
-    useRecoilState(objectSelectorState);
-  const [globalScale, setGlobalScale] = useState(1);
-  const [initialGlobalScale, initializeGlobalScale] = useState(true)
   const [raSettings, setRASettings] = useState({
     id: 0,
     positionX: -Math.floor(getCenter().x),
     positionY: -Math.floor(getCenter().y),
     previousScale: 1,
     scale: 1,
-
   });
   const [loadingZoomSettings, setloadingZoomSettings] = useState(true);
+  const initializeWindow = useCallback(() => {
+    if (initialGlobalScale) {
+      setTimeout(() => {
+        setGlobalScale(raSettings.scale);
+        initializeGlobalScale(false);
+      }, 500);
+    }
+  }, [initializeGlobalScale, initialGlobalScale, raSettings.scale]);
 
-  const getWindowSettings = async () => {
-    setloadingZoomSettings(true)
+  const getWindowSettings = useCallback(async () => {
+    setloadingZoomSettings(true);
     const res = await getRiskAssessmentWindowSettings(riskAssessmentId);
 
     const { id, positionX, positionY, previousScale, scale } = res.data.data;
-    
-    // const condX = positionX  > 0 ? -100 : positionX;
-    // const condY = positionY  > 0 ? -100 : positionY;
 
-    // setRASettings({
-    //   id: 0,
-    //   positionX: Math.floor(condX),
-    //   positionY: Math.floor(condY),
-    //   scale: 1,
-    //   previousScale: 1,
-    // });
-
-      // setGlobalScale(scale)
-      // setGlobalScale(scale < 0.1 ? 0.1 : scale);
-      
     setRASettings({
       id,
       positionX,
@@ -114,28 +105,19 @@ export const RiskAssessment = ({
       scale,
       previousScale,
     });
-  };
+  }, [riskAssessmentId]);
 
   useEffect(() => {
     getWindowSettings().then(() => {
       setloadingZoomSettings(false);
     });
-  }, [riskAssessmentId, enviroDimension, getCenter]);
-
-  const updateRAWindowSettings = async () => {
-    // if (selectedObjects.length > 0 && selectedObjects[0]) {
-    //   const objectPosX = -Math.abs(selectedObjects[0]["position.x"] ?? selectedObjects[0]["x"]) + 300;
-    //   const objectPosY = -Math.abs(selectedObjects[0]["position.y"] ?? selectedObjects[0]["y"]) + 300;
-    //   await updateRiskAssessmentWindowSettings(riskAssessmentId, {
-    //     ...raSettings,
-    //     positionX: objectPosX,
-    //     positionY: objectPosY,
-    //   });
-    // } else {
-    // }
+  }, [getWindowSettings]);
+  useEffect(() => {
+    initializeWindow();
+  }, [initializeWindow]);
+  const updateRAWindowSettings = useCallback(async () => {
     await updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
-
-  };
+  }, [raSettings, riskAssessmentId]);
 
   const elementSelection = useCallback(
     (elementData, state) => {
@@ -146,7 +128,6 @@ export const RiskAssessment = ({
         setSelectedObjects((prev) => {
           return [...new Set([...prev, elementData])];
         });
-
       } else {
         setSelectedElements((prev) =>
           prev.filter((element) => element.id !== elementData.id)
@@ -159,15 +140,9 @@ export const RiskAssessment = ({
     [setSelectedElements, setSelectedObjects, selectedObjects]
   );
 
-    (() => {
-        if (initialGlobalScale) {
-          setTimeout(() => {
-            setGlobalScale(raSettings.scale)
-            initializeGlobalScale(false)
-          }, 500);
-        }
-    })()
-   
+  // (() => {
+
+  // })();
 
   const handleObjectProperty = useCallback(({ id, action }) => {
     if (action === "add") {
@@ -204,11 +179,11 @@ export const RiskAssessment = ({
       setTimeout(updateXarrow, 300);
       setTimeout(updateXarrow, 500);
     },
-    [updateXarrow,raSettings]
+    [updateXarrow, raSettings]
   );
-  
-  // ('raSettings -> ',raSettings);    
-  // ('globalScale -> ',globalScale);    
+
+  // ('raSettings -> ',raSettings);
+  // ('globalScale -> ',globalScale);
 
   if (loadingZoomSettings || initialGlobalScale) {
     return "";
@@ -378,7 +353,7 @@ export const RiskAssessment = ({
             // zIndex={1000000}
           />
         ))}
-      
+
         <TransformWrapper
           zoomAnimation={{ disabled: true }}
           initialScale={raSettings.scale}
@@ -432,7 +407,7 @@ export const RiskAssessment = ({
                   onClick={(e) => {
                     zoomIn();
                     setGlobalScale((prev) => (prev += 0.2));
-                  }} 
+                  }}
                 />
                 <Button
                   small={true}
