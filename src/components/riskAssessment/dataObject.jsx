@@ -514,6 +514,7 @@ export const DataObject = ({
           </div>
 
           {data.dataObjectNew.arrayName ? (
+            // <></>
             <table
               className="bp4-html-table-bordered panningDisabled"
               style={{ textAlign: "left", paddingTop: "5px" }}
@@ -529,8 +530,8 @@ export const DataObject = ({
               <tr>
                 <th>Array Dimension</th>
                 <td>
-                  {data.dataObjectNew.array &&
-                    `${data.dataObjectNew.array.length} X ${data.dataObjectNew.array[0].length}`}
+                  {data.dataObjectNew.array.length &&
+                    `${data.dataObjectNew?.array?.length} X ${data.dataObjectNew?.array[0].length}`}
                 </td>
               </tr>
             </table>
