@@ -60,13 +60,13 @@ export const GroupFrom = ({ rootCall, groupObjects, groupsCount }) => {
       <form onSubmit={handleSubmit}>
         <FormGroup
           label="Name"
-          labelInfo="(required)"
+          // labelInfo="(required)"
           intent={newGroupNameError ? Intent.DANGER : Intent.NONE}
           helperText={newGroupNameError}
           labelFor="newGroupName"
         >
           <InputGroup
-            required
+            // required
             value={newGroupName}
             id="newGroupName"
             onChange={(event) => {
@@ -77,7 +77,7 @@ export const GroupFrom = ({ rootCall, groupObjects, groupsCount }) => {
         </FormGroup>
         <FormGroup
           label="Description"
-          labelInfo="(required)"
+          // labelInfo="(required)"
           intent={newGroupDescError ? Intent.DANGER : Intent.NONE}
           helperText={newGroupDescError}
           labelFor="newGroupDesc"

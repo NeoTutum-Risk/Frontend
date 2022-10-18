@@ -24,7 +24,7 @@ export const FaceWrapper = ({
         borderRadius: viewIndex !== 0 ? "15px" : null,
         backgroundColor: "white",
         padding: viewIndex !== 0 ? "5px" : null,
-        overflow: "hidden",
+        overflow:viewIndex !== 0 ? "hidden":null,
       }}
       onContextMenu={(e) => rootCall("context", { e,type: "contextMenu" })}
       onMouseEnter={() => rootCall("objectIn", { id: data.id })}

@@ -777,10 +777,6 @@ export const ReferenceGroups = () => {
           );
         });
 
-        if (windowId) {
-          return;
-        }
-
         const check = checkMaximized();
 
         if (check) {
@@ -791,6 +787,19 @@ export const ReferenceGroups = () => {
             collapse: true,
           });
         }
+
+        if (windowId) {
+          console.log("Window")
+          let calledWindow = snapshot.getLoadable(windowFamily(windowId)).contents;
+          set(windowFamily(windowId), {
+            ...calledWindow,
+            maximized: true,
+            collapse: false,
+          });
+          return;
+        }
+
+        
 
         const id = generateID();
         const windowData = {
@@ -838,7 +847,7 @@ export const ReferenceGroups = () => {
       );
       */
     },
-    [setWindows]
+    [setWindowCallBack]
   );
 
   return (

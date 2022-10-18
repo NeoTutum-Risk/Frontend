@@ -2614,13 +2614,13 @@ export const RiskAssessmentWindow = ({
             >
               <FormGroup
                 label="Name"
-                labelInfo="(required)"
+                // labelInfo="(required)"
                 intent={groupNameError ? Intent.DANGER : Intent.NONE}
                 helperText={groupNameError}
                 labelFor="newGroupName"
               >
                 <InputGroup
-                  required
+                  // required
                   id="newGroupName"
                   onChange={(event) => {
                     setGroupNameError(null);

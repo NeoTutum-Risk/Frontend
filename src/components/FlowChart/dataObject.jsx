@@ -275,12 +275,13 @@ export const DataObject = React.memo(
           selectedElements={selectedElements}
           handleClick={handleClick}
           className="panningDisabled pinchDisabled wheelDisabled"
-          colors={{ default: "#1D7324", selected: "#EE0000", disabled: "grey" }}
+          colors={{ default: "#5cacdb", selected: "#EE0000", disabled: "grey" }}
           onContextMenu={(e) => e.preventDefault()}
         >
           {expanded && viewIndex === 0 ? (
             <MiniFace
               id={data.id}
+              name={data.name}
               rootCall={rootCall}
               handleClick={handleClick}
               intent="success"

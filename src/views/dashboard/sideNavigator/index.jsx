@@ -159,11 +159,11 @@ export const SideNavigator = () => {
         )}
       </div>
 
-      {menuOpen && (
+      {/*menuOpen &&*/ (
         <>
           {showDashboard !== "admin" && (
             <>
-              <div className={styles.tree}>
+              <div className={styles.tree} style={{display:menuOpen?"initial":"none"}}>
                 <div className={styles.addPortfolio}>
                   <H4>Reference Groups</H4>
                   <AddReferenceGroup />
@@ -172,7 +172,7 @@ export const SideNavigator = () => {
                   <ReferenceGroups />
                 </Async>
               </div>
-              <div className={styles.tree}>
+              <div className={styles.tree} style={{display:menuOpen?"initial":"none"}}>
                 <div className={styles.addPortfolio}>
                   <H4>Portfolios</H4>
                   <AddPortfolio />
@@ -181,7 +181,7 @@ export const SideNavigator = () => {
                   <Portfolios />
                 </Async>
               </div>
-              <div className={styles.tree}>
+              <div className={styles.tree} style={{display:menuOpen?"initial":"none"}}>
                 <div className={styles.addPortfolio}>
                   <H4>Dashboard Charts</H4>
                 </div>

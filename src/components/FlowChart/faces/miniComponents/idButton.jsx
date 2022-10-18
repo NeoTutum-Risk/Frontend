@@ -1,6 +1,6 @@
 import { ButtonGroup,Menu, Button, MenuItem } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
-export const IdButton = ({ id, intent,view,editView }) => {
+export const IdButton = ({ id, intent,view,editView,name }) => {
   return (
     <ButtonGroup>
         <Button text={id} intent={intent} onClick={()=>editView('next')}/>
@@ -17,7 +17,7 @@ export const IdButton = ({ id, intent,view,editView }) => {
       <Button
         className="panningDisabled pinchDisabled wheelDisabled"
         intent={"none"}
-        text={view}
+        text={name?name:view}
         tabIndex={0}
       />
     </Popover2>
