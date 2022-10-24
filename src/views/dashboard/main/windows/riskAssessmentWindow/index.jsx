@@ -182,8 +182,8 @@ export const RiskAssessmentWindow = ({
 
           if (object && group === null) {
             group = grp;
-            //  console.log("grp-obj",object, grp,id, type);
-            // console.log("obj", object, Date.now());
+            //  ("grp-obj",object, grp,id, type);
+            // ("obj", object, Date.now());
             // return { object:object, group: grp };
           }
         });
@@ -245,7 +245,7 @@ export const RiskAssessmentWindow = ({
         //     ? true
         //     : false;
       }
-      // console.log(type, status, filter, check);
+      // (type, status, filter, check);
       return check;
     },
     [filter]
@@ -298,14 +298,14 @@ export const RiskAssessmentWindow = ({
                 : "collapsed";
           }
 
-          // console.log(target, source);
+          // (target, source);
           break;
 
         case "dataObjects":
           target = checkObject(connection.sourceRef, "instance");
           source = checkObject(connection.targetRef, "instance");
           if (!target.object || !source.object) return false;
-          // console.log(
+          // (
           //   "-------",
           //   target.object.id,
           //   target.object.status,
@@ -325,7 +325,7 @@ export const RiskAssessmentWindow = ({
               source.object?.status,
               source.object?.disable
             );
-          // console.log(check);
+          // (check);
           if (!check) return false;
 
           if (target.group) {
@@ -367,7 +367,7 @@ export const RiskAssessmentWindow = ({
             source = checkObject(connection.sourceRef, "instance");
             target = checkObject(connection.targetRef, "risk");
             if (!target.object || !source.object) return false;
-            // console.log("==========", source, target, connection);
+            // ("==========", source, target, connection);
             check =
               checkFilter(
                 source.object?.dataObjectNew.IOtype,
@@ -407,7 +407,7 @@ export const RiskAssessmentWindow = ({
       if (check === "collapsed" && target.group?.id === source.group?.id) {
         check = "collapsedGroup";
       }
-      // console.log("check", check, connection,target,source);
+      // ("check", check, connection,target,source);
       return check;
     },
     [
@@ -441,7 +441,7 @@ export const RiskAssessmentWindow = ({
 
   const changeView = useCallback(
     async (id) => {
-      // console.log(viewsList);
+      // (viewsList);
       const response = await updateRiskAssessmentView(id, { current: true });
       updateViewsList();
       setFilter(viewsList.find((view) => view.id === id).filter);
@@ -472,7 +472,7 @@ export const RiskAssessmentWindow = ({
   }, [newViewName, filter, window.data.id, updateViewsList, resetContext]);
 
   const removeObjectConnections = useCallback((obj) => {
-    // console.log("remove connection", obj.type);
+    // ("remove connection", obj.type);
     if (obj.type !== "instance") {
       setConnections((prev) =>
         prev.filter(
@@ -538,7 +538,7 @@ export const RiskAssessmentWindow = ({
     try {
       const response = await getRiskAssessment(window.data.id);
       if (response.status === 200) {
-        // console.log(response.data.data);
+        // (response.data.data);
         setRiskObjects(response.data.data.riskObjects);
         setDataObjectInstances(response.data.data.dataObjectsNewProperties);
         setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
@@ -574,7 +574,7 @@ export const RiskAssessmentWindow = ({
       } else {
         showDangerToaster(`Error Retrieving Risk Assessment Data`);
         setTimeout(riskAssessmentData, 1000);
-        // console.log("Failing");
+        // ("Failing");
       }
     } catch (err) {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
@@ -678,7 +678,6 @@ export const RiskAssessmentWindow = ({
             );
             setGroups((prev) => {
               return prev.map((group) => {
-                console.log("in", group.id, data.groupId);
                 if (Number(group.id) === Number(data.groupId)) {
                   return {
                     ...group,
@@ -893,7 +892,7 @@ export const RiskAssessmentWindow = ({
     async (path) => {
       try {
         setContextMenu((prev) => ({ ...prev, type: "loading" }));
-        // console.log(activeObject);
+        // (activeObject);
         const response = await addRiskObjectProperties(activeObject, {
           dataObjectElements: path,
         });
@@ -948,7 +947,7 @@ export const RiskAssessmentWindow = ({
           selectedElements[0].type !== "instance" &&
           selectedElements[1].type !== "instance"
         ) {
-          // console.log("risks");
+          // ("risks");
           let payload = {
             sourceRef: selectedElements[0].id,
             targetRef: selectedElements[1].id,
@@ -960,7 +959,7 @@ export const RiskAssessmentWindow = ({
           setConnections((prev) => [...prev, response.data.data]);
           setSelectedElements([]);
           setSelectedObjects([]);
-          // console.log(payload);
+          // (payload);
         } else if (
           selectedElements[0].type === "instance" &&
           selectedElements[1].type === "instance"
@@ -976,7 +975,7 @@ export const RiskAssessmentWindow = ({
           setInstanceConnections((prev) => [...prev, response.data.data]);
           setSelectedElements([]);
           setSelectedObjects([]);
-          // console.log(payload);
+          // (payload);
         } else {
           let instance, object, source, target;
           if (selectedElements[0].type === "instance") {
@@ -986,7 +985,7 @@ export const RiskAssessmentWindow = ({
             instance = selectedElements[1];
             object = selectedElements[0];
           }
-          // console.log(instance.dataObjectNew.IOtype,object);
+          // (instance.dataObjectNew.IOtype,object);
           if (instance.dataObjectNew.IOtype === "Input") {
             source = instance;
             target = object;
@@ -1008,7 +1007,7 @@ export const RiskAssessmentWindow = ({
           setInstanceObjectConnections((prev) => [...prev, response.data.data]);
           setSelectedElements([]);
           setSelectedObjects([]);
-          // console.log(payload);
+          // (payload);
         }
         setContextMenu({
           active: false,
@@ -1074,11 +1073,10 @@ export const RiskAssessmentWindow = ({
     );
   });
 
-  // console.log(menu);
+  // (menu);
 
   const handleContextMenu = useCallback(
     async (e, data) => {
-      console.log(data, e);
       if (firstContext === "risk" && selectedElements.length < 2) return;
       if (data.id) {
         setActiveObject(data.id);
@@ -1104,7 +1102,7 @@ export const RiskAssessmentWindow = ({
       let y = e.nativeEvent.layerY;
       let offsetX = e.nativeEvent.offsetX;
       let offsetY = e.nativeEvent.offsetY;
-      // console.log(e, contextX, contextY);
+      // (e, contextX, contextY);
       if (data.from === "main" && firstContext === "main") {
         type = "create";
         // x = e.nativeEvent.layerX+ 20;
@@ -1118,7 +1116,6 @@ export const RiskAssessmentWindow = ({
         //   id = e.target.id.split("-")[3];
         // }
         if (selectedElements.length === 0) {
-          console.log(data.type);
           type = "contextDO";
           setFirstContext("contextDO");
         } else if (selectedElements.length === 2) {
@@ -1136,7 +1133,6 @@ export const RiskAssessmentWindow = ({
         //   id = e.target.id.split("-")[3];
         // }
         if (selectedElements.length === 0) {
-          console.log(data.type);
           type = "context";
           setFirstContext("context");
         } else if (selectedElements.length === 2) {
@@ -1154,7 +1150,6 @@ export const RiskAssessmentWindow = ({
         ? Number(id)
         : Number(e.target.parentElement.id.split("-")[2]);
 
-      console.log(data.type, type);
       setContextMenu((prev) => ({
         active: true,
         type,
@@ -1372,7 +1367,8 @@ export const RiskAssessmentWindow = ({
         setImportTemplateNameError(null);
         riskAssessmentData();
       } catch (error) {
-        showDangerToaster(`Faild to create group from template`);
+        const responseErr = error.response?.data?.error
+        showDangerToaster(responseErr || `Faild to create group from template`);
         setIsServiceLoading(false);
       }
       setIsServiceLoading(false);
@@ -1397,7 +1393,7 @@ export const RiskAssessmentWindow = ({
     const riskObject = await getRiskObject(activeObject);
     if (riskObject.status === 200) {
       const { name, description } = riskObject.data.data;
-      // console.log(name, description);
+      // (name, description);
       setObjectName(name);
       setObjectDescription(description);
       setContextMenu((prev) => ({ ...prev, type: "create object" }));
@@ -1407,7 +1403,7 @@ export const RiskAssessmentWindow = ({
 
   const handleObjectAction = useCallback(
     async (element) => {
-      // console.log("element", element);
+      // ("element", element);
 
       if (element.operation === "reset") {
         riskAssessmentData();
@@ -1453,7 +1449,6 @@ export const RiskAssessmentWindow = ({
                   return {
                     ...group,
                     elements: group.elements.map((object) => {
-                      console.log("inside", object, element);
                       if (object?.id === element.id) {
                         const updatedObject = { ...object };
                         element.operation === "enable"
@@ -1646,7 +1641,6 @@ export const RiskAssessmentWindow = ({
           object = selectedElements[0];
         }
 
-        console.log(object, instance);
 
         if (instance.dataObjectNew.IOtype === "Output") {
           connection = instanceObjectConnections.find(
@@ -1785,7 +1779,6 @@ export const RiskAssessmentWindow = ({
 
   const importDataObject = useCallback(async () => {
     setIsServiceLoading(true);
-    console.log(importObjectFile);
     let payload = new FormData();
     //  payload = {
     //   riskAssessmentId: window.data.id,
@@ -1834,14 +1827,12 @@ export const RiskAssessmentWindow = ({
 
   const handleProperties = useCallback(
     (id) => {
-      console.log(id);
       // setContextMenu((prev) => ({ ...prev, element: id }));
       // setContextMenu({ element: id });
       setActiveObject(id);
 
-      console.log(activeObject);
     },
-    [activeObject]
+    []
   );
 
   const updateDraftLocation = useCallback(async (e, d) => {
@@ -2016,7 +2007,6 @@ export const RiskAssessmentWindow = ({
                       : "Choose file..."
                   }
                   onInputChange={(e) => {
-                    console.log(e);
                     setImportObjectFile(e.target.files[0]);
                   }}
                 ></FileInput>
@@ -2625,13 +2615,13 @@ export const RiskAssessmentWindow = ({
             >
               <FormGroup
                 label="Name"
-                labelInfo="(required)"
+                // labelInfo="(required)"
                 intent={groupNameError ? Intent.DANGER : Intent.NONE}
                 helperText={groupNameError}
                 labelFor="newGroupName"
               >
                 <InputGroup
-                  required
+                  // required
                   id="newGroupName"
                   onChange={(event) => {
                     setGroupNameError(null);
@@ -3110,7 +3100,6 @@ export const RiskAssessmentWindow = ({
                           : "Choose file..."
                       }
                       onInputChange={(e) => {
-                        console.log(e);
                         setImportObjectFile(e.target.files[0]);
                       }}
                     ></FileInput>

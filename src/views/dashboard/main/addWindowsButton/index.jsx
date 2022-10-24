@@ -92,7 +92,6 @@ export const AddWindowsButton = ({ data }) => {
 
     const { data } = await getRiskAssessmentPhysicalTable(id);
     const preparedData = data.data.map((object) => {
-      console.log("properties", object.riskObjectProperties);
       return {
         id: object.id,
         name: object.name,
@@ -422,8 +421,7 @@ export const AddWindowsButton = ({ data }) => {
       ]);
       */
       setIsLoading(false);
-      console.log(levelData);
-  }, [])
+  }, [data])
 
   return (
     <Popover2
@@ -434,13 +432,13 @@ export const AddWindowsButton = ({ data }) => {
         <Menu>
           {data.type === "flowchart" ? (
             <>
-              {data.data.dataObjectLevels.map((level) => (
+              {/* {data.data.dataObjectLevels.map((level) => (
                 <MenuItem
                   icon="th"
                   text={level.name}
                   onClick={() => onLevelClick(level.id)}
                 />
-              ))}
+              ))} */}
             </>
           ) : data.type === "risk" ? (
             <>

@@ -22,8 +22,8 @@ export const RiskElement = ({
   expandPosition,
   groupId
 }) => {
-  // console.log(`element ${data.id}`);
-  // console.log(`element rerendered ${data.id}`);
+  // (`element ${data.id}`);
+  // (`element rerendered ${data.id}`);
   const updateXarrow = useXarrow();
   const [active, setActive] = useState(false);
   const [drag, setDrag] = useState({
@@ -36,16 +36,15 @@ export const RiskElement = ({
   const [tooltipTimer, setTooltipTimer] = useState(null);
 
   const startDrag = useCallback((e) => {
-    console.log("Drag Start");
+    ("Drag Start");
     e.preventDefault();
-    console.log(e);
     const element = e.target;
     const bbox = e.target.getBoundingClientRect();
     const x = e.clientX - bbox.left;
     const y = e.clientY - bbox.top;
     element.setPointerCapture(e.pointerId);
     setDrag((prev) => ({ ...prev, active: true, offset: { x, y } }));
-    // console.log("start drag", e.target);
+    // ("start drag", e.target);
   }, []);
 
   const handleDragging = useCallback(
@@ -66,7 +65,7 @@ export const RiskElement = ({
     [drag.active]
   );
   const updateLocation = useCallback(async () => {
-    // console.log("new position",drag.cx, drag.cy);
+    // ("new position",drag.cx, drag.cy);
     if (drag.cx < 60) {
       setDrag((prev) => ({ ...prev, cx: 60 }));
     }
@@ -86,7 +85,6 @@ export const RiskElement = ({
         enabled: data["position.enabled"],
       }
     );
-    console.log(updateElementPosition);
   }, [riskAssessmentId, data, drag.cx, drag.cy, index]);
   const endDrag = useCallback(
     async (e) => {
@@ -104,7 +102,6 @@ export const RiskElement = ({
       e.preventDefault();
       if (e.detail !== 2) return;
       if (!data["position.enabled"]) return;
-      console.log("Selecting ....");
       elementSelection(
         data,
         selectedElements.find((element) => element.id === data.id)
@@ -127,7 +124,7 @@ export const RiskElement = ({
   //       y: drag.cy,
   //       x: drag.cx,
   //     });
-  //     // console.log("cm", data);
+  //     // ("cm", data);
   //   },
   //   [showContext,drag, data]
   // );
@@ -140,7 +137,7 @@ export const RiskElement = ({
           setShowTooltip(true);
         }, 1000)
       );
-      // console.log("Mouse Over");
+      // ("Mouse Over");
     },
     [tooltipTimer]
   );

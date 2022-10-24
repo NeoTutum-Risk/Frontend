@@ -199,6 +199,25 @@ export const updateRiskAssessmentWindowSettings = (id, data) => serviceProvider.
 
 export const getRiskAssessmentWindowSettings = (id) => serviceProvider(`/riskAssessments/WindowSettings/${id}`)
 
+
+
+export const updateReferenceWindowSettings = (id, data) => serviceProvider.put(`dataObjects/WindowSettings/${id}`, data)
+
+export const getReferenceWindowSettings = (id) => serviceProvider(`/dataObjects/WindowSettings/${id}`)
+
+
+
 export const addObjectToGroup = (data) => serviceProvider.post(`riskObjectGroups/addObject/Group`, data);
 
 export const unshareGroup = (data) => serviceProvider.post(`riskGroupPositions/unShareGroup`, data);
+
+export const addElementGroup = (data) => serviceProvider.post(`referenceDataObjectGroups`, data);
+
+export const updateElementGroup = (data) => serviceProvider.put(`referenceDataObjectGroups`, data);
+
+export const addElementToGroup = (data) => serviceProvider.put(`referenceDataObjectGroups/addObject/Group`, data);
+
+export const removeElementFromGroup = (data) => serviceProvider.put(`referenceDataObjectGroups/removeObject/Group`, data);
+
+export const CloneDataObject = (data) => serviceProvider.post(`dataObjects/cloneDataObject`, data);
+

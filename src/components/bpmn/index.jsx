@@ -36,7 +36,6 @@ export const Bpmn = memo(
 
         if (response.status === 200) {
           const deletedPhysicalDataObjArr = response.data.data;
-          console.log(deletedPhysicalDataObjArr);
           const existingElements = modeler
             .get("elementRegistry")
             .filter(

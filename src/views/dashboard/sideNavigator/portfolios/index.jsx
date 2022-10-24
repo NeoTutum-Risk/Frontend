@@ -131,21 +131,29 @@ export const Portfolios = () => {
       return window.data.id === data.id;
     })
 
-    if(windowId) {
-      return
-    }
-
     const check = checkMaximized();
     
     if(check){
       let old = snapshot.getLoadable(windowFamily(check)).contents
-      console.log(old);
       set(windowFamily(check), {
         ...old,
         maximized: false,
         collapse:true
       });
     }
+
+    if (windowId) {
+      console.log("Window")
+      let calledWindow = snapshot.getLoadable(windowFamily(windowId)).contents;
+      set(windowFamily(windowId), {
+        ...calledWindow,
+        maximized: true,
+        collapse: false,
+      });
+      return;
+    }
+
+    
     const id = generateID();
     const windowData = {
       type,
@@ -232,7 +240,6 @@ export const Portfolios = () => {
         addNewWindow({ type: "bpmn", data: data.data });
         showSuccessToaster(`New bpmn file uploaded successfully`);
       } catch (error) {
-        console.log(error);
         showDangerToaster(`Failed to upload bpmn file : ${error}`);
       }
     },

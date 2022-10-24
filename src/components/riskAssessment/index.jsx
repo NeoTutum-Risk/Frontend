@@ -37,13 +37,21 @@ export const RiskAssessment = ({
   checkFilter,
   checkConnctionVisibility,
   setGroups,
-  handleUnshareGroup
+  handleUnshareGroup,
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
     width: 50000,
   });
+  const transformWrapperRef = useRef(null);
 
+  const [objectPropertyConnections, setObjectPropertyConnections] = useState(
+    []
+  );
+  const [selectedObjects, setSelectedObjects] =
+    useRecoilState(objectSelectorState);
+  const [globalScale, setGlobalScale] = useState(1);
+  const [initialGlobalScale, initializeGlobalScale] = useState(true);
   const getCenter = useCallback(() => {
     let objectsArray = [...objects];
     let top = enviroDimension.height;
@@ -57,26 +65,16 @@ export const RiskAssessment = ({
     });
 
     objectsArray.forEach((obj) => {
-      if(obj!==null){
+      if (obj !== null) {
         top = obj["position.y"] < top ? obj["position.y"] : top;
         left = obj["position.x"] < left ? obj["position.x"] : left;
         bottom = obj["position.y"] > bottom ? obj["position.y"] : bottom;
         right = obj["position.x"] > right ? obj["position.x"] : right;
       }
-      
     });
 
     return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top };
   }, [enviroDimension, objects, groups]);
-
-  const transformWrapperRef = useRef(null);
-
-  const [objectPropertyConnections, setObjectPropertyConnections] = useState(
-    []
-  );
-  const [selectedObjects, setSelectedObjects] =
-    useRecoilState(objectSelectorState);
-  const [globalScale, setGlobalScale] = useState(1);
   const [raSettings, setRASettings] = useState({
     id: 0,
     positionX: -Math.floor(getCenter().x),
@@ -85,76 +83,51 @@ export const RiskAssessment = ({
     scale: 1,
   });
   const [loadingZoomSettings, setloadingZoomSettings] = useState(true);
+  const initializeWindow = useCallback(() => {
+    if (initialGlobalScale) {
+      setTimeout(() => {
+        setGlobalScale(raSettings.scale);
+        initializeGlobalScale(false);
+      }, 500);
+    }
+  }, [initializeGlobalScale, initialGlobalScale, raSettings.scale]);
+
+  const getWindowSettings = useCallback(async () => {
+    setloadingZoomSettings(true);
+    const res = await getRiskAssessmentWindowSettings(riskAssessmentId);
+
+    const { id, positionX, positionY, previousScale, scale } = res.data.data;
+
+    setRASettings({
+      id,
+      positionX,
+      positionY,
+      scale,
+      previousScale,
+    });
+  }, [riskAssessmentId]);
 
   useEffect(() => {
-    const getWindowSettings = async () => {
-      // const res = await getRiskAssessmentWindowSettings(riskAssessmentId);
-
-      // const { id, positionX, positionY, previousScale, scale } = res.data.data;
-      // console.log("state comming from database: ", res.data);
-
-      // let reposition;
-      // switch (scale) {
-      //   case scale < 0.7:
-      //     reposition = 500;
-      //     break;
-      //   default:
-      //     reposition = 300;
-      // }
-      // const condX = positionX + reposition > 0 ? 0 : positionX + reposition;
-      // const condY = positionY + reposition > 0 ? 0 : positionY + reposition;
-      setRASettings({
-        id: 0,
-        positionX: -Number(getCenter().x),
-        positionY: -Number(getCenter().y),
-        scale: 1,
-        previousScale: 1,
-      });
-    };
-    getWindowSettings().then((res) => {
+    getWindowSettings().then(() => {
       setloadingZoomSettings(false);
     });
-
-    // getRiskAssessmentWindowSettings(riskAssessmentId).then((res) => {
-    //   const { id, positionX, positionY, previousScale, scale } = res.data.data;
-    //   // transformWrapperRef.current.setTransform(positionX, positionY, scale)
-
-    //   // setNewZoom()
-
-    //   setRASettings({
-    //     id,
-    //     positionX,
-    //     positionY,
-    //     previousScale,
-    //     scale,
-    //   });
-
-    //   setloadingZoomSettings(false);
-    // });
-  }, [riskAssessmentId, enviroDimension]);
-
+  }, [getWindowSettings]);
   useEffect(() => {
-    if (raSettings.hasOwnProperty("id")) {
-      return;
-    }
-    // console.log("RA Settings before update to the server: ", raSettings);
-
-    // updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
+    initializeWindow();
+  }, [initializeWindow]);
+  const updateRAWindowSettings = useCallback(async () => {
+    await updateRiskAssessmentWindowSettings(riskAssessmentId, raSettings);
   }, [raSettings, riskAssessmentId]);
 
   const elementSelection = useCallback(
     (elementData, state) => {
-      console.log(elementData, state);
       if (state) {
-        console.log("selecting");
         setSelectedElements((prev) => {
           return [...new Set([...prev, elementData])];
         });
         setSelectedObjects((prev) => {
           return [...new Set([...prev, elementData])];
         });
-
-        console.log("store", selectedObjects);
       } else {
         setSelectedElements((prev) =>
           prev.filter((element) => element.id !== elementData.id)
@@ -167,6 +140,10 @@ export const RiskAssessment = ({
     [setSelectedElements, setSelectedObjects, selectedObjects]
   );
 
+  // (() => {
+
+  // })();
+
   const handleObjectProperty = useCallback(({ id, action }) => {
     if (action === "add") {
       setObjectPropertyConnections((prev) => [...prev, id]);
@@ -178,27 +155,37 @@ export const RiskAssessment = ({
   const handleZoomPanPinch = useCallback(
     (ref, e) => {
       const raState = ref.state;
-      // console.log("RA State before update settings:", raState);
+      // ("RA State before update settings:", raState);
       // setRASettings({ ...raState });
+      // (raState);
+      // setRASettings({
+      //   positionX: -Math.floor(e.offsetX),
+      //   positionY: -Math.floor(e.offsetY),
+      //   scale: ref.state.scale,
+      //   previousScale: ref.state.previousScale,
+      // });
       setRASettings({
-        positionX: e.offsetX * -1,
-        positionY: e.offsetY * -1,
-        scale: ref.state.scale,
-        previousScale: ref.state.previousScale,
+        id: raSettings.id,
+        positionX: raState.positionX,
+        positionY: raState.positionY,
+        scale: raState.scale,
+        previousScale: raState.previousScale,
       });
+      setGlobalScale(raState.scale < 0.1 ? 0.1 : raState.scale);
+
       updateXarrow();
       setTimeout(updateXarrow, 0);
       setTimeout(updateXarrow, 100);
       setTimeout(updateXarrow, 300);
       setTimeout(updateXarrow, 500);
-      console.log("ZOOMPANPINCH");
     },
-    [updateXarrow]
+    [updateXarrow, raSettings]
   );
 
-  // console.log("raSettingssssss", raSettings);
+  // ('raSettings -> ',raSettings);
+  // ('globalScale -> ',globalScale);
 
-  if (loadingZoomSettings) {
+  if (loadingZoomSettings || initialGlobalScale) {
     return "";
   } else {
     return (
@@ -208,7 +195,6 @@ export const RiskAssessment = ({
       //   onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
       //   onClick={resetContext}
       // >
-
       <Xwrapper>
         {instanceConnections.map(
           (edge) =>
@@ -237,12 +223,12 @@ export const RiskAssessment = ({
                       "collapsed" &&
                     checkConnctionVisibility(edge, "dataObjects") !==
                       "collapsedGroup" ? (
-                        <div
+                      <div
                         style={{
-                          fontSize: `${globalScale*24}px`,
+                          fontSize: `${globalScale * 24}px`,
                         }}
                       >
-                        {edge.name!=="No name"?edge.name:''}
+                        {edge.name !== "No name" ? edge.name : ""}
                       </div>
                     ) : (
                       ``
@@ -257,7 +243,7 @@ export const RiskAssessment = ({
 
         {instanceObjectConnections.map(
           (edge) =>
-            // console.log(String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
+            // (String((edge.objectType==="Input"?"D-":"R-") + riskAssessmentId + "-" + edge.sourceRef))
             checkConnctionVisibility(edge, "riskDataObjects") && (
               <Xarrow
                 // zIndex={1000000}
@@ -285,10 +271,10 @@ export const RiskAssessment = ({
                       "collapsedGroup" ? (
                       <div
                         style={{
-                          fontSize: `${globalScale*24}px`,
+                          fontSize: `${globalScale * 24}px`,
                         }}
                       >
-                        {edge.name!=="No name"?edge.name:''}
+                        {edge.name !== "No name" ? edge.name : ""}
                       </div>
                     ) : (
                       ``
@@ -335,12 +321,12 @@ export const RiskAssessment = ({
                       "collapsed" &&
                     checkConnctionVisibility(edge, "riskObjects") !==
                       "collapsedGroup" ? (
-                        <div
+                      <div
                         style={{
-                          fontSize: `${globalScale*24}px`,
+                          fontSize: `${globalScale * 24}px`,
                         }}
                       >
-                        {edge.name!=="No name"?edge.name:''}
+                        {edge.name !== "No name" ? edge.name : ""}
                       </div>
                     ) : (
                       ``
@@ -370,18 +356,17 @@ export const RiskAssessment = ({
 
         <TransformWrapper
           zoomAnimation={{ disabled: true }}
-          initialScale={globalScale}
+          initialScale={raSettings.scale}
           initialPositionX={raSettings.positionX}
           initialPositionY={raSettings.positionY}
           minScale={0.1}
           maxScale={5}
           doubleClick={{ disabled: true }}
-          onZoom={(ref,e) => {
-            console.log(e)
+          onZoom={(ref, e) => {
+            // (ref);
             if (ref.state.scale < 0.1) {
               ref.state.scale = 0.1;
               e.zoomOut(0.1);
-              
             }
             setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
             updateXarrow();
@@ -389,17 +374,7 @@ export const RiskAssessment = ({
           onZoomStop={(ref, e) => {
             handleZoomPanPinch(ref, e);
             setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
-            // setGlobalScale(ref.state.scale);
-            // console.log("event zoom1", e);
-            console.log("event zoom1", ref);
-
-            // console.log("offsetX", e.offsetX);
-            // console.log("offsetY", e.offsetY);
-            // setRASettings({
-            //   positionX: e.offsetX * -1,
-            //   positionY: e.offsetY * -1,
-            //   scale: ref.state.scale,
-            // });
+            // ("event zoom1", e);
           }}
           onPinching={updateXarrow}
           onPinchingStop={handleZoomPanPinch}
@@ -429,26 +404,25 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="plus"
-                  onClick={(e) => {zoomIn();setGlobalScale(prev=>(prev+=.2))}}
+                  onClick={(e) => {
+                    zoomIn();
+                    setGlobalScale((prev) => (prev += 0.2));
+                  }}
                 />
                 <Button
                   small={true}
                   fill={false}
                   icon="minus"
-                  onClick={() => {zoomOut();setGlobalScale(prev=>(prev-=.2))}}
+                  onClick={() => {
+                    zoomOut();
+                    setGlobalScale((prev) => (prev -= 0.2));
+                  }}
                 />
                 <Button
                   small={true}
                   fill={false}
                   icon="reset"
                   onClick={() => {
-                    setRASettings({
-                      id: 0,
-                      positionX: -Math.floor(getCenter().x),
-                      positionY: -Math.floor(getCenter().y),
-                      scale: 1,
-                      previousScale: 1,
-                    });
                     setTransform(
                       -Math.floor(getCenter().x),
                       -Math.floor(getCenter().y),
@@ -457,6 +431,12 @@ export const RiskAssessment = ({
 
                     setGlobalScale(1);
                   }}
+                />
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="tick"
+                  onClick={updateRAWindowSettings}
                 />
               </div>
               <TransformComponent
@@ -467,7 +447,6 @@ export const RiskAssessment = ({
                 contentStyle={{
                   width: `${enviroDimension.width}px`,
                   height: `${enviroDimension.height}px`,
-                  // backgroundColor: "white",
                 }}
               >
                 <div
@@ -480,7 +459,6 @@ export const RiskAssessment = ({
                   }}
                   onScroll={updateXarrow}
                   onContextMenu={(e) => {
-                    // console.log(e);
                     handleContextMenu(e, { from: "main" });
                   }}
                   onClick={resetContext}
@@ -489,11 +467,16 @@ export const RiskAssessment = ({
                     ? groups.map(
                         (group, index) =>
                           Number(
-                            group.elements.filter((element) => element && element.status!=="delete").length
+                            group.elements.filter(
+                              (element) =>
+                                element && element.status !== "delete"
+                            ).length
                           ) +
                             Number(
-                              group.dataObjects.filter((element) => element && element.status!=="delete")
-                                .length
+                              group.dataObjects.filter(
+                                (element) =>
+                                  element && element.status !== "delete"
+                              ).length
                             ) >
                             0 && (
                             <RiskGroup

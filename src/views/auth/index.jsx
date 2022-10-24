@@ -15,11 +15,10 @@ export const Auth = () => {
     e => {
       e.preventDefault()
 
-      console.log('user,password', user, password)
 
       navigate('/dashboard')
     },
-    [user, password, navigate]
+    [navigate]
   )
 
   return (
@@ -47,8 +46,8 @@ export const Auth = () => {
         * Enter any arbitrary username and password
       </div> */}
       <div className='bp3-text-muted bp3-text-small'>
-        * QA Build 1.7.7
-        * Build Time 2022-08-25 13:30
+        * UAT Build 2.1.2
+        * Build Time 2022-10-24 9:00
       </div>
     </div>
   )

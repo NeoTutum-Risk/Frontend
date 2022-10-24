@@ -30,7 +30,6 @@ export const SideNavigator = () => {
   const setActiveDashboardPanel = useSetRecoilState(activeDashboardPanelState);
   const fullScreenHandler = useRecoilValue(fullScreenHandlerState);
 
-
   /**
    * handles the open of the dialog for confirmation of emptying database
    */
@@ -79,11 +78,11 @@ export const SideNavigator = () => {
   };
 
   const handleFullScreen = (e) => {
-    if(!isFullScreen) fullScreenHandler.enter(e)
-    else fullScreenHandler.exit(e)
+    if (!isFullScreen) fullScreenHandler.enter(e);
+    else fullScreenHandler.exit(e);
 
-    setIsFullScreen(!isFullScreen)
-  }
+    setIsFullScreen(!isFullScreen);
+  };
 
   return (
     <div
@@ -98,9 +97,17 @@ export const SideNavigator = () => {
       </Dialog>
       <div
         style={{
+          width: "100%",
           display: "flex",
           alignItems: "center",
+          flexDirection: menuOpen ? "row" : "column",
           gap: showDashboard === "admin" ? "10px" : "20px",
+          position: "sticky",
+          top: "0px",
+          backgroundColor: "#293742",
+          paddingBottom: "10px",
+          paddingTop: "10px",
+          zIndex:"1"
         }}
       >
         <Tooltip2
@@ -112,7 +119,7 @@ export const SideNavigator = () => {
             onClick={() => setMenuOpen((prev) => !prev)}
           />
         </Tooltip2>
-        {menuOpen && showDashboard !== "admin" && (
+        {showDashboard !== "admin" && (
           <Tooltip2 content={<span>Admin Panel</span>}>
             <Button icon="person" small onClick={handleAdminOpen} />
           </Tooltip2>
@@ -152,11 +159,11 @@ export const SideNavigator = () => {
         )}
       </div>
 
-      {menuOpen && (
+      {/*menuOpen &&*/ (
         <>
           {showDashboard !== "admin" && (
             <>
-              <div className={styles.tree}>
+              <div className={styles.tree} style={{display:menuOpen?"initial":"none"}}>
                 <div className={styles.addPortfolio}>
                   <H4>Reference Groups</H4>
                   <AddReferenceGroup />
@@ -165,7 +172,7 @@ export const SideNavigator = () => {
                   <ReferenceGroups />
                 </Async>
               </div>
-              <div className={styles.tree}>
+              <div className={styles.tree} style={{display:menuOpen?"initial":"none"}}>
                 <div className={styles.addPortfolio}>
                   <H4>Portfolios</H4>
                   <AddPortfolio />
@@ -174,7 +181,7 @@ export const SideNavigator = () => {
                   <Portfolios />
                 </Async>
               </div>
-              <div className={styles.tree}>
+              <div className={styles.tree} style={{display:menuOpen?"initial":"none"}}>
                 <div className={styles.addPortfolio}>
                   <H4>Dashboard Charts</H4>
                 </div>

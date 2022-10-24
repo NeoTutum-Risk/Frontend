@@ -62,7 +62,6 @@ export const GraphWindow = ({
       e.preventDefault();
       if (e.element.type !== "bpmn:DataObjectReference") return;
       if (contextMenu.active) return;
-      console.log(e);
       setContextMenu((prev) => ({
         active: true,
         type:"context",
@@ -85,13 +84,11 @@ export const GraphWindow = ({
       } else {
         setElementSelector({ elementId, type, fileId: window.data.id });
       }
-      console.log({ elementId, type, fileId: window.data.id });
     },
     [setElementSelector, window.data.id]
   );
   const saveBpmn = useCallback(
     async (fileData) => {
-      console.log("update bpmn", fileData);
       try {
         setAutoSaveLoading(true);
 
@@ -143,7 +140,6 @@ export const GraphWindow = ({
   const handleOnChange = useCallback(
     async (data) => {
       setContextMenu((prev) => ({ ...prev, active: false, element: null }));
-      console.log(windows);
       setbpmn({ xml: data, changed: !autoSave });
       if (autoSave) {
         saveBpmn(data);
@@ -155,52 +151,8 @@ export const GraphWindow = ({
         setOtherWindows(sequenceFlows, entities);
       }, 500);
     },
-    [autoSave, saveBpmn, setbpmn, /*setWindows*/ windows, setOtherWindows]
+    [autoSave, saveBpmn, setbpmn, /*setWindows*/ , setOtherWindows]
   );
-
-  /*
-  const handleOnChange = useCallback(
-    async (data) => {
-      setContextMenu((prev) => ({ ...prev, active: false, element: null }));
-      console.log(windows);
-      setbpmn({ xml: data, changed: !autoSave });
-      if (autoSave) {
-        saveBpmn(data);
-      }
-      setTimeout(async () => {
-        const sequenceFlows = await getBpmnSequenceFlows();
-        const entities = await getBpmnEntities();
-
-        setWindows((prev) => {
-          return prev.map((window) => {
-            if (window.data.type === "BPMN SequenceFlows") {
-              return {
-                ...window,
-                data: {
-                  type: "BPMN SequenceFlows",
-                  sequenceFlows: sequenceFlows.data.data,
-                },
-              };
-            }
-
-            if (window.data.type === "BPMN Entities") {
-              return {
-                ...window,
-                data: {
-                  type: "BPMN Entities",
-                  entities: entities.data.data,
-                },
-              };
-            }
-
-            return window;
-          });
-        });
-      }, 500);
-    },
-    [autoSave, saveBpmn, setbpmn, setWindows, windows]
-  );
-  */
 
   const contextMenuAction = useCallback( () => {
     setContextMenu(prev=>({...prev,type:"form"}))

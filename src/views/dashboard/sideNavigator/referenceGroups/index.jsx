@@ -11,6 +11,7 @@ import {
   Tree,
   HTMLSelect,
   FileInput,
+  Checkbox,
 } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import Papa from "papaparse";
@@ -23,19 +24,29 @@ import {
   getMetaData,
   getMetaDataL2,
   getDataObject,
+  CloneDataObject,
 } from "../../../../services";
-import { addDataObject, updateDataObject,updateReferenceGroupStatus } from "../../../../services";
+import {
+  addDataObject,
+  updateDataObject,
+  updateReferenceGroupStatus,
+} from "../../../../services";
 import {
   showDangerToaster,
   showSuccessToaster,
   showWarningToaster,
 } from "../../../../utils/toaster";
-import { windowFamily, windowsIds, windowsState } from "../../../../store/windows";
+import {
+  windowFamily,
+  windowsIds,
+  windowsState,
+} from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import { mapStatusToIcon } from "../../../../utils/mapStatusToIcon";
-import {windowDefault} from "../../../../constants";
+import { windowDefault } from "../../../../constants";
 export const ReferenceGroups = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [append, setAppend] = useState(false);
   const [errors, setErrors] = useState([]);
   const setWindows = useSetRecoilState(windowsState);
   const [referenceGroups, setReferenceGroups] =
@@ -51,17 +62,16 @@ export const ReferenceGroups = () => {
   const [metaData, setMetaData] = useState([]);
   const [metaDataL2, setMetaDataL2] = useState([]);
   const [dataObjectType, setDataObjectType] = useState(null);
+  const [dataObjectClone, setDataObjectClone] = useState(null);
   const [dataObjectLevels, setDataObjectLevels] = useState(1);
   const [dataObjectLevelsInput, setDataObjectLevelsInput] = useState([]);
   const fetchMetaData = useCallback(async () => {
     const { data } = await getMetaData();
-    console.log(data);
     setMetaData(data.data);
   }, []);
 
   const fetchMetaDataL2 = useCallback(async () => {
     const { data } = await getMetaDataL2();
-    console.log(data);
     setMetaDataL2(data.data);
   }, []);
 
@@ -100,6 +110,8 @@ export const ReferenceGroups = () => {
     setDataObjectLevels(1);
     setDataObjectLevelsInput([]);
     setIsLoading(false);
+    setAppend(false);
+    setDataObjectClone(null);
   }, [
     setReferenceGroupPopOverOpenId,
     setDataObjectType,
@@ -113,9 +125,11 @@ export const ReferenceGroups = () => {
         const response = await updateDataObject(dataObjectId, {
           status: status,
         });
-        if(status==="commit"){
-          const updateRGStatus = await updateReferenceGroupStatus(referenceGroupId,{status:"commit"});
-        
+        if (status === "commit") {
+          const updateRGStatus = await updateReferenceGroupStatus(
+            referenceGroupId,
+            { status: "commit" }
+          );
         }
         setReferenceGroups((prev) => ({
           ...prev,
@@ -152,7 +166,7 @@ export const ReferenceGroups = () => {
         prev.map((item) => item.levelId).indexOf(i) === -1 ||
         prev.length === 0
       ) {
-        //console.log(prev.map((item) => item.levelId).indexOf(i));
+        //(prev.map((item) => item.levelId).indexOf(i));
         return [...prev, { levelId: i, name: e.target.value }];
       } else {
         return prev.map((item) => {
@@ -168,26 +182,20 @@ export const ReferenceGroups = () => {
 
   const csvFileParser = (e, i) => {
     const files = e.target.files;
-    //  console.log(files);
+    //  (files);
     if (files) {
-      console.log(files[0].name, i);
       Papa.parse(files[0], {
         complete: function (results) {
           let csvError = false;
-          console.log(
-            "empty last row check",
-            results.data[results.data.length - 1]
-          );
+
           if (results.data[results.data.length - 1].length === 1) {
             const lastRow = results.data.pop();
-            console.log("Fixed File", results.data);
             showWarningToaster(
               `CSV row#${results.data.length} is an empty row and is removed`
             );
           }
 
           //return;
-          console.log("header Check", results.data[0][0], results.data[0][2]);
           if (
             !(
               Number.isInteger(Number(results.data[0][0])) &&
@@ -195,7 +203,6 @@ export const ReferenceGroups = () => {
             )
           ) {
             const header = results.data.shift();
-            console.log("igoring the header", results.data, header);
             showWarningToaster(`CSV row#1 is considered as header`);
           }
 
@@ -215,13 +222,6 @@ export const ReferenceGroups = () => {
               });
 
               // Check Index & Rank Integers
-              console.log(
-                "Checking Index & Rank",
-                row[0],
-                Number(row[0]),
-                row[2],
-                Number(row[2])
-              );
               if (
                 !(
                   Number.isInteger(Number(row[0])) &&
@@ -235,14 +235,13 @@ export const ReferenceGroups = () => {
               }
             }
           });
-          console.log(results.data);
           if (csvError) return;
           setDataObjectLevelsInput((prev) => {
             if (
               prev.map((item) => item.levelId).indexOf(i) === -1 ||
               prev.length === 0
             ) {
-              //console.log(prev.map((item) => item.levelId).indexOf(i));
+              //(prev.map((item) => item.levelId).indexOf(i));
               return [
                 ...prev,
                 {
@@ -267,7 +266,7 @@ export const ReferenceGroups = () => {
               });
             }
 
-            // console.log(prev);
+            // (prev);
             // return prev.map((level) => {
             //   if (level.levelId === i) {
             //     return {
@@ -280,7 +279,7 @@ export const ReferenceGroups = () => {
             //   }
             // });
           });
-          // console.log("Finished:", results.data);
+          // ("Finished:", results.data);
         },
       });
     }
@@ -321,7 +320,7 @@ export const ReferenceGroups = () => {
     }
     return levelsFormGroup;
   }, [dataObjectLevels, dataObjectLevelsInput]);
-  //console.log("Levels Input",levelsInputContent);
+  //("Levels Input",levelsInputContent);
   const createDataObject = useCallback(
     async (e) => {
       e.preventDefault();
@@ -332,7 +331,7 @@ export const ReferenceGroups = () => {
         return;
       }
 
-      if (dataObjectLevelsInput.length < dataObjectLevels) {
+      if (dataObjectLevelsInput.length < dataObjectLevels && !dataObjectClone) {
         showWarningToaster("Levels Entered are less than Levels Count");
         setIsLoading(false);
         return;
@@ -357,25 +356,32 @@ export const ReferenceGroups = () => {
           // name: referenceGroupPopOverOpenName,
           referenceGroupId: referenceGroupPopOverOpenId,
           metaDataLevel2Id: dataObjectType,
-          levelsArray: dataObjectLevelsInput.map((level) => {
-            return {
-              name: level.name,
-              elements: level.levelData.data.map((array) => {
+          append,
+          clone: dataObjectClone,
+          levelsArray: dataObjectClone
+            ? null
+            : dataObjectLevelsInput.map((level) => {
                 return {
-                  index: array[0],
-                  label: array[1],
-                  rank: array[2],
-                  name: array[3],
-                  description: array[4],
+                  name: level.name,
+                  elements: level.levelData.data.map((array) => {
+                    return {
+                      index: array[0],
+                      label: array[1],
+                      rank: array[2],
+                      level: array[3],
+                      color: array[4],
+                      name: array[5],
+                      description: array[6],
+                      type: array[7].split(","),
+                      scalar: array[8].split(","),
+                    };
+                  }),
                 };
               }),
-            };
-          }),
         };
-        
+
         const response = await addDataObject(payload);
-        console.log("payload", payload,response,response.status);
-        if (response.data.error && response.status!==200) {
+        if (response.data.error && response.status !== 200) {
           showDangerToaster(
             `Error Creating Data Object: ${response.data.error}`
           );
@@ -414,6 +420,7 @@ export const ReferenceGroups = () => {
       }
     },
     [
+      append,
       clearData,
       dataObjectLevelsInput,
       dataObjectType,
@@ -421,12 +428,13 @@ export const ReferenceGroups = () => {
       setReferenceGroups,
       dataObjectLevels,
       metaDataL2,
+      dataObjectClone,
     ]
   );
 
   const dataObjectPopOverContent = useMemo(
     () => (
-      <div key="text3">
+      <div key="text3" style={{ zIndex: 9000000 }}>
         <H5>Data Object</H5>
         <form onSubmit={createDataObject}>
           {/* <FormGroup label="Name" labelInfo="(required)">
@@ -435,7 +443,7 @@ export const ReferenceGroups = () => {
             ></InputGroup>
           </FormGroup> */}
           <FormGroup
-            label="Type"
+            label="Target Data Object"
             labelInfo="(required)"
             intent={false ? Intent.DANGER : Intent.NONE}
             // helperText="Error"
@@ -455,7 +463,7 @@ export const ReferenceGroups = () => {
                       <option value={l2.id}>{l2.name}</option>
                     )),
                   ];
-                  // console.log("options",mainLevel);
+                  // ("options",mainLevel);
                   return mainLevel;
                 })
               ) : (
@@ -463,20 +471,66 @@ export const ReferenceGroups = () => {
               )}
             </HTMLSelect>
           </FormGroup>
-          <FormGroup
-            label="Levels"
-            labelInfo="(required)"
-            intent={false ? Intent.DANGER : Intent.NONE}
-            // helperText="Error"
-          >
-            <NumericInput
-              min="1"
-              max="5"
-              defaultValue="1"
-              onValueChange={(e) => setDataObjectLevels(e)}
-            ></NumericInput>
-          </FormGroup>
-          {levelsInputContent}
+          {!append && (
+            <FormGroup label="Source Data Object" labelInfo="(optional)">
+              <HTMLSelect
+                onChange={(e) => setDataObjectClone(Number(e.target.value))}
+              >
+                <option selected={!dataObjectClone} disabled>
+                  Clone Data Object
+                </option>
+                {referenceGroups ? (
+                  referenceGroups.data.map((refGrp) => {
+                    const mainLevel = [
+                      <option disabled>{refGrp.name}</option>,
+                      ...refGrp.dataObjects.map((obj) => (
+                        <option value={obj.metaDataLevel2.id}>
+                          {obj.metaDataLevel2.name}
+                        </option>
+                      )),
+                    ];
+                    // ("options",mainLevel);
+                    return mainLevel;
+                  })
+                ) : (
+                  <option>Loading Data</option>
+                )}
+              </HTMLSelect>
+              {
+                dataObjectClone && <Button
+                  style={{ paddingLeft: "15px" }}
+                  text="Clear Cloning"
+                  onClick={() => setDataObjectClone(null)}
+                />
+              }
+            </FormGroup>
+          )}
+
+          {!dataObjectClone && (
+            <>
+              {" "}
+              <Checkbox
+                disabled={dataObjectClone}
+                label="Append"
+                value={append}
+                onChange={() => setAppend((prev) => !prev)}
+              />
+              <FormGroup
+                label="Levels"
+                labelInfo="(required)"
+                intent={false ? Intent.DANGER : Intent.NONE}
+                // helperText="Error"
+              >
+                <NumericInput
+                  min="1"
+                  max="5"
+                  defaultValue="1"
+                  onValueChange={(e) => setDataObjectLevels(e)}
+                ></NumericInput>
+              </FormGroup>
+            </>
+          )}
+          {!dataObjectClone && levelsInputContent}
           <div
             style={{
               display: "flex",
@@ -495,16 +549,25 @@ export const ReferenceGroups = () => {
             <Button
               type="submit"
               loading={isLoading}
-              intent={Intent.SUCCESS}
+              intent={append ? Intent.SUCCESS : Intent.DANGER}
               className={Classes.POPOVER2_DISMISS}
             >
-              Add
+              {append ? "Append" : "Create New"}
             </Button>
           </div>
         </form>
       </div>
     ),
-    [metaData, levelsInputContent, isLoading, clearData, createDataObject]
+    [
+      metaData,
+      levelsInputContent,
+      isLoading,
+      clearData,
+      createDataObject,
+      append,
+      referenceGroups,
+      dataObjectClone
+    ]
   );
   const newDataObject = (id) => {
     setReferenceGroupPopOverOpenId(id);
@@ -681,7 +744,7 @@ export const ReferenceGroups = () => {
       setReferenceGroupContextMenu(nodeData.id);
     }
 
-    // console.log("context",nodeData);
+    // ("context",nodeData);
   }, []);
 
   const checkMaximized = useRecoilCallback(
@@ -700,54 +763,67 @@ export const ReferenceGroups = () => {
   // handle the add new reference group window
   // if a reference group window exists then don't add a new reference group window
   // if it doesn't exists then add a new reference group window
-  const setWindowCallBack = useRecoilCallback(({set, snapshot}) => (nodeData) => {
+  const setWindowCallBack = useRecoilCallback(
+    ({ set, snapshot }) =>
+      (nodeData) => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
 
-    const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+        const windowId = getWindowsIdsList.find((windowId) => {
+          const window = snapshot.getLoadable(windowFamily(windowId)).contents;
 
-    const windowId = getWindowsIdsList.find(windowId => {
-      const window = snapshot.getLoadable(windowFamily(windowId)).contents;
+          return (
+            window.data.id === nodeData.data.data.id &&
+            window.type === "flowchart"
+          );
+        });
 
-      return window.data.id === nodeData.data.data.id && window.type === "flowchart"
-    })
+        const check = checkMaximized();
 
-    if(windowId) {
-      return
-    }
+        if (check) {
+          let old = snapshot.getLoadable(windowFamily(check)).contents;
+          set(windowFamily(check), {
+            ...old,
+            maximized: false,
+            collapse: true,
+          });
+        }
 
-    const check = checkMaximized();
-    
-    if(check){
-      let old = snapshot.getLoadable(windowFamily(check)).contents
-      console.log(old);
-      set(windowFamily(check), {
-        ...old,
-        maximized: false,
-        collapse:true
-      });
-    }
+        if (windowId) {
+          console.log("Window")
+          let calledWindow = snapshot.getLoadable(windowFamily(windowId)).contents;
+          set(windowFamily(windowId), {
+            ...calledWindow,
+            maximized: true,
+            collapse: false,
+          });
+          return;
+        }
 
-    const id = generateID();
-    const windowData = {
-      type: "flowchart",
-      data: nodeData.data.data,
-      id,
-      collapse: false,
-      width: windowDefault.width,
-      height: windowDefault.height,
-      maximized: check?true:false
-    }
+        
 
-    set(windowsIds, (prev) => [id, ...prev])
-    set(windowFamily(id), windowData)
-  }, [])
+        const id = generateID();
+        const windowData = {
+          type: "flowchart",
+          data: nodeData.data.data,
+          id,
+          collapse: false,
+          width: windowDefault.width,
+          height: windowDefault.height,
+          maximized: check ? true : false,
+        };
+
+        set(windowsIds, (prev) => [id, ...prev]);
+        set(windowFamily(id), windowData);
+      },
+    []
+  );
 
   const onNodeClick = useCallback(
     async (node) => {
-      console.log(node);
       if (node.type !== "dataObject") return;
       const nodeData = await getDataObject(node.id);
 
-      setWindowCallBack(nodeData)
+      setWindowCallBack(nodeData);
       /*
       setWindows((prevWindows) =>
         prevWindows.find(
@@ -771,10 +847,9 @@ export const ReferenceGroups = () => {
       );
       */
     },
-    [setWindows]
+    [setWindowCallBack]
   );
 
-  console.log(referenceGroupsNodes, referenceGroups);
   return (
     <Tree
       contents={referenceGroupsNodes}

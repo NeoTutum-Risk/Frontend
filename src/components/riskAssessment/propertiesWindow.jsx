@@ -34,7 +34,6 @@ export const PropertiesWindow = ({
   const getProperties = useCallback(async () => {
     const response = await getRiskObjectProperties({ ids: [data.id] });
     if (response.status >= 200 && response.status < 300) {
-      console.log(response.data.data);
       setProperties(
         response.data.data.map((property) => ({
           id: property.id,

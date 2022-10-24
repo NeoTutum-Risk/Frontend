@@ -4,7 +4,6 @@ import * as d3 from "d3";
 const D3DrillDown = ({drillDownData, handleSelectedElements, heatmapRules}) => {
     const svgRef = useRef(null);
 
-    console.log("drill down data: ", drillDownData)
 
     const handleBarColor = useCallback((barIndex) => {
       const rule = heatmapRules[barIndex]

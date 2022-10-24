@@ -81,26 +81,20 @@ export const AddUpload = ({ loading, setLoading }) => {
 
   const csvFileParser = (e, i) => {
     const files = e.target.files;
-    //  console.log(files);
+    //  (files);
     if (files) {
-      console.log(files[0].name, i);
       Papa.parse(files[0], {
         complete: function (results) {
           let csvError = false;
-          console.log(
-            "empty last row check",
-            results.data[results.data.length - 1]
-          );
+
           if (results.data[results.data.length - 1].length === 1) {
             const lastRow = results.data.pop();
-            console.log("Fixed File", results.data);
             showWarningToaster(
               `CSV row#${results.data.length} is an empty row and is removed`
             );
           }
 
           //return;
-          console.log("header Check", results.data[0][0], results.data[0][2]);
           if (
             !(
               Number.isInteger(Number(results.data[0][0])) &&
@@ -108,7 +102,6 @@ export const AddUpload = ({ loading, setLoading }) => {
             )
           ) {
             const header = results.data.shift();
-            console.log("igoring the header", results.data, header);
             showWarningToaster(`CSV row#1 is considered as header`);
           }
 
@@ -128,16 +121,9 @@ export const AddUpload = ({ loading, setLoading }) => {
               });
 
               // Check Index & Rank Integers
-              console.log(
-                "Checking Index & Rank",
-                row[0],
-                Number(row[0]),
-                row[2],
-                Number(row[2])
-              );
+
             }
           });
-          console.log(results.data);
           if (csvError) return;
           setDataObjectLevelsInput((prev) => {
             if (
@@ -231,7 +217,7 @@ export const AddUpload = ({ loading, setLoading }) => {
                     <option value={l2.id}>{l2.name}</option>
                   )),
                 ];
-                // console.log("options",mainLevel);
+                // ("options",mainLevel);
                 return mainLevel;
               })
             ) : (
@@ -258,7 +244,7 @@ export const AddUpload = ({ loading, setLoading }) => {
                     <option value={l2.id}>{l2.name}</option>
                   )),
                 ];
-                // console.log("options",mainLevel);
+                // ("options",mainLevel);
                 return mainLevel;
               })
             ) : (
@@ -286,7 +272,7 @@ export const AddUpload = ({ loading, setLoading }) => {
                     <option value={l2.id}>{l2.name}</option>
                   )),
                 ];
-                // console.log("options",mainLevel);
+                // ("options",mainLevel);
                 return mainLevel;
               })
             ) : (

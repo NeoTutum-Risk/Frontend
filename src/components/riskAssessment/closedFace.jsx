@@ -29,7 +29,6 @@ export const ClosedFace = ({
   const [editGroup, setEditGroup] = useState(false);
 
   const handleAttributeClick = useCallback((view, active) => {
-    console.log(view, active);
     setViewedAttribute(view);
     setActiveAttribute(active);
   }, []);
@@ -41,7 +40,6 @@ export const ClosedFace = ({
 
   const updateRiskObject = useCallback(async () => {
     setUsingService(true);
-    console.log(activeAttribute);
     let payload;
     switch (activeAttribute) {
       case "S":
@@ -64,7 +62,7 @@ export const ClosedFace = ({
         break;
       default:
     }
-    // console.log(data.id,payload);
+    // (data.id,payload);
     const response = await editRiskObject(data.id, payload, groupId);
     if (response === "Done") {
       setViewedAttribute(editingValue);
@@ -87,7 +85,6 @@ export const ClosedFace = ({
   }, [groupId]);
 
   const removeFromGroupHandler = useCallback(async () => {
-    console.log({ id: data.id, groupId });
     const response = await removeFromGroup("risk", { id: data.id, groupId });
     setGroupIdState(null);
   }, [data.id, groupId, removeFromGroup, setGroupIdState]);
