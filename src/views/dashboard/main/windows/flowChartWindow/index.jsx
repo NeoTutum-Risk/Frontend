@@ -323,11 +323,31 @@ export const FlowChartWindow = React.memo(
           case "removeFromgroup":
             return updateObject(payload.id, payload.payload);
 
+          case "groupPositionUpdated":
+            getData()
+            // setGroups((prev) =>
+            //   prev.map((group) => {
+            //     if (group.id === payload.id) {
+            //       return {
+            //         ...group,
+            //         elements: group.elements.map((element) => ({
+            //           ...element,
+            //           x: element.x + payload.x,
+            //           y: element.y + payload.y,
+            //         })),
+            //       };
+            //     } else {
+            //       return group;
+            //     }
+            //   })
+            // );
+            break;
+
           default:
             break;
         }
       },
-      [handleContext, resetContext, updateObject, groupObjects]
+      [handleContext, resetContext, updateObject, groupObjects, getData]
     );
     return (
       <Window
