@@ -76,7 +76,7 @@ export const DefaultFace = ({
           <TextArea
             className="panningDisabled pinchDisabled wheelDisabled"
             fill={true}
-            growVertically={true}
+            // growVertically={true}
             onChange={(e) => setEditingValue(e.target.value)}
             value={editingValue}
           ></TextArea>
