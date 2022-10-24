@@ -1367,7 +1367,8 @@ export const RiskAssessmentWindow = ({
         setImportTemplateNameError(null);
         riskAssessmentData();
       } catch (error) {
-        showDangerToaster(`Faild to create group from template`);
+        const responseErr = error.response?.data?.error
+        showDangerToaster(responseErr || `Faild to create group from template`);
         setIsServiceLoading(false);
       }
       setIsServiceLoading(false);
