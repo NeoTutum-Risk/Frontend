@@ -60,6 +60,7 @@ import { RiskAssessment } from "../../../../../components/riskAssessment";
 import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
 import { map, set } from "lodash";
 import { data } from "vis-network";
+import { easeExpInOut } from "d3";
 export const RiskAssessmentWindow = ({
   onClose,
   onCollapse,
@@ -124,6 +125,7 @@ export const RiskAssessmentWindow = ({
   const [closedFace, setClosedFace] = useState(true);
   const [newViewName, setNewViewName] = useState("");
   const [viewsList, setViewsList] = useState([]);
+  const [modularGroup, setModularGroup] = useState(false);
   const [filter, setFilter] = useState({
     normal: false,
     everything: false,
@@ -948,9 +950,15 @@ export const RiskAssessmentWindow = ({
           selectedElements[1].type !== "instance"
         ) {
           // ("risks");
+          let input = selectedElements.find((element) =>
+            element.description.includes("input")
+          );
+          let output = selectedElements.find((element) =>
+            element.description.includes("output")
+          );
           let payload = {
-            sourceRef: selectedElements[0].id,
-            targetRef: selectedElements[1].id,
+            sourceRef: input ? input.id : selectedElements[0].id,
+            targetRef: output ? output.id : selectedElements[1].id,
             riskAssessmentId: window.data.id,
             name: linkName,
           };
@@ -1077,6 +1085,7 @@ export const RiskAssessmentWindow = ({
 
   const handleContextMenu = useCallback(
     async (e, data) => {
+      console.log(e, data);
       if (firstContext === "risk" && selectedElements.length < 2) return;
       if (data.id) {
         setActiveObject(data.id);
@@ -1217,6 +1226,7 @@ export const RiskAssessmentWindow = ({
           y: y + 75,
           name: groupName,
           expanded: 1,
+          modelGroup: modularGroup,
         };
         setIsServiceLoading(true);
         const response = await addRiskAssessmentGroup(payload);
@@ -1240,6 +1250,7 @@ export const RiskAssessmentWindow = ({
       groupName,
       setSelectedObjects,
       resetContext,
+      modularGroup,
     ]
   );
 
@@ -1367,7 +1378,7 @@ export const RiskAssessmentWindow = ({
         setImportTemplateNameError(null);
         riskAssessmentData();
       } catch (error) {
-        const responseErr = error.response?.data?.error
+        const responseErr = error.response?.data?.error;
         showDangerToaster(responseErr || `Faild to create group from template`);
         setIsServiceLoading(false);
       }
@@ -1641,7 +1652,6 @@ export const RiskAssessmentWindow = ({
           object = selectedElements[0];
         }
 
-
         if (instance.dataObjectNew.IOtype === "Output") {
           connection = instanceObjectConnections.find(
             (connection) =>
@@ -1768,6 +1778,31 @@ export const RiskAssessmentWindow = ({
     setIsServiceLoading(false);
   }, [window.data.id, contextMenu.element, resetContext, riskAssessmentData]);
 
+  const handleModularGroup = useCallback(
+    async (action) => {
+      setIsServiceLoading(true);
+      const response = await updateRiskAssessmentGroup(
+        contextMenu.element,
+        window.data.id,
+        { modelGroup: 1 }
+      );
+
+      if (response.status === 201) {
+        showSuccessToaster(
+          `Group #${contextMenu.element} is updated Successfully`
+        );
+        resetContext();
+        riskAssessmentData();
+      } else {
+        showDangerToaster(
+          `Error setting Group #${contextMenu.element}: ${response.data.error}`
+        );
+      }
+      setIsServiceLoading(false);
+    },
+    [window.data.id, contextMenu.element, resetContext, riskAssessmentData]
+  );
+
   const fetchDataObjects = useCallback(async () => {
     const response = await getNewDataObjects();
     if (response.status === 200) {
@@ -1825,15 +1860,11 @@ export const RiskAssessmentWindow = ({
     riskAssessmentData,
   ]);
 
-  const handleProperties = useCallback(
-    (id) => {
-      // setContextMenu((prev) => ({ ...prev, element: id }));
-      // setContextMenu({ element: id });
-      setActiveObject(id);
-
-    },
-    []
-  );
+  const handleProperties = useCallback((id) => {
+    // setContextMenu((prev) => ({ ...prev, element: id }));
+    // setContextMenu({ element: id });
+    setActiveObject(id);
+  }, []);
 
   const updateDraftLocation = useCallback(async (e, d) => {
     setContextMenu((prev) => ({ ...prev, contextY: d.y, contextX: d.x }));
@@ -1876,6 +1907,11 @@ export const RiskAssessmentWindow = ({
       showDangerToaster(`Error unsharing group: ${error}`);
     }
   }, [window.data.id, activeObject, resetContext]);
+
+  const connectionForm = useCallback(()=>{
+    console.log("connection")
+    handleConnection({type:"connect"})
+  },[handleConnection])
 
   return (
     <>
@@ -1935,6 +1971,7 @@ export const RiskAssessmentWindow = ({
             checkConnctionVisibility={checkConnctionVisibility}
             setGroups={setGroups}
             handleUnshareGroup={handleUnshareGroup}
+            connectionForm={connectionForm}
           />
         )}
       </Window>
@@ -2094,6 +2131,33 @@ export const RiskAssessmentWindow = ({
             />
 
             <MenuItem text="Share Group" onClick={handleShareGroup} />
+
+            <MenuItem
+              text={
+                groups.find(
+                  (grp) =>
+                    grp.id === activeObject && grp.dataObjects.length === 0
+                ).modelGroup
+                  ? "Normal Group"
+                  : "Modular Group"
+              }
+              disabled={
+                !groups
+                  .find(
+                    (grp) =>
+                      grp.id === activeObject && grp.dataObjects.length === 0
+                  )
+                  .elements.every((element) => element.type === "model")
+              }
+              onClick={() =>
+                handleModularGroup(
+                  groups.find(
+                    (grp) =>
+                      grp.id === activeObject && grp.dataObjects.length === 0
+                  ).modelGroup
+                )
+              }
+            />
 
             {groups.find(
               (grp) => grp.id === activeObject && grp.shared && !grp.mainShared
@@ -2629,6 +2693,14 @@ export const RiskAssessmentWindow = ({
                   }}
                 />
               </FormGroup>
+              <Checkbox
+                disabled={
+                  !selectedElements.every((element) => element.type === "model")
+                }
+                onChange={() => setModularGroup((prev) => !prev)}
+              >
+                Modular <strong>Group</strong>
+              </Checkbox>
               <div
                 style={{
                   display: "flex",
@@ -2642,6 +2714,7 @@ export const RiskAssessmentWindow = ({
                   onClick={() => {
                     setGroupNameError(null);
                     setGroupName(null);
+                    setModularGroup(false);
                     resetContext();
                   }}
                 >

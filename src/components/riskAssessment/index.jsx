@@ -38,6 +38,7 @@ export const RiskAssessment = ({
   checkConnctionVisibility,
   setGroups,
   handleUnshareGroup,
+  connectionForm
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
@@ -480,6 +481,7 @@ export const RiskAssessment = ({
                             ) >
                             0 && (
                             <RiskGroup
+                            connectionForm={connectionForm}
                               groups={groups.map((grp) => ({
                                 id: grp.id,
                                 name: grp.name,

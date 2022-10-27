@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { RiskElement } from "./riskElement";
 import { DataObject } from "./dataObject";
 import { Rnd } from "react-rnd";
-import { Button } from "@blueprintjs/core";
+import { Button, ButtonGroup } from "@blueprintjs/core";
 import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
@@ -32,11 +32,15 @@ export const RiskGroup = ({
   setGroups,
   groups,
   addToGroup,
-  handleUnshareGroup
+  handleUnshareGroup,
+  connectionForm,
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
-  const [size,setSize] = useState({ w: data.currentWidth, h: data.currentHeight });
+  const [size, setSize] = useState({
+    w: data.currentWidth,
+    h: data.currentHeight,
+  });
   const [expanded, setExpanded] = useState(data.currentExpanded);
   const [drag, setDrag] = useState({
     active: false,
@@ -109,7 +113,6 @@ export const RiskGroup = ({
           expanded: data.currentExpanded,
         }
       );
-
     },
     [data.id, data.currentExpanded, riskAssessmentId, updateXarrow]
   );
@@ -129,7 +132,7 @@ export const RiskGroup = ({
     setExpanded((prev) => !prev);
 
     updateXarrow();
-    try{
+    try {
       const updateElementPosition = await updateRiskAssessmentGroup(
         data.id,
         riskAssessmentId,
@@ -139,11 +142,28 @@ export const RiskGroup = ({
           expanded: !expanded,
         }
       );
-      if(updateElementPosition.status>=200 && updateElementPosition.status<300){
-
-      }else{
+      if (
+        updateElementPosition.status >= 200 &&
+        updateElementPosition.status < 300
+      ) {
+      } else {
         showDangerToaster(`Faild To Update Group`);
         setGroups((prev) =>
+          prev.map((grp) =>
+            grp.id === data.id
+              ? {
+                  ...grp,
+                  expanded: !expanded,
+                  currentExpanded: !data.currentExpanded,
+                }
+              : grp
+          )
+        );
+        setExpanded((prev) => !prev);
+      }
+    } catch (error) {
+      showDangerToaster(`Faild To Update Group`);
+      setGroups((prev) =>
         prev.map((grp) =>
           grp.id === data.id
             ? {
@@ -154,26 +174,9 @@ export const RiskGroup = ({
             : grp
         )
       );
-        setExpanded((prev) => !prev);
-      }
-    }catch(error){
-      showDangerToaster(`Faild To Update Group`);
-      setGroups((prev) =>
-      prev.map((grp) =>
-        grp.id === data.id
-          ? {
-              ...grp,
-              expanded: !expanded,
-              currentExpanded: !data.currentExpanded,
-            }
-          : grp
-      )
-    );
       setExpanded((prev) => !prev);
     }
-    
 
-    
     // setInterval(updateXarrow, 200);
     // (updateElementPosition);
   }, [
@@ -237,15 +240,67 @@ export const RiskGroup = ({
         position.y = 0;
       }
       updateXarrow();
-      const updateOjectPosition = await updateRiskAssessmentGroup(data.id,riskAssessmentId, {
-        x: Math.round(position.x),
-        y: Math.round(position.y),
-        width: w,
-        height: h,
-        expanded
-      });
+      const updateOjectPosition = await updateRiskAssessmentGroup(
+        data.id,
+        riskAssessmentId,
+        {
+          x: Math.round(position.x),
+          y: Math.round(position.y),
+          width: w,
+          height: h,
+          expanded,
+        }
+      );
     },
-    [data, updateXarrow,size,riskAssessmentId,expanded]
+    [data, updateXarrow, size, riskAssessmentId, expanded]
+  );
+
+  const handleConnectionClick = useCallback(
+    (e, target) => {
+      e.preventDefault();
+      if (selectedElements[0]) {
+
+        if (selectedElements[0].id === target.id) {
+          elementSelection(target, false);
+          return;
+        }
+
+        if (
+          (selectedElements[0].description.includes("input") &&
+            target.description.includes("input")) ||
+          (selectedElements[0].description.includes("output") &&
+            target.description.includes("output"))
+        ) {
+          showDangerToaster("Input/Output Connections Only are Allowed");
+          return;
+        } else {
+          elementSelection(
+            target,
+            selectedElements.find(
+              (element) =>
+                element.id === target.id && target.type !== "instance"
+            )
+              ? false
+              : true
+          );
+
+          connectionForm();
+        }
+        
+      } else {
+        elementSelection(
+          target,
+          selectedElements.find(
+            (element) => element.id === target.id && target.type !== "instance"
+          )
+            ? false
+            : true
+        );
+      }
+      // if (e.detail !== 2) return;
+      // if (!data["position.enabled"]) return;
+    },
+    [elementSelection, selectedElements]
   );
   return (
     <>
@@ -273,8 +328,8 @@ export const RiskGroup = ({
                 !object["position.enabled"]
               ) && (
                 <RiskElement
-                addToGroup={addToGroup}
-                groups={groups}
+                  addToGroup={addToGroup}
+                  groups={groups}
                   setFirstContext={setFirstContext}
                   expanded={expanded}
                   handleContextMenu={handleContextMenu}
@@ -316,8 +371,8 @@ export const RiskGroup = ({
                 object.disable
               ) && (
                 <DataObject
-                addToGroup={addToGroup}
-                groups={groups}
+                  addToGroup={addToGroup}
+                  groups={groups}
                   setFirstContext={setFirstContext}
                   expanded={expanded}
                   handleContextMenu={handleContextMenu}
@@ -357,7 +412,7 @@ export const RiskGroup = ({
         }}
         position={{
           x: drag.cx,
-          y: drag.cy ,
+          y: drag.cy,
         }}
         size={{
           width: size.w,
@@ -377,75 +432,118 @@ export const RiskGroup = ({
         }}
         scale={scale}
       >
-        <div
-          onMouseLeave={() => setFirstContext("main")}
-          onMouseEnter={() => setFirstContext("group")}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            handleContextMenu(e, data);
-          }}
-          // title={data.description}
-          onClick={handleClick}
-          className="risk-object-container panningDisabled"
-          style={{
-            border: !expanded
-              ? "5px solid #173c67"
-              : "5px dashed rgb(56	142	142	)",
-              backgroundColor: !expanded
-              ? "#173c67"
-              : "white",
-              color: !expanded
-              ? "white"
-              : "rgb(56	142	142	)",
-            borderRadius: "150px",
-            padding: "5px",
-            textAlign: "center",
-            display: "flex",
-          }}
-        >
-          <span>{data.shared && !data.mainShared?"S":""}</span>
-          <span><b>{data.name}</b></span>
-          <span><b>{data.id - 2000000}</b></span>
-          {/* {!expanded &&
-            data.elements.map((object, index) =>
-              object
-                ? object?.status !== "deleted" && (
-                    <div
-                      id={`R-${riskAssessmentId}-${object.id}`}
-                      key={`R-${riskAssessmentId}-${object.id}`}
-                    ></div>
-                  )
-                : null
-            )}
-
-          {!expanded &&
-            data.dataObjects.map((object, index) =>
-              object
-                ? object?.status !== "deleted" && (
-                    <div
-                      id={`D-${riskAssessmentId}-${object.id}`}
-                      key={`D-${riskAssessmentId}-${object.id}`}
-                    ></div>
-                  )
-                : null
-            )} */}
-        </div>
+        {data.modelGroup ? (
+          <div
+            onMouseLeave={() => setFirstContext("main")}
+            onMouseEnter={() => setFirstContext("group")}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              handleContextMenu(e, data);
+            }}
+            // onClick={handleClick}
+            className="risk-object-container panningDisabled"
+            style={{
+              border: !expanded
+                ? "1px solid #173c67"
+                : "1px dashed rgb(56	142	142	)",
+              backgroundColor: !expanded ? "#173c67" : "white",
+              color: !expanded ? "white" : "rgb(56	142	142	)",
+              // borderRadius: "150px",
+              padding: "1px",
+              textAlign: "center",
+              display: "flex",
+              overflow: "hidden",
+            }}
+          >
+            <Button
+              style={{ height: "100%", backgroundColor: "#4472c4" }}
+              fill={true}
+              onClick={handleClick}
+            >
+              <small>
+                <italic>{data.id - 2000000}</italic>
+              </small>{" "}
+              - {data.name}
+            </Button>
+            {!expanded &&
+              data.elements.map((element) =>
+                element.description.includes("output") ? (
+                  <ButtonGroup key={element.id} style={{ height: "100%" }}>
+                    <Button
+                      style={{
+                        backgroundColor: selectedElements.find(
+                          (elm) => elm.id === element.id
+                        )
+                          ? "red"
+                          : "#b4c7e7",
+                      }}
+                      // fill={true}
+                      icon="arrow-right"
+                      onClick={(e) => handleConnectionClick(e, element)}
+                    />
+                    <Button style={{ backgroundColor: "#b4c7e7" }} fill={true}>
+                      <small>
+                        <italic>{element.id}</italic>
+                      </small>{" "}
+                      - {element.name}
+                    </Button>
+                  </ButtonGroup>
+                ) : element.description.includes("input") ? (
+                  <ButtonGroup key={element.id} style={{ height: "100%" }}>
+                    <Button style={{ backgroundColor: "#a9d18e" }} fill={true}>
+                      <small>
+                        <italic>{element.id}</italic>
+                      </small>{" "}
+                      - {element.name}
+                    </Button>
+                    <Button
+                      style={{
+                        backgroundColor: selectedElements.find(
+                          (elm) => elm.id === element.id
+                        )
+                          ? "red"
+                          : "#a9d18e",
+                      }}
+                      // fill={true}
+                      icon="arrow-right"
+                      onClick={(e) => handleConnectionClick(e, element)}
+                    />
+                  </ButtonGroup>
+                ) : null
+              )}
+          </div>
+        ) : (
+          <div
+            onMouseLeave={() => setFirstContext("main")}
+            onMouseEnter={() => setFirstContext("group")}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              handleContextMenu(e, data);
+            }}
+            onClick={handleClick}
+            className="risk-object-container panningDisabled"
+            style={{
+              border: !expanded
+                ? "5px solid #173c67"
+                : "5px dashed rgb(56	142	142	)",
+              backgroundColor: !expanded ? "#173c67" : "white",
+              color: !expanded ? "white" : "rgb(56	142	142	)",
+              borderRadius: "150px",
+              padding: "5px",
+              textAlign: "center",
+              display: "flex",
+            }}
+          >
+            <span>{data.shared && !data.mainShared ? "S" : ""}</span>
+            <span>
+              <b>{data.name}</b>
+            </span>
+            <span>
+              <b>{data.id - 2000000}</b>
+            </span>
+          </div>
+        )}
       </Rnd>
-
-      {/* {showTooltip && !drag.active && (
-        <Tooltip
-          x={drag.cx}
-          y={drag.cy}
-          tx={drag.cx}
-          ty={drag.cy}
-          data={{
-            description: data.description,
-            name: data.name,
-            level_id: data.level_id,
-            level_name: data.level_name,
-          }}
-        />
-      )} */}
     </>
   );
 };
