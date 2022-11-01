@@ -317,7 +317,7 @@ export const RiskGroup = ({
           </g>
         ))} */}
       {
-        !data.modelGroup &&
+        (!data.modelGroup || expanded) &&
         data.elements.map((object, index) =>
           object
             ? !!checkFilter(
@@ -360,7 +360,7 @@ export const RiskGroup = ({
       }
 
       {
-        !data.modelGroup &&
+        (!data.modelGroup || expanded) &&
         data.dataObjects.map((object, index) =>
           object
             ? !!checkFilter(
