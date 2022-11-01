@@ -114,7 +114,7 @@ export const RiskGroup = ({
         }
       );
     },
-    [data.id, data.currentExpanded, riskAssessmentId, updateXarrow]
+    [data.id, data.currentExpanded, riskAssessmentId, updateXarrow,enviroDimension]
   );
 
   const updateExpanded = useCallback(async () => {
@@ -259,17 +259,16 @@ export const RiskGroup = ({
     (e, target) => {
       e.preventDefault();
       if (selectedElements[0]) {
-
         if (selectedElements[0].id === target.id) {
           elementSelection(target, false);
           return;
         }
 
         if (
-          (selectedElements[0].description.includes("input") &&
-            target.description.includes("input")) ||
-          (selectedElements[0].description.includes("output") &&
-            target.description.includes("output"))
+          (String(selectedElements[0].description).includes("input") &&
+          String(target.description).includes("input")) ||
+          (String(selectedElements[0].description).includes("output") &&
+          String(target.description).includes("output"))
         ) {
           showDangerToaster("Input/Output Connections Only are Allowed");
           return;
@@ -284,9 +283,8 @@ export const RiskGroup = ({
               : true
           );
 
-          connectionForm();
+          connectionForm(e, target);
         }
-        
       } else {
         elementSelection(
           target,
@@ -300,7 +298,7 @@ export const RiskGroup = ({
       // if (e.detail !== 2) return;
       // if (!data["position.enabled"]) return;
     },
-    [elementSelection, selectedElements]
+    [elementSelection, selectedElements, connectionForm]
   );
   return (
     <>
@@ -319,7 +317,7 @@ export const RiskGroup = ({
           </g>
         ))} */}
       {
-        /*expanded &&*/
+        !data.modelGroup &&
         data.elements.map((object, index) =>
           object
             ? !!checkFilter(
@@ -362,7 +360,7 @@ export const RiskGroup = ({
       }
 
       {
-        /*expanded &&*/
+        !data.modelGroup &&
         data.dataObjects.map((object, index) =>
           object
             ? !!checkFilter(
@@ -402,7 +400,7 @@ export const RiskGroup = ({
       }
 
       <Rnd
-        id={`group-${riskAssessmentId}-${data.id}`}
+        id={`group-${data.modelGroup?"M":""}${riskAssessmentId}-${data.id}`}
         key={`group-${riskAssessmentId}-${data.id}`}
         default={{
           x: drag.cx,
@@ -456,6 +454,7 @@ export const RiskGroup = ({
             }}
           >
             <Button
+            onMouseEnter={() => setFirstContext("group")}
               style={{ height: "100%", backgroundColor: "#4472c4" }}
               fill={true}
               onClick={handleClick}
@@ -468,7 +467,14 @@ export const RiskGroup = ({
             {!expanded &&
               data.elements.map((element) =>
                 element.description.includes("output") ? (
-                  <ButtonGroup key={element.id} style={{ height: "100%" }}>
+                  <ButtonGroup
+                    onMouseEnter={() => {
+                      setFirstContext("element");
+                      setHoveredElement(element);
+                    }}
+                    key={element.id}
+                    style={{ height: "100%" }}
+                  >
                     <Button
                       style={{
                         backgroundColor: selectedElements.find(
@@ -480,6 +486,7 @@ export const RiskGroup = ({
                       // fill={true}
                       icon="arrow-right"
                       onClick={(e) => handleConnectionClick(e, element)}
+                      id={`R-${riskAssessmentId}-${element.id}`}
                     />
                     <Button style={{ backgroundColor: "#b4c7e7" }} fill={true}>
                       <small>
@@ -489,7 +496,14 @@ export const RiskGroup = ({
                     </Button>
                   </ButtonGroup>
                 ) : element.description.includes("input") ? (
-                  <ButtonGroup key={element.id} style={{ height: "100%" }}>
+                  <ButtonGroup
+                    onMouseEnter={() => {
+                      setFirstContext("element");
+                      setHoveredElement(element);
+                    }}
+                    key={element.id}
+                    style={{ height: "100%" }}
+                  >
                     <Button style={{ backgroundColor: "#a9d18e" }} fill={true}>
                       <small>
                         <italic>{element.id}</italic>
@@ -507,6 +521,7 @@ export const RiskGroup = ({
                       // fill={true}
                       icon="arrow-right"
                       onClick={(e) => handleConnectionClick(e, element)}
+                      id={`R-${riskAssessmentId}-${element.id}`}
                     />
                   </ButtonGroup>
                 ) : null

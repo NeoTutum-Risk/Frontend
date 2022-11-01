@@ -15,6 +15,7 @@ import {
   TextArea,
   FileInput,
   Checkbox,
+  NumericInput,
 } from "@blueprintjs/core";
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
@@ -36,6 +37,7 @@ import {
   getGroups,
   importGroup,
   updateRiskAssessmentGroup,
+  editRiskConnection,
   getNewDataObjects,
   addNewDataObjectInstance,
   addInstanceConnection,
@@ -69,10 +71,12 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [modularGroupAction, setModularGroupAction] = useState(null);
   const [hoveredElement, setHoveredElement] = useState(null);
   const [firstContext, setFirstContext] = useState("main");
   const [elementEnable, setElementEnable] = useState(true);
   const [groupName, setGroupName] = useState(null);
+  const [groupDescription, setGroupDescription] = useState(null);
   const [groupNameError, setGroupNameError] = useState(null);
   const [templateName, setTemplateName] = useState(null);
   const [templateNameError, setTemplateNameError] = useState(null);
@@ -89,6 +93,10 @@ export const RiskAssessmentWindow = ({
   const [dataObjectInstances, setDataObjectInstances] = useState([]);
   const [activeObject, setActiveObject] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [connectionWeight, setConnectionWeight] = useState(0);
+  const [connectionText, setConnectionText] = useState(null);
+  const [selectedGroup,setSelectedGroup] = useState({});
+  const [editConnection, setEditConnection] = useState(false);
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -126,6 +134,7 @@ export const RiskAssessmentWindow = ({
   const [newViewName, setNewViewName] = useState("");
   const [viewsList, setViewsList] = useState([]);
   const [modularGroup, setModularGroup] = useState(false);
+  const [editGroupFlag, setEditGroupFlag] = useState(false);
   const [filter, setFilter] = useState({
     normal: false,
     everything: false,
@@ -961,6 +970,8 @@ export const RiskAssessmentWindow = ({
             targetRef: output ? output.id : selectedElements[1].id,
             riskAssessmentId: window.data.id,
             name: linkName,
+            scalar: connectionWeight,
+            text: connectionText,
           };
 
           const response = await addRiskConnection(payload);
@@ -977,6 +988,8 @@ export const RiskAssessmentWindow = ({
             targetRef: selectedElements[1].id,
             riskAssessmentId: window.data.id,
             name: linkName,
+            scalar: connectionWeight,
+            text: connectionText,
           };
 
           const response = await addInstanceConnection(payload);
@@ -1007,6 +1020,8 @@ export const RiskAssessmentWindow = ({
             targetRef: target.id,
             riskAssessmentId: window.data.id,
             name: linkName,
+            scalar: connectionWeight,
+            text: connectionText,
             objectType:
               instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
           };
@@ -1035,8 +1050,22 @@ export const RiskAssessmentWindow = ({
       setConnections,
       linkName,
       setSelectedObjects,
+      connectionText,
+      connectionWeight,
     ]
   );
+
+  useEffect(() => {
+    if (selectedConnection) {
+      setLinkName(selectedConnection.name);
+      setConnectionText(selectedConnection.text);
+      setConnectionWeight(selectedConnection.scalar);
+    } else {
+      setLinkName(null);
+      setConnectionText(null);
+      setConnectionWeight(0);
+    }
+  }, [selectedConnection]);
 
   useEffect(() => {
     riskAssessmentData();
@@ -1083,6 +1112,21 @@ export const RiskAssessmentWindow = ({
 
   // (menu);
 
+  const getContextPosition = useCallback((e) => {
+    const rect = document
+      .querySelector("#mainContainer")
+      .getBoundingClientRect();
+    const scrollDiv = document.querySelector("#mainContainer");
+    const contextX = e.pageX - rect.left;
+    const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
+    let x = e.nativeEvent.layerX;
+    let y = e.nativeEvent.layerY;
+    let offsetX = e.nativeEvent.offsetX;
+    let offsetY = e.nativeEvent.offsetY;
+
+    return { contextX, contextY, x, y, offsetX, offsetY };
+  }, []);
+
   const handleContextMenu = useCallback(
     async (e, data) => {
       console.log(e, data);
@@ -1101,16 +1145,18 @@ export const RiskAssessmentWindow = ({
       }
 
       let type, id, element;
-      const rect = document
-        .querySelector("#mainContainer")
-        .getBoundingClientRect();
-      const scrollDiv = document.querySelector("#mainContainer");
-      const contextX = e.pageX - rect.left;
-      const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
-      let x = e.nativeEvent.layerX;
-      let y = e.nativeEvent.layerY;
-      let offsetX = e.nativeEvent.offsetX;
-      let offsetY = e.nativeEvent.offsetY;
+      // const rect = document
+      //   .querySelector("#mainContainer")
+      //   .getBoundingClientRect();
+      // const scrollDiv = document.querySelector("#mainContainer");
+      // const contextX = e.pageX - rect.left;
+      // const contextY = e.pageY - rect.top + scrollDiv.scrollTop;
+      // let x = e.nativeEvent.layerX;
+      // let y = e.nativeEvent.layerY;
+      // let offsetX = e.nativeEvent.offsetX;
+      // let offsetY = e.nativeEvent.offsetY;
+      let { contextX, contextY, x, y, offsetX, offsetY } =
+        getContextPosition(e);
       // (e, contextX, contextY);
       if (data.from === "main" && firstContext === "main") {
         type = "create";
@@ -1171,7 +1217,7 @@ export const RiskAssessmentWindow = ({
         offsetY: data.from === "main" ? offsetY : prev.offsetY,
       }));
     },
-    [setContextMenu, selectedElements, firstContext]
+    [setContextMenu, selectedElements, firstContext, getContextPosition]
   );
 
   const addNewTemplate = useCallback(async () => {
@@ -1227,14 +1273,16 @@ export const RiskAssessmentWindow = ({
           name: groupName,
           expanded: 1,
           modelGroup: modularGroup,
+          description: groupDescription,
         };
         setIsServiceLoading(true);
         const response = await addRiskAssessmentGroup(payload);
         if (response.status >= 200 && response.status < 300) {
           resetContext();
-
+          setGroupName(null);
           setSelectedElements([]);
           setSelectedObjects([]);
+          setGroupDescription(null);
           setTimeout(riskAssessmentData, 500);
         } else {
           showDangerToaster(`Can't Create Group`);
@@ -1251,20 +1299,24 @@ export const RiskAssessmentWindow = ({
       setSelectedObjects,
       resetContext,
       modularGroup,
+      groupDescription,
     ]
   );
 
-  const editRiskObject = useCallback(async (id, payload, groupId) => {
-    setIsServiceLoading(true);
-    const response = await updateRiskObject(id, payload);
-    if (response.status === 200) {
-      riskAssessmentData();
-    } else {
-      showDangerToaster(`Update Faild`);
-    }
-    setIsServiceLoading(false);
-    return "Done";
-  });
+  const editRiskObject = useCallback(
+    async (id, payload, groupId) => {
+      setIsServiceLoading(true);
+      const response = await updateRiskObject(id, payload);
+      if (response.status === 200) {
+        riskAssessmentData();
+      } else {
+        showDangerToaster(`Update Faild`);
+      }
+      setIsServiceLoading(false);
+      return "Done";
+    },
+    [riskAssessmentData]
+  );
 
   const addRiskObject = useCallback(
     async (e) => {
@@ -1668,7 +1720,7 @@ export const RiskAssessmentWindow = ({
       }
 
       if (connection) {
-        setSelectedConnection({ id: connection.id, type: connectionType });
+        setSelectedConnection({ ...connection, type: connectionType });
       } else {
         setSelectedConnection(null);
       }
@@ -1777,6 +1829,34 @@ export const RiskAssessmentWindow = ({
     }
     setIsServiceLoading(false);
   }, [window.data.id, contextMenu.element, resetContext, riskAssessmentData]);
+
+  const handleEditGroup = useCallback(async () => {
+    setIsServiceLoading(true);
+    const response = await updateRiskAssessmentGroup(
+      activeObject,
+      window.data.id,
+      { name: groupName, description: groupDescription }
+    );
+
+    if (response.status === 201) {
+      showSuccessToaster(`Con #${contextMenu.element} is Updated Successfully`);
+      resetContext();
+      riskAssessmentData();
+    } else {
+      showDangerToaster(
+        `Error Updating Group #${contextMenu.element}: ${response.data.error}`
+      );
+    }
+    setIsServiceLoading(false);
+  }, [
+    window.data.id,
+    contextMenu.element,
+    activeObject,
+    resetContext,
+    riskAssessmentData,
+    groupDescription,
+    groupName,
+  ]);
 
   const handleModularGroup = useCallback(
     async (action) => {
@@ -1908,10 +1988,107 @@ export const RiskAssessmentWindow = ({
     }
   }, [window.data.id, activeObject, resetContext]);
 
-  const connectionForm = useCallback(()=>{
-    console.log("connection")
-    handleConnection({type:"connect"})
-  },[handleConnection])
+  const setForm = useCallback(
+    ({ contextX, contextY, x, y, offsetX, offsetY }) => {
+      setContextMenu(() => ({
+        // ...prev,
+        active: true,
+        contextX,
+        contextY,
+        x,
+        y,
+        offsetX,
+        offsetY,
+        type: "group name",
+      }));
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!modularGroupAction) return;
+    if (selectedElements.length !== 2) return;
+    // if (
+    //   !selectedElements.every(
+    //     (obj) =>
+    //       String(obj.description?.includes("input")) ||
+    //       String(obj.description?.includes("output"))
+    //   )
+    // )
+    //   return;
+    if (!modularGroupAction && selectedElements.length !== 2) return;
+    console.log(modularGroupAction);
+    setContextMenu(() => ({
+      // ...prev,
+      active: true,
+      contextX: modularGroupAction.contextX,
+      contextY: modularGroupAction.contextY,
+      x: modularGroupAction.x,
+      y: modularGroupAction.y,
+      offsetX: modularGroupAction.offsetX,
+      offsetY: modularGroupAction.offsetY,
+      type: "connection name",
+    }));
+  }, [modularGroupAction, selectedElements]);
+
+  const connectionForm = useCallback(
+    (e, target) => {
+      // setActiveObject(target)
+      console.log("connection");
+      let { contextX, contextY, x, y, offsetX, offsetY } =
+        getContextPosition(e);
+      setModularGroupAction({ contextX, contextY, x, y, offsetX, offsetY });
+      // handleContextMenu(e,target)
+      // handleConnection({type:"connect"})
+    },
+    [getContextPosition, setModularGroupAction]
+  );
+
+  const updateConnection = useCallback(async () => {
+    try {
+      setIsServiceLoading(true);
+      const response = await editRiskConnection(selectedConnection.id, {
+        name: linkName,
+        scalar: connectionWeight,
+        text: connectionText,
+      });
+      if (response.status >= 200 && response.status < 300) {
+        setConnections((prev) =>
+          prev.map((connection) => {
+            if (connection.id === selectedConnection.id) {
+              return {
+                ...connection,
+                name: linkName,
+                scalar: connectionWeight,
+                text: connectionText,
+              };
+            } else {
+              return connection;
+            }
+          })
+        );
+        setLinkName(null);
+        setConnectionText(null);
+        setConnectionWeight(null);
+        setSelectedConnection([]);
+        resetContext();
+        setIsServiceLoading(false);
+        setSelectedElements([]);
+      } else {
+        showDangerToaster(`Error Updaating Connection`);
+        setIsServiceLoading(false);
+      }
+    } catch (error) {
+      showDangerToaster(`Error Updaating Connection: ${error}`);
+      setIsServiceLoading(false);
+    }
+  }, [
+    linkName,
+    connectionText,
+    connectionWeight,
+    selectedConnection,
+    resetContext,
+  ]);
 
   return (
     <>
@@ -2131,7 +2308,13 @@ export const RiskAssessmentWindow = ({
             />
 
             <MenuItem text="Share Group" onClick={handleShareGroup} />
-
+<MenuDivider />
+<MenuItem text="Edit Group" onClick={()=>{
+  setEditGroupFlag(true);
+  setContextMenu(prev=>({...prev,type:"group name"}))
+  setSelectedGroup(groups.find(grp=>grp.id===activeObject))
+}} />
+<MenuDivider />
             <MenuItem
               text={
                 groups.find(
@@ -2670,7 +2853,7 @@ export const RiskAssessmentWindow = ({
               borderRadius: "2px",
             }}
           >
-            <H5 style={{ color: "white" }}>New Group Name</H5>
+            <H5 style={{ color: "white" }}>Group Info</H5>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -2691,6 +2874,24 @@ export const RiskAssessmentWindow = ({
                     setGroupNameError(null);
                     setGroupName(event.target.value);
                   }}
+                  defaultValue={selectedGroup.name?selectedGroup.name:""}
+                />
+              </FormGroup>
+              <FormGroup
+                label="Description"
+                // labelInfo="(required)"
+                // intent={groupNameError ? Intent.DANGER : Intent.NONE}
+                // helperText={groupNameError}
+                labelFor="newGroupDescription"
+              >
+                <InputGroup
+                  // required
+                  id="newGroupDescription"
+                  onChange={(event) => {
+                    // setGroupNameError(null);
+                    setGroupDescription(event.target.value);
+                  }}
+                  defaultValue={selectedGroup.description?selectedGroup.description:""}
                 />
               </FormGroup>
               <Checkbox
@@ -2698,6 +2899,7 @@ export const RiskAssessmentWindow = ({
                   !selectedElements.every((element) => element.type === "model")
                 }
                 onChange={() => setModularGroup((prev) => !prev)}
+                checked={selectedGroup.modelGroup | false}
               >
                 Modular <strong>Group</strong>
               </Checkbox>
@@ -2716,17 +2918,26 @@ export const RiskAssessmentWindow = ({
                     setGroupName(null);
                     setModularGroup(false);
                     resetContext();
+                    setSelectedGroup({});
+                    setEditGroupFlag(false);
                   }}
                 >
                   Cancel
                 </Button>
-                <Button
+                {editGroupFlag?(<Button
+                  // type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.WARNING}
+                  onClick={handleEditGroup}
+                >
+                  Update
+                </Button>):(<Button
                   type="submit"
                   loading={isServiceLoading}
                   intent={Intent.SUCCESS}
                 >
                   Add
-                </Button>
+                </Button>)}
               </div>
             </form>
           </div>
@@ -2805,7 +3016,7 @@ export const RiskAssessmentWindow = ({
               borderRadius: "2px",
             }}
           >
-            <H5 style={{ color: "white" }}>New Connection Name</H5>
+            <H5 style={{ color: "white" }}>New Connection</H5>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -2822,12 +3033,55 @@ export const RiskAssessmentWindow = ({
                 <InputGroup
                   // required
                   id="newLinkName"
+                  defaultValue={linkName}
                   onChange={(event) => {
                     setLinkNameError(null);
                     setLinkName(null);
                     setLinkName(event.target.value);
                   }}
                 />
+              </FormGroup>
+              <FormGroup
+                label="Weight"
+                labelInfo="(required)"
+                intent={linkNameError ? Intent.DANGER : Intent.NONE}
+                helperText={linkNameError}
+                labelFor="newLinkWeight"
+              >
+                <NumericInput
+                  // required
+                  max={5}
+                  min={-5}
+                  value={connectionWeight}
+                  id="newLinkWeight"
+                  onValueChange={(e)=>{
+                    setConnectionWeight(e);
+
+                  }}
+                  // onChange={(event) => {
+                  //   // setLinkNameError(null);
+                  //   // setLinkName(null);
+                  //   console.log(Number(event))
+                  // }}
+                  // value={connectionWeight}
+                />
+              </FormGroup>
+              <FormGroup
+                label="Text"
+                labelInfo="(required)"
+                // intent={linkNameError ? Intent.DANGER : Intent.NONE}
+                // helperText={linkNameError}
+                labelFor="newconnectionText"
+              >
+                <HTMLSelect
+                  onChange={(e) => setConnectionText(e.target.value)}
+                >
+                  <option selected disabled>
+                    Select Type
+                  </option>
+                  <option selected={selectedConnection?.text==="or"} value="or">OR</option>
+                  <option selected={selectedConnection?.text==="and"} value="and">AND</option>
+                </HTMLSelect>
               </FormGroup>
               <div
                 style={{
@@ -2842,18 +3096,40 @@ export const RiskAssessmentWindow = ({
                   onClick={() => {
                     setLinkNameError(null);
                     setLinkName(null);
+                    setConnectionWeight(0);
+                    setModularGroupAction(null);
                     resetContext();
                   }}
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  loading={isServiceLoading}
-                  intent={Intent.SUCCESS}
-                >
-                  Add
-                </Button>
+
+                {selectedConnection ? (
+                  <>
+                    <Button
+                      onClick={updateConnection}
+                      loading={isServiceLoading}
+                      intent={Intent.WARNING}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      onClick={handleDisconnect}
+                      loading={isServiceLoading}
+                      intent={Intent.DANGER}
+                    >
+                      Remove
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    type="submit"
+                    loading={isServiceLoading}
+                    intent={Intent.SUCCESS}
+                  >
+                    Add
+                  </Button>
+                )}
               </div>
             </form>
           </div>

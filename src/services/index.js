@@ -128,6 +128,8 @@ export const addRiskConnection = (data) => serviceProvider.post(`/riskConnection
 
 export const deleteRiskConnection = (id) => serviceProvider.delete(`/riskConnections/${id}`);
 
+export const editRiskConnection = (id,data) => serviceProvider.put(`/riskConnections/${id}`,data);
+
 export const deleteInstanceRiskConnection = (id) => serviceProvider.delete(`/dataObjectNewRiskObjectConnections/${id}`);
 
 export const deleteInstanceConnection = (id) => serviceProvider.delete(`/dataObjectNewConnections/${id}`);
