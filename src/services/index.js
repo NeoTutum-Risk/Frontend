@@ -113,7 +113,7 @@ export const getRiskAssessment = (id) => serviceProvider(`/riskAssessments/${id}
 
 export const addRiskObjectProperties = (id, data) => serviceProvider.put(`/riskObjectProperties/${id}`, data);
 
-export const addModelRiskObjectProperties = (id, data) => serviceProvider.put(`/modelProperties/riskObjectProperties/${id}`, data);
+export const addModelRiskObjectProperties = (id, data) => serviceProvider.put(`/riskObjectProperties/modelProperties/${id}`, data);
 
 export const getRiskAssessmentTable = (id) => serviceProvider(`/riskAssessments/table/${id}`);
 
