@@ -51,7 +51,7 @@ import {
   updateRiskAssessmentView,
   addObjectToGroup,
   unshareGroup,
-  addModelRiskObjectProperties
+  addModelRiskObjectProperties,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -72,7 +72,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
-  const [openedGroup,setOpenedGroup] = useState(null);
+  const [openedGroup, setOpenedGroup] = useState(null);
   const [modularGroupAction, setModularGroupAction] = useState(null);
   const [hoveredElement, setHoveredElement] = useState(null);
   const [firstContext, setFirstContext] = useState("main");
@@ -240,7 +240,7 @@ export const RiskAssessmentWindow = ({
         check = filter.mObjects && type === "model" ? true : check;
         check =
           filter.riskObjects &&
-            (type === "virtual" || type === "physical" || type === "model")
+          (type === "virtual" || type === "physical" || type === "model")
             ? true
             : check;
         check = filter.oDataObjects && type === "Output" ? true : check;
@@ -296,7 +296,7 @@ export const RiskAssessmentWindow = ({
           if (target.group) {
             check =
               target.group.expanded &&
-                (filter.groups || filter.normal || filter.everything)
+              (filter.groups || filter.normal || filter.everything)
                 ? true
                 : "collapsed";
           }
@@ -304,7 +304,7 @@ export const RiskAssessmentWindow = ({
           if (source.group) {
             check =
               source.group.expanded &&
-                (filter.groups || filter.normal || filter.everything)
+              (filter.groups || filter.normal || filter.everything)
                 ? check === "collapsed"
                   ? "collapsed"
                   : true
@@ -344,7 +344,7 @@ export const RiskAssessmentWindow = ({
           if (target.group) {
             check =
               target.group.expanded &&
-                (filter.groups || filter.normal || filter.everything)
+              (filter.groups || filter.normal || filter.everything)
                 ? true
                 : "collapsed";
           }
@@ -352,7 +352,7 @@ export const RiskAssessmentWindow = ({
           if (source.group) {
             check =
               source.group.expanded &&
-                (filter.groups || filter.normal || filter.everything)
+              (filter.groups || filter.normal || filter.everything)
                 ? check === "collapsed"
                   ? "collapsed"
                   : true
@@ -398,7 +398,7 @@ export const RiskAssessmentWindow = ({
           if (target.group) {
             check =
               target.group.expanded &&
-                (filter.groups || filter.normal || filter.everything)
+              (filter.groups || filter.normal || filter.everything)
                 ? true
                 : "collapsed";
           }
@@ -406,7 +406,7 @@ export const RiskAssessmentWindow = ({
           if (source.group) {
             check =
               source.group.expanded &&
-                (filter.groups || filter.normal || filter.everything)
+              (filter.groups || filter.normal || filter.everything)
                 ? check === "collapsed"
                   ? "collapsed"
                   : true
@@ -547,35 +547,41 @@ export const RiskAssessmentWindow = ({
     }
   }, []);
 
-  
-// useEffect(()=>{
-//   if(openedGroup){
-//     console.log("IN",openedGroup)
-//     setRiskObjects([]);
-//     setDataObjectInstances([]);
-//     setMetaData([]);
-//     setGroups(groups.filter(grp=>grp.id===openedGroup));
-//   }
-// },[openedGroup,groups])
+  // useEffect(()=>{
+  //   if(openedGroup){
+  //     console.log("IN",openedGroup)
+  //     setRiskObjects([]);
+  //     setDataObjectInstances([]);
+  //     setMetaData([]);
+  //     setGroups(groups.filter(grp=>grp.id===openedGroup));
+  //   }
+  // },[openedGroup,groups])
 
   const riskAssessmentData = useCallback(async () => {
     // if(openedGroup) return;
     try {
       const response = await getRiskAssessment(window.data.id);
       if (response.status === 200) {
-        if(openedGroup){
-          console.log("IN",openedGroup)
+        if (openedGroup) {
+          console.log("IN", openedGroup);
           setRiskObjects([]);
           setDataObjectInstances([]);
-          setGroups([{...response.data.data.riskGroups.find(grp=>grp.id===openedGroup),opendGroupExpansion:1}]);
-        }else{
-          console.log("Out",openedGroup)
+          setGroups([
+            {
+              ...response.data.data.riskGroups.find(
+                (grp) => grp.id === openedGroup
+              ),
+              opendGroupExpansion: 1,
+            },
+          ]);
+        } else {
+          console.log("Out", openedGroup);
           setRiskObjects(response.data.data.riskObjects);
           setDataObjectInstances(response.data.data.dataObjectsNewProperties);
           setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
           setGroups(response.data.data.riskGroups);
         }
-        
+
         setConnections(
           response.data.data.riskConnections
           // .filter(
@@ -612,27 +618,28 @@ export const RiskAssessmentWindow = ({
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
       setTimeout(riskAssessmentData, 1000);
     }
-  }, [window.data.id, getGlobalGroups, updateViewsList,openedGroup]);
+  }, [window.data.id, getGlobalGroups, updateViewsList, openedGroup]);
 
-  const handleOpenedGroup = useCallback((id,action)=>{
-    if(action==="clear"){
-      // setGroups([{...groups.find(grp=>grp.id===openedGroup),opendGroupExpansion:false}])
-      
-      setOpenedGroup(null);
-      // setGroups([]);
-      riskAssessmentData();
-      
-    }else{
-      console.log("Original",id,action)
-      setOpenedGroup(id);
-      setRiskObjects([]);
-      setDataObjectInstances([]);
-      setGroups([{...groups.find(grp=>grp.id===id),opendGroupExpansion:true}])
-      
-    }
-    
-    
-  },[riskAssessmentData,groups])
+  const handleOpenedGroup = useCallback(
+    (id, action) => {
+      if (action === "clear") {
+        // setGroups([{...groups.find(grp=>grp.id===openedGroup),opendGroupExpansion:false}])
+
+        setOpenedGroup(null);
+        // setGroups([]);
+        riskAssessmentData();
+      } else {
+        console.log("Original", id, action);
+        setOpenedGroup(id);
+        setRiskObjects([]);
+        setDataObjectInstances([]);
+        setGroups([
+          { ...groups.find((grp) => grp.id === id), opendGroupExpansion: true },
+        ]);
+      }
+    },
+    [riskAssessmentData, groups]
+  );
 
   const addToGroup = useCallback(
     async (type, data) => {
@@ -1137,9 +1144,9 @@ export const RiskAssessmentWindow = ({
 
   const setModelRiskObjectProperties = useCallback(async (mdl2Id, riskObj) => {
     try {
-      const { object } = riskObj
+      const { object } = riskObj;
 
-      if (object?.type === 'model') {
+      if (object?.type === "model") {
         const response = await addModelRiskObjectProperties(object.id, {
           metaDataLevel2Id: mdl2Id,
         });
@@ -1149,9 +1156,10 @@ export const RiskAssessmentWindow = ({
             `Successfully Added Properties to Risk Object ${object.id}`
           );
         }
-
       } else {
-        throw new Error("Validation Error: Setting model properties behavior must be on Model Riskobject")
+        throw new Error(
+          "Validation Error: Setting model properties behavior must be on Model Riskobject"
+        );
       }
     } catch (error) {
       showDangerToaster(error.message);
@@ -1163,7 +1171,15 @@ export const RiskAssessmentWindow = ({
       <MenuItem text={l1.name}>
         {l1.metaDataLevel2.map((l2) => {
           return (
-            <MenuItem text={l2.name} onClick={() => setModelRiskObjectProperties(l2.id, checkObject(activeObject, 'risk'))}>
+            <MenuItem
+              text={l2.name}
+              onClick={() =>
+                setModelRiskObjectProperties(
+                  l2.id,
+                  checkObject(activeObject, "risk")
+                )
+              }
+            >
               {l2.dataObjects[0]?.children
                 ? l2.dataObjects[0].children.map((l1Do) => getChildren(l1Do))
                 : null}
@@ -1390,14 +1406,14 @@ export const RiskAssessmentWindow = ({
         const payload = editElement
           ? { name: objectName, description: objectDescription }
           : {
-            type: objectType.toLowerCase(),
-            name: objectName,
-            description: objectDescription,
-            x: contextMenu.offsetX,
-            y: contextMenu.offsetY,
-            riskAssessmentId: window.data.id,
-            enabled: true,
-          };
+              type: objectType.toLowerCase(),
+              name: objectName,
+              description: objectDescription,
+              x: contextMenu.offsetX,
+              y: contextMenu.offsetY,
+              riskAssessmentId: window.data.id,
+              enabled: true,
+            };
 
         if (editElement) {
           const response = await updateRiskObject(editElement, payload);
@@ -1558,47 +1574,47 @@ export const RiskAssessmentWindow = ({
       if (element.type === "risk") {
         !element.groupId
           ? setRiskObjects((prev) =>
-            prev.map((object) => {
-              if (object.id === element.id) {
-                const updatedObject = { ...object };
-                element.operation === "enable"
-                  ? (updatedObject["position.enabled"] = element.payload)
-                  : (updatedObject["status"] = element.payload);
-                return updatedObject;
-              } else {
-                return object;
-              }
-            })
-          )
+              prev.map((object) => {
+                if (object.id === element.id) {
+                  const updatedObject = { ...object };
+                  element.operation === "enable"
+                    ? (updatedObject["position.enabled"] = element.payload)
+                    : (updatedObject["status"] = element.payload);
+                  return updatedObject;
+                } else {
+                  return object;
+                }
+              })
+            )
           : setGroups((prev) =>
-            prev.map((group) => {
-              if (group.id === element.groupId) {
-                return {
-                  ...group,
-                  elements: group.elements.map((object) => {
-                    if (object?.id === element.id) {
-                      const updatedObject = { ...object };
-                      element.operation === "enable"
-                        ? (updatedObject["position.enabled"] =
-                          element.payload)
-                        : (updatedObject["status"] = element.payload);
-                      return updatedObject;
-                    } else {
-                      return object;
-                    }
-                  }),
-                };
-              } else {
-                return group;
-              }
-            })
-          );
+              prev.map((group) => {
+                if (group.id === element.groupId) {
+                  return {
+                    ...group,
+                    elements: group.elements.map((object) => {
+                      if (object?.id === element.id) {
+                        const updatedObject = { ...object };
+                        element.operation === "enable"
+                          ? (updatedObject["position.enabled"] =
+                              element.payload)
+                          : (updatedObject["status"] = element.payload);
+                        return updatedObject;
+                      } else {
+                        return object;
+                      }
+                    }),
+                  };
+                } else {
+                  return group;
+                }
+              })
+            );
         setIsServiceLoading(true);
         const response =
           element.operation === "enable"
             ? await updateRiskObjectPosition(window.data.id, element.id, {
-              enabled: element.payload,
-            })
+                enabled: element.payload,
+              })
             : await updateRiskObject(element.id, { status: element.payload });
         if (response.status < 200 || response.status >= 300) {
           showDangerToaster(`Update Faild`);
@@ -1607,49 +1623,49 @@ export const RiskAssessmentWindow = ({
       } else {
         !element.groupId
           ? setDataObjectInstances((prev) =>
-            prev.map((object) => {
-              if (object.id === element.id) {
-                const updatedObject = { ...object };
-                element.operation === "enable"
-                  ? (updatedObject.disable = element.payload)
-                  : (updatedObject.status = element.payload);
-                return updatedObject;
-              } else {
-                return object;
-              }
-            })
-          )
+              prev.map((object) => {
+                if (object.id === element.id) {
+                  const updatedObject = { ...object };
+                  element.operation === "enable"
+                    ? (updatedObject.disable = element.payload)
+                    : (updatedObject.status = element.payload);
+                  return updatedObject;
+                } else {
+                  return object;
+                }
+              })
+            )
           : setGroups((prev) =>
-            prev.map((group) => {
-              if (group.id === element.groupId) {
-                return {
-                  ...group,
-                  dataObjects: group.dataObjects.map((object) => {
-                    if (object?.id === element.id) {
-                      const updatedObject = { ...object };
-                      element.operation === "enable"
-                        ? (updatedObject.disable = element.payload)
-                        : (updatedObject.status = element.payload);
-                      return updatedObject;
-                    } else {
-                      return object;
-                    }
-                  }),
-                };
-              } else {
-                return group;
-              }
-            })
-          );
+              prev.map((group) => {
+                if (group.id === element.groupId) {
+                  return {
+                    ...group,
+                    dataObjects: group.dataObjects.map((object) => {
+                      if (object?.id === element.id) {
+                        const updatedObject = { ...object };
+                        element.operation === "enable"
+                          ? (updatedObject.disable = element.payload)
+                          : (updatedObject.status = element.payload);
+                        return updatedObject;
+                      } else {
+                        return object;
+                      }
+                    }),
+                  };
+                } else {
+                  return group;
+                }
+              })
+            );
         setIsServiceLoading(true);
         const response =
           element.operation === "enable"
             ? await updateNewDataObjectInstance(element.id, {
-              disable: element.payload,
-            })
+                disable: element.payload,
+              })
             : await updateNewDataObjectInstance(element.id, {
-              status: element.payload,
-            });
+                status: element.payload,
+              });
 
         if (response.status < 200 || response.status >= 300) {
           showDangerToaster(`Update Faild`);
@@ -2186,8 +2202,8 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
-          openedGroup={openedGroup}
-          handleOpenedGroup={handleOpenedGroup}
+            openedGroup={openedGroup}
+            handleOpenedGroup={handleOpenedGroup}
             objects={riskObjects}
             groups={groups}
             metaData={metaData}
@@ -2375,11 +2391,14 @@ export const RiskAssessmentWindow = ({
 
             <MenuItem text="Share Group" onClick={handleShareGroup} />
             <MenuDivider />
-            <MenuItem text="Edit Group" onClick={() => {
-              setEditGroupFlag(true);
-              setContextMenu(prev => ({ ...prev, type: "group name" }))
-              setSelectedGroup(groups.find(grp => grp.id === activeObject))
-            }} />
+            <MenuItem
+              text="Edit Group"
+              onClick={() => {
+                setEditGroupFlag(true);
+                setContextMenu((prev) => ({ ...prev, type: "group name" }));
+                setSelectedGroup(groups.find((grp) => grp.id === activeObject));
+              }}
+            />
             <MenuDivider />
             <MenuItem
               text={
@@ -2950,15 +2969,29 @@ export const RiskAssessmentWindow = ({
                 // helperText={groupNameError}
                 labelFor="newGroupDescription"
               >
-                <InputGroup
+                {/* <InputGroup
                   // required
                   id="newGroupDescription"
                   onChange={(event) => {
                     // setGroupNameError(null);
                     setGroupDescription(event.target.value);
                   }}
-                  defaultValue={selectedGroup.description ? selectedGroup.description : ""}
-                />
+                  defaultValue={
+                    selectedGroup.description ? selectedGroup.description : ""
+                  }
+                /> */}
+                <TextArea
+                  className="panningDisabled pinchDisabled wheelDisabled"
+                  fill={true}
+                  id="newGroupDescription"
+                  onChange={(event) => {
+                    // setGroupNameError(null);
+                    setGroupDescription(event.target.value);
+                  }}
+                  defaultValue={
+                    selectedGroup.description ? selectedGroup.description : ""
+                  }
+                ></TextArea>
               </FormGroup>
               <Checkbox
                 disabled={
@@ -2990,20 +3023,24 @@ export const RiskAssessmentWindow = ({
                 >
                   Cancel
                 </Button>
-                {editGroupFlag ? (<Button
-                  // type="submit"
-                  loading={isServiceLoading}
-                  intent={Intent.WARNING}
-                  onClick={handleEditGroup}
-                >
-                  Update
-                </Button>) : (<Button
-                  type="submit"
-                  loading={isServiceLoading}
-                  intent={Intent.SUCCESS}
-                >
-                  Add
-                </Button>)}
+                {editGroupFlag ? (
+                  <Button
+                    // type="submit"
+                    loading={isServiceLoading}
+                    intent={Intent.WARNING}
+                    onClick={handleEditGroup}
+                  >
+                    Update
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    loading={isServiceLoading}
+                    intent={Intent.SUCCESS}
+                  >
+                    Add
+                  </Button>
+                )}
               </div>
             </form>
           </div>
@@ -3122,14 +3159,13 @@ export const RiskAssessmentWindow = ({
                   id="newLinkWeight"
                   onValueChange={(e) => {
                     setConnectionWeight(e);
-
                   }}
-                // onChange={(event) => {
-                //   // setLinkNameError(null);
-                //   // setLinkName(null);
-                //   console.log(Number(event))
-                // }}
-                // value={connectionWeight}
+                  // onChange={(event) => {
+                  //   // setLinkNameError(null);
+                  //   // setLinkName(null);
+                  //   console.log(Number(event))
+                  // }}
+                  // value={connectionWeight}
                 />
               </FormGroup>
               <FormGroup
@@ -3139,14 +3175,22 @@ export const RiskAssessmentWindow = ({
                 // helperText={linkNameError}
                 labelFor="newconnectionText"
               >
-                <HTMLSelect
-                  onChange={(e) => setConnectionText(e.target.value)}
-                >
+                <HTMLSelect onChange={(e) => setConnectionText(e.target.value)}>
                   <option selected disabled>
                     Select Type
                   </option>
-                  <option selected={selectedConnection?.text === "or"} value="or">OR</option>
-                  <option selected={selectedConnection?.text === "and"} value="and">AND</option>
+                  <option
+                    selected={selectedConnection?.text === "or"}
+                    value="or"
+                  >
+                    OR
+                  </option>
+                  <option
+                    selected={selectedConnection?.text === "and"}
+                    value="and"
+                  >
+                    AND
+                  </option>
                 </HTMLSelect>
               </FormGroup>
               <div
@@ -3277,7 +3321,7 @@ export const RiskAssessmentWindow = ({
                   type="submit"
                   loading={isServiceLoading}
                   intent={Intent.SUCCESS}
-                // onClick={addPortfolio}
+                  // onClick={addPortfolio}
                 >
                   {editElement ? "Update" : "Add"}
                 </Button>
@@ -3359,7 +3403,7 @@ export const RiskAssessmentWindow = ({
                   type="submit"
                   loading={isServiceLoading}
                   intent={Intent.SUCCESS}
-                // onClick={addPortfolio}
+                  // onClick={addPortfolio}
                 >
                   Add
                 </Button>
@@ -3429,7 +3473,7 @@ export const RiskAssessmentWindow = ({
                   type="submit"
                   loading={isServiceLoading}
                   intent={Intent.SUCCESS}
-                // onClick={addPortfolio}
+                  // onClick={addPortfolio}
                 >
                   Add
                 </Button>
@@ -3559,7 +3603,7 @@ export const RiskAssessmentWindow = ({
                   type="submit"
                   loading={isServiceLoading}
                   intent={Intent.SUCCESS}
-                // onClick={addPortfolio}
+                  // onClick={addPortfolio}
                 >
                   Add
                 </Button>
