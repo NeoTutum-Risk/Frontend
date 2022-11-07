@@ -73,6 +73,7 @@ export const RiskAssessmentWindow = ({
   onTypeChange,
 }) => {
   const [openedGroup, setOpenedGroup] = useState(null);
+  const [openedGroupConnections, setOpenedGroupConnections] = useState([]);
   const [modularGroupAction, setModularGroupAction] = useState(null);
   const [hoveredElement, setHoveredElement] = useState(null);
   const [firstContext, setFirstContext] = useState("main");
@@ -173,6 +174,18 @@ export const RiskAssessmentWindow = ({
     setEditElement(null);
     // setActiveObject(null);
   }, []);
+
+  useEffect(() => {
+    if (openedGroup) {
+      let elements = groups
+        .find((grp) => grp.id === openedGroup)
+        .elements.map((elm) => ({ id: elm.id }));
+        console.log("elements",elements)
+      setOpenedGroupConnections(connections.filter(con=>(elements.find(elm=>elm.id===con.sourceRef) && elements.find(elm=>elm.id===con.targetRef))));
+    } else {
+      setOpenedGroupConnections([]);
+    }
+  }, [openedGroup,connections,groups]);
 
   const checkObject = useCallback(
     (id, type) => {
@@ -2202,6 +2215,7 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
+          openedGroupConnections={openedGroupConnections}
             openedGroup={openedGroup}
             handleOpenedGroup={handleOpenedGroup}
             objects={riskObjects}
@@ -3000,7 +3014,7 @@ export const RiskAssessmentWindow = ({
                 onChange={() => setModularGroup((prev) => !prev)}
                 checked={selectedGroup.modelGroup | false}
               >
-                Modular <strong>Group</strong>
+                Model <strong>Group</strong>
               </Checkbox>
               <div
                 style={{

@@ -40,7 +40,8 @@ export const RiskAssessment = ({
   handleUnshareGroup,
   connectionForm,
   openedGroup,
-  handleOpenedGroup
+  handleOpenedGroup,
+  openedGroupConnections
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
@@ -140,7 +141,7 @@ export const RiskAssessment = ({
         );
       }
     },
-    [setSelectedElements, setSelectedObjects, selectedObjects]
+    [setSelectedElements, setSelectedObjects]
   );
 
   // (() => {
@@ -300,6 +301,33 @@ export const RiskAssessment = ({
             )
         )}
 
+{openedGroupConnections.map(
+          (edge) =>
+            checkConnctionVisibility(edge, "riskObjects") && (
+              <Xarrow
+                // zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                showHead={true}
+                labels={{
+                  middle:<div
+                  style={{
+                    fontSize: `${globalScale * 24}px`,
+                  }}
+                >
+                  {edge.name !== "No name" ? edge.name : ""}
+                </div>
+                }}
+                start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
+                end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
         {connections.map(
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
