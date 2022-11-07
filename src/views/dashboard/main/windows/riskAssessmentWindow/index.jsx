@@ -71,6 +71,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [openedGroup,setOpenedGroup] = useState(null);
   const [modularGroupAction, setModularGroupAction] = useState(null);
   const [hoveredElement, setHoveredElement] = useState(null);
   const [firstContext, setFirstContext] = useState("main");
@@ -545,15 +546,35 @@ export const RiskAssessmentWindow = ({
     }
   }, []);
 
+  
+// useEffect(()=>{
+//   if(openedGroup){
+//     console.log("IN",openedGroup)
+//     setRiskObjects([]);
+//     setDataObjectInstances([]);
+//     setMetaData([]);
+//     setGroups(groups.filter(grp=>grp.id===openedGroup));
+//   }
+// },[openedGroup,groups])
+
   const riskAssessmentData = useCallback(async () => {
+    // if(openedGroup) return;
     try {
       const response = await getRiskAssessment(window.data.id);
       if (response.status === 200) {
-        // (response.data.data);
-        setRiskObjects(response.data.data.riskObjects);
-        setDataObjectInstances(response.data.data.dataObjectsNewProperties);
-        setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
-        setGroups(response.data.data.riskGroups);
+        if(openedGroup){
+          console.log("IN",openedGroup)
+          setRiskObjects([]);
+          setDataObjectInstances([]);
+          setGroups([{...response.data.data.riskGroups.find(grp=>grp.id===openedGroup),opendGroupExpansion:1}]);
+        }else{
+          console.log("Out",openedGroup)
+          setRiskObjects(response.data.data.riskObjects);
+          setDataObjectInstances(response.data.data.dataObjectsNewProperties);
+          setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
+          setGroups(response.data.data.riskGroups);
+        }
+        
         setConnections(
           response.data.data.riskConnections
           // .filter(
@@ -585,13 +606,32 @@ export const RiskAssessmentWindow = ({
       } else {
         showDangerToaster(`Error Retrieving Risk Assessment Data`);
         setTimeout(riskAssessmentData, 1000);
-        // ("Failing");
       }
     } catch (err) {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
       setTimeout(riskAssessmentData, 1000);
     }
-  }, [window.data.id, getGlobalGroups, updateViewsList]);
+  }, [window.data.id, getGlobalGroups, updateViewsList,openedGroup]);
+
+  const handleOpenedGroup = useCallback((id,action)=>{
+    if(action==="clear"){
+      // setGroups([{...groups.find(grp=>grp.id===openedGroup),opendGroupExpansion:false}])
+      
+      setOpenedGroup(null);
+      // setGroups([]);
+      riskAssessmentData();
+      
+    }else{
+      console.log("Original",id,action)
+      setOpenedGroup(id);
+      setRiskObjects([]);
+      setDataObjectInstances([]);
+      setGroups([{...groups.find(grp=>grp.id===id),opendGroupExpansion:true}])
+      
+    }
+    
+    
+  },[riskAssessmentData,groups])
 
   const addToGroup = useCallback(
     async (type, data) => {
@@ -2122,6 +2162,8 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
+          openedGroup={openedGroup}
+          handleOpenedGroup={handleOpenedGroup}
             objects={riskObjects}
             groups={groups}
             metaData={metaData}

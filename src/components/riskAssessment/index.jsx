@@ -38,7 +38,9 @@ export const RiskAssessment = ({
   checkConnctionVisibility,
   setGroups,
   handleUnshareGroup,
-  connectionForm
+  connectionForm,
+  openedGroup,
+  handleOpenedGroup
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
@@ -437,8 +439,16 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="tick"
+
                   onClick={updateRAWindowSettings}
                 />
+                {openedGroup && <Button
+                intent="DANGER"
+                  small={true}
+                  fill={false}
+                  text={openedGroup}
+                  onClick={()=>handleOpenedGroup("","clear")}
+                />}
               </div>
               <TransformComponent
                 wrapperStyle={{
@@ -486,6 +496,7 @@ export const RiskAssessment = ({
                                 id: grp.id,
                                 name: grp.name,
                               }))}
+                              handleOpenedGroup={handleOpenedGroup}
                               setFirstContext={setFirstContext}
                               updateXarrow={updateXarrow}
                               handleContextMenu={handleContextMenu}

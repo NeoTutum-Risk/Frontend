@@ -34,6 +34,7 @@ export const RiskGroup = ({
   addToGroup,
   handleUnshareGroup,
   connectionForm,
+  handleOpenedGroup
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
@@ -205,9 +206,12 @@ export const RiskGroup = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      updateExpanded();
+      // updateExpanded();
+      console.log(data.id,"set")
+      handleOpenedGroup(data.id,"set")
+      // console.log("A7A")
     },
-    [updateExpanded]
+    [handleOpenedGroup,data.id]
   );
 
   const handleMouseOver = useCallback(
@@ -317,19 +321,19 @@ export const RiskGroup = ({
           </g>
         ))} */}
       {
-        (!data.modelGroup || expanded) &&
+        (!data.modelGroup || expanded || data.opendGroupExpansion) &&
         data.elements.map((object, index) =>
           object
-            ? !!checkFilter(
+            ? (!!checkFilter(
                 object.type,
                 object.status,
                 !object["position.enabled"]
-              ) && (
+              )  || data.opendGroupExpansion) && (
                 <RiskElement
                   addToGroup={addToGroup}
                   groups={groups}
                   setFirstContext={setFirstContext}
-                  expanded={expanded}
+                  expanded={expanded | data.opendGroupExpansion}
                   handleContextMenu={handleContextMenu}
                   selectedElements={selectedElements}
                   elementSelection={elementSelection}
@@ -399,7 +403,7 @@ export const RiskGroup = ({
         )
       }
 
-      <Rnd
+      { !data.opendGroupExpansion  && <Rnd
         id={`group-${data.modelGroup?"M":""}${riskAssessmentId}-${data.id}`}
         key={`group-${riskAssessmentId}-${data.id}`}
         default={{
@@ -558,7 +562,7 @@ export const RiskGroup = ({
             </span>
           </div>
         )}
-      </Rnd>
+      </Rnd>}
     </>
   );
 };
