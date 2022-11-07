@@ -114,6 +114,8 @@ export const getRiskAssessmentGroup = (riskAssessmenId,id) => serviceProvider(`/
 
 export const addRiskObjectProperties = (id, data) => serviceProvider.put(`/riskObjectProperties/${id}`, data);
 
+export const addModelRiskObjectProperties = (id, data) => serviceProvider.put(`/riskObjectProperties/modelProperties/${id}`, data);
+
 export const getRiskAssessmentTable = (id) => serviceProvider(`/riskAssessments/table/${id}`);
 
 export const updateReferenceGroupStatus = (id, data) => serviceProvider.put(`/referenceGroups/${id}`, data);
@@ -129,7 +131,7 @@ export const addRiskConnection = (data) => serviceProvider.post(`/riskConnection
 
 export const deleteRiskConnection = (id) => serviceProvider.delete(`/riskConnections/${id}`);
 
-export const editRiskConnection = (id,data) => serviceProvider.put(`/riskConnections/${id}`,data);
+export const editRiskConnection = (id, data) => serviceProvider.put(`/riskConnections/${id}`, data);
 
 export const deleteInstanceRiskConnection = (id) => serviceProvider.delete(`/dataObjectNewRiskObjectConnections/${id}`);
 
