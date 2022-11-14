@@ -340,7 +340,7 @@ export const RiskAssessmentWindow = ({
                   : true
                 : "collapsed";
 
-            if (source.group.modelGroup && source.group.id!==openedGroup) {
+            if (source.group?.modelGroup && source.group?.id!==openedGroup) {
               if (
                 !(
                   source.object.description?.includes("input") ||
@@ -353,7 +353,7 @@ export const RiskAssessmentWindow = ({
             }
           }
 
-          if(source.group.id===target.group.id && source.group.modelGroup && source.group.id!==openedGroup){
+          if(source.group?.id===target.group?.id && source.group?.modelGroup && source.group?.id!==openedGroup){
             if(!((
               source.object.description?.includes("input") ||
               source.object.description?.includes("output")
