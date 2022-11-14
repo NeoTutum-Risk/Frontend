@@ -180,12 +180,18 @@ export const RiskAssessmentWindow = ({
       let elements = groups
         .find((grp) => grp.id === openedGroup)
         .elements.map((elm) => ({ id: elm.id }));
-        console.log("elements",elements)
-      setOpenedGroupConnections(connections.filter(con=>(elements.find(elm=>elm.id===con.sourceRef) && elements.find(elm=>elm.id===con.targetRef))));
+      console.log("elements", elements);
+      setOpenedGroupConnections(
+        connections.filter(
+          (con) =>
+            elements.find((elm) => elm.id === con.sourceRef) &&
+            elements.find((elm) => elm.id === con.targetRef)
+        )
+      );
     } else {
       setOpenedGroupConnections([]);
     }
-  }, [openedGroup,connections,groups]);
+  }, [openedGroup, connections, groups]);
 
   const checkObject = useCallback(
     (id, type) => {
@@ -312,6 +318,17 @@ export const RiskAssessmentWindow = ({
               (filter.groups || filter.normal || filter.everything)
                 ? true
                 : "collapsed";
+
+            if (target.group.modelGroup && target.group.id!==openedGroup) {
+              if (
+                !(
+                  target.object.description?.includes("input") ||
+                  target.object.description?.includes("output")
+                )
+              ) {
+                check = false;
+              }
+            }
           }
 
           if (source.group) {
@@ -322,6 +339,30 @@ export const RiskAssessmentWindow = ({
                   ? "collapsed"
                   : true
                 : "collapsed";
+
+            if (source.group.modelGroup && source.group.id!==openedGroup) {
+              if (
+                !(
+                  source.object.description?.includes("input") ||
+                  source.object.description?.includes("output")
+                )
+              ) {
+                // console.log("connection====",check,s)
+                check = false;
+              }
+            }
+          }
+
+          if(source.group.id===target.group.id && source.group.modelGroup && source.group.id!==openedGroup){
+            if(!((
+              source.object.description?.includes("input") ||
+              source.object.description?.includes("output")
+            ) && (
+              target.object.description?.includes("input") ||
+              target.object.description?.includes("output")
+            ))){
+              check = false;
+            }
           }
 
           // (target, source);
@@ -2215,7 +2256,7 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
-          openedGroupConnections={openedGroupConnections}
+            openedGroupConnections={openedGroupConnections}
             openedGroup={openedGroup}
             handleOpenedGroup={handleOpenedGroup}
             objects={riskObjects}

@@ -143,9 +143,13 @@ export const RiskGroup = ({
         updateElementPosition.status >= 200 &&
         updateElementPosition.status < 300
       ) {
-        setGroups(prev=>prev.map(grp=>{
-          return grp.id===data.id?{...grp,description:groupDescription}:grp
-        }));
+        setGroups((prev) =>
+          prev.map((grp) => {
+            return grp.id === data.id
+              ? { ...grp, description: groupDescription }
+              : grp;
+          })
+        );
         setEditDescription(false);
         setOpenDescription(true);
       } else {
@@ -157,7 +161,7 @@ export const RiskGroup = ({
     setIsServiceLoading(false);
     // setInterval(updateXarrow, 200);
     // (updateElementPosition);
-  }, [data.id, riskAssessmentId, groupDescription,setGroups]);
+  }, [data.id, riskAssessmentId, groupDescription, setGroups]);
 
   const updateExpanded = useCallback(async () => {
     setGroups((prev) =>
@@ -247,12 +251,15 @@ export const RiskGroup = ({
     (e) => {
       e.preventDefault();
       if (e.detail !== 2) return;
-      // updateExpanded();
-      console.log(data.id, "set");
-      handleOpenedGroup(data.id, "set");
+      if (data.modelGroup) {
+        handleOpenedGroup(data.id, "set");
+      } else {
+        updateExpanded();
+      }
+
       // console.log("A7A")
     },
-    [handleOpenedGroup, data.id]
+    [handleOpenedGroup, data.id, data.modelGroup, updateExpanded]
   );
 
   const handleMouseOver = useCallback(
