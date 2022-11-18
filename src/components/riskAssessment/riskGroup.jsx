@@ -35,6 +35,7 @@ export const RiskGroup = ({
   handleUnshareGroup,
   connectionForm,
   handleOpenedGroup,
+  charts
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
@@ -378,6 +379,7 @@ export const RiskGroup = ({
               ) ||
                 data.opendGroupExpansion) && (
                 <RiskElement
+                charts={charts}
                   addToGroup={addToGroup}
                   groups={groups}
                   setFirstContext={setFirstContext}

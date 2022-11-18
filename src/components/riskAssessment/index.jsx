@@ -13,6 +13,8 @@ import {
   updateRiskAssessmentWindowSettings,
 } from "../../services";
 export const RiskAssessment = ({
+  charts,
+  getAnalytics,
   objects,
   groups,
   dataObjectInstances,
@@ -48,6 +50,7 @@ export const RiskAssessment = ({
     width: 50000,
   });
   const transformWrapperRef = useRef(null);
+  const [loadingAnalytics,setLoadingAnalytics] = useState(false);
 
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
@@ -143,6 +146,17 @@ export const RiskAssessment = ({
     },
     [setSelectedElements, setSelectedObjects]
   );
+
+  const updateAnalytics = useCallback(async ()=>{
+    setLoadingAnalytics(true);
+    const response = await getAnalytics();
+    if(response){
+      
+    }else{
+
+    }
+    setLoadingAnalytics(false);
+  },[getAnalytics])
 
   // (() => {
 
@@ -301,33 +315,7 @@ export const RiskAssessment = ({
             )
         )}
 
-{openedGroupConnections.map(
-          (edge) =>
-            checkConnctionVisibility(edge, "riskObjects") && (
-              <Xarrow
-                // zIndex={1000000}
-                key={
-                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
-                }
-                path="straight"
-                curveness={0.2}
-                strokeWidth={1.5}
-                showHead={true}
-                labels={{
-                  middle:<div
-                  style={{
-                    fontSize: `${globalScale * 24}px`,
-                  }}
-                >
-                  {edge.name !== "No name" ? edge.name : ""}
-                </div>
-                }}
-                start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
-                end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
-                SVGcanvasStyle={{ overflow: "hidden" }}
-              />
-            )
-        )}
+
         {connections.map(
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
@@ -362,6 +350,34 @@ export const RiskAssessment = ({
                     ) : (
                       ``
                     ),
+                }}
+                start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
+                end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
+                SVGcanvasStyle={{ overflow: "hidden" }}
+              />
+            )
+        )}
+
+{openedGroupConnections.map(
+          (edge) =>
+            checkConnctionVisibility(edge, "riskObjects") && (
+              <Xarrow
+                // zIndex={1000000}
+                key={
+                  riskAssessmentId + " " + edge.sourceRef + " " + edge.targetRef
+                }
+                path="straight"
+                curveness={0.2}
+                strokeWidth={1.5}
+                showHead={true}
+                labels={{
+                  middle:<div
+                  style={{
+                    fontSize: `${globalScale * 24}px`,
+                  }}
+                >
+                  {edge.name !== "No name" ? edge.name : ""}
+                </div>
                 }}
                 start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
                 end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
@@ -470,6 +486,13 @@ export const RiskAssessment = ({
 
                   onClick={updateRAWindowSettings}
                 />
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="refresh"
+
+                  onClick={updateAnalytics}
+                />
                 {openedGroup && <Button
                 intent="DANGER"
                   small={true}
@@ -519,6 +542,7 @@ export const RiskAssessment = ({
                             ) >
                             0 && (
                             <RiskGroup
+                            charts={charts}
                             connectionForm={connectionForm}
                               groups={groups.map((grp) => ({
                                 id: grp.id,
@@ -566,6 +590,7 @@ export const RiskAssessment = ({
                             !object["position.enabled"]
                           ) && (
                             <RiskElement
+                            charts={charts}
                               groups={groups.map((grp) => ({
                                 id: grp.id,
                                 name: grp.name,

@@ -33,7 +33,8 @@ export const RiskElement = ({
   enviroDimension,
   groups,
   addToGroup,
-  shared
+  shared,
+  charts
 }) => {
   const [size, setSize] = useState({
     w: data["position.width"],
@@ -238,7 +239,7 @@ export const RiskElement = ({
             }}
           >
             {face /*&& data['position.enabled'] */ && (
-              <OpenFace data={data} groupId={groupIdState} setFace={setFace} />
+              <OpenFace chart={charts.find(chart=>chart.riskObjectId===String(data.id))} data={data} groupId={groupIdState} setFace={setFace} />
             )}
             {!face /*&& data['position.enabled']*/ && (
               <ClosedFace

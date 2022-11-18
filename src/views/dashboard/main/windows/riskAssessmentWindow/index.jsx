@@ -52,6 +52,8 @@ import {
   addObjectToGroup,
   unshareGroup,
   addModelRiskObjectProperties,
+  analyticCharts,
+  getRiskAssessmentDrillDown
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -72,6 +74,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [charts,setCharts]=useState([]);
   const [openedGroup, setOpenedGroup] = useState(null);
   const [openedGroupConnections, setOpenedGroupConnections] = useState([]);
   const [modularGroupAction, setModularGroupAction] = useState(null);
@@ -190,6 +193,7 @@ export const RiskAssessmentWindow = ({
       );
     } else {
       setOpenedGroupConnections([]);
+      // setConnections([])
     }
   }, [openedGroup, connections, groups]);
 
@@ -347,7 +351,6 @@ export const RiskAssessmentWindow = ({
                   source.object.description?.includes("output")
                 )
               ) {
-                // console.log("connection====",check,s)
                 check = false;
               }
             }
@@ -634,6 +637,7 @@ export const RiskAssessmentWindow = ({
           setDataObjectInstances(response.data.data.dataObjectsNewProperties);
           setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
           setGroups(response.data.data.riskGroups);
+          setCharts(response.data.data.charts);
         }
 
         setConnections(
@@ -674,13 +678,32 @@ export const RiskAssessmentWindow = ({
     }
   }, [window.data.id, getGlobalGroups, updateViewsList, openedGroup]);
 
+  const getAnalytics = useCallback(async ()=>{
+
+    setIsServiceLoading(true);
+    try {
+      
+      const response = await analyticCharts({riskAssessmentId:window.data.id});
+      if(response.status>=200 && response.status<300){
+        riskAssessmentData();
+      }else{
+        throw new Error("Error Getting Analytic Data");
+      }
+    } catch (error) {
+      showDangerToaster(`${error}`);
+
+    }
+    setIsServiceLoading(false);
+  },[window.data.id,riskAssessmentData])
   const handleOpenedGroup = useCallback(
     (id, action) => {
       if (action === "clear") {
         // setGroups([{...groups.find(grp=>grp.id===openedGroup),opendGroupExpansion:false}])
-
+        // setConnections([]);
+        // setRiskObjects([]);
+        setGroups([])
         setOpenedGroup(null);
-        // setGroups([]);
+        
         riskAssessmentData();
       } else {
         console.log("Original", id, action);
@@ -2256,6 +2279,8 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
+          charts={charts}
+          getAnalytics={getAnalytics}
             openedGroupConnections={openedGroupConnections}
             openedGroup={openedGroup}
             handleOpenedGroup={handleOpenedGroup}

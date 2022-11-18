@@ -1,42 +1,38 @@
-export const OpenFace = ({ data, groupId, setFace }) => {
+import { ChartType } from "ag-grid-community";
+import {
+  Button,
+  H5,
+  ButtonGroup,
+  HTMLSelect,
+  TextArea,
+} from "@blueprintjs/core";
+
+export const OpenFace = ({ data, groupId, setFace, chart }) => {
   return (
     <>
-      <div className="risk-object-inner-row panningDisabled">
-        <div
-          className="risk-object-inner-column panningDisabled"
-          onClick={() => setFace((prev) => !prev)}
-          title={data.description}
-        >
-          <span
-            style={{ position: "relative", top: "35%" }}
-          >{`${data.type[0].toUpperCase()}: ${data.id}`}</span>
-        </div>
-        <div
-          className="risk-object-inner-column panningDisabled"
-          style={{ border: "dashed 1px blue" }}
-        >
-          <span style={{ position: "relative", top: "35%" }}>+</span>
-        </div>
-        <div className="risk-object-inner-column panningDisabled">
-          <span style={{ position: "relative", top: "35%" }}>Chart</span>
-        </div>
-      </div>
-      <div className="risk-object-inner-row panningDisabled">
-        <div className="risk-object-inner-column panningDisabled">
-          <span style={{ position: "relative", top: "35%" }}>
-            {groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
-          </span>
+      <div
+        style={{ display: "flex", textAlign: "center" }}
+        className="panningDisabled"
+        title={data.description}
+      >
+        <div>
+          <ButtonGroup>
+            <Button
+              onClick={() => setFace((prev) => !prev)}
+              text={`${data.type[0].toUpperCase()}: ${data.id}`}
+            />
+            <Button
+              text={groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
+            />
+          </ButtonGroup>
         </div>
 
-        <div
-          className="risk-object-inner-column panningDisabled"
-          style={{ border: "dashed 1px blue" }}
-        >
-          <span style={{ position: "relative", top: "35%" }}>+</span>
-        </div>
-
-        <div className="risk-object-inner-column panningDisabled">
-          <span style={{ position: "relative", top: "35%" }}>Con</span>
+        <div>
+          {!!chart && <img
+            style={{ width: "100%", height: "auto" }}
+            src={`data:image/svg+xml;utf8,${encodeURIComponent(chart.svg)}`}
+            alt="Error Rendering Chart"
+          />}
         </div>
       </div>
     </>
