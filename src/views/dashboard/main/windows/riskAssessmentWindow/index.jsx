@@ -321,7 +321,7 @@ export const RiskAssessmentWindow = ({
               target.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
                 ? true
-                : "collapsed";
+                : target.group.modelGroup?true:"collapsed";
 
             if (target.group.modelGroup && target.group.id!==openedGroup) {
               if (
@@ -342,7 +342,7 @@ export const RiskAssessmentWindow = ({
                 ? check === "collapsed"
                   ? "collapsed"
                   : true
-                : "collapsed";
+                : target.group.modelGroup?true:"collapsed";
 
             if (source.group?.modelGroup && source.group?.id!==openedGroup) {
               if (
@@ -1085,11 +1085,16 @@ export const RiskAssessmentWindow = ({
         ) {
           // ("risks");
           let input = selectedElements.find((element) =>
-            element.description.includes("input")
+            String(element.description).includes("input")
           );
           let output = selectedElements.find((element) =>
-            element.description.includes("output")
+            String(element.description).includes("output")
           );
+
+          if(! (input && output)){
+            input=selectedElements[0];
+            output=selectedElements[1];
+          }
           let payload = {
             sourceRef: input ? input.id : selectedElements[0].id,
             targetRef: output ? output.id : selectedElements[1].id,
