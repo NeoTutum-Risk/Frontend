@@ -117,6 +117,7 @@ export const RiskAssessmentWindow = ({
     contextY: 0,
     element: null,
   });
+  const [confidenceLevel ,setConfidenceLevel] = useState(1);
   const [globalGroups, setGlobalGroups] = useState([]);
   const [globalDataObjects, setGlobalDataObjects] = useState([]);
   const [editElement, setEditElement] = useState(null);
@@ -1123,6 +1124,7 @@ export const RiskAssessmentWindow = ({
             name: linkName,
             scalar: connectionWeight,
             text: connectionText,
+            confidenceLevel
           };
 
           const response = await addRiskConnection(payload);
@@ -1141,6 +1143,7 @@ export const RiskAssessmentWindow = ({
             name: linkName,
             scalar: connectionWeight,
             text: connectionText,
+            confidenceLevel
           };
 
           const response = await addInstanceConnection(payload);
@@ -1173,6 +1176,7 @@ export const RiskAssessmentWindow = ({
             name: linkName,
             scalar: connectionWeight,
             text: connectionText,
+            confidenceLevel,
             objectType:
               instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
           };
@@ -1203,6 +1207,7 @@ export const RiskAssessmentWindow = ({
       setSelectedObjects,
       connectionText,
       connectionWeight,
+      confidenceLevel
     ]
   );
 
@@ -1211,10 +1216,12 @@ export const RiskAssessmentWindow = ({
       setLinkName(selectedConnection.name);
       setConnectionText(selectedConnection.text);
       setConnectionWeight(selectedConnection.scalar);
+      setConnectionWeight(selectedConnection.confidenceLevel);
     } else {
       setLinkName(null);
       setConnectionText(null);
       setConnectionWeight(0);
+      setConfidenceLevel(1);
     }
   }, [selectedConnection]);
 
@@ -2234,6 +2241,7 @@ export const RiskAssessmentWindow = ({
         name: linkName,
         scalar: connectionWeight,
         text: connectionText,
+        confidenceLevel
       });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) =>
@@ -2244,6 +2252,7 @@ export const RiskAssessmentWindow = ({
                 name: linkName,
                 scalar: connectionWeight,
                 text: connectionText,
+                confidenceLevel
               };
             } else {
               return connection;
@@ -2252,7 +2261,8 @@ export const RiskAssessmentWindow = ({
         );
         setLinkName(null);
         setConnectionText(null);
-        setConnectionWeight(null);
+        setConnectionWeight(0);
+        setConfidenceLevel(1);
         setSelectedConnection([]);
         resetContext();
         setIsServiceLoading(false);
@@ -2269,6 +2279,7 @@ export const RiskAssessmentWindow = ({
     linkName,
     connectionText,
     connectionWeight,
+    confidenceLevel,
     selectedConnection,
     resetContext,
   ]);
@@ -3288,12 +3299,24 @@ export const RiskAssessmentWindow = ({
                   onValueChange={(e) => {
                     setConnectionWeight(e);
                   }}
-                  // onChange={(event) => {
-                  //   // setLinkNameError(null);
-                  //   // setLinkName(null);
-                  //   console.log(Number(event))
-                  // }}
-                  // value={connectionWeight}
+                />
+              </FormGroup>
+              <FormGroup
+                label="Confidence Level"
+                labelInfo="(required)"
+                intent={linkNameError ? Intent.DANGER : Intent.NONE}
+                helperText={linkNameError}
+                labelFor="newconfidenceLevel"
+              >
+                <NumericInput
+                  // required
+                  max={5}
+                  min={1}
+                  value={confidenceLevel}
+                  id="newconfidenceLevel"
+                  onValueChange={(e) => {
+                    setConfidenceLevel(e);
+                  }}
                 />
               </FormGroup>
               <FormGroup
@@ -3335,6 +3358,7 @@ export const RiskAssessmentWindow = ({
                     setLinkNameError(null);
                     setLinkName(null);
                     setConnectionWeight(0);
+                    setConfidenceLevel(1);
                     setModularGroupAction(null);
                     resetContext();
                   }}
