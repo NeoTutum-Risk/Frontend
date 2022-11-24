@@ -216,6 +216,277 @@ export const RiskAssessment = ({
       //   onClick={resetContext}
       // >
       <Xwrapper>
+        
+
+        <TransformWrapper
+          zoomAnimation={{ disabled: true }}
+          initialScale={raSettings.scale}
+          initialPositionX={raSettings.positionX}
+          initialPositionY={raSettings.positionY}
+          minScale={0.1}
+          maxScale={5}
+          doubleClick={{ disabled: true }}
+          onZoom={(ref, e) => {
+            // (ref);
+            if (ref.state.scale < 0.1) {
+              ref.state.scale = 0.1;
+              e.zoomOut(0.1);
+            }
+            setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
+            updateXarrow();
+          }}
+          onZoomStop={(ref, e) => {
+            handleZoomPanPinch(ref, e);
+            setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
+            // ("event zoom1", e);
+          }}
+          onPinching={updateXarrow}
+          onPinchingStop={handleZoomPanPinch}
+          onPanning={updateXarrow}
+          onPanningStop={handleZoomPanPinch}
+          panning={{
+            excluded: ["panningDisabled"],
+            activationKeys: ["Control"],
+          }}
+          pinch={{ excluded: ["pinchDisabled"] }}
+          wheel={{
+            excluded: ["wheelDisabled"],
+            step: 0.2,
+          }}
+          ref={transformWrapperRef}
+        >
+          {({ zoomIn, zoomOut, resetTransform, setTransform, ...rest }) => (
+            <React.Fragment>
+              <div
+                style={{
+                  display: "inline",
+                  position: "absolute",
+                  zIndex: "99",
+                }}
+              >
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="plus"
+                  onClick={(e) => {
+                    zoomIn();
+                    setGlobalScale((prev) => (prev += 0.2));
+                  }}
+                />
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="minus"
+                  onClick={() => {
+                    zoomOut();
+                    setGlobalScale((prev) => (prev -= 0.2));
+                  }}
+                />
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="reset"
+                  onClick={() => {
+                    setTransform(
+                      -Math.floor(getCenter().x),
+                      -Math.floor(getCenter().y),
+                      1
+                    );
+
+                    setGlobalScale(1);
+                  }}
+                />
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="tick"
+
+                  onClick={updateRAWindowSettings}
+                />
+                <Button
+                  small={true}
+                  fill={false}
+                  icon="refresh"
+
+                  onClick={updateAnalytics}
+                />
+                {openedGroup && <Button
+                intent="DANGER"
+                  small={true}
+                  fill={false}
+                  text={openedGroup}
+                  onClick={()=>handleOpenedGroup("","clear")}
+                />}
+              </div>
+              <TransformComponent
+                wrapperStyle={{
+                  width: "100%",
+                  height: "100%",
+                }}
+                contentStyle={{
+                  width: `${enviroDimension.width}px`,
+                  height: `${enviroDimension.height}px`,
+                }}
+              >
+                <div
+                  style={{
+                    overflow: "auto",
+                    height: `${enviroDimension.height}px`,
+                    width: `${enviroDimension.width}px`,
+                    position: "relative",
+                    border: "5px solid grey",
+                  }}
+                  onScroll={updateXarrow}
+                  onContextMenu={(e) => {
+                    handleContextMenu(e, { from: "main" });
+                  }}
+                  onClick={resetContext}
+                >
+                  
+
+                  {objects.length > 0
+                    ? objects.map(
+                        (object, index) =>
+                          checkFilter(
+                            object.type,
+                            object.status,
+                            !object["position.enabled"]
+                          ) && (
+                            <RiskElement
+                            globalViewIndex={globalViewIndex}
+                            views={views}
+                            charts={charts}
+                              groups={groups.map((grp) => ({
+                                id: grp.id,
+                                name: grp.name,
+                              }))}
+                              setFirstContext={setFirstContext}
+                              expanded={true}
+                              handleContextMenu={handleContextMenu}
+                              selectedElements={selectedElements}
+                              elementSelection={elementSelection}
+                              key={`r-${riskAssessmentId}-${object.id}`}
+                              data={object}
+                              riskAssessmentId={riskAssessmentId}
+                              position={{
+                                x: object["position.x"],
+                                y: object["position.y"],
+                              }}
+                              editRiskObject={editRiskObject}
+                              closedFace={closedFace}
+                              scale={globalScale}
+                              setHoveredElement={setHoveredElement}
+                              handleObjectAction={handleObjectAction}
+                              menu={menu}
+                              handleProperties={handleProperties}
+                              removeFromGroup={removeFromGroup}
+                              handleObjectProperty={handleObjectProperty}
+                              enviroDimension={enviroDimension}
+                              addToGroup={addToGroup}
+                              shared={0}
+                            />
+                          )
+                      )
+                    : null}
+
+                  {dataObjectInstances.length > 0
+                    ? dataObjectInstances.map(
+                        (dataObjectInstance) =>
+                          checkFilter(
+                            dataObjectInstance.dataObjectNew.IOtype,
+                            dataObjectInstance.status,
+                            dataObjectInstance.disable
+                          ) && (
+                            <DataObject
+                            globalViewIndex={globalViewIndex}
+                            views={views}
+                              groups={groups.map((grp) => ({
+                                id: grp.id,
+                                name: grp.name,
+                              }))}
+                              handleContextMenu={handleContextMenu}
+                              riskAssessmentId={riskAssessmentId}
+                              scale={globalScale}
+                              expanded={true}
+                              data={dataObjectInstance}
+                              selectedElements={selectedElements}
+                              elementSelection={elementSelection}
+                              setFirstContext={setFirstContext}
+                              setHoveredElement={setHoveredElement}
+                              handleObjectAction={handleObjectAction}
+                              removeFromGroup={removeFromGroup}
+                              addToGroup={addToGroup}
+                              key={`o-${riskAssessmentId}-${dataObjectInstance.id}`}
+                              enviroDimension={enviroDimension}
+                              shared={0}
+                            />
+                          )
+                      )
+                    : null}
+
+{groups.length > 0 && checkFilter("group")
+                    ? groups.map(
+                        (group, index) =>
+                          Number(
+                            group.elements.filter(
+                              (element) =>
+                                element && element.status !== "delete"
+                            ).length
+                          ) +
+                            Number(
+                              group.dataObjects.filter(
+                                (element) =>
+                                  element && element.status !== "delete"
+                              ).length
+                            ) >
+                            0 && (
+                            <RiskGroup
+                            globalViewIndex={globalViewIndex}
+                            views={views}
+                            charts={charts}
+                            connectionForm={connectionForm}
+                              groups={groups.map((grp) => ({
+                                id: grp.id,
+                                name: grp.name,
+                              }))}
+                              handleOpenedGroup={handleOpenedGroup}
+                              setFirstContext={setFirstContext}
+                              updateXarrow={updateXarrow}
+                              handleContextMenu={handleContextMenu}
+                              selectedElements={selectedElements}
+                              elementSelection={elementSelection}
+                              index={index}
+                              data={group}
+                              key={`grp-${riskAssessmentId}-${group.id}`}
+                              riskAssessmentId={riskAssessmentId}
+                              position={{
+                                x: group.currentX,
+                                y: group.currentY,
+                              }}
+                              editRiskObject={editRiskObject}
+                              closedFace={closedFace}
+                              scale={globalScale}
+                              setHoveredElement={setHoveredElement}
+                              handleObjectAction={handleObjectAction}
+                              menu={menu}
+                              handleProperties={handleProperties}
+                              removeFromGroup={removeFromGroup}
+                              handleObjectProperty={handleObjectProperty}
+                              checkFilter={checkFilter}
+                              enviroDimension={enviroDimension}
+                              setGroups={setGroups}
+                              addToGroup={addToGroup}
+                              handleUnshareGroup={handleUnshareGroup}
+                            />
+                          )
+                      )
+                    : null}
+                </div>
+              </TransformComponent>
+            </React.Fragment>
+          )}
+        </TransformWrapper>
+
         {instanceConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
@@ -402,273 +673,6 @@ export const RiskAssessment = ({
             // zIndex={1000000}
           />
         ))}
-
-        <TransformWrapper
-          zoomAnimation={{ disabled: true }}
-          initialScale={raSettings.scale}
-          initialPositionX={raSettings.positionX}
-          initialPositionY={raSettings.positionY}
-          minScale={0.1}
-          maxScale={5}
-          doubleClick={{ disabled: true }}
-          onZoom={(ref, e) => {
-            // (ref);
-            if (ref.state.scale < 0.1) {
-              ref.state.scale = 0.1;
-              e.zoomOut(0.1);
-            }
-            setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
-            updateXarrow();
-          }}
-          onZoomStop={(ref, e) => {
-            handleZoomPanPinch(ref, e);
-            setGlobalScale(ref.state.scale < 0.1 ? 0.1 : ref.state.scale);
-            // ("event zoom1", e);
-          }}
-          onPinching={updateXarrow}
-          onPinchingStop={handleZoomPanPinch}
-          onPanning={updateXarrow}
-          onPanningStop={handleZoomPanPinch}
-          panning={{
-            excluded: ["panningDisabled"],
-            activationKeys: ["Control"],
-          }}
-          pinch={{ excluded: ["pinchDisabled"] }}
-          wheel={{
-            excluded: ["wheelDisabled"],
-            step: 0.2,
-          }}
-          ref={transformWrapperRef}
-        >
-          {({ zoomIn, zoomOut, resetTransform, setTransform, ...rest }) => (
-            <React.Fragment>
-              <div
-                style={{
-                  display: "inline",
-                  position: "absolute",
-                  zIndex: "99",
-                }}
-              >
-                <Button
-                  small={true}
-                  fill={false}
-                  icon="plus"
-                  onClick={(e) => {
-                    zoomIn();
-                    setGlobalScale((prev) => (prev += 0.2));
-                  }}
-                />
-                <Button
-                  small={true}
-                  fill={false}
-                  icon="minus"
-                  onClick={() => {
-                    zoomOut();
-                    setGlobalScale((prev) => (prev -= 0.2));
-                  }}
-                />
-                <Button
-                  small={true}
-                  fill={false}
-                  icon="reset"
-                  onClick={() => {
-                    setTransform(
-                      -Math.floor(getCenter().x),
-                      -Math.floor(getCenter().y),
-                      1
-                    );
-
-                    setGlobalScale(1);
-                  }}
-                />
-                <Button
-                  small={true}
-                  fill={false}
-                  icon="tick"
-
-                  onClick={updateRAWindowSettings}
-                />
-                <Button
-                  small={true}
-                  fill={false}
-                  icon="refresh"
-
-                  onClick={updateAnalytics}
-                />
-                {openedGroup && <Button
-                intent="DANGER"
-                  small={true}
-                  fill={false}
-                  text={openedGroup}
-                  onClick={()=>handleOpenedGroup("","clear")}
-                />}
-              </div>
-              <TransformComponent
-                wrapperStyle={{
-                  width: "100%",
-                  height: "100%",
-                }}
-                contentStyle={{
-                  width: `${enviroDimension.width}px`,
-                  height: `${enviroDimension.height}px`,
-                }}
-              >
-                <div
-                  style={{
-                    overflow: "auto",
-                    height: `${enviroDimension.height}px`,
-                    width: `${enviroDimension.width}px`,
-                    position: "relative",
-                    border: "5px solid grey",
-                  }}
-                  onScroll={updateXarrow}
-                  onContextMenu={(e) => {
-                    handleContextMenu(e, { from: "main" });
-                  }}
-                  onClick={resetContext}
-                >
-                  {groups.length > 0 && checkFilter("group")
-                    ? groups.map(
-                        (group, index) =>
-                          Number(
-                            group.elements.filter(
-                              (element) =>
-                                element && element.status !== "delete"
-                            ).length
-                          ) +
-                            Number(
-                              group.dataObjects.filter(
-                                (element) =>
-                                  element && element.status !== "delete"
-                              ).length
-                            ) >
-                            0 && (
-                            <RiskGroup
-                            globalViewIndex={globalViewIndex}
-                            views={views}
-                            charts={charts}
-                            connectionForm={connectionForm}
-                              groups={groups.map((grp) => ({
-                                id: grp.id,
-                                name: grp.name,
-                              }))}
-                              handleOpenedGroup={handleOpenedGroup}
-                              setFirstContext={setFirstContext}
-                              updateXarrow={updateXarrow}
-                              handleContextMenu={handleContextMenu}
-                              selectedElements={selectedElements}
-                              elementSelection={elementSelection}
-                              index={index}
-                              data={group}
-                              key={`grp-${riskAssessmentId}-${group.id}`}
-                              riskAssessmentId={riskAssessmentId}
-                              position={{
-                                x: group.currentX,
-                                y: group.currentY,
-                              }}
-                              editRiskObject={editRiskObject}
-                              closedFace={closedFace}
-                              scale={globalScale}
-                              setHoveredElement={setHoveredElement}
-                              handleObjectAction={handleObjectAction}
-                              menu={menu}
-                              handleProperties={handleProperties}
-                              removeFromGroup={removeFromGroup}
-                              handleObjectProperty={handleObjectProperty}
-                              checkFilter={checkFilter}
-                              enviroDimension={enviroDimension}
-                              setGroups={setGroups}
-                              addToGroup={addToGroup}
-                              handleUnshareGroup={handleUnshareGroup}
-                            />
-                          )
-                      )
-                    : null}
-
-                  {objects.length > 0
-                    ? objects.map(
-                        (object, index) =>
-                          checkFilter(
-                            object.type,
-                            object.status,
-                            !object["position.enabled"]
-                          ) && (
-                            <RiskElement
-                            globalViewIndex={globalViewIndex}
-                            views={views}
-                            charts={charts}
-                              groups={groups.map((grp) => ({
-                                id: grp.id,
-                                name: grp.name,
-                              }))}
-                              setFirstContext={setFirstContext}
-                              expanded={true}
-                              handleContextMenu={handleContextMenu}
-                              selectedElements={selectedElements}
-                              elementSelection={elementSelection}
-                              key={`r-${riskAssessmentId}-${object.id}`}
-                              data={object}
-                              riskAssessmentId={riskAssessmentId}
-                              position={{
-                                x: object["position.x"],
-                                y: object["position.y"],
-                              }}
-                              editRiskObject={editRiskObject}
-                              closedFace={closedFace}
-                              scale={globalScale}
-                              setHoveredElement={setHoveredElement}
-                              handleObjectAction={handleObjectAction}
-                              menu={menu}
-                              handleProperties={handleProperties}
-                              removeFromGroup={removeFromGroup}
-                              handleObjectProperty={handleObjectProperty}
-                              enviroDimension={enviroDimension}
-                              addToGroup={addToGroup}
-                              shared={0}
-                            />
-                          )
-                      )
-                    : null}
-
-                  {dataObjectInstances.length > 0
-                    ? dataObjectInstances.map(
-                        (dataObjectInstance) =>
-                          checkFilter(
-                            dataObjectInstance.dataObjectNew.IOtype,
-                            dataObjectInstance.status,
-                            dataObjectInstance.disable
-                          ) && (
-                            <DataObject
-                            globalViewIndex={globalViewIndex}
-                            views={views}
-                              groups={groups.map((grp) => ({
-                                id: grp.id,
-                                name: grp.name,
-                              }))}
-                              handleContextMenu={handleContextMenu}
-                              riskAssessmentId={riskAssessmentId}
-                              scale={globalScale}
-                              expanded={true}
-                              data={dataObjectInstance}
-                              selectedElements={selectedElements}
-                              elementSelection={elementSelection}
-                              setFirstContext={setFirstContext}
-                              setHoveredElement={setHoveredElement}
-                              handleObjectAction={handleObjectAction}
-                              removeFromGroup={removeFromGroup}
-                              addToGroup={addToGroup}
-                              key={`o-${riskAssessmentId}-${dataObjectInstance.id}`}
-                              enviroDimension={enviroDimension}
-                              shared={0}
-                            />
-                          )
-                      )
-                    : null}
-                </div>
-              </TransformComponent>
-            </React.Fragment>
-          )}
-        </TransformWrapper>
       </Xwrapper>
     );
   }

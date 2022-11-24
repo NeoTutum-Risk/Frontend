@@ -716,10 +716,15 @@ export const RiskAssessmentWindow = ({
         // setGroups([{...groups.find(grp=>grp.id===openedGroup),opendGroupExpansion:false}])
         // setConnections([]);
         // setRiskObjects([]);
-        setGroups([]);
+        setGroups([
+          { ...groups.find((grp) => grp.id === openedGroup), opendGroupExpansion: false },
+        ]);
+        // setGroups([]);
+        // setConnections([]);
+        setOpenedGroupConnections([]);
         setOpenedGroup(null);
 
-        riskAssessmentData();
+        // riskAssessmentData();
       } else {
         console.log("Original", id, action);
         setOpenedGroup(id);
