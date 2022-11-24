@@ -3055,9 +3055,9 @@ export const RiskAssessmentWindow = ({
             />
             <MenuDivider />
             <MenuItem
-              text={closedFace ? "Show Open Faces" : "Show Closed Faces"}
+              text={globalViewIndex===3 ? "Show Open Faces" : "Show Closed Faces"}
               onClick={() => {
-                setClosedFace((prev) => !prev);
+                setGlobalViewIndex(globalViewIndex===3 ? 2 : 3);
                 setContextMenu((prev) => ({
                   ...prev,
                   type: null,
