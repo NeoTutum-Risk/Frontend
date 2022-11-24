@@ -13,6 +13,8 @@ import {
   updateRiskAssessmentWindowSettings,
 } from "../../services";
 export const RiskAssessment = ({
+  globalViewIndex,
+  views,
   charts,
   getAnalytics,
   objects,
@@ -542,6 +544,8 @@ export const RiskAssessment = ({
                             ) >
                             0 && (
                             <RiskGroup
+                            globalViewIndex={globalViewIndex}
+                            views={views}
                             charts={charts}
                             connectionForm={connectionForm}
                               groups={groups.map((grp) => ({
@@ -590,6 +594,8 @@ export const RiskAssessment = ({
                             !object["position.enabled"]
                           ) && (
                             <RiskElement
+                            globalViewIndex={globalViewIndex}
+                            views={views}
                             charts={charts}
                               groups={groups.map((grp) => ({
                                 id: grp.id,
@@ -633,6 +639,8 @@ export const RiskAssessment = ({
                             dataObjectInstance.disable
                           ) && (
                             <DataObject
+                            globalViewIndex={globalViewIndex}
+                            views={views}
                               groups={groups.map((grp) => ({
                                 id: grp.id,
                                 name: grp.name,

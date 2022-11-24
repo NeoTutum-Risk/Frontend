@@ -7,7 +7,7 @@ import {
   TextArea,
 } from "@blueprintjs/core";
 
-export const OpenFace = ({ data, groupId, setFace, chart }) => {
+export const OpenFace = ({ data, groupId, setView, chart }) => {
   return (
     <>
       <div
@@ -18,7 +18,7 @@ export const OpenFace = ({ data, groupId, setFace, chart }) => {
         <div>
           <ButtonGroup>
             <Button
-              onClick={() => setFace((prev) => !prev)}
+              onClick={() => setView("full")}
               text={`${data.type[0].toUpperCase()}: ${data.id}`}
             />
             <Button

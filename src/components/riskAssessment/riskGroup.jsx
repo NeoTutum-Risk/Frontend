@@ -35,7 +35,9 @@ export const RiskGroup = ({
   handleUnshareGroup,
   connectionForm,
   handleOpenedGroup,
-  charts
+  charts,
+  views,
+  globalViewIndex
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
@@ -379,6 +381,8 @@ export const RiskGroup = ({
               ) ||
                 data.opendGroupExpansion) && (
                 <RiskElement
+                globalViewIndex={globalViewIndex}
+                            views={views}
                 charts={charts}
                   addToGroup={addToGroup}
                   groups={groups}
@@ -421,6 +425,8 @@ export const RiskGroup = ({
                 object.disable
               ) && (
                 <DataObject
+                globalViewIndex={globalViewIndex}
+                            views={views}
                   addToGroup={addToGroup}
                   groups={groups}
                   setFirstContext={setFirstContext}
@@ -611,7 +617,7 @@ export const RiskGroup = ({
               </div>
               {!expanded &&
                 data.elements.map((element) =>
-                  element.description.includes("output") ? (
+                  element.description.includes("input") ? (
                     <ButtonGroup
                       onMouseEnter={() => {
                         setFirstContext("element");
@@ -643,7 +649,7 @@ export const RiskGroup = ({
                         - {element.name}
                       </Button>
                     </ButtonGroup>
-                  ) : element.description.includes("input") ? (
+                  ) : element.description.includes("output") ? (
                     <ButtonGroup
                       onMouseEnter={() => {
                         setFirstContext("element");

@@ -17,6 +17,7 @@ import {
   Checkbox,
   NumericInput,
 } from "@blueprintjs/core";
+import {ContextMenuComponent} from "../../../../../components/FlowChart/context/contextMenuComponent"
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
@@ -53,7 +54,7 @@ import {
   unshareGroup,
   addModelRiskObjectProperties,
   analyticCharts,
-  getRiskAssessmentDrillDown
+  getRiskAssessmentDrillDown,
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -74,7 +75,9 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
-  const [charts,setCharts]=useState([]);
+  const [views, setViews] = useState(["mini", "default", "open", "full"]);
+  const [globalViewIndex, setGlobalViewIndex] = useState(3);
+  const [charts, setCharts] = useState([]);
   const [openedGroup, setOpenedGroup] = useState(null);
   const [openedGroupConnections, setOpenedGroupConnections] = useState([]);
   const [modularGroupAction, setModularGroupAction] = useState(null);
@@ -291,7 +294,7 @@ export const RiskAssessmentWindow = ({
     (connection, type) => {
       let check = false;
       let target, source;
-
+      if(connection.sourceRef === connection.targetRef) return false;
       if (connection.status === "delete") return false;
       if (!filter.everything && !filter.normal && !filter.connections)
         return false;
@@ -321,9 +324,13 @@ export const RiskAssessmentWindow = ({
               target.group.expanded &&
               (filter.groups || filter.normal || filter.everything)
                 ? true
-                : target.group.modelGroup?true:"collapsed";
+                : target.group.modelGroup
+                ? true
+                : target.group.modelGroup
+                ? true
+                : "collapsed";
 
-            if (target.group.modelGroup && target.group.id!==openedGroup) {
+            if (target.group.modelGroup && target.group.id !== openedGroup) {
               if (
                 !(
                   target.object.description?.includes("input") ||
@@ -342,9 +349,11 @@ export const RiskAssessmentWindow = ({
                 ? check === "collapsed"
                   ? "collapsed"
                   : true
-                : target.group.modelGroup?true:"collapsed";
+                : source.group.modelGroup
+                ? true
+                : "collapsed";
 
-            if (source.group?.modelGroup && source.group?.id!==openedGroup) {
+            if (source.group?.modelGroup && source.group?.id !== openedGroup) {
               if (
                 !(
                   source.object.description?.includes("input") ||
@@ -356,14 +365,19 @@ export const RiskAssessmentWindow = ({
             }
           }
 
-          if(source.group?.id===target.group?.id && source.group?.modelGroup && source.group?.id!==openedGroup){
-            if(!((
-              source.object.description?.includes("input") ||
-              source.object.description?.includes("output")
-            ) && (
-              target.object.description?.includes("input") ||
-              target.object.description?.includes("output")
-            ))){
+          if (
+            source.group?.id === target.group?.id &&
+            source.group?.modelGroup &&
+            source.group?.id !== openedGroup
+          ) {
+            if (
+              !(
+                (source.object.description?.includes("input") ||
+                  source.object.description?.includes("output")) &&
+                (target.object.description?.includes("input") ||
+                  target.object.description?.includes("output"))
+              )
+            ) {
               check = false;
             }
           }
@@ -487,6 +501,7 @@ export const RiskAssessmentWindow = ({
       filter.everything,
       filter.normal,
       filter.groups,
+      openedGroup
     ]
   );
 
@@ -678,32 +693,31 @@ export const RiskAssessmentWindow = ({
     }
   }, [window.data.id, getGlobalGroups, updateViewsList, openedGroup]);
 
-  const getAnalytics = useCallback(async ()=>{
-
+  const getAnalytics = useCallback(async () => {
     setIsServiceLoading(true);
     try {
-      
-      const response = await analyticCharts({riskAssessmentId:window.data.id});
-      if(response.status>=200 && response.status<300){
+      const response = await analyticCharts({
+        riskAssessmentId: window.data.id,
+      });
+      if (response.status >= 200 && response.status < 300) {
         riskAssessmentData();
-      }else{
+      } else {
         throw new Error("Error Getting Analytic Data");
       }
     } catch (error) {
       showDangerToaster(`${error}`);
-
     }
     setIsServiceLoading(false);
-  },[window.data.id,riskAssessmentData])
+  }, [window.data.id, riskAssessmentData]);
   const handleOpenedGroup = useCallback(
     (id, action) => {
       if (action === "clear") {
         // setGroups([{...groups.find(grp=>grp.id===openedGroup),opendGroupExpansion:false}])
         // setConnections([]);
         // setRiskObjects([]);
-        setGroups([])
+        setGroups([]);
         setOpenedGroup(null);
-        
+
         riskAssessmentData();
       } else {
         console.log("Original", id, action);
@@ -1091,13 +1105,20 @@ export const RiskAssessmentWindow = ({
             String(element.description).includes("output")
           );
 
-          if(! (input && output)){
-            input=selectedElements[0];
-            output=selectedElements[1];
+          if (!(input && output)) {
+            input = selectedElements[1];
+            output = selectedElements[0];
+          }
+          if (input && !output) {
+
+            output = selectedElements.find(elm=>elm.id!==input.id);
+          }
+          if (!input && output) {
+            input = selectedElements.find(elm=>elm.id!==output.id);
           }
           let payload = {
-            sourceRef: input ? input.id : selectedElements[0].id,
-            targetRef: output ? output.id : selectedElements[1].id,
+            sourceRef: input ? output.id : selectedElements[0].id,
+            targetRef: output ? input.id : selectedElements[1].id,
             riskAssessmentId: window.data.id,
             name: linkName,
             scalar: connectionWeight,
@@ -2284,8 +2305,10 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
-          charts={charts}
-          getAnalytics={getAnalytics}
+          globalViewIndex={globalViewIndex}
+          views={views}
+            charts={charts}
+            getAnalytics={getAnalytics}
             openedGroupConnections={openedGroupConnections}
             openedGroup={openedGroup}
             handleOpenedGroup={handleOpenedGroup}
@@ -2439,7 +2462,9 @@ export const RiskAssessmentWindow = ({
               text="Disconnect"
             />
             <MenuItem
-              onClick={()=>setContextMenu(prev=>({...prev,type:"connection name"}))}
+              onClick={() =>
+                setContextMenu((prev) => ({ ...prev, type: "connection name" }))
+              }
               disabled={selectedConnection ? false : true}
               text="Edit Connection"
             />
@@ -2786,6 +2811,19 @@ export const RiskAssessmentWindow = ({
 
         {contextMenu.active && contextMenu.type === "create" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
+            <MenuItem text={`Views: ${views[globalViewIndex]}`}>
+              {views.map((view,index)=><MenuItem key={view} text={view} onClick={()=>{setGlobalViewIndex(index);
+                  resetContext();}}/>)}
+            </MenuItem>
+            {/* <ContextMenuComponent
+              menu={views.map((view, index) => ({
+                name: view[0].toLocaleUpperCase() + view.slice(1, view.length),
+                handleClick: () => {
+                  setGlobalViewIndex(index);
+                  resetContext();
+                },
+              }))}
+            /> */}
             <MenuItem
               text="Show Filters"
               onClick={() =>

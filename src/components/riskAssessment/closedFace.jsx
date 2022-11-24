@@ -5,7 +5,7 @@ import { useState, useCallback } from "react";
 export const ClosedFace = ({
   data,
   groupId,
-  setFace,
+  setView,
   setEditor,
   editRiskObject,
   handleObjectAction,
@@ -106,7 +106,7 @@ export const ClosedFace = ({
         <Button
           small={true}
           intent={data["position.enabled"] ? "primary" : "none"}
-          onClick={() => setFace((prev) => !prev)}
+          onClick={() => setView("open")}
           className="panningDisabled"
           style={{
             backgroundColor:
