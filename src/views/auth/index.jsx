@@ -46,8 +46,8 @@ export const Auth = () => {
         * Enter any arbitrary username and password
       </div> */}
       <div className='bp3-text-muted bp3-text-small'>
-        * ST Build 2.1.9
-        * Build Time 2022-11-22 6:30
+        * ST Build 2.2.0
+        * Build Time 2022-11-24 9:00
       </div>
     </div>
   )

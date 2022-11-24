@@ -2438,6 +2438,11 @@ export const RiskAssessmentWindow = ({
               disabled={selectedConnection ? false : true}
               text="Disconnect"
             />
+            <MenuItem
+              onClick={()=>setContextMenu(prev=>({...prev,type:"connection name"}))}
+              disabled={selectedConnection ? false : true}
+              text="Edit Connection"
+            />
             <MenuDivider />
             <MenuItem
               text="Group"
