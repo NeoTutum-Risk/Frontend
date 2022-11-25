@@ -1221,7 +1221,7 @@ export const RiskAssessmentWindow = ({
       setLinkName(selectedConnection.name);
       setConnectionText(selectedConnection.text);
       setConnectionWeight(selectedConnection.scalar);
-      setConnectionWeight(selectedConnection.confidenceLevel);
+      setConfidenceLevel(selectedConnection.confidenceLevel);
     } else {
       setLinkName(null);
       setConnectionText(null);
