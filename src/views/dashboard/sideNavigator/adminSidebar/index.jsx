@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { activeDashboardPanelState } from "../../../../store/dashboard";
 import DownloadRiskAssessmentJSON from "../../../../components/downloadRiskAssessmentJSON";
+import JSONUploadAnalyticsPack from  "../../../../components/upload-analysis-packs";
 import JSONProcessStep1Test from "../../../../components/JSONProcessStep1Test";
 
 const AdminSidebar = () => {
@@ -50,6 +51,14 @@ const AdminSidebar = () => {
       ),
       name: "download-risk-assessment-json",
     },
+    {
+      id: 5,
+      hasCaret: false,
+      label: (
+        <JSONUploadAnalyticsPack />
+      ),
+      name: "Upload JSON Analysis Packs",
+    }
   ];
 
   const nodeHandler = (e) => {

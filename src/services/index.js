@@ -226,5 +226,11 @@ export const removeElementFromGroup = (data) => serviceProvider.put(`referenceDa
 
 export const CloneDataObject = (data) => serviceProvider.post(`dataObjects/cloneDataObject`, data);
 
-export const analyticCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/bayesian/${data.riskAssessmentId}`);
+export const bayesianCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/bayesian/${data.riskAssessmentId}`);
+
+export const genericCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/generic/${data.riskAssessmentId}`);
+
+export const analysispackCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/analysispack/${data.riskAssessmentId}`);
+
+export const addAnalysisPack = (data) => serviceProvider.post(`analytics_charts/analysis/pack`, data);
 

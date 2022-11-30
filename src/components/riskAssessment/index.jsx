@@ -1,5 +1,6 @@
 import Xarrow, { useXarrow, xarrowPropsType, Xwrapper } from "react-xarrows";
-import { Button, TextArea } from "@blueprintjs/core";
+import { Button, TextArea, Menu, MenuItem } from "@blueprintjs/core";
+import { Popover2 } from "@blueprintjs/popover2";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
 import { RiskGroup } from "./riskGroup";
@@ -149,9 +150,10 @@ export const RiskAssessment = ({
     [setSelectedElements, setSelectedObjects]
   );
 
-  const updateAnalytics = useCallback(async ()=>{
+  const updateAnalytics = useCallback(async (chartsType)=>{
+    const response = await getAnalytics(chartsType);
+
     setLoadingAnalytics(true);
-    const response = await getAnalytics();
     if(response){
       
     }else{
@@ -303,13 +305,42 @@ export const RiskAssessment = ({
 
                   onClick={updateRAWindowSettings}
                 />
-                <Button
-                  small={true}
-                  fill={false}
-                  icon="refresh"
-
-                  onClick={updateAnalytics}
-                />
+                <Popover2
+                  // className={styles.addWindowsButton}
+                  // position='left-top'
+                  interactionKind="click-target"
+                  content={
+                    <Menu>
+                      <>
+                        <MenuItem
+                          icon="derive-column"
+                          text="Generic"
+                          onClick={() => updateAnalytics('generic')}
+                          disabled={true}
+                        />
+                        <MenuItem
+                          icon="derive-column"
+                          text="Bayesian"
+                          onClick={() => updateAnalytics('bayesian')}
+                        />
+                        <MenuItem
+                          icon="derive-column"
+                          text="Analysis Packs"
+                          onClick={() => updateAnalytics('analysispack')}
+                          disabled={true}
+                        />
+                      </>
+                    </Menu>
+                  }
+                >
+                  <Button
+                    small={true}
+                    fill={false}
+                    icon="refresh"
+                    // loading={isLoading}
+                    // onClick={updateAnalytics}
+                  />
+                </Popover2>
                 {openedGroup && <Button
                 intent="DANGER"
                   small={true}
