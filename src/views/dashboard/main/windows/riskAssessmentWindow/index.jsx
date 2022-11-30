@@ -53,7 +53,9 @@ import {
   addObjectToGroup,
   unshareGroup,
   addModelRiskObjectProperties,
-  analyticCharts,
+  bayesianCharts,
+  genericCharts,
+  analysispackCharts,
   getRiskAssessmentDrillDown,
 } from "../../../../../services";
 import {
@@ -694,13 +696,23 @@ export const RiskAssessmentWindow = ({
     }
   }, [window.data.id, getGlobalGroups, updateViewsList, openedGroup]);
 
-  const getAnalytics = useCallback(async () => {
+  const getAnalytics = useCallback(async (type) => {
     setIsServiceLoading(true);
+    let response
     try {
-      const response = await analyticCharts({
-        riskAssessmentId: window.data.id,
-      });
-      if (response.status >= 200 && response.status < 300) {
+      switch(type) {
+        case 'bayesian':
+          response = await bayesianCharts({ riskAssessmentId: window.data.id,});
+          break;
+        case 'generic':
+          response = await genericCharts({ riskAssessmentId: window.data.id,});
+          break;
+        case 'analysispack':
+          response = await analysispackCharts({ riskAssessmentId: window.data.id,});
+          break;
+      }
+
+      if (response?.status >= 200 && response?.status < 300) {
         riskAssessmentData();
       } else {
         throw new Error("Error Getting Analytic Data");
