@@ -29,7 +29,7 @@ export const OpenFace = ({ data, groupId, setView, chart }) => {
 
         <div>
           {!!chart && <img
-            style={{ width: "100%", height: "auto" }}
+            style={{ width: "100%", height: "auto",  marginTop: "20px"}}
             src={`data:image/svg+xml;utf8,${encodeURIComponent(chart.svg)}`}
             alt="Error Rendering Chart"
           />}

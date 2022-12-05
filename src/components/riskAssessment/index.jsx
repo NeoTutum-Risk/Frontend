@@ -151,9 +151,9 @@ export const RiskAssessment = ({
   );
 
   const updateAnalytics = useCallback(async (chartsType)=>{
+    setLoadingAnalytics(true);
     const response = await getAnalytics(chartsType);
 
-    setLoadingAnalytics(true);
     if(response){
       
     }else{
@@ -218,8 +218,6 @@ export const RiskAssessment = ({
       //   onClick={resetContext}
       // >
       <Xwrapper>
-        
-
         <TransformWrapper
           zoomAnimation={{ disabled: true }}
           initialScale={raSettings.scale}
@@ -302,7 +300,6 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="tick"
-
                   onClick={updateRAWindowSettings}
                 />
                 <Popover2
@@ -315,19 +312,18 @@ export const RiskAssessment = ({
                         <MenuItem
                           icon="derive-column"
                           text="Generic"
-                          onClick={() => updateAnalytics('generic')}
+                          onClick={() => updateAnalytics("generic")}
                           disabled={true}
                         />
                         <MenuItem
                           icon="derive-column"
                           text="Bayesian"
-                          onClick={() => updateAnalytics('bayesian')}
+                          onClick={() => updateAnalytics("bayesian")}
                         />
                         <MenuItem
                           icon="derive-column"
                           text="Analysis Packs"
-                          onClick={() => updateAnalytics('analysispack')}
-                          disabled={true}
+                          onClick={() => updateAnalytics("analysispack")}
                         />
                       </>
                     </Menu>
@@ -337,17 +333,19 @@ export const RiskAssessment = ({
                     small={true}
                     fill={false}
                     icon="refresh"
-                    // loading={isLoading}
+                    loading={loadingAnalytics}
                     // onClick={updateAnalytics}
                   />
                 </Popover2>
-                {openedGroup && <Button
-                intent="DANGER"
-                  small={true}
-                  fill={false}
-                  text={openedGroup}
-                  onClick={()=>handleOpenedGroup("","clear")}
-                />}
+                {openedGroup && (
+                  <Button
+                    intent="DANGER"
+                    small={true}
+                    fill={false}
+                    text={openedGroup}
+                    onClick={() => handleOpenedGroup("", "clear")}
+                  />
+                )}
               </div>
               <TransformComponent
                 wrapperStyle={{
@@ -373,8 +371,6 @@ export const RiskAssessment = ({
                   }}
                   onClick={resetContext}
                 >
-                  
-
                   {objects.length > 0
                     ? objects.map(
                         (object, index) =>
@@ -384,9 +380,9 @@ export const RiskAssessment = ({
                             !object["position.enabled"]
                           ) && (
                             <RiskElement
-                            globalViewIndex={globalViewIndex}
-                            views={views}
-                            charts={charts}
+                              globalViewIndex={globalViewIndex}
+                              views={views}
+                              charts={charts}
                               groups={groups.map((grp) => ({
                                 id: grp.id,
                                 name: grp.name,
@@ -429,8 +425,8 @@ export const RiskAssessment = ({
                             dataObjectInstance.disable
                           ) && (
                             <DataObject
-                            globalViewIndex={globalViewIndex}
-                            views={views}
+                              globalViewIndex={globalViewIndex}
+                              views={views}
                               groups={groups.map((grp) => ({
                                 id: grp.id,
                                 name: grp.name,
@@ -455,7 +451,7 @@ export const RiskAssessment = ({
                       )
                     : null}
 
-{groups.length > 0 && checkFilter("group")
+                  {groups.length > 0 && checkFilter("group")
                     ? groups.map(
                         (group, index) =>
                           Number(
@@ -472,10 +468,10 @@ export const RiskAssessment = ({
                             ) >
                             0 && (
                             <RiskGroup
-                            globalViewIndex={globalViewIndex}
-                            views={views}
-                            charts={charts}
-                            connectionForm={connectionForm}
+                              globalViewIndex={globalViewIndex}
+                              views={views}
+                              charts={charts}
+                              connectionForm={connectionForm}
                               groups={groups.map((grp) => ({
                                 id: grp.id,
                                 name: grp.name,
@@ -619,7 +615,6 @@ export const RiskAssessment = ({
             )
         )}
 
-
         {connections.map(
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
@@ -662,7 +657,7 @@ export const RiskAssessment = ({
             )
         )}
 
-{openedGroupConnections.map(
+        {openedGroupConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "riskObjects") && (
               <Xarrow
@@ -675,13 +670,15 @@ export const RiskAssessment = ({
                 strokeWidth={1.5}
                 showHead={true}
                 labels={{
-                  middle:<div
-                  style={{
-                    fontSize: `${globalScale * 24}px`,
-                  }}
-                >
-                  {edge.name !== "No name" ? edge.name : ""}
-                </div>
+                  middle: (
+                    <div
+                      style={{
+                        fontSize: `${globalScale * 24}px`,
+                      }}
+                    >
+                      {edge.name !== "No name" ? edge.name : ""}
+                    </div>
+                  ),
                 }}
                 start={String("R-" + riskAssessmentId + "-" + edge.sourceRef)}
                 end={String("R-" + riskAssessmentId + "-" + edge.targetRef)}
