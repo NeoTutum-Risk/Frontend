@@ -1,8 +1,8 @@
 import {
   Intent,
-  Spinner,
-  Switch,
-  Icon,
+  // Spinner,
+  // Switch,
+  // Icon,
   Menu,
   MenuDivider,
   Classes,
@@ -17,7 +17,7 @@ import {
   Checkbox,
   NumericInput,
 } from "@blueprintjs/core";
-import {ContextMenuComponent} from "../../../../../components/FlowChart/context/contextMenuComponent"
+// import {ContextMenuComponent} from "../../../../../components/FlowChart/context/contextMenuComponent"
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
@@ -56,7 +56,8 @@ import {
   bayesianCharts,
   genericCharts,
   analysispackCharts,
-  getRiskAssessmentDrillDown,
+  getAnalysisPacks,
+  getMetaData
 } from "../../../../../services";
 import {
   showDangerToaster,
@@ -65,10 +66,10 @@ import {
 import { objectSelectorState } from "../../../../../store/objectSelector";
 import { Window } from "../window";
 import { RiskAssessment } from "../../../../../components/riskAssessment";
-import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
-import { map, set } from "lodash";
-import { data } from "vis-network";
-import { easeExpInOut } from "d3";
+// import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
+// import { map, set } from "lodash";
+// import { data } from "vis-network";
+// import { easeExpInOut } from "d3";
 export const RiskAssessmentWindow = ({
   onClose,
   onCollapse,
@@ -125,6 +126,7 @@ export const RiskAssessmentWindow = ({
   const [editElement, setEditElement] = useState(null);
   const [riskObjects, setRiskObjects] = useState([]);
   const [metaData, setMetaData] = useState([]);
+  const [metaDataList, setMetaDataList] = useState([]);
   const [connections, setConnections] = useState([]);
   const [instanceConnections, setInstanceConnections] = useState([]);
   const [instanceObjectConnections, setInstanceObjectConnections] = useState(
@@ -147,6 +149,7 @@ export const RiskAssessmentWindow = ({
   const [viewsList, setViewsList] = useState([]);
   const [modularGroup, setModularGroup] = useState(false);
   const [editGroupFlag, setEditGroupFlag] = useState(false);
+  const [analysisPacks, setAnalysisPacks] = useState([]);
   const [filter, setFilter] = useState({
     normal: false,
     everything: false,
@@ -183,6 +186,22 @@ export const RiskAssessmentWindow = ({
     setEditElement(null);
     // setActiveObject(null);
   }, []);
+
+  const fetchAnalysisPacks = useCallback(async () => {
+    const { data } = await getAnalysisPacks();
+    console.log(data.data);
+    setAnalysisPacks(data.data);
+  }, []);
+
+  const fetchMetaData = useCallback(async () => {
+    const { data } = await getMetaData();
+    setMetaDataList(data.data);
+  }, []);
+
+  useEffect(() => {
+    fetchAnalysisPacks();
+    fetchMetaData()
+}, [fetchAnalysisPacks, fetchMetaData]);
 
   useEffect(() => {
     if (openedGroup) {
@@ -696,7 +715,7 @@ export const RiskAssessmentWindow = ({
     }
   }, [window.data.id, getGlobalGroups, updateViewsList, openedGroup]);
 
-  const getAnalytics = useCallback(async (type) => {
+  const getAnalytics = useCallback(async (type, data) => {
     setIsServiceLoading(true);
     let response
     try {
@@ -708,7 +727,7 @@ export const RiskAssessmentWindow = ({
           response = await genericCharts({ riskAssessmentId: window.data.id,});
           break;
         case 'analysispack':
-          response = await analysispackCharts({ riskAssessmentId: window.data.id,});
+          response = await analysispackCharts({ riskAssessmentId: window.data.id, ...data});
           break;
       }
 
@@ -2335,6 +2354,7 @@ export const RiskAssessmentWindow = ({
           <RiskAssessment
           globalViewIndex={globalViewIndex}
           views={views}
+            analysisPacks={analysisPacks}
             charts={charts}
             getAnalytics={getAnalytics}
             openedGroupConnections={openedGroupConnections}
@@ -2342,7 +2362,7 @@ export const RiskAssessmentWindow = ({
             handleOpenedGroup={handleOpenedGroup}
             objects={riskObjects}
             groups={groups}
-            metaData={metaData}
+            metaDataList={metaDataList}
             dataObjectInstances={dataObjectInstances}
             riskAssessmentId={window.data.id}
             handleContextMenu={handleContextMenu}

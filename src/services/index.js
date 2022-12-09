@@ -230,7 +230,9 @@ export const bayesianCharts = (data) => serviceProvider.post(`analytics_charts/b
 
 export const genericCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/generic/${data.riskAssessmentId}`);
 
-export const analysispackCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/analysispack/${data.riskAssessmentId}`);
+export const analysispackCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/analysispack/${data.riskAssessmentId}`, data);
 
 export const addAnalysisPack = (data) => serviceProvider.post(`analytics_charts/analysis/pack`, data);
+
+export const getAnalysisPacks = () => serviceProvider.get(`analytics_charts/analysis/pack`);
 
