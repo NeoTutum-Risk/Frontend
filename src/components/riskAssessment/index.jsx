@@ -154,6 +154,7 @@ export const RiskAssessment = ({
   );
 
   const updateAnalytics = useCallback(async (chartsType, data = {})=>{
+    setLoadingAnalytics(true);
     const response = await getAnalytics(chartsType, data);
 
     if(response){
