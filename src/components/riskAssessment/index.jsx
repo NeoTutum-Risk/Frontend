@@ -57,6 +57,7 @@ export const RiskAssessment = ({
   });
   const transformWrapperRef = useRef(null);
   const [loadingAnalytics,setLoadingAnalytics] = useState(false);
+  const [isOpenAnalysisMenuSelect,setOpenAnalysisMenuSelect] = useState(false);
 
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
@@ -154,6 +155,7 @@ export const RiskAssessment = ({
   );
 
   const updateAnalytics = useCallback(async (chartsType, data = {})=>{
+    setOpenAnalysisMenuSelect(false)
     setLoadingAnalytics(true);
     const response = await getAnalytics(chartsType, data);
 
@@ -308,6 +310,7 @@ export const RiskAssessment = ({
                 <Popover2
                   // className={styles.addWindowsButton}
                   // position='left-top'
+                  isOpen={isOpenAnalysisMenuSelect}
                   interactionKind="click-target"
                   content={
                     <Menu>
@@ -368,7 +371,7 @@ export const RiskAssessment = ({
                     fill={false}
                     icon="refresh"
                     loading={loadingAnalytics}
-                    // onClick={updateAnalytics}
+                    onClick={() => setOpenAnalysisMenuSelect(true)}
                   />
                 </Popover2>
                 {openedGroup && (
