@@ -372,6 +372,91 @@ export const RiskGroup = ({
           </g>
         ))} */}
 
+{(!data.modelGroup || expanded || data.opendGroupExpansion) &&
+        data.elements.map((object, index) =>
+          object
+            ? (!!checkFilter(
+                object.type,
+                object.status,
+                !object["position.enabled"]
+              ) ||
+                data.opendGroupExpansion) && (
+                <RiskElement
+                  globalViewIndex={globalViewIndex}
+                  views={views}
+                  charts={charts}
+                  addToGroup={addToGroup}
+                  groups={groups}
+                  setFirstContext={setFirstContext}
+                  expanded={expanded | data.opendGroupExpansion}
+                  handleContextMenu={handleContextMenu}
+                  selectedElements={selectedElements}
+                  elementSelection={elementSelection}
+                  key={`g-r-${riskAssessmentId}-${object.id}`}
+                  data={object}
+                  riskAssessmentId={riskAssessmentId}
+                  position={{
+                    x: object["position.x"],
+                    y: object["position.y"],
+                  }}
+                  expandPosition={{ x: drag.cx, y: drag.cy }}
+                  groupId={data.id}
+                  editRiskObject={editRiskObject}
+                  closedFace={closedFace}
+                  scale={scale}
+                  setHoveredElement={setHoveredElement}
+                  handleObjectAction={handleObjectAction}
+                  menu={menu}
+                  handleProperties={handleProperties}
+                  removeFromGroup={removeFromGroup}
+                  handleObjectProperty={handleObjectProperty}
+                  enviroDimension={enviroDimension}
+                  shared={data.shared && !data.mainShared}
+                />
+              )
+            : null
+        )}
+
+{(!data.modelGroup || expanded) &&
+        data.dataObjects.map((object, index) =>
+          object
+            ? !!checkFilter(
+                object.dataObjectNew.IOtype,
+                object.status,
+                object.disable
+              ) && (
+                <DataObject
+                  globalViewIndex={globalViewIndex}
+                  views={views}
+                  addToGroup={addToGroup}
+                  groups={groups}
+                  setFirstContext={setFirstContext}
+                  expanded={expanded}
+                  handleContextMenu={handleContextMenu}
+                  selectedElements={selectedElements}
+                  elementSelection={elementSelection}
+                  key={`g-o-${riskAssessmentId}-${object.id}`}
+                  data={object}
+                  riskAssessmentId={riskAssessmentId}
+                  position={{
+                    x: object["position.x"],
+                    y: object["position.y"],
+                  }}
+                  expandPosition={{ x: drag.cx, y: drag.cy }}
+                  groupId={data.id}
+                  editRiskObject={editRiskObject}
+                  closedFace={closedFace}
+                  scale={scale}
+                  setHoveredElement={setHoveredElement}
+                  handleObjectAction={handleObjectAction}
+                  removeFromGroup={removeFromGroup}
+                  enviroDimension={enviroDimension}
+                  shared={data.shared && !data.mainShared}
+                />
+              )
+            : null
+        )}
+
       {!data.opendGroupExpansion && (
         <Rnd
           id={`group-${data.modelGroup ? "M" : ""}${riskAssessmentId}-${
@@ -634,90 +719,9 @@ export const RiskGroup = ({
         </Rnd>
       )}
 
-      {(!data.modelGroup || expanded) &&
-        data.dataObjects.map((object, index) =>
-          object
-            ? !!checkFilter(
-                object.dataObjectNew.IOtype,
-                object.status,
-                object.disable
-              ) && (
-                <DataObject
-                  globalViewIndex={globalViewIndex}
-                  views={views}
-                  addToGroup={addToGroup}
-                  groups={groups}
-                  setFirstContext={setFirstContext}
-                  expanded={expanded}
-                  handleContextMenu={handleContextMenu}
-                  selectedElements={selectedElements}
-                  elementSelection={elementSelection}
-                  key={`g-o-${riskAssessmentId}-${object.id}`}
-                  data={object}
-                  riskAssessmentId={riskAssessmentId}
-                  position={{
-                    x: object["position.x"],
-                    y: object["position.y"],
-                  }}
-                  expandPosition={{ x: drag.cx, y: drag.cy }}
-                  groupId={data.id}
-                  editRiskObject={editRiskObject}
-                  closedFace={closedFace}
-                  scale={scale}
-                  setHoveredElement={setHoveredElement}
-                  handleObjectAction={handleObjectAction}
-                  removeFromGroup={removeFromGroup}
-                  enviroDimension={enviroDimension}
-                  shared={data.shared && !data.mainShared}
-                />
-              )
-            : null
-        )}
+   
 
-      {(!data.modelGroup || expanded || data.opendGroupExpansion) &&
-        data.elements.map((object, index) =>
-          object
-            ? (!!checkFilter(
-                object.type,
-                object.status,
-                !object["position.enabled"]
-              ) ||
-                data.opendGroupExpansion) && (
-                <RiskElement
-                  globalViewIndex={globalViewIndex}
-                  views={views}
-                  charts={charts}
-                  addToGroup={addToGroup}
-                  groups={groups}
-                  setFirstContext={setFirstContext}
-                  expanded={expanded | data.opendGroupExpansion}
-                  handleContextMenu={handleContextMenu}
-                  selectedElements={selectedElements}
-                  elementSelection={elementSelection}
-                  key={`g-r-${riskAssessmentId}-${object.id}`}
-                  data={object}
-                  riskAssessmentId={riskAssessmentId}
-                  position={{
-                    x: object["position.x"],
-                    y: object["position.y"],
-                  }}
-                  expandPosition={{ x: drag.cx, y: drag.cy }}
-                  groupId={data.id}
-                  editRiskObject={editRiskObject}
-                  closedFace={closedFace}
-                  scale={scale}
-                  setHoveredElement={setHoveredElement}
-                  handleObjectAction={handleObjectAction}
-                  menu={menu}
-                  handleProperties={handleProperties}
-                  removeFromGroup={removeFromGroup}
-                  handleObjectProperty={handleObjectProperty}
-                  enviroDimension={enviroDimension}
-                  shared={data.shared && !data.mainShared}
-                />
-              )
-            : null
-        )}
+   
     </>
   );
 };

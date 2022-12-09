@@ -1,20 +1,20 @@
 import { Button, FileInput, FormGroup, H5, Intent, HTMLSelect, NumericInput, InputGroup, Icon } from "@blueprintjs/core";
 import { Popover2, Classes } from "@blueprintjs/popover2";
-import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { addAnalysisPack, getMetaData } from "../../services";
 import {
     showDangerToaster,
     showSuccessToaster,
-  } from "../../utils/toaster";
+} from "../../utils/toaster";
 
 const JSONUploadAnalyticsPack = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [configFile, setConfigFile] = useState(null);
     const [analysisPackName, setAnalysisPackName] = useState('');
     const [isPopOverOpen, setPopOverOpen] = useState(false);
     const [metaData, setMetaData] = useState([]);
-    const [metaDataSelected, setMetaDataSelected] = useState(null);
-    const [dataObjectLevels, setDataObjectLevels] = useState(1);
+    const [metaDataIdentifier, setMetaDataIdentifier] = useState(null);
+    const [filesCount, setFilesCount] = useState(1);
 
     const fetchMetaData = useCallback(async () => {
         const { data } = await getMetaData();
@@ -24,6 +24,15 @@ const JSONUploadAnalyticsPack = () => {
     useEffect(() => {
         fetchMetaData();
     }, [fetchMetaData]);
+    
+    const resentHandler = useCallback( () => {
+            setPopOverOpen(false);
+            setFilesCount(1);
+            setSelectedFiles([])
+            setConfigFile(null)
+            setMetaDataIdentifier('')
+            setAnalysisPackName('');
+        },[])
 
     const onFileUpload = useCallback(
         async (e) => {
@@ -32,7 +41,9 @@ const JSONUploadAnalyticsPack = () => {
                 const payload = new FormData();
 
                 payload.append("name", analysisPackName)
-                payload.append("property", metaDataSelected)
+                payload.append("metaDataIdentifier", metaDataIdentifier)
+                payload.append("fileJSON", configFile)
+
                 for (const file of selectedFiles) {
                     payload.append("fileJSON", file.fileData);
                 }
@@ -45,11 +56,12 @@ const JSONUploadAnalyticsPack = () => {
                 showDangerToaster("Somthing Went wrong")
                 console.log(error);
             }
+            resentHandler()
         },
-        [dataObjectLevels, selectedFiles, metaDataSelected],
+        [filesCount, selectedFiles, configFile, metaDataIdentifier],
     )
 
-    const csvFileContentForm = useMemo(() => (
+    const AnalysisPackFileContentForm = useMemo(() => (
         <div key="text3">
 
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -72,33 +84,24 @@ const JSONUploadAnalyticsPack = () => {
                     />
                 </FormGroup>
 
-                {/* <FormGroup
-                    label="Analysis Packs"
+                <FormGroup
+                    label={`Upload Config File`}
                     labelInfo="(required)"
                     intent={false ? Intent.DANGER : Intent.NONE}
-                    // helperText="Error"
                     labelFor="Type"
                 >
-                    <HTMLSelect onChange={(e) => setMetaDataSelected(Number(e.target.value))}>
-                        <option selected disabled>
-                            Select MDL1/MDL2 Property
-                        </option>
-                        {metaData ? (
-                            metaData.map((data) => {
-                                const mainLevel = [
-                                    <option disabled>MDL1 - {data.name}</option>,
-                                    ...data.metaDataLevel2s.map((l2) => (
-                                        <option value={l2.id}>{l2.name}</option>
-                                    )),
-                                ];
-                                return mainLevel;
-                            })
-                        ) : (
-                            <option>Loading Data</option>
-                        )}
-                    </HTMLSelect>
-                </FormGroup> */}
 
+                    <FileInput
+                        hasSelection={configFile?.name}
+                        text={configFile?.name ? configFile.name : "Choose file"}
+                        // onInputChange={(e) => setSelectedFile([...selectedFile, e.target.files[0]])}
+                        onInputChange={(e) => {
+                            setConfigFile(e.target.files[0]);
+                        }}
+
+                    ></FileInput>
+
+                </FormGroup>
                 <FormGroup
                     label="Analysis Pack Property"
                     labelInfo="(required)"
@@ -106,9 +109,9 @@ const JSONUploadAnalyticsPack = () => {
                     // helperText="Error"
                     labelFor="Type"
                 >
-                    <HTMLSelect onChange={(e) => setMetaDataSelected(Number(e.target.value))}>
+                    <HTMLSelect onChange={(e) => setMetaDataIdentifier(Number(e.target.value))}>
                         <option selected disabled>
-                            Select MDL1/MDL2 Property
+                            Select MDL1/MDL2 Identifier
                         </option>
                         {metaData ? (
                             metaData.map((data) => {
@@ -142,13 +145,12 @@ const JSONUploadAnalyticsPack = () => {
                             min="1"
                             max="5"
                             defaultValue="1"
-                            onValueChange={(e) => setDataObjectLevels(e)}
+                            onValueChange={(e) => setFilesCount(e)}
                         ></NumericInput>
                     </FormGroup>
 
                     {
-                        [...Array(dataObjectLevels).keys()].map((_, idx) => {
-
+                        [...Array(filesCount).keys()].map((_, idx) => {
                             return (
                                 <FormGroup
                                     label={`Upload JSON File ${idx + 1}`}
@@ -157,14 +159,11 @@ const JSONUploadAnalyticsPack = () => {
                                     labelFor="Type"
                                     key={idx}
                                 >
-
                                     <FileInput
                                         hasSelection={selectedFiles[idx]?.fileData.name}
                                         text={selectedFiles[idx]?.fileData.name ? selectedFiles[idx].fileData.name : "Choose file..."}
-                                        // onInputChange={(e) => setSelectedFile([...selectedFile, e.target.files[0]])}
                                         onInputChange={(e) => {
                                             setSelectedFiles((prev) => {
-                                                console.log('prev', prev);
                                                 if (prev.map((item) => item.fileIdx).indexOf(idx) === -1 || prev.length === 0) {
                                                     return [
                                                         ...prev,
@@ -207,13 +206,7 @@ const JSONUploadAnalyticsPack = () => {
                         className={Classes.POPOVER2_DISMISS}
                         disabled={false}
                         style={{ marginRight: 10 }}
-                        onClick={() => {
-                            setPopOverOpen(false);
-                            setDataObjectLevels(1);
-                            setSelectedFiles([])
-                            setMetaDataSelected('')
-                            setAnalysisPackName('');
-                        }}
+                        onClick={resentHandler}
                     >
                         Cancel
                     </Button>
@@ -237,7 +230,7 @@ const JSONUploadAnalyticsPack = () => {
             <Popover2
                 isOpen={isPopOverOpen}
                 popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
-                content={csvFileContentForm}
+                content={AnalysisPackFileContentForm}
             >
 
                 <div onClick={() => setPopOverOpen(true)} >
