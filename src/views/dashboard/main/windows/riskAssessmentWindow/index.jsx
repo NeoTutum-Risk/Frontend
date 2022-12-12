@@ -2590,7 +2590,7 @@ export const RiskAssessmentWindow = ({
                 groups.find(
                   (grp) =>
                     grp.id === activeObject && grp.dataObjects.length === 0
-                ).modelGroup
+                )?.modelGroup
                   ? "Normal Group"
                   : "Modular Group"
               }
@@ -2600,14 +2600,14 @@ export const RiskAssessmentWindow = ({
                     (grp) =>
                       grp.id === activeObject && grp.dataObjects.length === 0
                   )
-                  .elements.every((element) => element.type === "model")
+                  ?.elements.every((element) => element.type === "model")
               }
               onClick={() =>
                 handleModularGroup(
                   groups.find(
                     (grp) =>
                       grp.id === activeObject && grp.dataObjects.length === 0
-                  ).modelGroup
+                  )?.modelGroup
                 )
               }
             />
