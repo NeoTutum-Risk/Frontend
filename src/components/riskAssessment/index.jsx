@@ -371,7 +371,7 @@ export const RiskAssessment = ({
                     fill={false}
                     icon="refresh"
                     loading={loadingAnalytics}
-                    onClick={() => setOpenAnalysisMenuSelect(true)}
+                    onClick={() => setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)}
                   />
                 </Popover2>
                 {openedGroup && (

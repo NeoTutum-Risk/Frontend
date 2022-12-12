@@ -121,6 +121,8 @@ export const RiskAssessmentWindow = ({
     element: null,
   });
   const [confidenceLevel ,setConfidenceLevel] = useState(1);
+  const [causeProperty ,setCauseProperty] = useState(null);
+  const [effectProperty ,setEffectProperty] = useState(null);
   const [globalGroups, setGlobalGroups] = useState([]);
   const [globalDataObjects, setGlobalDataObjects] = useState([]);
   const [editElement, setEditElement] = useState(null);
@@ -1160,7 +1162,9 @@ export const RiskAssessmentWindow = ({
             name: linkName,
             scalar: connectionWeight,
             text: connectionText,
-            confidenceLevel
+            confidenceLevel,
+            causeProperty,
+            effectProperty
           };
 
           const response = await addRiskConnection(payload);
@@ -1179,7 +1183,9 @@ export const RiskAssessmentWindow = ({
             name: linkName,
             scalar: connectionWeight,
             text: connectionText,
-            confidenceLevel
+            confidenceLevel,
+            causeProperty,
+            effectProperty
           };
 
           const response = await addInstanceConnection(payload);
@@ -1213,6 +1219,8 @@ export const RiskAssessmentWindow = ({
             scalar: connectionWeight,
             text: connectionText,
             confidenceLevel,
+            causeProperty,
+            effectProperty,
             objectType:
               instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
           };
@@ -1243,7 +1251,9 @@ export const RiskAssessmentWindow = ({
       setSelectedObjects,
       connectionText,
       connectionWeight,
-      confidenceLevel
+      confidenceLevel,
+      causeProperty,
+      effectProperty
     ]
   );
 
@@ -1253,11 +1263,15 @@ export const RiskAssessmentWindow = ({
       setConnectionText(selectedConnection.text);
       setConnectionWeight(selectedConnection.scalar);
       setConfidenceLevel(selectedConnection.confidenceLevel);
+      setCauseProperty(selectedConnection.causeProperty);
+      setEffectProperty(selectedConnection.effectProperty);
     } else {
       setLinkName(null);
       setConnectionText(null);
       setConnectionWeight(0);
       setConfidenceLevel(1);
+      setCauseProperty(null);
+      setEffectProperty(null);
     }
   }, [selectedConnection]);
 
@@ -2277,7 +2291,9 @@ export const RiskAssessmentWindow = ({
         name: linkName,
         scalar: connectionWeight,
         text: connectionText,
-        confidenceLevel
+        confidenceLevel,
+        causeProperty,
+        effectProperty
       });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) =>
@@ -2288,7 +2304,9 @@ export const RiskAssessmentWindow = ({
                 name: linkName,
                 scalar: connectionWeight,
                 text: connectionText,
-                confidenceLevel
+                confidenceLevel,
+                causeProperty,
+                effectProperty
               };
             } else {
               return connection;
@@ -2299,6 +2317,8 @@ export const RiskAssessmentWindow = ({
         setConnectionText(null);
         setConnectionWeight(0);
         setConfidenceLevel(1);
+        setCauseProperty(null)
+        setEffectProperty(null)
         setSelectedConnection([]);
         resetContext();
         setIsServiceLoading(false);
@@ -2316,6 +2336,8 @@ export const RiskAssessmentWindow = ({
     connectionText,
     connectionWeight,
     confidenceLevel,
+    effectProperty,
+    causeProperty,
     selectedConnection,
     resetContext,
   ]);
@@ -3355,6 +3377,58 @@ export const RiskAssessmentWindow = ({
                     setConfidenceLevel(e);
                   }}
                 />
+              </FormGroup>
+              <FormGroup
+                label="Cause"
+                labelInfo="(required)"
+                intent={linkNameError ? Intent.DANGER : Intent.NONE}
+                helperText={linkNameError}
+                labelFor="cause"
+              >
+                <HTMLSelect id="cause" defaultValue={causeProperty} onChange={(e) => setCauseProperty(e.target.value)}>
+                  <option selected disabled>
+                    Select MDL1/MDL2 Identifier
+                  </option>
+                  {metaDataList ? (
+                    metaDataList.map((data) => {
+                      const mainLevel = [
+                        <option disabled>MDL1 - {data.name}</option>,
+                        ...data.metaDataLevel2s.map((l2) => (
+                          <option value={l2.id}>{l2.name}</option>
+                        )),
+                      ];
+                      return mainLevel;
+                    })
+                  ) : (
+                    <option>Loading Data</option>
+                  )}
+                </HTMLSelect>
+              </FormGroup>
+              <FormGroup
+                label="Effect"
+                labelInfo="(required)"
+                intent={linkNameError ? Intent.DANGER : Intent.NONE}
+                helperText={linkNameError}
+                labelFor="effect"
+              >
+                <HTMLSelect id="effect" defaultValue={effectProperty} onChange={(e) => setEffectProperty(e.target.value)}>
+                  <option selected disabled>
+                    Select MDL1/MDL2 Identifier
+                  </option>
+                  {metaDataList ? (
+                    metaDataList.map((data) => {
+                      const mainLevel = [
+                        <option disabled>MDL1 - {data.name}</option>,
+                        ...data.metaDataLevel2s.map((l2) => (
+                          <option value={l2.id}>{l2.name}</option>
+                        )),
+                      ];
+                      return mainLevel;
+                    })
+                  ) : (
+                    <option>Loading Data</option>
+                  )}
+                </HTMLSelect>
               </FormGroup>
               <FormGroup
                 label="Text"

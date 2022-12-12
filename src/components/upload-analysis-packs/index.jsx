@@ -25,7 +25,7 @@ const JSONUploadAnalyticsPack = () => {
         fetchMetaData();
     }, [fetchMetaData]);
     
-    const resentHandler = useCallback( () => {
+    const resetHandler = useCallback( () => {
             setPopOverOpen(false);
             setFilesCount(1);
             setSelectedFiles([])
@@ -56,7 +56,7 @@ const JSONUploadAnalyticsPack = () => {
                 showDangerToaster("Somthing Went wrong")
                 console.log(error);
             }
-            resentHandler()
+            resetHandler()
         },
         [filesCount, selectedFiles, configFile, metaDataIdentifier],
     )
@@ -206,7 +206,7 @@ const JSONUploadAnalyticsPack = () => {
                         className={Classes.POPOVER2_DISMISS}
                         disabled={false}
                         style={{ marginRight: 10 }}
-                        onClick={resentHandler}
+                        onClick={resetHandler}
                     >
                         Cancel
                     </Button>
