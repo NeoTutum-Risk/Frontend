@@ -38,13 +38,19 @@ const AdminSidebar = () => {
     {
       id: 3,
       hasCaret: false,
+      label: "Analysis Packs Run Files",
+      name: "Analysis Packs Run Files",
+    },
+    {
+      id: 4,
+      hasCaret: false,
       label: (
         <JSONProcessStep1Test />
       ),
       name: "JSON-process-step-1-test",
     },
     {
-      id: 4,
+      id: 5,
       hasCaret: false,
       label: (
         <DownloadRiskAssessmentJSON />
@@ -52,13 +58,13 @@ const AdminSidebar = () => {
       name: "download-risk-assessment-json",
     },
     {
-      id: 5,
+      id: 6,
       hasCaret: false,
       label: (
         <JSONUploadAnalyticsPack />
       ),
       name: "Upload JSON Analysis Packs",
-    }
+    },
   ];
 
   const nodeHandler = (e) => {

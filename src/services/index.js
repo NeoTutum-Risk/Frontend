@@ -236,3 +236,5 @@ export const addAnalysisPack = (data) => serviceProvider.post(`analytics_charts/
 
 export const getAnalysisPacks = () => serviceProvider.get(`analytics_charts/analysis/pack`);
 
+export const getAnalysisPacksRuns = () => serviceProvider.get(`analytics_charts/analysis/pack/runs`);
+

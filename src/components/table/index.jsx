@@ -96,6 +96,19 @@ export const Table = ({
     );
   };
 
+
+  const DownloadOperator = (field) => {
+    return (
+      <a download href={field.field.data.bucketDownloadLink}>
+        <button>
+          Download File
+        </button>
+      </a>
+    );
+  };
+
+  
+
   return (
     <div className="ag-theme-balham" style={{ height, width }}>
       <AgGridReact
@@ -144,6 +157,15 @@ export const Table = ({
             resizable={true}
             width={operations.delete.width}
             cellRendererFramework={(field) => <DeleteOperator field={field} />}
+          />
+        )}
+        {operations.hasOwnProperty("download") && (
+          <AgGridColumn
+            key="downloadOperator"
+            field="downloadOperator"
+            resizable={true}
+            width={operations.download.width}
+            cellRendererFramework={(field) => <DownloadOperator field={field} />}
           />
         )}
       </AgGridReact>
