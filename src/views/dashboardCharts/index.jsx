@@ -8,6 +8,7 @@ import {
   Icon,
 } from "@blueprintjs/core";
 import { Popover2, Tooltip2 } from "@blueprintjs/popover2";
+import Iframe from 'react-iframe'
 import React, { useCallback, useEffect, useState } from "react";
 import {
   getAllLookup,
@@ -30,7 +31,8 @@ import { useSetRecoilState } from "recoil";
 import { showDashboardState } from "../../store/dashboard";
 import styles from "../dashboard/styles.module.scss";
 import RiskAssessmentMenu from "../../components/riskAssessmentMenu";
-
+import JupyterViewer from "react-jupyter-notebook";
+import nb_test from "./Test.json"; 
 const heatmapRules = [
   { minValue: 1, maxValue: 1, hexColorCode: "#92d050" },
   { minValue: 2, maxValue: 2, hexColorCode: "#ffff00" },
@@ -364,217 +366,218 @@ const DashboardCharts = () => {
   );
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "50px",
-        }}
-      >
-        <Tooltip2 content={<span>Main Dashboard</span>}>
-          <Button
-            icon="undo"
-            small
-            color="dark"
-            onClick={() => setShowDashboardState("default")}
-          />
-        </Tooltip2>
+    <JupyterViewer rawIpynb={nb_test}/>
+    // <div>
+    //   <div
+    //     style={{
+    //       display: "flex",
+    //       justifyContent: "center",
+    //       alignItems: "center",
+    //       height: "50px",
+    //     }}
+    //   >
+    //     <Tooltip2 content={<span>Main Dashboard</span>}>
+    //       <Button
+    //         icon="undo"
+    //         small
+    //         color="dark"
+    //         onClick={() => setShowDashboardState("default")}
+    //       />
+    //     </Tooltip2>
 
-        <RiskAssessmentMenu
-          portfolios={portfolios}
-          selectedRiskAssessment={selectedRiskAssessment}
-          selectRiskAssessmentHandler={selectRiskAssessmentHandler}
-        />
+    //     <RiskAssessmentMenu
+    //       portfolios={portfolios}
+    //       selectedRiskAssessment={selectedRiskAssessment}
+    //       selectRiskAssessmentHandler={selectRiskAssessmentHandler}
+    //     />
 
-        <Popover2
-          content={
-            <>
-              <Menu>
-                <MenuItem
-                  onClick={() => handleRiskTypeChange("all")}
-                  text="All"
-                />
-                <MenuItem
-                  onClick={() => handleRiskTypeChange("plat")}
-                  text="Plat"
-                />
-                <MenuItem
-                  onClick={() => handleRiskTypeChange("physical")}
-                  text="Physical"
-                />
-                <MenuItem
-                  onClick={() => handleRiskTypeChange("virtual")}
-                  text="Virtual"
-                />
-              </Menu>
-            </>
-          }
-          position="bottom"
-          interactionKind="hover"
-          autoFocus={false}
-        >
-          <Button
-            text={selectedRiskType}
-            minimal
-            large={false}
-            className="b f5 white _btn_"
-            intent="none"
-            icon="share"
-          />
-        </Popover2>
+    //     <Popover2
+    //       content={
+    //         <>
+    //           <Menu>
+    //             <MenuItem
+    //               onClick={() => handleRiskTypeChange("all")}
+    //               text="All"
+    //             />
+    //             <MenuItem
+    //               onClick={() => handleRiskTypeChange("plat")}
+    //               text="Plat"
+    //             />
+    //             <MenuItem
+    //               onClick={() => handleRiskTypeChange("physical")}
+    //               text="Physical"
+    //             />
+    //             <MenuItem
+    //               onClick={() => handleRiskTypeChange("virtual")}
+    //               text="Virtual"
+    //             />
+    //           </Menu>
+    //         </>
+    //       }
+    //       position="bottom"
+    //       interactionKind="hover"
+    //       autoFocus={false}
+    //     >
+    //       <Button
+    //         text={selectedRiskType}
+    //         minimal
+    //         large={false}
+    //         className="b f5 white _btn_"
+    //         intent="none"
+    //         icon="share"
+    //       />
+    //     </Popover2>
 
-        <Popover2
-          content={menu}
-          position="bottom"
-          interactionKind="hover"
-          autoFocus={false}
-        >
-          <Button
-            text={`${
-              currentDataLevel.name
-                ? currentDataLevel.name
-                : "select risk object properties"
-            }`}
-            minimal
-            large={false}
-            className="b f5 white _btn_"
-            intent="none"
-            icon="share"
-          />
-        </Popover2>
-      </div>
+    //     <Popover2
+    //       content={menu}
+    //       position="bottom"
+    //       interactionKind="hover"
+    //       autoFocus={false}
+    //     >
+    //       <Button
+    //         text={`${
+    //           currentDataLevel.name
+    //             ? currentDataLevel.name
+    //             : "select risk object properties"
+    //         }`}
+    //         minimal
+    //         large={false}
+    //         className="b f5 white _btn_"
+    //         intent="none"
+    //         icon="share"
+    //       />
+    //     </Popover2>
+    //   </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap" }}>
-        <div style={{ width: "550px", height: "400px", margin: "15px" }}>
-          <Card
-            className={`${styles.windowCard} `}
-            style={{ width: "100%", height: "100%" }}
-            elevation={Elevation.TWO}
-          >
-            <div
-              name="window-draggable-header"
-              className={`handle bp3-dark ${styles.windowHeader}`}
-            >
-              <div className={styles.windowHeader_title}>
-                {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
-                <div className="bp3-ui-text">HeatMap Chart</div>
-              </div>
-            </div>
-            <div
-              className={
-                window.type === "risk0"
-                  ? styles.windowBodyScroll
-                  : styles.windowBody
-              }
-            >
-              <D3HeatMap
-                heatmapBackground={
-                  selectedRiskAssessment.heatMap.values.length > 0
-                    ? heatmapBackground
-                    : []
-                }
-                displayedCellData={selectedRiskAssessment.heatMap.values}
-                setSelectedPlatforms={setSelectedPlatforms}
-                xLabels={selectedRiskAssessment.heatMap.xLabels}
-                yLabels={selectedRiskAssessment.heatMap.yLabels}
-                rules={heatmapRules}
-                defaultHexColorCode="#000000"
-                axis={{ xAxis: "controlAdequacy", yAxis: "fmodeSeverity" }}
-              />
-            </div>
-          </Card>
-        </div>
+    //   <div style={{ display: "flex", flexWrap: "wrap" }}>
+    //     <div style={{ width: "550px", height: "400px", margin: "15px" }}>
+    //       <Card
+    //         className={`${styles.windowCard} `}
+    //         style={{ width: "100%", height: "100%" }}
+    //         elevation={Elevation.TWO}
+    //       >
+    //         <div
+    //           name="window-draggable-header"
+    //           className={`handle bp3-dark ${styles.windowHeader}`}
+    //         >
+    //           <div className={styles.windowHeader_title}>
+    //             {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
+    //             <div className="bp3-ui-text">HeatMap Chart</div>
+    //           </div>
+    //         </div>
+    //         <div
+    //           className={
+    //             window.type === "risk0"
+    //               ? styles.windowBodyScroll
+    //               : styles.windowBody
+    //           }
+    //         >
+    //           <D3HeatMap
+    //             heatmapBackground={
+    //               selectedRiskAssessment.heatMap.values.length > 0
+    //                 ? heatmapBackground
+    //                 : []
+    //             }
+    //             displayedCellData={selectedRiskAssessment.heatMap.values}
+    //             setSelectedPlatforms={setSelectedPlatforms}
+    //             xLabels={selectedRiskAssessment.heatMap.xLabels}
+    //             yLabels={selectedRiskAssessment.heatMap.yLabels}
+    //             rules={heatmapRules}
+    //             defaultHexColorCode="#000000"
+    //             axis={{ xAxis: "controlAdequacy", yAxis: "fmodeSeverity" }}
+    //           />
+    //         </div>
+    //       </Card>
+    //     </div>
 
-        <div style={{ width: "550px", height: "400px", margin: "15px" }}>
-          <Card
-            className={`${styles.windowCard} `}
-            style={{ width: "100%", height: "100%" }}
-            elevation={Elevation.TWO}
-          >
-            <div
-              name="window-draggable-header"
-              className={`handle bp3-dark ${styles.windowHeader}`}
-            >
-              <div className={styles.windowHeader_title}>
-                {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
-                <div className="bp3-ui-text">DrillDown Chart</div>
-              </div>
-            </div>
-            <div
-              className={
-                window.type === "risk0"
-                  ? styles.windowBodyScroll
-                  : styles.windowBody
-              }
-            >
-              <D3DrillDown
-                drillDownData={selectedRiskAssessment.drillDown}
-                handleSelectedElements={handleSelectedElements}
-                heatmapRules={heatmapRules}
-              />
-            </div>
-          </Card>
-        </div>
+    //     <div style={{ width: "550px", height: "400px", margin: "15px" }}>
+    //       <Card
+    //         className={`${styles.windowCard} `}
+    //         style={{ width: "100%", height: "100%" }}
+    //         elevation={Elevation.TWO}
+    //       >
+    //         <div
+    //           name="window-draggable-header"
+    //           className={`handle bp3-dark ${styles.windowHeader}`}
+    //         >
+    //           <div className={styles.windowHeader_title}>
+    //             {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
+    //             <div className="bp3-ui-text">DrillDown Chart</div>
+    //           </div>
+    //         </div>
+    //         <div
+    //           className={
+    //             window.type === "risk0"
+    //               ? styles.windowBodyScroll
+    //               : styles.windowBody
+    //           }
+    //         >
+    //           <D3DrillDown
+    //             drillDownData={selectedRiskAssessment.drillDown}
+    //             handleSelectedElements={handleSelectedElements}
+    //             heatmapRules={heatmapRules}
+    //           />
+    //         </div>
+    //       </Card>
+    //     </div>
 
-        <div style={{ width: "550px", height: "400px", margin: "15px" }}>
-          <Card
-            className={`${styles.windowCard} `}
-            style={{ width: "100%", height: "100%" }}
-            elevation={Elevation.TWO}
-          >
-            <div
-              name="window-draggable-header"
-              className={`handle bp3-dark ${styles.windowHeader}`}
-            >
-              <div className={styles.windowHeader_title}>
-                {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
-                <div className="bp3-ui-text">TreeMap Chart</div>
-              </div>
-            </div>
-            <div
-              className={
-                window.type === "risk0"
-                  ? styles.windowBodyScroll
-                  : styles.windowBody
-              }
-            >
-              {treeMapState.length > 0 && (
-                <D3TreeMap treeMapData={treeMapState} />
-              )}
-            </div>
-          </Card>
-        </div>
+    //     <div style={{ width: "550px", height: "400px", margin: "15px" }}>
+    //       <Card
+    //         className={`${styles.windowCard} `}
+    //         style={{ width: "100%", height: "100%" }}
+    //         elevation={Elevation.TWO}
+    //       >
+    //         <div
+    //           name="window-draggable-header"
+    //           className={`handle bp3-dark ${styles.windowHeader}`}
+    //         >
+    //           <div className={styles.windowHeader_title}>
+    //             {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
+    //             <div className="bp3-ui-text">TreeMap Chart</div>
+    //           </div>
+    //         </div>
+    //         <div
+    //           className={
+    //             window.type === "risk0"
+    //               ? styles.windowBodyScroll
+    //               : styles.windowBody
+    //           }
+    //         >
+    //           {treeMapState.length > 0 && (
+    //             <D3TreeMap treeMapData={treeMapState} />
+    //           )}
+    //         </div>
+    //       </Card>
+    //     </div>
 
-        <div style={{ width: "550px", height: "400px", margin: "15px" }}>
-          <Card
-            className={`${styles.windowCard} `}
-            style={{ width: "100%", height: "100%" }}
-            elevation={Elevation.TWO}
-          >
-            <div
-              name="window-draggable-header"
-              className={`handle bp3-dark ${styles.windowHeader}`}
-            >
-              <div className={styles.windowHeader_title}>
-                {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
-                <div className="bp3-ui-text">Connected Scatter Plot</div>
-              </div>
-            </div>
-            <div
-              className={
-                window.type === "risk0"
-                  ? styles.windowBodyScroll
-                  : styles.windowBody
-              }
-            >
-              <D3ConnectedScatter graphData={graphData} />
-            </div>
-          </Card>
-        </div>
-      </div>
-    </div>
+    //     <div style={{ width: "550px", height: "400px", margin: "15px" }}>
+    //       <Card
+    //         className={`${styles.windowCard} `}
+    //         style={{ width: "100%", height: "100%" }}
+    //         elevation={Elevation.TWO}
+    //       >
+    //         <div
+    //           name="window-draggable-header"
+    //           className={`handle bp3-dark ${styles.windowHeader}`}
+    //         >
+    //           <div className={styles.windowHeader_title}>
+    //             {/* {changeTypeLoading && <Spinner size={12} intent={Intent.PRIMARY} />} */}
+    //             <div className="bp3-ui-text">Connected Scatter Plot</div>
+    //           </div>
+    //         </div>
+    //         <div
+    //           className={
+    //             window.type === "risk0"
+    //               ? styles.windowBodyScroll
+    //               : styles.windowBody
+    //           }
+    //         >
+    //           <D3ConnectedScatter graphData={graphData} />
+    //         </div>
+    //       </Card>
+    //     </div>
+    //   </div>
+    // </div>
   );
 };
 

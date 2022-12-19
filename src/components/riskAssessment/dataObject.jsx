@@ -243,16 +243,11 @@ export const DataObject = ({
             borderRadius: "15px",
             backgroundColor: "white",
             padding: "5px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
+            display: "flex",
               flexDirection: "column",
               justifyContent: "space-around",
-            }}
-            className="panningDisabled pinchDisabled wheelDisabled"
-          >
+          }}
+        >
             <div
               style={{ display: "flex", justifyContent: "space-between" }}
               className="panningDisabled pinchDisabled wheelDisabled"
@@ -511,7 +506,6 @@ export const DataObject = ({
                 Delete
               </Button>
             </div>
-          </div>
 
           {data.dataObjectNew.arrayName ? (
             // <></>
@@ -540,8 +534,9 @@ export const DataObject = ({
               className="panningDisabled pinchDisabled wheelDisabled"
               style={{
                 paddingTop: "10px",
-                overflow: "auto",
+                overflow: "hidden",
                 whiteSpace: "pre-wrap",
+                
               }}
             >
               {edit ? (
@@ -565,12 +560,12 @@ export const DataObject = ({
                   {data.filePath.split("/")[data.filePath.split("/").length-1]}
                 </a>:"No Attachment"}
                 <br />
-                <span
+                <div overflow="auto"
                   className="panningDisabled pinchDisabled wheelDisabled"
-                  style={{ overflow: "auto", height: "100%" }}
+                  style={{ overflow: "auto", height: "100%",borderTop:"2px solid grey" }}
                 >
                   {viewedAttribute}
-                </span>
+                </div>
                 </>
               )}
             </div>

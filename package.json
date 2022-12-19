@@ -32,6 +32,8 @@
     "react-draggable": "^4.4.4",
     "react-full-screen": "^1.1.1",
     "react-graph-vis": "^1.0.7",
+    "react-iframe": "^1.8.5",
+    "react-jupyter-notebook": "^0.4.0",
     "react-resizable": "^3.0.4",
     "react-resizable-box": "^2.1.0",
     "react-resize-detector": "^7.0.0",

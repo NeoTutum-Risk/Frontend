@@ -246,7 +246,7 @@ export const RiskElement = ({
             }}
           >
             {(view==="open") /*&& data['position.enabled'] */ && (
-              <OpenFace chart={charts.find(chart=>chart.riskObjectId===String(data.id))} data={data} groupId={groupIdState} setView={setView} />
+              <OpenFace charts={charts.filter(chart=>chart.riskObjectId===String(data.id))} data={data} groupId={groupIdState} setView={setView} />
             )}
             {(view==="full") /*&& data['position.enabled']*/ && (
               <ClosedFace
