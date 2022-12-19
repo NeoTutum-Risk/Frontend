@@ -562,7 +562,7 @@ export const DataObject = ({
                 <br />
                 <div overflow="auto"
                   className="panningDisabled pinchDisabled wheelDisabled"
-                  style={{ overflow: "auto", height: "100%",borderTop:"2px solid grey" }}
+                  style={{ overflow: "auto", height: "100%",borderTop:"2px solid grey",paddingBottom:"20px" }}
                 >
                   {viewedAttribute}
                 </div>
