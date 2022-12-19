@@ -555,7 +555,8 @@ export const DataObject = ({
                   className="panningDisabled pinchDisabled wheelDisabled"
                   style={{ overflow: "auto", height: "100%" }}
                   href={data.filePath}
-                  target
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   {data.filePath.split("/")[data.filePath.split("/").length-1]}
                 </a>:"No Attachment"}
