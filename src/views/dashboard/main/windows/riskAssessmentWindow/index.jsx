@@ -21,7 +21,6 @@ import {
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
-import { useRecoilState } from "recoil";
 import {
   getRiskAssessment,
   addRiskObjectProperties,
@@ -57,8 +56,9 @@ import {
   genericCharts,
   analysispackCharts,
   getAnalysisPacks,
-  getMetaData
+  getMetaData,
 } from "../../../../../services";
+import { windowDefault } from "../../../../../constants";
 import {
   showDangerToaster,
   showSuccessToaster,
@@ -66,6 +66,10 @@ import {
 import { objectSelectorState } from "../../../../../store/objectSelector";
 import { Window } from "../window";
 import { RiskAssessment } from "../../../../../components/riskAssessment";
+import { index } from "d3";
+import { windowFamily, windowsState, windowsIds } from "../../../../../store/windows";
+import { generateID } from "../../../../../utils/generateID";
+import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
 // import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
 // import { map, set } from "lodash";
 // import { data } from "vis-network";
@@ -81,6 +85,7 @@ export const RiskAssessmentWindow = ({
   const [views, setViews] = useState(["mini", "default", "open", "full"]);
   const [globalViewIndex, setGlobalViewIndex] = useState(3);
   const [charts, setCharts] = useState([]);
+  const [notebooks, setNotebooks] = useState([]);
   const [openedGroup, setOpenedGroup] = useState(null);
   const [openedGroupConnections, setOpenedGroupConnections] = useState([]);
   const [modularGroupAction, setModularGroupAction] = useState(null);
@@ -120,9 +125,9 @@ export const RiskAssessmentWindow = ({
     contextY: 0,
     element: null,
   });
-  const [confidenceLevel ,setConfidenceLevel] = useState(1);
-  const [causeProperty ,setCauseProperty] = useState(null);
-  const [effectProperty ,setEffectProperty] = useState(null);
+  const [confidenceLevel, setConfidenceLevel] = useState(1);
+  const [causeProperty, setCauseProperty] = useState(null);
+  const [effectProperty, setEffectProperty] = useState(null);
   const [globalGroups, setGlobalGroups] = useState([]);
   const [globalDataObjects, setGlobalDataObjects] = useState([]);
   const [editElement, setEditElement] = useState(null);
@@ -171,6 +176,61 @@ export const RiskAssessmentWindow = ({
     disabled: true,
   });
 
+  const checkMaximized = useRecoilCallback(
+    ({ set, snapshot }) =>
+      () => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+
+        return getWindowsIdsList.find(
+          (element) =>
+            snapshot.getLoadable(windowFamily(element)).contents.maximized
+        );
+      },
+    []
+  );
+
+  const setWindowCallBack = useRecoilCallback(({set, snapshot}) => ({data, type}) => {
+
+    const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+
+    const check = checkMaximized();
+    
+    if(check){
+      let old = snapshot.getLoadable(windowFamily(check)).contents
+      set(windowFamily(check), {
+        ...old,
+        maximized: false,
+        collapse:true
+      });
+    }
+
+    
+    const id = generateID();
+    const windowData = {
+      type,
+      data,
+      id,
+      collapse: false,
+      width: windowDefault.width,
+      height: windowDefault.height,
+      maximized: check?true:false
+    }
+
+    console.log(windowData)
+
+    set(windowsIds, (prev) => [id, ...prev])
+    set(windowFamily(id), windowData)
+  }, []);
+
+
+const addNotebookWindow = useCallback(
+    ({ data, type }) => {
+      setWindowCallBack({data, type})
+
+    },
+    [ setWindowCallBack]
+  );
+
   const resetContext = useCallback(() => {
     setContextMenu({
       active: false,
@@ -202,8 +262,8 @@ export const RiskAssessmentWindow = ({
 
   useEffect(() => {
     fetchAnalysisPacks();
-    fetchMetaData()
-}, [fetchAnalysisPacks, fetchMetaData]);
+    fetchMetaData();
+  }, [fetchAnalysisPacks, fetchMetaData]);
 
   useEffect(() => {
     if (openedGroup) {
@@ -318,7 +378,7 @@ export const RiskAssessmentWindow = ({
     (connection, type) => {
       let check = false;
       let target, source;
-      if(connection.sourceRef === connection.targetRef) return false;
+      if (connection.sourceRef === connection.targetRef) return false;
       if (connection.status === "delete") return false;
       if (!filter.everything && !filter.normal && !filter.connections)
         return false;
@@ -525,7 +585,7 @@ export const RiskAssessmentWindow = ({
       filter.everything,
       filter.normal,
       filter.groups,
-      openedGroup
+      openedGroup,
     ]
   );
 
@@ -677,6 +737,7 @@ export const RiskAssessmentWindow = ({
           setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
           setGroups(response.data.data.riskGroups);
           setCharts(response.data.data.charts);
+          setNotebooks(response.data.data.notebooks);
         }
 
         setConnections(
@@ -717,32 +778,44 @@ export const RiskAssessmentWindow = ({
     }
   }, [window.data.id, getGlobalGroups, updateViewsList, openedGroup]);
 
-  const getAnalytics = useCallback(async (type, data) => {
-    setIsServiceLoading(true);
-    let response
-    try {
-      switch(type) {
-        case 'bayesian':
-          response = await bayesianCharts({ riskAssessmentId: window.data.id,});
-          break;
-        case 'generic':
-          response = await genericCharts({ riskAssessmentId: window.data.id,});
-          break;
-        case 'analysispack':
-          response = await analysispackCharts({ riskAssessmentId: window.data.id, ...data});
-          break;
-      }
+  const getAnalytics = useCallback(
+    async (type, data) => {
+      setIsServiceLoading(true);
+      let response;
+      try {
+        switch (type) {
+          case "bayesian":
+            response = await bayesianCharts({
+              riskAssessmentId: window.data.id,
+            });
+            break;
+          case "generic":
+            response = await genericCharts({
+              riskAssessmentId: window.data.id,
+            });
+            break;
+          case "analysispack":
+            response = await analysispackCharts({
+              riskAssessmentId: window.data.id,
+              ...data,
+            });
+            break;
+          default:
+            return;
+        }
 
-      if (response?.status >= 200 && response?.status < 300) {
-        riskAssessmentData();
-      } else {
-        throw new Error("Error Getting Analytic Data");
+        if (response?.status >= 200 && response?.status < 300) {
+          riskAssessmentData();
+        } else {
+          throw new Error("Error Getting Analytic Data");
+        }
+      } catch (error) {
+        showDangerToaster(`${error}`);
       }
-    } catch (error) {
-      showDangerToaster(`${error}`);
-    }
-    setIsServiceLoading(false);
-  }, [window.data.id, riskAssessmentData]);
+      setIsServiceLoading(false);
+    },
+    [window.data.id, riskAssessmentData]
+  );
   const handleOpenedGroup = useCallback(
     (id, action) => {
       if (action === "clear") {
@@ -750,7 +823,10 @@ export const RiskAssessmentWindow = ({
         // setConnections([]);
         // setRiskObjects([]);
         setGroups([
-          { ...groups.find((grp) => grp.id === openedGroup), opendGroupExpansion: false },
+          {
+            ...groups.find((grp) => grp.id === openedGroup),
+            opendGroupExpansion: false,
+          },
         ]);
         // setGroups([]);
         // setConnections([]);
@@ -768,7 +844,7 @@ export const RiskAssessmentWindow = ({
         ]);
       }
     },
-    [riskAssessmentData, groups]
+    [groups, openedGroup]
   );
 
   const addToGroup = useCallback(
@@ -1149,11 +1225,10 @@ export const RiskAssessmentWindow = ({
             output = selectedElements[0];
           }
           if (input && !output) {
-
-            output = selectedElements.find(elm=>elm.id!==input.id);
+            output = selectedElements.find((elm) => elm.id !== input.id);
           }
           if (!input && output) {
-            input = selectedElements.find(elm=>elm.id!==output.id);
+            input = selectedElements.find((elm) => elm.id !== output.id);
           }
           let payload = {
             sourceRef: input ? output.id : selectedElements[0].id,
@@ -1164,7 +1239,7 @@ export const RiskAssessmentWindow = ({
             text: connectionText,
             confidenceLevel,
             causeProperty,
-            effectProperty
+            effectProperty,
           };
 
           const response = await addRiskConnection(payload);
@@ -1185,7 +1260,7 @@ export const RiskAssessmentWindow = ({
             text: connectionText,
             confidenceLevel,
             causeProperty,
-            effectProperty
+            effectProperty,
           };
 
           const response = await addInstanceConnection(payload);
@@ -1253,7 +1328,7 @@ export const RiskAssessmentWindow = ({
       connectionWeight,
       confidenceLevel,
       causeProperty,
-      effectProperty
+      effectProperty,
     ]
   );
 
@@ -2293,7 +2368,7 @@ export const RiskAssessmentWindow = ({
         text: connectionText,
         confidenceLevel,
         causeProperty,
-        effectProperty
+        effectProperty,
       });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) =>
@@ -2306,7 +2381,7 @@ export const RiskAssessmentWindow = ({
                 text: connectionText,
                 confidenceLevel,
                 causeProperty,
-                effectProperty
+                effectProperty,
               };
             } else {
               return connection;
@@ -2317,8 +2392,8 @@ export const RiskAssessmentWindow = ({
         setConnectionText(null);
         setConnectionWeight(0);
         setConfidenceLevel(1);
-        setCauseProperty(null)
-        setEffectProperty(null)
+        setCauseProperty(null);
+        setEffectProperty(null);
         setSelectedConnection([]);
         resetContext();
         setIsServiceLoading(false);
@@ -2374,8 +2449,8 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
-          globalViewIndex={globalViewIndex}
-          views={views}
+            globalViewIndex={globalViewIndex}
+            views={views}
             analysisPacks={analysisPacks}
             charts={charts}
             getAnalytics={getAnalytics}
@@ -2881,19 +2956,27 @@ export const RiskAssessmentWindow = ({
 
         {contextMenu.active && contextMenu.type === "create" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
-            <MenuItem text={`Views: ${views[globalViewIndex]}`}>
-              {views.map((view,index)=><MenuItem key={view} text={view} onClick={()=>{setGlobalViewIndex(index);
-                  resetContext();}}/>)}
-            </MenuItem>
-            {/* <ContextMenuComponent
-              menu={views.map((view, index) => ({
-                name: view[0].toLocaleUpperCase() + view.slice(1, view.length),
-                handleClick: () => {
-                  setGlobalViewIndex(index);
+            <MenuItem text={`Notebooks (${notebooks.length})`}>
+              {notebooks.map((notebook, index) => (
+                <MenuItem text={`Notebook ${index}`} onClick={()=>{
+                  setWindowCallBack({data:notebook, type:"notebook"})
                   resetContext();
-                },
-              }))}
-            /> */}
+                }}/>
+              ))}
+            </MenuItem>
+            <MenuItem text={`Views: ${views[globalViewIndex]}`}>
+              {views.map((view, index) => (
+                <MenuItem
+                  key={view}
+                  text={view}
+                  onClick={() => {
+                    setGlobalViewIndex(index);
+                    resetContext();
+                  }}
+                />
+              ))}
+            </MenuItem>
+
             <MenuItem
               text="Show Filters"
               onClick={() =>
@@ -3114,9 +3197,11 @@ export const RiskAssessmentWindow = ({
             />
             <MenuDivider />
             <MenuItem
-              text={globalViewIndex===3 ? "Show Open Faces" : "Show Closed Faces"}
+              text={
+                globalViewIndex === 3 ? "Show Open Faces" : "Show Closed Faces"
+              }
               onClick={() => {
-                setGlobalViewIndex(globalViewIndex===3 ? 2 : 3);
+                setGlobalViewIndex(globalViewIndex === 3 ? 2 : 3);
                 setContextMenu((prev) => ({
                   ...prev,
                   type: null,
@@ -3385,7 +3470,11 @@ export const RiskAssessmentWindow = ({
                 helperText={linkNameError}
                 labelFor="cause"
               >
-                <HTMLSelect id="cause" defaultValue={causeProperty} onChange={(e) => setCauseProperty(e.target.value)}>
+                <HTMLSelect
+                  id="cause"
+                  defaultValue={causeProperty}
+                  onChange={(e) => setCauseProperty(e.target.value)}
+                >
                   <option selected disabled>
                     Select MDL1/MDL2 Identifier
                   </option>
@@ -3411,7 +3500,11 @@ export const RiskAssessmentWindow = ({
                 helperText={linkNameError}
                 labelFor="effect"
               >
-                <HTMLSelect id="effect" defaultValue={effectProperty} onChange={(e) => setEffectProperty(e.target.value)}>
+                <HTMLSelect
+                  id="effect"
+                  defaultValue={effectProperty}
+                  onChange={(e) => setEffectProperty(e.target.value)}
+                >
                   <option selected disabled>
                     Select MDL1/MDL2 Identifier
                   </option>
