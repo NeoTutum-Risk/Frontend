@@ -473,12 +473,12 @@ export const AddWindowsButton = ({ data }) => {
             </>
           ) : data.type === "risk" ? (
             <>
-              <MenuItem icon="book" text="Notebooks">
+              {/* <MenuItem icon="book" text="Notebooks">
                 {data.data.notebooks?.length > 0 &&
                   data.data.notebooks.map((notebook, index) => (
                     <MenuItem text={notebook.name} />
                   ))}
-              </MenuItem>
+              </MenuItem> */}
               <MenuItem
                 icon="th"
                 text="Risk Assessment Data"

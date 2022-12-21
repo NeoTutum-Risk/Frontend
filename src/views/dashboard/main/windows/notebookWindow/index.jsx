@@ -15,11 +15,11 @@ export const NotebookWindow = ({
       onCollapse={onCollapse}
       onRestore={onResotre}
       onTypeChange={onTypeChange}
-      title="Notebook"
+      title={window.data.name}
       collapseState={collapseState}
       icon="th"
     >
-      <JupyterViewer rawIpynb={window.data}/>
+      <JupyterViewer rawIpynb={window.data.fileParsedJson}/>
     </Window>
   );
 };

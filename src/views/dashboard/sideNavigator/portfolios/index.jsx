@@ -1080,12 +1080,12 @@ export const Portfolios = () => {
               label:riskAssessment.name,
               icon:"derive-column",
               nodeData: { type:"risk assessment", data: riskAssessment },
-              childNodes: (riskAssessment.notebooks?.map((notebook,notebookIndex)=>({
+              childNodes: riskAssessment.noteBooks.length>0?(riskAssessment.noteBooks?.map((notebook,notebookIndex)=>({
                 id:notebook.id,
                 label:notebook.name,
                 icon:"chart",
                 nodeData: { type:"notebook", data: notebook },
-              })))
+              }))):null
               
             }))??[]).concat
               (serviceChain?.platforms?.map((platform, platformIdx) => ({
@@ -1279,6 +1279,8 @@ export const Portfolios = () => {
         addNewWindow({ type: "bpmn", data: node.nodeData.data });
       }else if(node.nodeData.type === "risk assessment"){
         addNewWindow({ type: "risk", data: node.nodeData.data });
+      }else if(node.nodeData.type === "notebook"){
+        addNewWindow({ type: "notebook", data: node.nodeData.data });
       }else{
         return;
       } 

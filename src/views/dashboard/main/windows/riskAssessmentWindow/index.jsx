@@ -2956,14 +2956,7 @@ const addNotebookWindow = useCallback(
 
         {contextMenu.active && contextMenu.type === "create" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
-            <MenuItem text={`Notebooks (${notebooks.length})`}>
-              {notebooks.map((notebook, index) => (
-                <MenuItem text={`Notebook ${index}`} onClick={()=>{
-                  setWindowCallBack({data:notebook, type:"notebook"})
-                  resetContext();
-                }}/>
-              ))}
-            </MenuItem>
+            
             <MenuItem text={`Views: ${views[globalViewIndex]}`}>
               {views.map((view, index) => (
                 <MenuItem
