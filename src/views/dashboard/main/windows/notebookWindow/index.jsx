@@ -1,4 +1,5 @@
 import { Window } from "../window";
+import "./styles.module.css";
 import JupyterViewer from "react-jupyter-notebook";
 export const NotebookWindow = ({
   window,
@@ -19,7 +20,10 @@ export const NotebookWindow = ({
       collapseState={collapseState}
       icon="th"
     >
-      <JupyterViewer displayOutput="scroll" rawIpynb={window.data.fileParsedJson}/>
+      <div style={{overflowY:"auto",height:"100%"}}>
+      <JupyterViewer rawIpynb={window.data.fileParsedJson}/>
+      </div>
+      
       
     </Window>
   );
