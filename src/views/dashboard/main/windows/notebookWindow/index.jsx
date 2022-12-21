@@ -19,7 +19,8 @@ export const NotebookWindow = ({
       collapseState={collapseState}
       icon="th"
     >
-      <JupyterViewer rawIpynb={window.data.fileParsedJson}/>
+      <JupyterViewer displayOutput="scroll" rawIpynb={window.data.fileParsedJson}/>
+      
     </Window>
   );
 };
