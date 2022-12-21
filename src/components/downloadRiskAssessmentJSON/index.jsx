@@ -8,6 +8,7 @@ import { Popover2, Classes } from "@blueprintjs/popover2";
 import RiskAssessmentMenu from "../riskAssessmentMenu";
 import { showDangerToaster } from "../../utils/toaster";
 import { getAllPortfolios, getRiskAssessment, testGetRiskAssessment } from "../../services";
+import { BACKEND_URI } from "../../constants";
 
 const DownloadRiskAssessmentJSON = () => {
   const [portfolios, setPortfolios] = useState([]);
@@ -110,14 +111,25 @@ const DownloadRiskAssessmentJSON = () => {
                   Cancel
                 </Button>
                 {selectedRiskAssessment.riskAssessmentId && (
-                  <Button
-                    type="submit"
-                    intent={Intent.SUCCESS}
-                    className={Classes.POPOVER2_DISMISS}
-                    onClick={downloadRiskAssessmentHandler}
-                  >
-                    Download
-                  </Button>
+                  <>
+                    <Button
+                      type="submit"
+                      intent={Intent.SUCCESS}
+                      className={Classes.POPOVER2_DISMISS}
+                      onClick={downloadRiskAssessmentHandler}
+                    >
+                      Download
+                    </Button>
+                    <a href={`${BACKEND_URI}/JSONAnalytics/RA-Analytics-IO/${selectedRiskAssessment.riskAssessmentId}`} target="_blank">
+                      <Button
+                        icon="link"
+                        intent={Intent.SUCCESS}
+                        style={{ margin: "0 .5rem" }}
+                      >
+                        Preview File
+                      </Button>
+                    </a>
+                  </>
                 )}
               </div>
             </div>
