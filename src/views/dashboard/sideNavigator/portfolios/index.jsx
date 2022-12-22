@@ -1080,7 +1080,7 @@ export const Portfolios = () => {
               label:riskAssessment.name,
               icon:"derive-column",
               nodeData: { type:"risk assessment", data: riskAssessment },
-              childNodes: riskAssessment.noteBooks.length>0?(riskAssessment.noteBooks?.map((notebook,notebookIndex)=>({
+              childNodes: riskAssessment.noteBooks?.length>0?(riskAssessment.noteBooks?.map((notebook,notebookIndex)=>({
                 id:notebook.id,
                 label:notebook.name,
                 icon:"chart",
