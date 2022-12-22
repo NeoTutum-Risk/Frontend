@@ -2428,7 +2428,7 @@ const addNotebookWindow = useCallback(
         onRestore={onRestore}
         onTypeChange={onTypeChange}
         collapseState={collapseState}
-        title={window.data.name}
+        title={`${window.data.id} - ${window.data.name}`}
       >
         {contextMenu.active && contextMenu.type === "loading...." && (
           <div

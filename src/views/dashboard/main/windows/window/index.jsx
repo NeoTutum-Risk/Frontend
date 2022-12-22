@@ -281,7 +281,7 @@ export const Window = ({
     //     ...window,
     //    maximized: !window.maximized
     //  })
-  }, [setWindowsNew, setWindow, window]);
+  }, [setWindowsNew]);
   return (
     <Resizable
       className={
