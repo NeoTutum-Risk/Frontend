@@ -2278,6 +2278,7 @@ const addNotebookWindow = useCallback(
     setIsServiceLoading(true);
     let payload = new FormData();
     payload.append("fileCSV", importObjectFile);
+    payload.append("riskAssessmentId",window.data.id);
     const response = await updateNewDataObjectInstance(activeObject, payload);
     if (response.status >= 200 && response.status < 300) {
       riskAssessmentData();
