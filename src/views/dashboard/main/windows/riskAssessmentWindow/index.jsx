@@ -52,9 +52,9 @@ import {
   addObjectToGroup,
   unshareGroup,
   addModelRiskObjectProperties,
-  bayesianCharts,
-  genericCharts,
-  analysispackCharts,
+  getBayesianCharts,
+  getGenericCharts,
+  getAnalysispackCharts,
   getAnalysisPacks,
   getMetaData,
 } from "../../../../../services";
@@ -785,17 +785,17 @@ const addNotebookWindow = useCallback(
       try {
         switch (type) {
           case "bayesian":
-            response = await bayesianCharts({
+            response = await getBayesianCharts({
               riskAssessmentId: window.data.id,
             });
             break;
           case "generic":
-            response = await genericCharts({
+            response = await getGenericCharts({
               riskAssessmentId: window.data.id,
             });
             break;
           case "analysispack":
-            response = await analysispackCharts({
+            response = await getAnalysispackCharts({
               riskAssessmentId: window.data.id,
               ...data,
             });
