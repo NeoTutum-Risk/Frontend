@@ -101,7 +101,7 @@ export const DataObject = ({
   const updateRiskObject = useCallback(async () => {
     setUsingService(true);
     let payload;
-    payload = { textType: editingValue };
+    payload = { textType: editingValue, riskAssessmentId };
 
     const response = await updateNewDataObjectInstance(data.id, payload);
     if (response.status === 200) {
