@@ -508,7 +508,18 @@ export const DataObject = ({
             </div>
 
           {data.dataObjectNew.arrayName ? (
-            // <></>
+
+            <div>
+            {data.filePath ? <a
+                  className="panningDisabled pinchDisabled wheelDisabled"
+                  style={{ overflow: "auto", height: "100%" }}
+                  href={data.filePath}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {data.filePath.split("/")[data.filePath.split("/").length-1]}
+                </a>:"No Attachment"}
+                <br />
             <table
               className="bp4-html-table-bordered panningDisabled"
               style={{ textAlign: "left", paddingTop: "5px" }}
@@ -528,7 +539,7 @@ export const DataObject = ({
                     `${data.dataObjectNew?.array?.length} X ${data.dataObjectNew?.array[0].length}`}
                 </td>
               </tr>
-            </table>
+            </table></div>
           ) : (
             <div
               className="panningDisabled pinchDisabled wheelDisabled"
