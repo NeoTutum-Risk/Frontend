@@ -33,7 +33,6 @@ export const NotebookWindow = ({
   const updateScrollPos = useCallback(
     (e) => {
       setScrollPosition(e.target.offsetTop)
-      console.log(e.target.offsetTop);
     },
     [scrollPosition],
   )
