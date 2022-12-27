@@ -9,7 +9,9 @@ import { objectSelectorState } from "../../store/objectSelector";
 import { useRecoilState } from "recoil";
 import { DataObject } from "./dataObject";
 import React, { useEffect } from "react";
+import {protfoliosState,} from "../../store/portfolios";
 import {
+  getPortfolios,
   getRiskAssessmentWindowSettings,
   updateRiskAssessmentWindowSettings,
 } from "../../services";
@@ -57,6 +59,7 @@ export const RiskAssessment = ({
   });
   const transformWrapperRef = useRef(null);
   const [loadingAnalytics,setLoadingAnalytics] = useState(false);
+  const [portfolios, setPortfolios] = useRecoilState(protfoliosState);
   const [isOpenAnalysisMenuSelect,setOpenAnalysisMenuSelect] = useState(false);
 
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
@@ -154,15 +157,41 @@ export const RiskAssessment = ({
     [setSelectedElements, setSelectedObjects]
   );
 
+
   const updateAnalytics = useCallback(async (chartsType, data = {})=>{
     setOpenAnalysisMenuSelect(false)
     setLoadingAnalytics(true);
     const response = await getAnalytics(chartsType, data);
-
+    const newNotebookPath = response.data.data.newNotebookPath
     if(response){
-      
-    }else{
-
+      setPortfolios((prevPortfolios) => ({
+        ...prevPortfolios,
+        data: prevPortfolios.data.map((portfolio) =>
+          portfolio.id === newNotebookPath[0]
+            ? {
+                ...portfolio,
+                serviceChains:
+                  portfolio?.serviceChains.map((serviceChain) =>
+                  newNotebookPath[1] === serviceChain.id
+                      ? {
+                          ...serviceChain,
+                          riskAssessments: serviceChain?.riskAssessments.map((riskassessment) =>
+                          riskassessment.id === newNotebookPath[2]
+                              ? {
+                                  ...riskassessment,
+                                  noteBooks: riskassessment.noteBooks
+                                    ? [response.data.data.newNotebook, ...riskassessment.noteBooks]
+                                    : [response.data.data.newNotebook],
+                                }
+                              : riskassessment
+                          ),
+                        }
+                      : serviceChain
+                  ) ?? [],
+              }
+            : portfolio
+        ),
+      }));
     }
     setLoadingAnalytics(false);
   },[getAnalytics])

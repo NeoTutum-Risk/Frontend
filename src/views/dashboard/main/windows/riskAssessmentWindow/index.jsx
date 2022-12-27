@@ -806,6 +806,7 @@ const addNotebookWindow = useCallback(
 
         if (response?.status >= 200 && response?.status < 300) {
           riskAssessmentData();
+          return response
         } else {
           throw new Error("Error Getting Analytic Data");
         }
