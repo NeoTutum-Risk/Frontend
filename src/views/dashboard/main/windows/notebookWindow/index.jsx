@@ -33,7 +33,6 @@ export const NotebookWindow = ({
       const response = await getNoteBook(window.data.id);
       if (response?.status >= 200 && response?.status < 300) {
         setNoteBookJSON(response.data.data.fileParsedJson);
-        showSuccessToaster(response.data.msg);
       } else {
         showDangerToaster("Error Fetching NoteBook Data");
       }
