@@ -238,3 +238,5 @@ export const getAnalysisPacks = () => serviceProvider.get(`analytics_charts/anal
 
 export const getAnalysisPacksRuns = () => serviceProvider.get(`analytics_charts/analysis/pack/runs`);
 
+export const getNoteBook = (id) => serviceProvider.get(`notebooks/${id}`);
+

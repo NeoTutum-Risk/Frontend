@@ -1,11 +1,21 @@
 import { Window } from "../window";
 import "./styles.module.css";
 import JupyterViewer from "react-jupyter-notebook";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@blueprintjs/core";
 import { useCallback } from "react";
+import { getNoteBook } from "../../../../../services";
+import {
+  showDangerToaster,
+  showSuccessToaster,
+} from "../../../../../utils/toaster";
+
+const emptyNotebook = {
+  cells: [],
+  nbformat: 4,
+  nbformat_minor: 4,
+};
+
 export const NotebookWindow = ({
   window,
   onClose,
@@ -15,36 +25,59 @@ export const NotebookWindow = ({
   onTypeChange,
 }) => {
   const noteBookNodeRef = useRef();
-  const [scrollPosition, setScrollPosition] = useState(0)
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [noteBookJSON, setNoteBookJSON] = useState(emptyNotebook);
+
+  const fetchNoteBookJSONData = useCallback(async () => {
+    try {
+      const response = await getNoteBook(window.data.id);
+      if (response?.status >= 200 && response?.status < 300) {
+        setNoteBookJSON(response.data.data.fileParsedJson);
+        showSuccessToaster(response.data.msg);
+      } else {
+        showDangerToaster("Error Fetching NoteBook Data");
+      }
+    } catch (err) {
+      showDangerToaster("Error Fetching NoteBook Data");
+    }
+  }, [window.data.id]);
 
   useEffect(() => {
-    const scrollPosSaved = localStorage.getItem(`NotebookScrollPos_${window.data.id}`)
+    fetchNoteBookJSONData();
+  }, [window.data.id, fetchNoteBookJSONData]);
 
-    if (scrollPosSaved) {
-      if (scrollPosSaved < 0) {
-        noteBookNodeRef.current.scrollTop = Number(0)
+  useEffect(() => {
+    const scrollPosSaved = localStorage.getItem(
+      `NotebookScrollPos_${window.data.id}`
+    );
+
+    const scrollPosSavedNum = Number(scrollPosSaved)
+
+    if (scrollPosSavedNum) {
+      if (scrollPosSavedNum < 0) {
+        noteBookNodeRef.current.scrollTop = Number(0);
       } else {
-        noteBookNodeRef.current.scrollTop = Number(scrollPosSaved)
+        noteBookNodeRef.current.scrollTop = Number(scrollPosSavedNum);
       }
     }
+  }, [noteBookJSON, window.data.id])
 
-  }, [])
 
   const updateScrollPos = useCallback(
     (e) => {
-      setScrollPosition(e.target.offsetTop)
+      setScrollPosition(e.target.offsetTop);
     },
-    [scrollPosition],
-  )
+    []
+  );
 
-
-  const saveScrollPos = useCallback(
-    () => {
-      localStorage.setItem(window.data?.id ? `NotebookScrollPos_${window.data.id}` : `NotebookScrollPos_${1}`, scrollPosition + 200);
-    },
-    [scrollPosition],
-  )
-  
+  const saveScrollPos = useCallback(() => {
+    localStorage.setItem(
+      window.data?.id
+        ? `NotebookScrollPos_${window.data.id}`
+        : `NotebookScrollPos_${1}`,
+      scrollPosition + 200
+    );
+  }, [scrollPosition, window.data.id]);
 
   return (
     <Window
@@ -63,11 +96,13 @@ export const NotebookWindow = ({
         icon="tick"
         onClick={saveScrollPos}
       />
-      <div onMouseLeave={updateScrollPos} ref={noteBookNodeRef} style={{ overflowY: "auto", height: "100%" }}>
-        <JupyterViewer rawIpynb={window.data.fileParsedJson} />
+      <div
+        onMouseLeave={updateScrollPos}
+        ref={noteBookNodeRef}
+        style={{ overflowY: "auto", height: "100%" }}
+      >
+        {noteBookJSON && <JupyterViewer rawIpynb={noteBookJSON} />}
       </div>
-
-
     </Window>
   );
 };
