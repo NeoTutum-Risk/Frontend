@@ -1521,6 +1521,8 @@ const addNotebookWindow = useCallback(
         ? Number(id)
         : Number(e.target.parentElement.id.split("-")[2]);
 
+      if (!element || typeof element !== "number") element = Number(e.target.parentElement.className.split(' ')[1])
+
       setContextMenu((prev) => ({
         active: true,
         type,

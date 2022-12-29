@@ -708,10 +708,10 @@ export const RiskGroup = ({
               }}
             >
               <span>{data.shared && !data.mainShared ? "S" : ""}</span>
-              <span>
+              <span className={`groupId ${data.id}`}>
                 <b>{data.name}</b>
               </span>
-              <span>
+              <span className={`groupId ${data.id}`}>
                 <b>{data.id - 2000000}</b>
               </span>
             </div>
