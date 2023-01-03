@@ -1204,7 +1204,7 @@ const addNotebookWindow = useCallback(
     },
     [contextMenu.element, activeObject]
   );
-
+    
   const handleConnection = useCallback(
     async (data) => {
       setIsServiceLoading(true);
@@ -2362,9 +2362,22 @@ const addNotebookWindow = useCallback(
     },
     [getContextPosition, setModularGroupAction]
   );
-
+  
   const updateConnection = useCallback(async () => {
     try {
+      let connectionType = 'riskObjects' // default risk connections
+      if (selectedElements.length === 2) {
+        if (selectedConnection.type === 'instances' ) {
+          connectionType = 'instances'
+        } else if (selectedConnection.type === 'instanceRiskObjects') {
+          connectionType = 'instanceRiskObjects'
+        } else if (selectedConnection.type === 'riskObjects') {
+          connectionType = 'riskObjects'
+        } else {
+          connectionType = 'riskObjects'
+        }
+      }
+      
       setIsServiceLoading(true);
       const response = await editRiskConnection(selectedConnection.id, {
         name: linkName,
@@ -2373,6 +2386,7 @@ const addNotebookWindow = useCallback(
         confidenceLevel,
         causeProperty,
         effectProperty,
+        connectionType
       });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) =>
@@ -2419,6 +2433,7 @@ const addNotebookWindow = useCallback(
     causeProperty,
     selectedConnection,
     resetContext,
+    selectedElements.length
   ]);
 
   return (
