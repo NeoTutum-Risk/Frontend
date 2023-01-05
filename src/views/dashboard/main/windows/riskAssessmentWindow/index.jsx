@@ -57,6 +57,7 @@ import {
   getAnalysispackCharts,
   getAnalysisPacks,
   getMetaData,
+  getDataObject,
 } from "../../../../../services";
 import { windowDefault } from "../../../../../constants";
 import {
@@ -67,7 +68,11 @@ import { objectSelectorState } from "../../../../../store/objectSelector";
 import { Window } from "../window";
 import { RiskAssessment } from "../../../../../components/riskAssessment";
 import { index } from "d3";
-import { windowFamily, windowsState, windowsIds } from "../../../../../store/windows";
+import {
+  windowFamily,
+  windowsState,
+  windowsIds,
+} from "../../../../../store/windows";
 import { generateID } from "../../../../../utils/generateID";
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
 // import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
@@ -82,6 +87,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [linkProperties, setLinkProperties] = useState([]);
   const [views, setViews] = useState(["mini", "default", "open", "full"]);
   const [globalViewIndex, setGlobalViewIndex] = useState(3);
   const [charts, setCharts] = useState([]);
@@ -139,6 +145,8 @@ export const RiskAssessmentWindow = ({
   const [instanceObjectConnections, setInstanceObjectConnections] = useState(
     []
   );
+  const [linkProperty,setLinkProperty] = useState(null);
+  
   const [groups, setGroups] = useState([]);
   const [importGroupId, setImportGroupId] = useState(null);
   const [importObjectId, setImportObjectId] = useState(null);
@@ -189,46 +197,46 @@ export const RiskAssessmentWindow = ({
     []
   );
 
-  const setWindowCallBack = useRecoilCallback(({set, snapshot}) => ({data, type}) => {
+  const setWindowCallBack = useRecoilCallback(
+    ({ set, snapshot }) =>
+      ({ data, type }) => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
 
-    const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+        const check = checkMaximized();
 
-    const check = checkMaximized();
-    
-    if(check){
-      let old = snapshot.getLoadable(windowFamily(check)).contents
-      set(windowFamily(check), {
-        ...old,
-        maximized: false,
-        collapse:true
-      });
-    }
+        if (check) {
+          let old = snapshot.getLoadable(windowFamily(check)).contents;
+          set(windowFamily(check), {
+            ...old,
+            maximized: false,
+            collapse: true,
+          });
+        }
 
-    
-    const id = generateID();
-    const windowData = {
-      type,
-      data,
-      id,
-      collapse: false,
-      width: windowDefault.width,
-      height: windowDefault.height,
-      maximized: check?true:false
-    }
+        const id = generateID();
+        const windowData = {
+          type,
+          data,
+          id,
+          collapse: false,
+          width: windowDefault.width,
+          height: windowDefault.height,
+          maximized: check ? true : false,
+        };
 
-    console.log(windowData)
+        console.log(windowData);
 
-    set(windowsIds, (prev) => [id, ...prev])
-    set(windowFamily(id), windowData)
-  }, []);
+        set(windowsIds, (prev) => [id, ...prev]);
+        set(windowFamily(id), windowData);
+      },
+    []
+  );
 
-
-const addNotebookWindow = useCallback(
+  const addNotebookWindow = useCallback(
     ({ data, type }) => {
-      setWindowCallBack({data, type})
-
+      setWindowCallBack({ data, type });
     },
-    [ setWindowCallBack]
+    [setWindowCallBack]
   );
 
   const resetContext = useCallback(() => {
@@ -251,7 +259,6 @@ const addNotebookWindow = useCallback(
 
   const fetchAnalysisPacks = useCallback(async () => {
     const { data } = await getAnalysisPacks();
-    console.log(data.data);
     setAnalysisPacks(data.data);
   }, []);
 
@@ -735,6 +742,12 @@ const addNotebookWindow = useCallback(
           setRiskObjects(response.data.data.riskObjects);
           setDataObjectInstances(response.data.data.dataObjectsNewProperties);
           setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
+          setLinkProperties(
+            response.data.data.metaData.referenceGroupJsons[0].json.filter(
+              (l1) => l1.name === "Analytical_Node_List"
+            )
+          );
+          console.log("===============",linkProperties);
           setGroups(response.data.data.riskGroups);
           setCharts(response.data.data.charts);
           setNotebooks(response.data.data.notebooks);
@@ -806,7 +819,7 @@ const addNotebookWindow = useCallback(
 
         if (response?.status >= 200 && response?.status < 300) {
           riskAssessmentData();
-          return response
+          return response;
         } else {
           throw new Error("Error Getting Analytic Data");
         }
@@ -1204,7 +1217,7 @@ const addNotebookWindow = useCallback(
     },
     [contextMenu.element, activeObject]
   );
-    
+
   const handleConnection = useCallback(
     async (data) => {
       setIsServiceLoading(true);
@@ -1241,6 +1254,7 @@ const addNotebookWindow = useCallback(
             confidenceLevel,
             causeProperty,
             effectProperty,
+            linkProperty
           };
 
           const response = await addRiskConnection(payload);
@@ -1262,6 +1276,7 @@ const addNotebookWindow = useCallback(
             confidenceLevel,
             causeProperty,
             effectProperty,
+            linkProperty
           };
 
           const response = await addInstanceConnection(payload);
@@ -1297,6 +1312,7 @@ const addNotebookWindow = useCallback(
             confidenceLevel,
             causeProperty,
             effectProperty,
+            linkProperty,
             objectType:
               instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
           };
@@ -1330,6 +1346,7 @@ const addNotebookWindow = useCallback(
       confidenceLevel,
       causeProperty,
       effectProperty,
+      linkProperty
     ]
   );
 
@@ -1341,6 +1358,7 @@ const addNotebookWindow = useCallback(
       setConfidenceLevel(selectedConnection.confidenceLevel);
       setCauseProperty(selectedConnection.causeProperty);
       setEffectProperty(selectedConnection.effectProperty);
+      setLinkProperty(selectedConnection.linkProperty);
     } else {
       setLinkName(null);
       setConnectionText(null);
@@ -1348,6 +1366,7 @@ const addNotebookWindow = useCallback(
       setConfidenceLevel(1);
       setCauseProperty(null);
       setEffectProperty(null);
+      setLinkProperty(null);
     }
   }, [selectedConnection]);
 
@@ -1521,7 +1540,8 @@ const addNotebookWindow = useCallback(
         ? Number(id)
         : Number(e.target.parentElement.id.split("-")[2]);
 
-      if (!element || typeof element !== "number") element = Number(e.target.parentElement.className.split(' ')[1])
+      if (!element || typeof element !== "number")
+        element = Number(e.target.parentElement.className.split(" ")[1]);
 
       setContextMenu((prev) => ({
         active: true,
@@ -2281,7 +2301,7 @@ const addNotebookWindow = useCallback(
     setIsServiceLoading(true);
     let payload = new FormData();
     payload.append("fileCSV", importObjectFile);
-    payload.append("riskAssessmentId",window.data.id);
+    payload.append("riskAssessmentId", window.data.id);
     const response = await updateNewDataObjectInstance(activeObject, payload);
     if (response.status >= 200 && response.status < 300) {
       riskAssessmentData();
@@ -2362,22 +2382,22 @@ const addNotebookWindow = useCallback(
     },
     [getContextPosition, setModularGroupAction]
   );
-  
+
   const updateConnection = useCallback(async () => {
     try {
-      let connectionType = 'riskObjects' // default risk connections
+      let connectionType = "riskObjects"; // default risk connections
       if (selectedElements.length === 2) {
-        if (selectedConnection.type === 'instances' ) {
-          connectionType = 'instances'
-        } else if (selectedConnection.type === 'instanceRiskObjects') {
-          connectionType = 'instanceRiskObjects'
-        } else if (selectedConnection.type === 'riskObjects') {
-          connectionType = 'riskObjects'
+        if (selectedConnection.type === "instances") {
+          connectionType = "instances";
+        } else if (selectedConnection.type === "instanceRiskObjects") {
+          connectionType = "instanceRiskObjects";
+        } else if (selectedConnection.type === "riskObjects") {
+          connectionType = "riskObjects";
         } else {
-          connectionType = 'riskObjects'
+          connectionType = "riskObjects";
         }
       }
-      
+
       setIsServiceLoading(true);
       const response = await editRiskConnection(selectedConnection.id, {
         name: linkName,
@@ -2386,7 +2406,8 @@ const addNotebookWindow = useCallback(
         confidenceLevel,
         causeProperty,
         effectProperty,
-        connectionType
+        linkProperty,
+        connectionType,
       });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) =>
@@ -2400,6 +2421,7 @@ const addNotebookWindow = useCallback(
                 confidenceLevel,
                 causeProperty,
                 effectProperty,
+                linkProperty
               };
             } else {
               return connection;
@@ -2412,6 +2434,7 @@ const addNotebookWindow = useCallback(
         setConfidenceLevel(1);
         setCauseProperty(null);
         setEffectProperty(null);
+        setLinkProperty(null);
         setSelectedConnection([]);
         resetContext();
         setIsServiceLoading(false);
@@ -2433,7 +2456,8 @@ const addNotebookWindow = useCallback(
     causeProperty,
     selectedConnection,
     resetContext,
-    selectedElements.length
+    selectedElements.length,
+    linkProperty
   ]);
 
   return (
@@ -2975,7 +2999,6 @@ const addNotebookWindow = useCallback(
 
         {contextMenu.active && contextMenu.type === "create" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
-            
             <MenuItem text={`Views: ${views[globalViewIndex]}`}>
               {views.map((view, index) => (
                 <MenuItem
@@ -3495,7 +3518,7 @@ const addNotebookWindow = useCallback(
                       const mainLevel = [
                         <option disabled>MDL1 - {data.name}</option>,
                         ...data.metaDataLevel2s.map((l2) => (
-                          <option value={l2.id}>{l2.name}</option>
+                          <option selected={selectedConnection?.causeProperty===l2.id} value={l2.id}>{l2.name}</option>
                         )),
                       ];
                       return mainLevel;
@@ -3505,6 +3528,7 @@ const addNotebookWindow = useCallback(
                   )}
                 </HTMLSelect>
               </FormGroup>
+              
               <FormGroup
                 label="Effect"
                 labelInfo="(required)"
@@ -3525,7 +3549,7 @@ const addNotebookWindow = useCallback(
                       const mainLevel = [
                         <option disabled>MDL1 - {data.name}</option>,
                         ...data.metaDataLevel2s.map((l2) => (
-                          <option value={l2.id}>{l2.name}</option>
+                          <option selected={selectedConnection?.effectProperty===l2.id} value={l2.id}>{l2.name}</option>
                         )),
                       ];
                       return mainLevel;
@@ -3608,7 +3632,38 @@ const addNotebookWindow = useCallback(
                     Add
                   </Button>
                 )}
+                
               </div>
+              <FormGroup
+                label="Link Property"
+                labelInfo="(required)"
+                intent={linkNameError ? Intent.DANGER : Intent.NONE}
+                helperText={linkNameError}
+                labelFor="LinkProperty"
+              >
+                <HTMLSelect
+                  id="LinkProperty"
+                  defaultValue={linkProperty}
+                  onChange={(e) => setLinkProperty(e.target.value)}
+                >
+                  <option selected disabled>
+                    Select MDL1/MDL2 Identifier
+                  </option>
+                  {linkProperties[0]?.metaDataLevel2 ? (
+                    linkProperties[0].metaDataLevel2.map((data) => {
+                      const mainLevel = [
+                        <option disabled>MDL1 - {data.name}</option>,
+                        ...data.dataObjects[0].children.map((l2) => (
+                          <option selected={selectedConnection?.linkProperty===l2.id} value={l2.id}>{l2.name}</option>
+                        )),
+                      ];
+                      return mainLevel;
+                    })
+                  ) : (
+                    <option>Loading Data</option>
+                  )}
+                </HTMLSelect>
+              </FormGroup>
             </form>
           </div>
         )}
