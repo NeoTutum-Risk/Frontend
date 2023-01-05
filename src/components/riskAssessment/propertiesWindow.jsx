@@ -149,33 +149,33 @@ export const PropertiesWindow = ({
           style={{ height: "100%", padding: "2px", overflowY: "auto" }}
         >
           <table
-            // className="panningDisabled pinchDisabled wheelDisabled"
+            className="panningDisabled pinchDisabled wheelDisabled"
             style={{
               width: "100%",
               border: "solid 1px grey",
               textAlign: "left",
             }}
           >
-            <thead>
-              <tr>
-                <th>Property</th>
-                <th>Value</th>
-                <th>Level</th>
-                <th>Comment</th>
+            <thead  className="panningDisabled pinchDisabled wheelDisabled">
+              <tr  className="panningDisabled pinchDisabled wheelDisabled">
+                <th  className="panningDisabled pinchDisabled wheelDisabled">Property</th>
+                <th  className="panningDisabled pinchDisabled wheelDisabled">Value</th>
+                <th  className="panningDisabled pinchDisabled wheelDisabled">Level</th>
+                <th  className="panningDisabled pinchDisabled wheelDisabled">Comment</th>
                 <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody  className="panningDisabled pinchDisabled wheelDisabled">
               {properties.map((property) => (
-                <tr>
-                  <td>{property.metaDataLevel2Name}</td>
-                  <td>
+                <tr  className="panningDisabled pinchDisabled wheelDisabled">
+                  <td  className="panningDisabled pinchDisabled wheelDisabled">{property.metaDataLevel2Name}</td>
+                  <td  className="panningDisabled pinchDisabled wheelDisabled">
                     {property.value
                       ? ` ${property.value}`
                       : property.dataObjectElementName}
                   </td>
-                  <td>{property.level_value}</td>
-                  <td>
+                  <td  className="panningDisabled pinchDisabled wheelDisabled">{property.level_value}</td>
+                  <td  className="panningDisabled pinchDisabled wheelDisabled">
                     <span title={property.text}>{property.text}</span>
                   </td>
                   <td>

@@ -1,4 +1,4 @@
-import React,{ useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Rnd } from "react-rnd";
 import { Button } from "@blueprintjs/core";
 import "./dataElement.css";
@@ -230,41 +230,79 @@ export const ObjectsGroup = React.memo(
           }}
           scale={scale}
         >
-          <div
-            onMouseEnter={() => rootCall("objectIn", { id: data.id })}
-            onMouseLeave={() => rootCall("objectOut")}
-            onContextMenu={(e) => rootCall("context", { e, type: "groupMenu" })}
-            // title={data.description}
-            onClick={handleClick}
-            className="risk-object-container panningDisabled"
-            style={{
-              border: !expanded
-                ? "5px solid #173c67"
-                : "5px dashed rgb(56	142	142	)",
-              backgroundColor: !expanded
-                ? usingService
-                  ? "#fef9c5 "
-                  : "#173c67"
-                : "white",
-              color: !expanded
-                ? usingService
-                  ? "rgb(56	142	142	)"
-                  : "white"
-                : "rgb(56	142	142	)",
-              borderRadius: "150px",
-              padding: "5px",
-              textAlign: "center",
-              display: "flex",
-            }}
-          >
-            <span>{data.shared && !data.mainShared ? "S" : ""}</span>
-            <span>
-              <b>{data.name}</b>
-            </span>
-            <span>
-              <b>{data.id}</b>
-            </span>
-          </div>
+          {data.modelGroup ? (
+            <div
+              onMouseEnter={() => rootCall("objectIn", { id: data.id })}
+              onMouseLeave={() => rootCall("objectOut")}
+              onContextMenu={(e) =>
+                rootCall("context", { e, type: "groupMenu" })
+              }
+              // title={data.description}
+              onClick={handleClick}
+              className="panningDisabled"
+              style={{
+                border: !expanded
+                  ? "5px solid #173c67"
+                  : "5px dashed rgb(56	142	142	)",
+                backgroundColor: !expanded
+                  ? usingService
+                    ? "#fef9c5 "
+                    : "#173c67"
+                  : "white",
+                color: !expanded
+                  ? usingService
+                    ? "rgb(56	142	142	)"
+                    : "white"
+                  : "rgb(56	142	142	)",
+                // borderRadius: "150px",
+                padding: "5px",
+                textAlign: "center",
+                display: "flex",
+              }}
+            >
+              {data.elements.map((element) => (
+                <div>{element.id}</div>
+              ))}
+            </div>
+          ) : (
+            <div
+              onMouseEnter={() => rootCall("objectIn", { id: data.id })}
+              onMouseLeave={() => rootCall("objectOut")}
+              onContextMenu={(e) =>
+                rootCall("context", { e, type: "groupMenu" })
+              }
+              // title={data.description}
+              onClick={handleClick}
+              className="risk-object-container panningDisabled"
+              style={{
+                border: !expanded
+                  ? "5px solid #173c67"
+                  : "5px dashed rgb(56	142	142	)",
+                backgroundColor: !expanded
+                  ? usingService
+                    ? "#fef9c5 "
+                    : "#173c67"
+                  : "white",
+                color: !expanded
+                  ? usingService
+                    ? "rgb(56	142	142	)"
+                    : "white"
+                  : "rgb(56	142	142	)",
+                borderRadius: "150px",
+                padding: "5px",
+                textAlign: "center",
+                display: "flex",
+              }}
+            >
+              <span>{data.shared && !data.mainShared ? "S" : ""}</span>
+              <span>
+                <b>{data.name}</b>
+              </span>
+              <span>
+                <b>{data.id}</b>
+              </span>
+            </div>
+          )}
         </Rnd>
       </>
     );

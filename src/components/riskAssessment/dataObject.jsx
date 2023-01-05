@@ -101,7 +101,7 @@ export const DataObject = ({
   const updateRiskObject = useCallback(async () => {
     setUsingService(true);
     let payload;
-    payload = { textType: editingValue };
+    payload = { textType: editingValue, riskAssessmentId };
 
     const response = await updateNewDataObjectInstance(data.id, payload);
     if (response.status === 200) {
@@ -243,16 +243,11 @@ export const DataObject = ({
             borderRadius: "15px",
             backgroundColor: "white",
             padding: "5px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
+            display: "flex",
               flexDirection: "column",
               justifyContent: "space-around",
-            }}
-            className="panningDisabled pinchDisabled wheelDisabled"
-          >
+          }}
+        >
             <div
               style={{ display: "flex", justifyContent: "space-between" }}
               className="panningDisabled pinchDisabled wheelDisabled"
@@ -511,10 +506,20 @@ export const DataObject = ({
                 Delete
               </Button>
             </div>
-          </div>
 
           {data.dataObjectNew.arrayName ? (
-            // <></>
+
+            <div>
+            {data.filePath ? <a
+                  className="panningDisabled pinchDisabled wheelDisabled"
+                  style={{ overflow: "auto", height: "100%" }}
+                  href={data.filePath}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {data.filePath.split("/")[data.filePath.split("/").length-1]}
+                </a>:"No Attachment"}
+                <br />
             <table
               className="bp4-html-table-bordered panningDisabled"
               style={{ textAlign: "left", paddingTop: "5px" }}
@@ -534,14 +539,15 @@ export const DataObject = ({
                     `${data.dataObjectNew?.array?.length} X ${data.dataObjectNew?.array[0].length}`}
                 </td>
               </tr>
-            </table>
+            </table></div>
           ) : (
             <div
               className="panningDisabled pinchDisabled wheelDisabled"
               style={{
                 paddingTop: "10px",
-                overflow: "auto",
+                overflow: "hidden",
                 whiteSpace: "pre-wrap",
+                
               }}
             >
               {edit ? (
@@ -560,17 +566,18 @@ export const DataObject = ({
                   className="panningDisabled pinchDisabled wheelDisabled"
                   style={{ overflow: "auto", height: "100%" }}
                   href={data.filePath}
-                  target
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   {data.filePath.split("/")[data.filePath.split("/").length-1]}
                 </a>:"No Attachment"}
                 <br />
-                <span
+                <div overflow="auto"
                   className="panningDisabled pinchDisabled wheelDisabled"
-                  style={{ overflow: "auto", height: "100%" }}
+                  style={{ overflow: "auto", height: "100%",borderTop:"2px solid grey",paddingBottom:"20px" }}
                 >
                   {viewedAttribute}
-                </span>
+                </div>
                 </>
               )}
             </div>

@@ -33,7 +33,10 @@ export const RiskElement = ({
   enviroDimension,
   groups,
   addToGroup,
-  shared
+  shared,
+  charts,
+  globalViewIndex,
+  views
 }) => {
   const [size, setSize] = useState({
     w: data["position.width"],
@@ -41,6 +44,7 @@ export const RiskElement = ({
   });
   const [groupIdState, setGroupIdState] = useState(groupId);
   const [face, setFace] = useState(true);
+  const [view, setView] = useState(views[globalViewIndex])
   const [showProperties, setShowProperties] = useState(false);
   const [editor, setEditor] = useState(false);
   const updateXarrow = useXarrow();
@@ -54,6 +58,10 @@ export const RiskElement = ({
   useEffect(() => {
     setFace(!closedFace);
   }, [closedFace]);
+
+  useEffect(() => {
+    setView(views[globalViewIndex])
+  }, [globalViewIndex,views]);
 
   // useEffect(()=>{
   //   if(!expanded){
@@ -237,15 +245,16 @@ export const RiskElement = ({
               overflow:"hidden"
             }}
           >
-            {face /*&& data['position.enabled'] */ && (
-              <OpenFace data={data} groupId={groupIdState} setFace={setFace} />
+            {(view==="open") /*&& data['position.enabled'] */ && (
+              <OpenFace charts={charts.filter(chart=>chart.riskObjectId===String(data.id))} data={data} groupId={groupIdState} setView={setView} />
             )}
-            {!face /*&& data['position.enabled']*/ && (
+            {(view==="full") /*&& data['position.enabled']*/ && (
               <ClosedFace
+
                 editRiskObject={editRiskObject}
                 data={data}
                 groupId={groupIdState}
-                setFace={setFace}
+                setView={setView}
                 setEditor={setEditor}
                 handleObjectAction={handleObjectAction}
                 setFirstContext={setFirstContext}

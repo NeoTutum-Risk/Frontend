@@ -171,26 +171,9 @@ export const Portfolios = () => {
   const addNewWindow = useCallback(
     ({ data, type }) => {
       setWindowCallBack({data, type})
-      /*
-      setWindows((prevWindows) =>
-        prevWindows.find((window) => window.data.id === data.id)
-          ? prevWindows
-          : [
-              {
-                type,
-                data,
-                id: generateID(),
-                collapse: false,
-                width: windowDefault.width,
-                height: windowDefault.height,
-                maximized: false,
-              },
-              ...prevWindows,
-            ]
-      );
-      */
+
     },
-    [setWindows, setWindowCallBack]
+    [ setWindowCallBack]
   );
 
   const onImportBpmnFile = useCallback(
@@ -1096,7 +1079,13 @@ export const Portfolios = () => {
               id:riskAssessment.id,
               label:riskAssessment.name,
               icon:"derive-column",
-              nodeData: { type:"risk assessment", data: riskAssessment }
+              nodeData: { type:"risk assessment", data: riskAssessment },
+              childNodes: riskAssessment.noteBooks?.length>0?(riskAssessment.noteBooks?.map((notebook,notebookIndex)=>({
+                id:notebook.id,
+                label:notebook.name,
+                icon:"chart",
+                nodeData: { type:"notebook", data: notebook },
+              }))):null
               
             }))??[]).concat
               (serviceChain?.platforms?.map((platform, platformIdx) => ({
@@ -1290,6 +1279,8 @@ export const Portfolios = () => {
         addNewWindow({ type: "bpmn", data: node.nodeData.data });
       }else if(node.nodeData.type === "risk assessment"){
         addNewWindow({ type: "risk", data: node.nodeData.data });
+      }else if(node.nodeData.type === "notebook"){
+        addNewWindow({ type: "notebook", data: node.nodeData.data });
       }else{
         return;
       } 

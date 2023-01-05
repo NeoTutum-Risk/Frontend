@@ -7,6 +7,7 @@ import { DataWindow } from "./windows/dataWindow";
 import { GraphWindow } from "./windows/graphWindow";
 import { FlowChartWindow } from "./windows/flowChartWindow";
 import { RiskAssessmentWindow } from "./windows/riskAssessmentWindow";
+import { NotebookWindow } from "./windows/notebookWindow";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { arrayMoveImmutable } from "array-move";
 import WindowWrapper from "../../../components/WindowWrapper";
@@ -133,6 +134,15 @@ export const Main = () => {
       )}
       {window.type === "risk" && window.collapse === false && (
         <RiskAssessmentWindow
+          key={window.id}
+          window={window}
+          onClose={() => windowCloseHandler(window.id)}
+          onCollapse={() => windowCollapseHandler(window.id)}
+          onRestore={() => windowRestoreHandler(window.id)}
+        />
+      )}
+      {window.type === "notebook" && window.collapse === false && (
+        <NotebookWindow
           key={window.id}
           window={window}
           onClose={() => windowCloseHandler(window.id)}

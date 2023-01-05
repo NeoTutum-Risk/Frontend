@@ -7,6 +7,7 @@ import { CollapsePanel } from "../../collapsePanel";
 import { windowFamily, windowsIds } from "../../../../../store/windows";
 import { useCallback } from "react";
 import { RiskAssessmentWindow } from "../riskAssessmentWindow";
+import { NotebookWindow } from "../notebookWindow";
 
 const SelectionWindow = ({ windowId }) => {
   const [window, setWindow] = useRecoilState(windowFamily(windowId));
@@ -99,6 +100,15 @@ const SelectionWindow = ({ windowId }) => {
 
       {window.type === "risk" && window.collapse === false && (
         <RiskAssessmentWindow
+          key={window.id}
+          window={window}
+          onClose={() => windowCloseHandler(window.id)}
+          onCollapse={() => windowCollapseHandler(window.id)}
+          onRestore={() => windowRestoreHandler(window.id)}
+        />
+      )}
+      {window.type === "notebook" && window.collapse === false && (
+        <NotebookWindow
           key={window.id}
           window={window}
           onClose={() => windowCloseHandler(window.id)}

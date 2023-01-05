@@ -110,8 +110,11 @@ export const updateDataObjectElement = (id, data) =>
 export const emptyDatabase = () => serviceProvider.delete("/deleteAll");
 
 export const getRiskAssessment = (id) => serviceProvider(`/riskAssessments/${id}`);
+export const getRiskAssessmentGroup = (riskAssessmenId,id) => serviceProvider(`/riskAssessments/${riskAssessmenId}/${id}`);
 
 export const addRiskObjectProperties = (id, data) => serviceProvider.put(`/riskObjectProperties/${id}`, data);
+
+export const addModelRiskObjectProperties = (id, data) => serviceProvider.put(`/riskObjectProperties/modelProperties/${id}`, data);
 
 export const getRiskAssessmentTable = (id) => serviceProvider(`/riskAssessments/table/${id}`);
 
@@ -127,6 +130,8 @@ export const updateRiskObjectPosition = (riskAssessmenId, id, data) => servicePr
 export const addRiskConnection = (data) => serviceProvider.post(`/riskConnections`, data);
 
 export const deleteRiskConnection = (id) => serviceProvider.delete(`/riskConnections/${id}`);
+
+export const editRiskConnection = (id, data) => serviceProvider.put(`/riskConnections/${id}`, data);
 
 export const deleteInstanceRiskConnection = (id) => serviceProvider.delete(`/dataObjectNewRiskObjectConnections/${id}`);
 
@@ -220,4 +225,18 @@ export const addElementToGroup = (data) => serviceProvider.put(`referenceDataObj
 export const removeElementFromGroup = (data) => serviceProvider.put(`referenceDataObjectGroups/removeObject/Group`, data);
 
 export const CloneDataObject = (data) => serviceProvider.post(`dataObjects/cloneDataObject`, data);
+
+export const getBayesianCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/bayesian/${data.riskAssessmentId}`);
+
+export const getGenericCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/generic/${data.riskAssessmentId}`);
+
+export const getAnalysispackCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/analysispack/${data.riskAssessmentId}`, data);
+
+export const addAnalysisPack = (data) => serviceProvider.post(`analytics_charts/analysis/pack`, data);
+
+export const getAnalysisPacks = () => serviceProvider.get(`analytics_charts/analysis/pack`);
+
+export const getAnalysisPacksRuns = () => serviceProvider.get(`analytics_charts/analysis/pack/runs`);
+
+export const getNoteBook = (id) => serviceProvider.get(`notebooks/${id}`);
 
