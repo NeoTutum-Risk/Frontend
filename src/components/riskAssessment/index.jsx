@@ -1,5 +1,13 @@
 import Xarrow, { useXarrow, xarrowPropsType, Xwrapper } from "react-xarrows";
-import { Button, TextArea, Menu, MenuItem, HTMLSelect, FormGroup, Intent } from "@blueprintjs/core";
+import {
+  Button,
+  TextArea,
+  Menu,
+  MenuItem,
+  HTMLSelect,
+  FormGroup,
+  Intent,
+} from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
@@ -9,13 +17,17 @@ import { objectSelectorState } from "../../store/objectSelector";
 import { useRecoilState } from "recoil";
 import { DataObject } from "./dataObject";
 import React, { useEffect } from "react";
-import {protfoliosState,} from "../../store/portfolios";
+import { protfoliosState } from "../../store/portfolios";
+import { VisualObject } from "./visualObject";
 import {
   getPortfolios,
   getRiskAssessmentWindowSettings,
   updateRiskAssessmentWindowSettings,
 } from "../../services";
+import { ChartObject } from "./chartObject";
 export const RiskAssessment = ({
+  analyticsCharts,
+  visualObjects,
   globalViewIndex,
   views,
   charts,
@@ -50,17 +62,16 @@ export const RiskAssessment = ({
   connectionForm,
   openedGroup,
   handleOpenedGroup,
-  openedGroupConnections
+  openedGroupConnections,
 }) => {
-  
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
     width: 50000,
   });
   const transformWrapperRef = useRef(null);
-  const [loadingAnalytics,setLoadingAnalytics] = useState(false);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [portfolios, setPortfolios] = useRecoilState(protfoliosState);
-  const [isOpenAnalysisMenuSelect,setOpenAnalysisMenuSelect] = useState(false);
+  const [isOpenAnalysisMenuSelect, setOpenAnalysisMenuSelect] = useState(false);
 
   const [objectPropertyConnections, setObjectPropertyConnections] = useState(
     []
@@ -157,44 +168,50 @@ export const RiskAssessment = ({
     [setSelectedElements, setSelectedObjects]
   );
 
-
-  const updateAnalytics = useCallback(async (chartsType, data = {})=>{
-    setOpenAnalysisMenuSelect(false)
-    setLoadingAnalytics(true);
-    const response = await getAnalytics(chartsType, data);
-    const newNotebookPath = response.data.data.newNotebookPath
-    if(response){
-      setPortfolios((prevPortfolios) => ({
-        ...prevPortfolios,
-        data: prevPortfolios.data.map((portfolio) =>
-          portfolio.id === newNotebookPath[0]
-            ? {
-                ...portfolio,
-                serviceChains:
-                  portfolio?.serviceChains.map((serviceChain) =>
-                  newNotebookPath[1] === serviceChain.id
-                      ? {
-                          ...serviceChain,
-                          riskAssessments: serviceChain?.riskAssessments.map((riskassessment) =>
-                          riskassessment.id === newNotebookPath[2]
-                              ? {
-                                  ...riskassessment,
-                                  noteBooks: riskassessment.noteBooks
-                                    ? [response.data.data.newNotebook, ...riskassessment.noteBooks]
-                                    : [response.data.data.newNotebook],
-                                }
-                              : riskassessment
-                          ),
-                        }
-                      : serviceChain
-                  ) ?? [],
-              }
-            : portfolio
-        ),
-      }));
-    }
-    setLoadingAnalytics(false);
-  },[getAnalytics])
+  const updateAnalytics = useCallback(
+    async (chartsType, data = {}) => {
+      setOpenAnalysisMenuSelect(false);
+      setLoadingAnalytics(true);
+      const response = await getAnalytics(chartsType, data);
+      const newNotebookPath = response.data.data.newNotebookPath;
+      if (response) {
+        setPortfolios((prevPortfolios) => ({
+          ...prevPortfolios,
+          data: prevPortfolios.data.map((portfolio) =>
+            portfolio.id === newNotebookPath[0]
+              ? {
+                  ...portfolio,
+                  serviceChains:
+                    portfolio?.serviceChains.map((serviceChain) =>
+                      newNotebookPath[1] === serviceChain.id
+                        ? {
+                            ...serviceChain,
+                            riskAssessments: serviceChain?.riskAssessments.map(
+                              (riskassessment) =>
+                                riskassessment.id === newNotebookPath[2]
+                                  ? {
+                                      ...riskassessment,
+                                      noteBooks: riskassessment.noteBooks
+                                        ? [
+                                            response.data.data.newNotebook,
+                                            ...riskassessment.noteBooks,
+                                          ]
+                                        : [response.data.data.newNotebook],
+                                    }
+                                  : riskassessment
+                            ),
+                          }
+                        : serviceChain
+                    ) ?? [],
+                }
+              : portfolio
+          ),
+        }));
+      }
+      setLoadingAnalytics(false);
+    },
+    [getAnalytics]
+  );
 
   // (() => {
 
@@ -360,36 +377,43 @@ export const RiskAssessment = ({
                           text="Analysis Packs"
                           // onClick={() => updateAnalytics('analysispack')}
                         >
-                        {
-                          analysisPacks.map(({name: packName, metaDataIdentifierId}) => (
-                            <MenuItem
-                              icon="derive-column"
-                              text={packName}
-                              
-                            >
-                              <HTMLSelect onClick={(e) => {
-                                (e.target.value) !== 'Select Property' && updateAnalytics('analysispack', { name: packName, metaDataIdentifierId, property: e.target.value })
-                              }}>
-                                <option selected disabled>
-                                  Select Property
-                                </option>
-                                {metaDataList ? (
-                                  metaDataList.map((data) => {
-                                    const mainLevel = [
-                                      <option disabled>MDL1 - {data.name}</option>,
-                                      ...data.metaDataLevel2s.map((l2) => (
-                                        <option value={l2.id}>{l2.name}</option>
-                                      )),
-                                    ];
-                                    return mainLevel;
-                                  })
-                                ) : (
-                                  <option>Loading Data</option>
-                                )}
-                              </HTMLSelect>
-                            </MenuItem>
-                          ))
-                        }
+                          {analysisPacks.map(
+                            ({ name: packName, metaDataIdentifierId }) => (
+                              <MenuItem icon="derive-column" text={packName}>
+                                <HTMLSelect
+                                  onClick={(e) => {
+                                    e.target.value !== "Select Property" &&
+                                      updateAnalytics("analysispack", {
+                                        name: packName,
+                                        metaDataIdentifierId,
+                                        property: e.target.value,
+                                      });
+                                  }}
+                                >
+                                  <option selected disabled>
+                                    Select Property
+                                  </option>
+                                  {metaDataList ? (
+                                    metaDataList.map((data) => {
+                                      const mainLevel = [
+                                        <option disabled>
+                                          MDL1 - {data.name}
+                                        </option>,
+                                        ...data.metaDataLevel2s.map((l2) => (
+                                          <option value={l2.id}>
+                                            {l2.name}
+                                          </option>
+                                        )),
+                                      ];
+                                      return mainLevel;
+                                    })
+                                  ) : (
+                                    <option>Loading Data</option>
+                                  )}
+                                </HTMLSelect>
+                              </MenuItem>
+                            )
+                          )}
                         </MenuItem>
                       </>
                     </Menu>
@@ -400,7 +424,9 @@ export const RiskAssessment = ({
                     fill={false}
                     icon="refresh"
                     loading={loadingAnalytics}
-                    onClick={() => setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)}
+                    onClick={() =>
+                      setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)
+                    }
                   />
                 </Popover2>
                 {openedGroup && (
@@ -574,6 +600,27 @@ export const RiskAssessment = ({
                           )
                       )
                     : null}
+
+                  {visualObjects.length > 0 &&
+                    visualObjects.map((obj) => (
+                      <VisualObject
+                        handleContextMenu={handleContextMenu}
+                        setFirstContext={setFirstContext}
+                        data={obj}
+                        scale={globalScale}
+                        enviroDimension={enviroDimension}
+                      />
+                    ))}
+                    {analyticsCharts.length > 0 &&
+                    analyticsCharts.filter(chart=>chart.visible).map((obj) => (
+                      <ChartObject
+                        handleContextMenu={handleContextMenu}
+                        setFirstContext={setFirstContext}
+                        data={obj}
+                        scale={globalScale}
+                        enviroDimension={enviroDimension}
+                      />
+                    ))}
                 </div>
               </TransformComponent>
             </React.Fragment>

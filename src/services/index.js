@@ -240,3 +240,13 @@ export const getAnalysisPacksRuns = () => serviceProvider.get(`analytics_charts/
 
 export const getNoteBook = (id) => serviceProvider.get(`notebooks/${id}`);
 
+
+export const addScenario = (data) => serviceProvider.post(`senarios`, data);
+
+export const addScenarioRun = (data) => serviceProvider.post(`/senarios/runs`, data);
+
+export const addVisualObject = (data) => serviceProvider.post(`/textObjects`, data);
+
+export const editVisualObject = (id,data) => serviceProvider.put(`/textObjects/${id}`, data);
+
+export const editAnalyticsChart = (id,data) => serviceProvider.put(`/analytics_charts/${id}`, data);
