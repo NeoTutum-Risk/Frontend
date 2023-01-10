@@ -58,6 +58,8 @@ import {
   getAnalysisPacks,
   getMetaData,
   getDataObject,
+  addVisualObject,
+  editAnalyticsChart,
 } from "../../../../../services";
 import { windowDefault } from "../../../../../constants";
 import {
@@ -75,6 +77,7 @@ import {
 } from "../../../../../store/windows";
 import { generateID } from "../../../../../utils/generateID";
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
+import { data } from "vis-network";
 // import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
 // import { map, set } from "lodash";
 // import { data } from "vis-network";
@@ -87,10 +90,15 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [voFilePath, setVoFilePath] = useState(null);
+  const [voText, setVoText] = useState(null);
+  const [voName, setVoName] = useState(null);
+  const [visualObjects, setVisualObjects] = useState([]);
   const [linkProperties, setLinkProperties] = useState([]);
   const [views, setViews] = useState(["mini", "default", "open", "full"]);
   const [globalViewIndex, setGlobalViewIndex] = useState(3);
   const [charts, setCharts] = useState([]);
+  const [analyticsCharts, setAnalyticsCharts] = useState([]);
   const [notebooks, setNotebooks] = useState([]);
   const [openedGroup, setOpenedGroup] = useState(null);
   const [openedGroupConnections, setOpenedGroupConnections] = useState([]);
@@ -145,8 +153,8 @@ export const RiskAssessmentWindow = ({
   const [instanceObjectConnections, setInstanceObjectConnections] = useState(
     []
   );
-  const [linkProperty,setLinkProperty] = useState(null);
-  
+  const [linkProperty, setLinkProperty] = useState(null);
+
   const [groups, setGroups] = useState([]);
   const [importGroupId, setImportGroupId] = useState(null);
   const [importObjectId, setImportObjectId] = useState(null);
@@ -747,10 +755,17 @@ export const RiskAssessmentWindow = ({
               (l1) => l1.name === "Analytical_Node_List"
             )
           );
-          console.log("===============",linkProperties);
           setGroups(response.data.data.riskGroups);
-          setCharts(response.data.data.charts);
+          setCharts(
+            response.data.data.charts.filter((chart) => chart.riskObjectId)
+          );
+          setAnalyticsCharts(
+            response.data.data.charts
+              .filter((chart) => chart.riskObjectId === null)
+              .map((chart) => ({ ...chart, visible: false }))
+          );
           setNotebooks(response.data.data.notebooks);
+          setVisualObjects(response.data.data.textObjects);
         }
 
         setConnections(
@@ -790,6 +805,34 @@ export const RiskAssessmentWindow = ({
       setTimeout(riskAssessmentData, 1000);
     }
   }, [window.data.id, getGlobalGroups, updateViewsList, openedGroup]);
+
+  const handleVisualObjectCreation = useCallback(async () => {
+    setIsServiceLoading(true);
+    let payload = new FormData();
+    payload.append("fileUpload", voFilePath);
+    payload.append("riskAssessmentId", window.data.id);
+    payload.append("text", voText);
+    payload.append("name", voName);
+    payload.append("x", contextMenu.offsetX);
+    payload.append("y", contextMenu.offsetY);
+    const response = await addVisualObject(payload);
+    if (response.status >= 200 && response.status < 300) {
+      setVisualObjects((prev) => [...prev, response.data.data]);
+      setContextMenu({
+        active: false,
+        type: "",
+        x: 0,
+        y: 0,
+        contextX: 0,
+        contextY: 0,
+        element: null,
+      });
+    } else {
+      showDangerToaster(`Can't Create Object`);
+    }
+
+    setIsServiceLoading(false);
+  }, [window.data.id, voFilePath, voName, voText, contextMenu]);
 
   const getAnalytics = useCallback(
     async (type, data) => {
@@ -860,6 +903,44 @@ export const RiskAssessmentWindow = ({
     },
     [groups, openedGroup]
   );
+
+  const updateGenericChartVisibilty = useCallback(async(id,visible)=>{
+    const response = await editAnalyticsChart(id,{visible});
+    if(response.status<200 || response.status>300){
+      showDangerToaster(`Faild to update chart visibilty #${id}`)
+    }
+  },[])
+
+  const analyticsChartsFilter = useCallback((req, pos) => {
+    if (req === "all") {
+      analyticsCharts.forEach(chart=>updateGenericChartVisibilty(chart.id,!chart.visible))
+      setAnalyticsCharts((prev) =>
+        prev.map((chart) => ({
+          ...chart,
+          visible: !chart.visible,
+          x: chart.x === 0 ? pos.x : chart.x,
+          y: chart.y === 0 ? pos.y : chart.y,
+        }))
+      );
+    } else {
+      updateGenericChartVisibilty(req,!analyticsCharts.find(chart=>chart.id===req).visible)
+      setAnalyticsCharts((prev) =>
+        prev.map((chart) => {
+          if (chart.id === req) {
+            console.log(req, pos, chart);
+            return {
+              ...chart,
+              visible: !chart.visible,
+              x: chart.x === 0 ? pos.x : chart.x,
+              y: chart.y === 0 ? pos.y : chart.y,
+            };
+          } else {
+            return chart;
+          }
+        })
+      );
+    }
+  }, [analyticsCharts,updateGenericChartVisibilty]);
 
   const addToGroup = useCallback(
     async (type, data) => {
@@ -1254,7 +1335,7 @@ export const RiskAssessmentWindow = ({
             confidenceLevel,
             causeProperty,
             effectProperty,
-            linkProperty
+            linkProperty,
           };
 
           const response = await addRiskConnection(payload);
@@ -1276,7 +1357,7 @@ export const RiskAssessmentWindow = ({
             confidenceLevel,
             causeProperty,
             effectProperty,
-            linkProperty
+            linkProperty,
           };
 
           const response = await addInstanceConnection(payload);
@@ -1346,7 +1427,7 @@ export const RiskAssessmentWindow = ({
       confidenceLevel,
       causeProperty,
       effectProperty,
-      linkProperty
+      linkProperty,
     ]
   );
 
@@ -2421,7 +2502,7 @@ export const RiskAssessmentWindow = ({
                 confidenceLevel,
                 causeProperty,
                 effectProperty,
-                linkProperty
+                linkProperty,
               };
             } else {
               return connection;
@@ -2457,7 +2538,7 @@ export const RiskAssessmentWindow = ({
     selectedConnection,
     resetContext,
     selectedElements.length,
-    linkProperty
+    linkProperty,
   ]);
 
   return (
@@ -2492,6 +2573,8 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
+            analyticsCharts={analyticsCharts}
+            visualObjects={visualObjects}
             globalViewIndex={globalViewIndex}
             views={views}
             analysisPacks={analysisPacks}
@@ -3018,13 +3101,6 @@ export const RiskAssessmentWindow = ({
                 setContextMenu((prev) => ({ ...prev, type: "show filters" }))
               }
             >
-              {/* <MenuItem
-                intent={filter.normal ? "primary" : ""}
-                onClick={() =>
-                  setFilter((prev) => ({ ...prev, normal: !prev.normal }))
-                }
-                text="Show Visible Only"
-              /> */}
               <MenuItem
                 intent={filter.everything ? "primary" : ""}
                 onClick={() =>
@@ -3178,6 +3254,31 @@ export const RiskAssessmentWindow = ({
               </MenuItem>
               <MenuDivider />
             </MenuItem>
+            <MenuItem
+              text="Analytics Charts"
+              disabled={analyticsCharts.length === 0}
+              onClick={() =>
+                analyticsChartsFilter("all", {
+                  x: contextMenu.offsetX,
+                  y: contextMenu.offsetY,
+                })
+              }
+            >
+              {analyticsCharts.map((chart) => (
+                <MenuItem
+                  active={chart?.visible}
+                  key={`${chart.id}-${chart.name}`}
+                  text={chart.name}
+                  shouldDismissPopover={false}
+                  onClick={() =>
+                    analyticsChartsFilter(chart.id, {
+                      x: contextMenu.offsetX,
+                      y: contextMenu.offsetY,
+                    })
+                  }
+                />
+              ))}
+            </MenuItem>
             <MenuDivider />
             <MenuItem
               text="Create Virtual Risk Object"
@@ -3196,6 +3297,16 @@ export const RiskAssessmentWindow = ({
                 setContextMenu((prev) => ({
                   ...prev,
                   type: "create object",
+                }));
+              }}
+            />
+            <MenuDivider />
+            <MenuItem
+              text="Create Visual Object"
+              onClick={() => {
+                setContextMenu((prev) => ({
+                  ...prev,
+                  type: "create visual object",
                 }));
               }}
             />
@@ -3244,6 +3355,80 @@ export const RiskAssessmentWindow = ({
               }}
             />
           </Menu>
+        )}
+
+        {contextMenu.active && contextMenu.type === "create visual object" && (
+          <div
+            key="text3"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>New Visual Object</H5>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleVisualObjectCreation();
+              }}
+            >
+              <FormGroup label="Name" labelFor="von">
+                <InputGroup
+                  id="von"
+                  onChange={(event) => {
+                    setVoName(event.target.value);
+                  }}
+                />
+              </FormGroup>
+              <FormGroup label="Text" labelFor="vot">
+                <TextArea
+                  fill={true}
+                  id="vot"
+                  onChange={(event) => {
+                    setVoText(event.target.value);
+                  }}
+                />
+              </FormGroup>
+              <FormGroup label={`Image`} labelFor="imvo">
+                <FileInput
+                  fill={true}
+                  hasSelection={voFilePath}
+                  text={voFilePath?.name ? voFilePath?.name : "Choose file..."}
+                  onInputChange={(e) => {
+                    setVoFilePath(e.target.files[0]);
+                  }}
+                ></FileInput>
+              </FormGroup>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    setTemplateNameError(null);
+                    setTemplateName(null);
+                    resetContext();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
         )}
 
         {contextMenu.active && contextMenu.type === "group name" && (
@@ -3518,7 +3703,14 @@ export const RiskAssessmentWindow = ({
                       const mainLevel = [
                         <option disabled>MDL1 - {data.name}</option>,
                         ...data.metaDataLevel2s.map((l2) => (
-                          <option selected={selectedConnection?.causeProperty===l2.id} value={l2.id}>{l2.name}</option>
+                          <option
+                            selected={
+                              selectedConnection?.causeProperty === l2.id
+                            }
+                            value={l2.id}
+                          >
+                            {l2.name}
+                          </option>
                         )),
                       ];
                       return mainLevel;
@@ -3528,7 +3720,7 @@ export const RiskAssessmentWindow = ({
                   )}
                 </HTMLSelect>
               </FormGroup>
-              
+
               <FormGroup
                 label="Effect"
                 labelInfo="(required)"
@@ -3549,7 +3741,14 @@ export const RiskAssessmentWindow = ({
                       const mainLevel = [
                         <option disabled>MDL1 - {data.name}</option>,
                         ...data.metaDataLevel2s.map((l2) => (
-                          <option selected={selectedConnection?.effectProperty===l2.id} value={l2.id}>{l2.name}</option>
+                          <option
+                            selected={
+                              selectedConnection?.effectProperty === l2.id
+                            }
+                            value={l2.id}
+                          >
+                            {l2.name}
+                          </option>
                         )),
                       ];
                       return mainLevel;
@@ -3632,7 +3831,6 @@ export const RiskAssessmentWindow = ({
                     Add
                   </Button>
                 )}
-                
               </div>
               <FormGroup
                 label="Link Property"
@@ -3654,7 +3852,14 @@ export const RiskAssessmentWindow = ({
                       const mainLevel = [
                         <option disabled>MDL1 - {data.name}</option>,
                         ...data.dataObjects[0].children.map((l2) => (
-                          <option selected={selectedConnection?.linkProperty===l2.id} value={l2.id}>{l2.name}</option>
+                          <option
+                            selected={
+                              selectedConnection?.linkProperty === l2.id
+                            }
+                            value={l2.id}
+                          >
+                            {l2.name}
+                          </option>
                         )),
                       ];
                       return mainLevel;
