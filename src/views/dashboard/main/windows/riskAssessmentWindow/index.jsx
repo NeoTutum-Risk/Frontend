@@ -59,7 +59,9 @@ import {
   getMetaData,
   getDataObject,
   addVisualObject,
+  editVisualObject,
   editAnalyticsChart,
+  deleteAnalyticsChart
 } from "../../../../../services";
 import { windowDefault } from "../../../../../constants";
 import {
@@ -90,6 +92,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [selectedVisualObject, setSelectedVisualObject] = useState(null);
   const [voFilePath, setVoFilePath] = useState(null);
   const [voText, setVoText] = useState(null);
   const [voName, setVoName] = useState(null);
@@ -128,6 +131,7 @@ export const RiskAssessmentWindow = ({
   const [connectionText, setConnectionText] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState({});
   const [editConnection, setEditConnection] = useState(false);
+  const [topPosition, setTopPosition] = useState({ top: 50000, left: 50000 });
   const [selectedObjects, setSelectedObjects] =
     useRecoilState(objectSelectorState);
   const [contextMenu, setContextMenu] = useState({
@@ -173,6 +177,7 @@ export const RiskAssessmentWindow = ({
   const [modularGroup, setModularGroup] = useState(false);
   const [editGroupFlag, setEditGroupFlag] = useState(false);
   const [analysisPacks, setAnalysisPacks] = useState([]);
+
   const [filter, setFilter] = useState({
     normal: false,
     everything: false,
@@ -728,6 +733,48 @@ export const RiskAssessmentWindow = ({
   //   }
   // },[openedGroup,groups])
 
+  const getCenter = useCallback(() => {
+    let objectsArray = [...riskObjects];
+    let top = 50000;
+    let left = 50000;
+    groups.forEach((grp) => {
+      if (grp.elements.length > 1) {
+        objectsArray = [...objectsArray, ...grp.elements];
+      }
+    });
+
+    objectsArray.forEach((obj) => {
+      if (obj !== null) {
+        top = obj["position.y"] < top ? obj["position.y"] : top;
+        left = obj["position.x"] < left ? obj["position.x"] : left;
+      }
+    });
+
+    setTopPosition({ top, left });
+  }, [riskObjects, groups]);
+
+  const visualObjectEdit = useCallback((data) => {
+    console.log("in2", data);
+    // setContextMenu((prev) => ({
+    //   ...prev,
+    //   active: true,
+    //   type: "create visual object",
+    //   contextX: data.x,
+    //   contextY: data.y,
+    // }));
+    setSelectedVisualObject(data);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedVisualObject) return;
+    console.log("Ready to show");
+    setContextMenu({
+      active:true,
+      type: "create visual object",
+      contextX: Number(selectedVisualObject.x),
+      contextY: Number(selectedVisualObject.y),
+    });
+  }, [selectedVisualObject]);
   const riskAssessmentData = useCallback(async () => {
     // if(openedGroup) return;
     try {
@@ -759,10 +806,11 @@ export const RiskAssessmentWindow = ({
           setCharts(
             response.data.data.charts.filter((chart) => chart.riskObjectId)
           );
+          getCenter();
           setAnalyticsCharts(
-            response.data.data.charts
-              .filter((chart) => chart.riskObjectId === null)
-              .map((chart) => ({ ...chart, visible: false }))
+            response.data.data.charts.filter(
+              (chart) => chart.riskObjectId === null
+            )
           );
           setNotebooks(response.data.data.notebooks);
           setVisualObjects(response.data.data.textObjects);
@@ -904,43 +952,60 @@ export const RiskAssessmentWindow = ({
     [groups, openedGroup]
   );
 
-  const updateGenericChartVisibilty = useCallback(async(id,visible)=>{
-    const response = await editAnalyticsChart(id,{visible});
-    if(response.status<200 || response.status>300){
-      showDangerToaster(`Faild to update chart visibilty #${id}`)
+  const updateGenericChartVisibilty = useCallback(async (id, visible) => {
+    const response = await editAnalyticsChart(id, { visible });
+    if (response.status < 200 || response.status > 300) {
+      showDangerToaster(`Faild to update chart visibilty #${id}`);
     }
-  },[])
+  }, []);
 
-  const analyticsChartsFilter = useCallback((req, pos) => {
-    if (req === "all") {
-      analyticsCharts.forEach(chart=>updateGenericChartVisibilty(chart.id,!chart.visible))
-      setAnalyticsCharts((prev) =>
-        prev.map((chart) => ({
-          ...chart,
-          visible: !chart.visible,
-          x: chart.x === 0 ? pos.x : chart.x,
-          y: chart.y === 0 ? pos.y : chart.y,
-        }))
-      );
-    } else {
-      updateGenericChartVisibilty(req,!analyticsCharts.find(chart=>chart.id===req).visible)
-      setAnalyticsCharts((prev) =>
-        prev.map((chart) => {
-          if (chart.id === req) {
-            console.log(req, pos, chart);
-            return {
-              ...chart,
-              visible: !chart.visible,
-              x: chart.x === 0 ? pos.x : chart.x,
-              y: chart.y === 0 ? pos.y : chart.y,
-            };
-          } else {
-            return chart;
-          }
-        })
-      );
+  const analyticsChartsDelete = useCallback(async (id)=>{
+    const response = await deleteAnalyticsChart(id);
+    if(response.status>=200 && response.status<300){
+      analyticsCharts.filter(chart=>chart.id!==id)
+    }else{
+      showDangerToaster(`Faild Deleteing Chart #${id}`)
     }
-  }, [analyticsCharts,updateGenericChartVisibilty]);
+  },[analyticsCharts])
+
+  const analyticsChartsFilter = useCallback(
+    (req, pos) => {
+      if (req === "all") {
+        analyticsCharts.forEach((chart) =>
+          updateGenericChartVisibilty(chart.id, true)
+        );
+        setAnalyticsCharts((prev) =>
+          prev.map((chart) => ({
+            ...chart,
+            visible: true,
+            x: chart.x === 0 ? pos.x : chart.x,
+            y: chart.y === 0 ? pos.y : chart.y,
+          }))
+        );
+      } else {
+        updateGenericChartVisibilty(
+          req,
+          !analyticsCharts.find((chart) => chart.id === req).visible
+        );
+        setAnalyticsCharts((prev) =>
+          prev.map((chart) => {
+            if (chart.id === req) {
+              console.log(req, pos, chart);
+              return {
+                ...chart,
+                visible: !chart.visible,
+                x: chart.x === 0 ? pos.x : chart.x,
+                y: chart.y === 0 ? pos.y : chart.y,
+              };
+            } else {
+              return chart;
+            }
+          })
+        );
+      }
+    },
+    [analyticsCharts, updateGenericChartVisibilty]
+  );
 
   const addToGroup = useCallback(
     async (type, data) => {
@@ -2541,6 +2606,34 @@ export const RiskAssessmentWindow = ({
     linkProperty,
   ]);
 
+  const handleVOEdit = useCallback(async(id,data)=>{
+
+    let processCase = false;
+    let payload = new FormData();
+    if(data.objectText){
+      payload.append("text", data.objectText);
+    }
+
+    if(data.objectFont){
+      payload.append("font", data.objectFont);
+    }
+
+    if(data.objectFile){
+      payload.append("fileUpload", data.objectFile);
+    }
+
+    const response = await editVisualObject(id,payload);
+    if (response.status >= 200 && response.status < 300) {
+      setVisualObjects((prev) => prev.map(obj=>obj.id===data.id?response.data.data:obj));
+      processCase = true;
+    } else {
+      showDangerToaster(`Can't Edit Object`);
+    }
+
+    setIsServiceLoading(false);
+    return processCase;
+  },[])
+
   return (
     <>
       <Window
@@ -2573,6 +2666,10 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
+          handleVOEdit={handleVOEdit}
+            visualObjectEdit={visualObjectEdit}
+            analyticsChartsFilter={analyticsChartsFilter}
+            analyticsChartsDelete={analyticsChartsDelete}
             analyticsCharts={analyticsCharts}
             visualObjects={visualObjects}
             globalViewIndex={globalViewIndex}
@@ -3255,16 +3352,17 @@ export const RiskAssessmentWindow = ({
               <MenuDivider />
             </MenuItem>
             <MenuItem
-              text="Analytics Charts"
+              text="Show All Analytics Charts"
               disabled={analyticsCharts.length === 0}
-              onClick={() =>
+              onClick={() => {
                 analyticsChartsFilter("all", {
                   x: contextMenu.offsetX,
                   y: contextMenu.offsetY,
-                })
-              }
+                });
+                resetContext();
+              }}
             >
-              {analyticsCharts.map((chart) => (
+              {/* {analyticsCharts.map((chart) => (
                 <MenuItem
                   active={chart?.visible}
                   key={`${chart.id}-${chart.name}`}
@@ -3277,7 +3375,7 @@ export const RiskAssessmentWindow = ({
                     })
                   }
                 />
-              ))}
+              ))} */}
             </MenuItem>
             <MenuDivider />
             <MenuItem

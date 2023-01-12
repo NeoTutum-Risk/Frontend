@@ -26,6 +26,9 @@ import {
 } from "../../services";
 import { ChartObject } from "./chartObject";
 export const RiskAssessment = ({
+  visualObjectEdit,
+  analyticsChartsFilter,
+  analyticsChartsDelete,
   analyticsCharts,
   visualObjects,
   globalViewIndex,
@@ -63,6 +66,7 @@ export const RiskAssessment = ({
   openedGroup,
   handleOpenedGroup,
   openedGroupConnections,
+  handleVOEdit
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
@@ -101,7 +105,7 @@ export const RiskAssessment = ({
       }
     });
 
-    return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top };
+    return { x: (right - left) / 2 + left, y: (bottom - top) / 2 + top, top,left };
   }, [enviroDimension, objects, groups]);
   const [raSettings, setRASettings] = useState({
     id: 0,
@@ -609,16 +613,25 @@ export const RiskAssessment = ({
                         data={obj}
                         scale={globalScale}
                         enviroDimension={enviroDimension}
+                        key={`vo--${obj.id}`}
+                        visualObjectEdit={visualObjectEdit}
+                        setHoveredElement={setHoveredElement}
+                        handleVOEdit={handleVOEdit}
                       />
                     ))}
                     {analyticsCharts.length > 0 &&
-                    analyticsCharts.filter(chart=>chart.visible).map((obj) => (
+                    analyticsCharts.filter(chart=>chart.visible).map((obj,index) => (
                       <ChartObject
+                      key={`co--${obj.id}`}
+                      analyticsChartsFilter={analyticsChartsFilter}
+                      analyticsChartsDelete={analyticsChartsDelete}
                         handleContextMenu={handleContextMenu}
                         setFirstContext={setFirstContext}
                         data={obj}
                         scale={globalScale}
                         enviroDimension={enviroDimension}
+                        offset={getCenter()}
+                        index={index}
                       />
                     ))}
                 </div>
