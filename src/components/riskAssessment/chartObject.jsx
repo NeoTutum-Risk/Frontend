@@ -18,7 +18,8 @@ export const ChartObject = ({
   analyticsChartsFilter,
   analyticsChartsDelete,
   offset,
-  index
+  index,
+  setHoveredElement
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
@@ -32,8 +33,8 @@ export const ChartObject = ({
   
   const [drag, setDrag] = useState({
     active: false,
-    cy: data.y >= 0 ? data.y : offset.top-270,
-    cx: data.x >= 0 ? data.x : offset.left-(270*index),
+    cy: data.y !== 0 ? data.y : offset.top-270,
+    cx: data.x !== 0 ? data.x : offset.left+(270*index),
     offset: {},
   });
 
@@ -126,10 +127,10 @@ export const ChartObject = ({
         ))} */}
 
         <Rnd
-          id={`ac-${data.modelGroup ? "M" : ""}${riskAssessmentId}-${
+          id={`ac-${data.id ? "M" : ""}-${
             data.id
           }`}
-          key={`ac-${riskAssessmentId}-${data.id}`}
+          key={`ac--${data.id}`}
           default={{
             x: drag.cx,
             y: drag.cy,
@@ -159,12 +160,12 @@ export const ChartObject = ({
 
             <div
               onMouseLeave={() => setFirstContext("main")}
-              onMouseEnter={() => setFirstContext("visualObject")}
+              onMouseEnter={() => {setHoveredElement(data);setFirstContext("visualObject")}}
               onContextMenu={(e) => {
                 e.preventDefault();
                 handleContextMenu(e, data);
               }}
-              // onClick={handleClick}
+              
               className="risk-object-container panningDisabled"
               style={{
                 border: "2px solid #173c67",
