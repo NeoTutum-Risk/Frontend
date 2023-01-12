@@ -254,3 +254,4 @@ export const deleteVisualObject = (id) =>serviceProvider.delete(`/textObjects/${
 export const editAnalyticsChart = (id,data) => serviceProvider.put(`/analytics_charts/${id}`, data);
 
 export const deleteAnalyticsChart = (id) =>serviceProvider.delete(`/analytics_charts/${id}`);
+
