@@ -62,7 +62,7 @@ import {
   editVisualObject,
   deleteVisualObject,
   editAnalyticsChart,
-  deleteAnalyticsChart
+  deleteAnalyticsChart,
 } from "../../../../../services";
 import { windowDefault } from "../../../../../constants";
 import {
@@ -81,6 +81,7 @@ import {
 import { generateID } from "../../../../../utils/generateID";
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
 import { data } from "vis-network";
+import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
 // import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
 // import { map, set } from "lodash";
 // import { data } from "vis-network";
@@ -1682,6 +1683,14 @@ export const RiskAssessmentWindow = ({
           type = "object";
           setFirstContext("object");
         }
+      }else if (firstContext === "visualObject") {
+        type = "visualObject";
+          setFirstContext("visualObject");
+          // element=
+      }else if (firstContext === "chartObject") {
+        type = "chartObject";
+          setFirstContext("chartObject");
+          // element=
       }
       element = id
         ? Number(id)
@@ -2639,7 +2648,7 @@ export const RiskAssessmentWindow = ({
     let processCase =false;
     const response = await deleteVisualObject(id);
     if (response.status >= 200 && response.status < 300) {
-      setVisualObjects((prev) => prev.filter(obj=>obj.id!==data.id));
+      setVisualObjects((prev) => prev.filter(obj=>obj.id!==id));
       processCase = true;
     } else {
       showDangerToaster(`Can't Delete Object`);
@@ -2647,6 +2656,56 @@ export const RiskAssessmentWindow = ({
 
     setIsServiceLoading(false);
     return processCase;
+  },[])
+
+  const zIndexing = useCallback(async (type,action)=>{
+    let currentIndex =10;
+    let response;
+    if(!hoveredElement) return
+    if(hoveredElement.zIndex){
+      currentIndex=hoveredElement.zIndex;
+    }
+    switch (action) {
+      case "backward":
+        currentIndex-=1;
+        break;
+        case "toBack":
+          currentIndex=1;
+        break;
+        case "forward":
+          currentIndex+=1;
+        break;
+        case "toFront":
+          currentIndex=100;
+        break;
+    
+      default:
+        break;
+    }
+    switch (type) {
+      case "ro":
+         response = await updateRiskObject(hoveredElement.id,{zIndex:currentIndex});
+        break;
+        case "do":
+         response = await updateNewDataObjectInstance(hoveredElement.id,{zIndex:currentIndex});
+        break;
+        case "vo":
+         response = await editVisualObject(hoveredElement.id,{zIndex:currentIndex});
+        break;
+
+        case "co":
+         response = await editAnalyticsChart(hoveredElement.id,{zIndex:currentIndex});
+        break;
+    
+      default:
+        break;
+    }
+
+    if(response.status>=200 && response <300){
+      getRiskAssessment()
+    }else{
+      showDangerToaster(`Faild To Update`);
+    }
   },[])
 
   
@@ -2742,6 +2801,27 @@ export const RiskAssessmentWindow = ({
             {elementEnable ? menu : null}
 
             <MenuDivider />
+            <MenuItem
+              text="Backward"
+              onClick={() =>{zIndexing("ro","backward")}
+              }
+            />
+            <MenuItem
+              text="Send To Back"
+              onClick={() =>{zIndexing("ro","toBack")}
+              }
+            />
+            <MenuItem
+              text="Forward"
+              onClick={() =>{zIndexing("ro","forward")}
+              }
+            />
+            <MenuItem
+              text="Send To Front"
+              onClick={() =>{zIndexing("ro","toFront")}
+              }
+            />
+          <MenuDivider />
             <MenuItem text="Edit" onClick={updateElementData} />
             {elementEnable ? (
               <>
@@ -2759,6 +2839,77 @@ export const RiskAssessmentWindow = ({
               text="Attach"
               onClick={() =>
                 setContextMenu((prev) => ({ ...prev, type: "uploadDO" }))
+              }
+            />
+            <MenuDivider />
+            <MenuItem
+              text="Backward"
+              onClick={() =>{zIndexing("do","backward")}
+              }
+            />
+            <MenuItem
+              text="Send To Back"
+              onClick={() =>{zIndexing("do","toBack")}
+              }
+            />
+            <MenuItem
+              text="Forward"
+              onClick={() =>{zIndexing("do","forward")}
+              }
+            />
+            <MenuItem
+              text="Send To Front"
+              onClick={() =>{zIndexing("do","toFront")}
+              }
+            />
+          </Menu>
+        )}
+
+{contextMenu.active && contextMenu.type === "contextCO" && (
+          <Menu className={` ${Classes.ELEVATION_1}`}>
+            <MenuItem
+              text="Backward"
+              onClick={() =>{zIndexing("co","backward")}
+              }
+            />
+            <MenuItem
+              text="Send To Back"
+              onClick={() =>{zIndexing("co","toBack")}
+              }
+            />
+            <MenuItem
+              text="Forward"
+              onClick={() =>{zIndexing("co","forward")}
+              }
+            />
+            <MenuItem
+              text="Send To Front"
+              onClick={() =>{zIndexing("co","toFront")}
+              }
+            />
+          </Menu>
+        )}
+
+{contextMenu.active && contextMenu.type === "visualObject" && (
+          <Menu className={` ${Classes.ELEVATION_1}`}>
+            <MenuItem
+              text="Backward"
+              onClick={() =>{zIndexing("vo","backward")}
+              }
+            />
+            <MenuItem
+              text="Send To Back"
+              onClick={() =>{zIndexing("vo","toBack")}
+              }
+            />
+            <MenuItem
+              text="Forward"
+              onClick={() =>{zIndexing("vo","forward")}
+              }
+            />
+            <MenuItem
+              text="Send To Front"
+              onClick={() =>{zIndexing("vo","toFront")}
               }
             />
           </Menu>

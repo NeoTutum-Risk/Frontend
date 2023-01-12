@@ -629,6 +629,7 @@ export const RiskAssessment = ({
                       analyticsChartsDelete={analyticsChartsDelete}
                         handleContextMenu={handleContextMenu}
                         setFirstContext={setFirstContext}
+                        setHoveredElement={setHoveredElement}
                         data={obj}
                         scale={globalScale}
                         enviroDimension={enviroDimension}
