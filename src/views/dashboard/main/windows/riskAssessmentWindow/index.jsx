@@ -60,6 +60,7 @@ import {
   getDataObject,
   addVisualObject,
   editVisualObject,
+  deleteVisualObject,
   editAnalyticsChart,
   deleteAnalyticsChart
 } from "../../../../../services";
@@ -2634,6 +2635,22 @@ export const RiskAssessmentWindow = ({
     return processCase;
   },[])
 
+  const handleVODelete = useCallback(async(id)=>{
+    let processCase =false;
+    const response = await deleteVisualObject(id);
+    if (response.status >= 200 && response.status < 300) {
+      setVisualObjects((prev) => prev.filter(obj=>obj.id!==data.id));
+      processCase = true;
+    } else {
+      showDangerToaster(`Can't Delete Object`);
+    }
+
+    setIsServiceLoading(false);
+    return processCase;
+  },[])
+
+  
+
   return (
     <>
       <Window
@@ -2667,6 +2684,7 @@ export const RiskAssessmentWindow = ({
         {dataLoaded && (
           <RiskAssessment
           handleVOEdit={handleVOEdit}
+          handleVODelete={handleVODelete}
             visualObjectEdit={visualObjectEdit}
             analyticsChartsFilter={analyticsChartsFilter}
             analyticsChartsDelete={analyticsChartsDelete}

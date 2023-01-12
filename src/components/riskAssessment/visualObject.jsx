@@ -27,6 +27,7 @@ export const VisualObject = ({
   handleContextMenu,
   setHoveredElement,
   handleVOEdit,
+  handleVODelete
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
@@ -93,6 +94,15 @@ export const VisualObject = ({
     }
     setIsServiceLoading(false);
   }, [data.id, objectFont, objectText, objectFile, handleVOEdit]);
+
+  const handleDelete = useCallback(async () => {
+    setIsServiceLoading(true);
+    const response = await handleVODelete(data.id);
+    if (response) {
+      setEdit(false);
+    }
+    setIsServiceLoading(false);
+  }, [data.id,handleVODelete]);
 
   const updateSize = useCallback(
     async (delta, direction, position) => {
@@ -248,7 +258,7 @@ export const VisualObject = ({
                 onClick={handleClick}
               />
             ))}
-          {edit && (
+          {edit && data.text && (
             <FormGroup
               className="panningDisabled pinchDisabled wheelDisabled "
               style={{ padding: "5px" }}
@@ -298,6 +308,14 @@ export const VisualObject = ({
                 onClick={handleEdit}
                 loading={isServiceLoading}
                 intent="Success"
+              >
+                Add
+              </Button>
+              <Button
+                // type="submit"
+                onClick={handleDelete}
+                loading={isServiceLoading}
+                intent="Danger"
               >
                 Add
               </Button>
