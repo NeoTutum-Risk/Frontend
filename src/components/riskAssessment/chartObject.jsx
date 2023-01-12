@@ -14,10 +14,15 @@ export const ChartObject = ({
   riskAssessmentId,
   scale,
   setFirstContext,
-  handleContextMenu
+  handleContextMenu,
+  analyticsChartsFilter,
+  analyticsChartsDelete,
+  offset,
+  index
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
+  console.log("obj")
   const [isServiceLoading, setIsServiceLoading] = useState(false);
 
   const [size, setSize] = useState({
@@ -27,8 +32,8 @@ export const ChartObject = ({
   
   const [drag, setDrag] = useState({
     active: false,
-    cy: data.y >= 0 ? data.y : 0,
-    cx: data.x >= 0 ? data.x : 0,
+    cy: data.y >= 0 ? data.y : offset.top-270,
+    cx: data.x >= 0 ? data.x : offset.left-(270*index),
     offset: {},
   });
 
@@ -171,6 +176,11 @@ export const ChartObject = ({
                 flexDirection:"column"
               }}
             >
+              <ButtonGroup>
+              <Button text="Hide" intent="Warning" onClick={()=>analyticsChartsFilter(data.id,false)} />
+              <Button text="Delete" intent="Danger" onClick={()=>analyticsChartsDelete(data.id)} />
+              </ButtonGroup>
+              
               <img
               style={{ width: "100%", height: "auto", marginTop: "5px",overflow:"auto" }}
               src={`data:image/svg+xml;utf8,${encodeURIComponent(
