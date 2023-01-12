@@ -317,7 +317,7 @@ export const VisualObject = ({
                 loading={isServiceLoading}
                 intent="Danger"
               >
-                Add
+                Delete
               </Button>
             </div>
           )}
