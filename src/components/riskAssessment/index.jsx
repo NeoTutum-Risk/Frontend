@@ -67,7 +67,8 @@ export const RiskAssessment = ({
   handleOpenedGroup,
   openedGroupConnections,
   handleVOEdit,
-  handleVODelete
+  handleVODelete,
+  handleRefresh
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
@@ -324,6 +325,7 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="plus"
+                  title="Zoom In"
                   onClick={(e) => {
                     zoomIn();
                     setGlobalScale((prev) => (prev += 0.2));
@@ -333,6 +335,7 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="minus"
+                  title="Zoom Out"
                   onClick={() => {
                     zoomOut();
                     setGlobalScale((prev) => (prev -= 0.2));
@@ -341,6 +344,7 @@ export const RiskAssessment = ({
                 <Button
                   small={true}
                   fill={false}
+                  title="Reset View"
                   icon="reset"
                   onClick={() => {
                     setTransform(
@@ -427,13 +431,24 @@ export const RiskAssessment = ({
                   <Button
                     small={true}
                     fill={false}
-                    icon="refresh"
+                    title="Run Analytics"
+                    icon="function"
                     loading={loadingAnalytics}
                     onClick={() =>
                       setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)
                     }
                   />
                 </Popover2>
+                <Button
+                    small={true}
+                    fill={false}
+                    title="Refresh"
+                    icon="refresh"
+                    // loading={loadingAnalytics}
+                    onClick={() =>
+                      handleRefresh()
+                    }
+                  />
                 {openedGroup && (
                   <Button
                     intent="DANGER"
