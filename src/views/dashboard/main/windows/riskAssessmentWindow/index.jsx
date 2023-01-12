@@ -2702,13 +2702,15 @@ export const RiskAssessmentWindow = ({
     }
 
     if(response.status>=200 && response <300){
-      getRiskAssessment()
+      riskAssessmentData();
     }else{
       showDangerToaster(`Faild To Update`);
     }
-  },[])
+  },[hoveredElement])
 
-  
+  const handleRefresh = useCallback(()=>{
+    riskAssessmentData();
+  },[riskAssessmentData])
 
   return (
     <>
@@ -2742,6 +2744,7 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
+          handleRefresh={handleRefresh}
           handleVOEdit={handleVOEdit}
           handleVODelete={handleVODelete}
             visualObjectEdit={visualObjectEdit}
