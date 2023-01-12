@@ -27,6 +27,7 @@ export const VisualObject = ({
   handleContextMenu,
   setHoveredElement,
   handleVOEdit,
+  handleVODelete,
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
@@ -93,6 +94,15 @@ export const VisualObject = ({
     }
     setIsServiceLoading(false);
   }, [data.id, objectFont, objectText, objectFile, handleVOEdit]);
+
+  const handleDelete = useCallback(async () => {
+    setIsServiceLoading(true);
+    const response = await handleVODelete(data.id);
+    if (response) {
+      setEdit(false);
+    }
+    setIsServiceLoading(false);
+  }, [data.id, handleVODelete]);
 
   const updateSize = useCallback(
     async (delta, direction, position) => {
@@ -194,7 +204,7 @@ export const VisualObject = ({
             textAlign: "center",
             display: "flex",
             flexDirection: "column",
-            overflow:edit?"scroll":""
+            overflow: edit ? "auto" : "",
           }}
         >
           {data.text && edit ? (
@@ -208,14 +218,16 @@ export const VisualObject = ({
                 fill={true}
                 id="vot"
                 defaultValue={objectText}
-                style={{ fontSize:`${objectFont}px`}}
+                style={{ fontSize: `${objectFont}px` }}
                 onChange={(event) => {
                   setObjectText(event.target.value);
                 }}
               />
             </FormGroup>
           ) : (
-            <p style={{ fontSize:`${objectFont}px`}} onClick={handleClick}>{objectText}</p>
+            <p style={{ fontSize: `${objectFont}px` }} onClick={handleClick}>
+              {objectText}
+            </p>
           )}
           {data.filePath &&
             (edit ? (
@@ -235,20 +247,30 @@ export const VisualObject = ({
                 ></FileInput>
               </FormGroup>
             ) : (
-              <img
+              <div
                 className="panningDisabled pinchDisabled wheelDisabled "
                 style={{
-                  width: "100%",
-                  height: "auto",
-                  marginTop: "5px",
+                  // width: "100%",
+                  // height: "auto",
+                  // marginTop: "5px",
                   overflow: "auto",
                 }}
-                src={data.filePath}
-                alt="Error Rendering Chart"
                 onClick={handleClick}
-              />
+              >
+                <img
+                  className="panningDisabled pinchDisabled wheelDisabled "
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    marginTop: "5px",
+                    overflow: "auto",
+                  }}
+                  src={data.filePath}
+                  alt="Error Rendering Chart"
+                />
+              </div>
             ))}
-          {edit && (
+          {edit && data.text && (
             <FormGroup
               className="panningDisabled pinchDisabled wheelDisabled "
               style={{ padding: "5px" }}
@@ -264,7 +286,7 @@ export const VisualObject = ({
                 id="vof"
                 defaultValue={objectFont}
                 onValueChange={(event) => {
-                  console.log(event)
+                  console.log(event);
                   setObjectFont(event);
                 }}
               />
@@ -300,6 +322,14 @@ export const VisualObject = ({
                 intent="Success"
               >
                 Add
+              </Button>
+              <Button
+                // type="submit"
+                onClick={handleDelete}
+                loading={isServiceLoading}
+                intent="Danger"
+              >
+                Delete
               </Button>
             </div>
           )}

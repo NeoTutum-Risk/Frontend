@@ -66,7 +66,8 @@ export const RiskAssessment = ({
   openedGroup,
   handleOpenedGroup,
   openedGroupConnections,
-  handleVOEdit
+  handleVOEdit,
+  handleVODelete
 }) => {
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
@@ -617,6 +618,7 @@ export const RiskAssessment = ({
                         visualObjectEdit={visualObjectEdit}
                         setHoveredElement={setHoveredElement}
                         handleVOEdit={handleVOEdit}
+                        handleVODelete={handleVODelete}
                       />
                     ))}
                     {analyticsCharts.length > 0 &&
