@@ -811,7 +811,7 @@ export const RiskAssessmentWindow = ({
           getCenter();
           setAnalyticsCharts(
             response.data.data.charts.filter(
-              (chart) => chart.riskObjectId === null
+              (chart) => (chart.riskObjectId === null && chart.status!=="deleted")
             )
           );
           setNotebooks(response.data.data.notebooks);
