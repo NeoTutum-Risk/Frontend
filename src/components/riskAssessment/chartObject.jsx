@@ -156,6 +156,7 @@ export const ChartObject = ({
             updateSize(delta, direction, position);
           }}
           scale={scale}
+          style={{zIndex: data.zIndex | 4}}
         >
 
             <div

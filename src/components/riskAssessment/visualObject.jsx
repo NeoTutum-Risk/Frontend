@@ -184,6 +184,7 @@ export const VisualObject = ({
           updateSize(delta, direction, position);
         }}
         scale={scale}
+        style={{zIndex: data.zIndex | 5}}
       >
         <div
           onMouseLeave={() => setFirstContext("main")}
@@ -204,7 +205,7 @@ export const VisualObject = ({
             textAlign: "center",
             display: "flex",
             flexDirection: "column",
-            overflow: edit ? "auto" : "",
+            overflow: edit ? "auto" : ""
           }}
         >
           {data.text && edit ? (
