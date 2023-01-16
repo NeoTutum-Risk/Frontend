@@ -208,13 +208,14 @@ export const RiskElement = ({
         }}
         scale={scale}
         onDragStop={(e, d) => updateLocation(e, d)}
-        style={showProperties && expanded ? { zIndex: 1 } : {}}
+        style={{ zIndex:expanded ? data["position.zIndex"] | 1 : showProperties ? 100:1 }}
+        
       >
         {expanded ? (
           <div
             onMouseLeave={() => {
               setFirstContext("main");
-              setHoveredElement(null);
+              // setHoveredElement(null);
             }}
             onMouseEnter={() => {
               setFirstContext("element");
@@ -242,7 +243,8 @@ export const RiskElement = ({
               borderRadius: "15px",
               backgroundColor: "white",
               padding: "5px",
-              overflow:"hidden"
+              overflow:"hidden",
+              zIndex: data.zIndex | 2
             }}
           >
             {(view==="open") /*&& data['position.enabled'] */ && (

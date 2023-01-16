@@ -213,12 +213,13 @@ export const DataObject = ({
       }}
       scale={scale}
       onDragStop={(e, d) => updateLocation(e, d)}
+      style={{zIndex: data.zIndex | 3}}
     >
       {expanded ? (
         <div
           onMouseLeave={() => {
             setFirstContext("main");
-            setHoveredElement(null);
+            // setHoveredElement(null);
           }}
           onMouseEnter={() => {
             setFirstContext("DO");

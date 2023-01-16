@@ -177,10 +177,11 @@ export const RiskAssessment = ({
   const updateAnalytics = useCallback(
     async (chartsType, data = {}) => {
       setOpenAnalysisMenuSelect(false);
+      console.log('true here');
       setLoadingAnalytics(true);
       const response = await getAnalytics(chartsType, data);
       const newNotebookPath = response.data.data.newNotebookPath;
-      if (response) {
+      if (newNotebookPath && response) {
         setPortfolios((prevPortfolios) => ({
           ...prevPortfolios,
           data: prevPortfolios.data.map((portfolio) =>
@@ -199,10 +200,10 @@ export const RiskAssessment = ({
                                       ...riskassessment,
                                       noteBooks: riskassessment.noteBooks
                                         ? [
-                                            response.data.data.newNotebook,
+                                            ...response.data.data.newNotebooks,
                                             ...riskassessment.noteBooks,
                                           ]
-                                        : [response.data.data.newNotebook],
+                                        : [...response.data.data.newNotebooks],
                                     }
                                   : riskassessment
                             ),
@@ -218,7 +219,6 @@ export const RiskAssessment = ({
     },
     [getAnalytics]
   );
-
   // (() => {
 
   // })();
@@ -388,7 +388,16 @@ export const RiskAssessment = ({
                         >
                           {analysisPacks.map(
                             ({ name: packName, metaDataIdentifierId }) => (
-                              <MenuItem icon="derive-column" text={packName}>
+                              <MenuItem 
+                                icon="derive-column" 
+                                text={packName}
+                                onClick={() => {
+                                  updateAnalytics("analysispackcausal", {
+                                    name: packName,
+                                    metaDataIdentifierId,
+                                  });
+                                }}
+                              >
                                 <HTMLSelect
                                   onClick={(e) => {
                                     e.target.value !== "Select Property" &&

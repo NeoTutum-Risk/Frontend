@@ -63,6 +63,7 @@ import {
   deleteVisualObject,
   editAnalyticsChart,
   deleteAnalyticsChart,
+  getAnalyticsChartsCausal,
 } from "../../../../../services";
 import { windowDefault } from "../../../../../constants";
 import {
@@ -811,7 +812,7 @@ export const RiskAssessmentWindow = ({
           getCenter();
           setAnalyticsCharts(
             response.data.data.charts.filter(
-              (chart) => chart.riskObjectId === null
+              (chart) => (chart.riskObjectId === null && chart.status!=="deleted")
             )
           );
           setNotebooks(response.data.data.notebooks);
@@ -902,6 +903,12 @@ export const RiskAssessmentWindow = ({
             break;
           case "analysispack":
             response = await getAnalysispackCharts({
+              riskAssessmentId: window.data.id,
+              ...data,
+            });
+            break;
+          case "analysispackcausal":
+            response = await getAnalyticsChartsCausal({
               riskAssessmentId: window.data.id,
               ...data,
             });
@@ -2659,6 +2666,7 @@ export const RiskAssessmentWindow = ({
   },[])
 
   const zIndexing = useCallback(async (type,action)=>{
+    
     let currentIndex =10;
     let response;
     if(!hoveredElement) return
@@ -2684,7 +2692,7 @@ export const RiskAssessmentWindow = ({
     }
     switch (type) {
       case "ro":
-         response = await updateRiskObject(hoveredElement.id,{zIndex:currentIndex});
+         response = await updateRiskObjectPosition(window.data.id,hoveredElement.id,{zIndex:currentIndex});
         break;
         case "do":
          response = await updateNewDataObjectInstance(hoveredElement.id,{zIndex:currentIndex});
@@ -2698,15 +2706,16 @@ export const RiskAssessmentWindow = ({
         break;
     
       default:
+        
         break;
     }
 
-    if(response.status>=200 && response <300){
+    if(response.status>=200 && response.status <300){
       riskAssessmentData();
     }else{
       showDangerToaster(`Faild To Update`);
     }
-  },[hoveredElement])
+  },[hoveredElement,riskAssessmentData])
 
   const handleRefresh = useCallback(()=>{
     riskAssessmentData();

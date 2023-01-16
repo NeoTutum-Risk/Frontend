@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { RiskElement } from "./riskElement";
 import { DataObject } from "./dataObject";
+import  "./visualObject.css"
 import { Rnd } from "react-rnd";
 import {
   Button,
@@ -184,6 +185,7 @@ export const VisualObject = ({
           updateSize(delta, direction, position);
         }}
         scale={scale}
+        style={{zIndex: data.zIndex | 5}}
       >
         <div
           onMouseLeave={() => setFirstContext("main")}
@@ -197,14 +199,14 @@ export const VisualObject = ({
           }}
           className="risk-object-container panningDisabled pinchDisabled wheelDisabled "
           style={{
-            border: "2px dashed #173c67",
+            border: edit? "1px solid grey":"",
             backgroundColor: "white",
             color: "black",
             padding: "5px",
             textAlign: "center",
             display: "flex",
             flexDirection: "column",
-            overflow: edit ? "auto" : "",
+            overflow: edit ? "auto" : ""
           }}
         >
           {data.text && edit ? (
@@ -212,20 +214,21 @@ export const VisualObject = ({
               label=""
               labelFor="vot"
               className="panningDisabled pinchDisabled wheelDisabled "
+              style={{height:"100%" }}
             >
               <TextArea
                 className="panningDisabled pinchDisabled wheelDisabled "
                 fill={true}
                 id="vot"
                 defaultValue={objectText}
-                style={{ fontSize: `${objectFont}px` }}
+                style={{ fontSize: `${objectFont}px`,height:"100%"}}
                 onChange={(event) => {
                   setObjectText(event.target.value);
                 }}
               />
             </FormGroup>
           ) : (
-            <p style={{ fontSize: `${objectFont}px` }} onClick={handleClick}>
+            <p style={{textAlign:"left", fontSize: `${objectFont}px` }} onClick={handleClick}>
               {objectText}
             </p>
           )}
@@ -293,7 +296,9 @@ export const VisualObject = ({
             </FormGroup>
           )}
 
-          {edit && (
+          
+        </div>
+        {edit && (
             <div
               className="panningDisabled pinchDisabled wheelDisabled "
               style={{
@@ -333,7 +338,6 @@ export const VisualObject = ({
               </Button>
             </div>
           )}
-        </div>
       </Rnd>
     </>
   );
