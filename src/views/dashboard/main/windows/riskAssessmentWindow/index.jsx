@@ -95,6 +95,9 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [scenarios, setScenarios] = useState([]);
+  const [selectedScenario,setSelectedScenario]=useState(null);
+  const [selectedScenarioRun,setSelectedScenarioRun]=useState(null);
   const [selectedVisualObject, setSelectedVisualObject] = useState(null);
   const [voFilePath, setVoFilePath] = useState(null);
   const [voText, setVoText] = useState(null);
@@ -199,6 +202,12 @@ export const RiskAssessmentWindow = ({
     invisible: false,
     disabled: true,
   });
+
+  useEffect(()=>{
+    if(scenarios.length===0)return;
+    setSelectedScenario(scenarios[0])
+    setSelectedScenarioRun(scenarios[0].SenarioRuns[0]);
+  },[scenarios])
 
   const checkMaximized = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -817,6 +826,7 @@ export const RiskAssessmentWindow = ({
           );
           setNotebooks(response.data.data.notebooks);
           setVisualObjects(response.data.data.textObjects);
+          setScenarios( response.data.data.senarios);
         }
 
         setConnections(
@@ -2715,11 +2725,27 @@ export const RiskAssessmentWindow = ({
     }else{
       showDangerToaster(`Faild To Update`);
     }
-  },[hoveredElement,riskAssessmentData])
+  },[hoveredElement,riskAssessmentData,window.data.id])
 
   const handleRefresh = useCallback(()=>{
     riskAssessmentData();
   },[riskAssessmentData])
+
+  const addScenario = useCallback(async (data)=>{
+
+  });
+
+  const addScenarioRun = useCallback(async (data)=>{
+
+  });
+
+  const applyScenario = useCallback(async (id)=>{
+
+  });
+
+  const applyScenarioRun = useCallback(async (id)=>{
+
+  });
 
   return (
     <>
@@ -2753,6 +2779,9 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <RiskAssessment
+          scenarios={scenarios}
+          selectedScenario={selectedScenario}
+          selectedScenarioRun={selectedScenarioRun}
           handleRefresh={handleRefresh}
           handleVOEdit={handleVOEdit}
           handleVODelete={handleVODelete}

@@ -46,8 +46,8 @@ export const Auth = () => {
         * Enter any arbitrary username and password
       </div> */}
       <div className='bp3-text-muted bp3-text-small'>
-        * ST Build 2.3.7
-        * Build Time 2022-01-16 12:00
+        * ST Build 2.3.8
+        * Build Time 2022-01-16 14:00
         *Highlights:
             Visual Object Adjust
             Normal Group Visual Enhance
