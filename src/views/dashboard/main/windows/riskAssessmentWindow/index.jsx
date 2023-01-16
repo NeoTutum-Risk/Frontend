@@ -63,6 +63,7 @@ import {
   deleteVisualObject,
   editAnalyticsChart,
   deleteAnalyticsChart,
+  getAnalyticsChartsCausal,
 } from "../../../../../services";
 import { windowDefault } from "../../../../../constants";
 import {
@@ -902,6 +903,12 @@ export const RiskAssessmentWindow = ({
             break;
           case "analysispack":
             response = await getAnalysispackCharts({
+              riskAssessmentId: window.data.id,
+              ...data,
+            });
+            break;
+          case "analysispackcausal":
+            response = await getAnalyticsChartsCausal({
               riskAssessmentId: window.data.id,
               ...data,
             });
