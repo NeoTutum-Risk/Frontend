@@ -10,6 +10,7 @@ import {
   ButtonGroup,
   MenuDivider,
 } from "@blueprintjs/core";
+import { Console } from "./console";
 import { Popover2 } from "@blueprintjs/popover2";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
@@ -28,6 +29,7 @@ import {
 } from "../../services";
 import { ChartObject } from "./chartObject";
 export const RiskAssessment = ({
+  logs,
   scenarios,
   visualObjectEdit,
   analyticsChartsFilter,
@@ -280,6 +282,7 @@ export const RiskAssessment = ({
       //   onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
       //   onClick={resetContext}
       // >
+      <>
       <Xwrapper>
         <TransformWrapper
           zoomAnimation={{ disabled: true }}
@@ -574,7 +577,7 @@ export const RiskAssessment = ({
               <TransformComponent
                 wrapperStyle={{
                   width: "100%",
-                  height: "100%",
+                  height: "96%",
                 }}
                 contentStyle={{
                   width: `${enviroDimension.width}px`,
@@ -769,7 +772,7 @@ export const RiskAssessment = ({
             </React.Fragment>
           )}
         </TransformWrapper>
-
+        <Console logs={logs} />
         {instanceConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
@@ -957,7 +960,9 @@ export const RiskAssessment = ({
             // zIndex={1000000}
           />
         ))}
+        
       </Xwrapper>
+      </>
     );
   }
 };

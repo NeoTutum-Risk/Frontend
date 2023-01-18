@@ -17,10 +17,12 @@ import {
   Checkbox,
   NumericInput,
 } from "@blueprintjs/core";
+import openSocket from "socket.io-client";
 // import {ContextMenuComponent} from "../../../../../components/FlowChart/context/contextMenuComponent"
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
+import { Console } from "../../../../../components/riskAssessment/console";
 import {
   getRiskAssessment,
   addRiskObjectProperties,
@@ -65,7 +67,7 @@ import {
   deleteAnalyticsChart,
   getAnalyticsChartsCausal,
 } from "../../../../../services";
-import { windowDefault } from "../../../../../constants";
+import { windowDefault,BACKEND_URI } from "../../../../../constants";
 import {
   showDangerToaster,
   showSuccessToaster,
@@ -95,6 +97,7 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [logs,setLogs]=useState([]);
   const [scenarios, setScenarios] = useState([]);
   const [selectedScenario,setSelectedScenario]=useState(null);
   const [selectedScenarioRun,setSelectedScenarioRun]=useState(null);
@@ -202,6 +205,17 @@ export const RiskAssessmentWindow = ({
     invisible: false,
     disabled: true,
   });
+
+  const initialSocket = useCallback(() => {
+    console.log('initial socket');
+    const socket = openSocket(`${BACKEND_URI}:8080`);
+    socket.on(`analytics_progress_${window.data.id}`, (log) => {
+      setLogs(prev=>([...prev,log]))
+    });
+    return socket;
+  }, [window.data.id,]);
+
+  useEffect(()=>{initialSocket()},[initialSocket])
 
   useEffect(()=>{
     if(scenarios.length===0)return;
@@ -2778,6 +2792,7 @@ export const RiskAssessmentWindow = ({
           </div>
         )}
         {dataLoaded && (
+          <>
           <RiskAssessment
           scenarios={scenarios}
           selectedScenario={selectedScenario}
@@ -2825,7 +2840,10 @@ export const RiskAssessmentWindow = ({
             setGroups={setGroups}
             handleUnshareGroup={handleUnshareGroup}
             connectionForm={connectionForm}
+            logs={logs}
           />
+          
+          </>
         )}
       </Window>
       <Rnd
