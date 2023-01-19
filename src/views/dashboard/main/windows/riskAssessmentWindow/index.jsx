@@ -208,9 +208,10 @@ export const RiskAssessmentWindow = ({
 
   const initialSocket = useCallback(() => {
     console.log('initial socket');
-    const socket = openSocket(`${BACKEND_URI}:8080`);
+    const socket = openSocket(`${BACKEND_URI}`);
     socket.on(`analytics_progress_${window.data.id}`, (log) => {
       setLogs(prev=>([...prev,log]))
+      console.log(log)
     });
     return socket;
   }, [window.data.id,]);

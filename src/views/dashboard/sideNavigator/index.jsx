@@ -177,7 +177,7 @@ export const SideNavigator = () => {
                 <div className={styles.addPortfolio}>
                   <H4>Portfolios</H4>
                   <ButtonGroup>
-                  <AnchorButton icon="function" title="JupyterLab" href={JL} target="_blank" />
+                  <AnchorButton text="PY" title="JupyterLab" href={JL} target="_blank" />
                   {/* <a class="bp4-button" role="button" tabIndex={0}>Click</a> */}
                   {/* <Button icon="function" title="Edit Notebooks" role="link" /> */}
                   <AddPortfolio />
