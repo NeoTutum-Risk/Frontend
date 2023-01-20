@@ -617,6 +617,8 @@ applyScenarioRun,
                                 name: grp.name,
                               }))}
                               setFirstContext={setFirstContext}
+                              selectedScenario={selectedScenario}
+                              selectedScenarioRun={selectedScenarioRun}
                               expanded={true}
                               handleContextMenu={handleContextMenu}
                               selectedElements={selectedElements}
