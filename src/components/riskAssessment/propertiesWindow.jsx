@@ -34,8 +34,8 @@ export const PropertiesWindow = ({
   const [editedText, setEditedText] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const getProperties = useCallback(async () => {
-    const response = await getRiskObjectProperties({ ids: [data.id],senarioId: selectedScenario.id,
-      senarioRunId: selectedScenarioRun.id });
+    const response = await getRiskObjectProperties({ ids: [data.id],senarioId: selectedScenario?.id,
+      senarioRunId: selectedScenarioRun?.id });
     if (response.status >= 200 && response.status < 300) {
       setProperties(
         response.data.data.map((property) => ({
