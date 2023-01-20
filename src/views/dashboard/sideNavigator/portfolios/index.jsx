@@ -24,12 +24,13 @@ import {
   archiveBpmn,
   updateBpmnStatus,
 } from "../../../../services";
-import {
-  platformState,
-  protfoliosState,
-} from "../../../../store/portfolios";
+import { platformState, protfoliosState } from "../../../../store/portfolios";
 import { referenceGroupsState } from "../../../../store/referenceGroups";
-import { windowFamily, windowsState, windowsIds } from "../../../../store/windows";
+import {
+  windowFamily,
+  windowsState,
+  windowsIds,
+} from "../../../../store/windows";
 import { generateID } from "../../../../utils/generateID";
 import {
   showDangerToaster,
@@ -122,59 +123,62 @@ export const Portfolios = () => {
   );
   // check if window already opened if opened then don't open a new one
   // if it wasn't opened then open a new window
-  const setWindowCallBack = useRecoilCallback(({set, snapshot}) => ({data, type}) => {
+  const setWindowCallBack = useRecoilCallback(
+    ({ set, snapshot }) =>
+      ({ data, type }) => {
+        const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
 
-    const getWindowsIdsList = snapshot.getLoadable(windowsIds).contents;
+        const windowId = getWindowsIdsList.find((windowId) => {
+          const window = snapshot.getLoadable(windowFamily(windowId)).contents;
 
-    const windowId = getWindowsIdsList.find(windowId => {
-      const window = snapshot.getLoadable(windowFamily(windowId)).contents;
+          return window.data.id === data.id;
+        });
 
-      return window.data.id === data.id;
-    })
+        const check = checkMaximized();
 
-    const check = checkMaximized();
-    
-    if(check){
-      let old = snapshot.getLoadable(windowFamily(check)).contents
-      set(windowFamily(check), {
-        ...old,
-        maximized: false,
-        collapse:true
-      });
-    }
+        if (check) {
+          let old = snapshot.getLoadable(windowFamily(check)).contents;
+          set(windowFamily(check), {
+            ...old,
+            maximized: false,
+            collapse: true,
+          });
+        }
 
-    if (windowId) {
-      console.log("Window")
-      let calledWindow = snapshot.getLoadable(windowFamily(windowId)).contents;
-      set(windowFamily(windowId), {
-        ...calledWindow,
-        maximized: true,
-        collapse: false,
-      });
-      return;
-    }
+        if (windowId) {
+          console.log("Window");
+          let calledWindow = snapshot.getLoadable(
+            windowFamily(windowId)
+          ).contents;
+          set(windowFamily(windowId), {
+            ...calledWindow,
+            maximized: true,
+            collapse: false,
+          });
+          return;
+        }
 
-    
-    const id = generateID();
-    const windowData = {
-      type,
-      data,
-      id,
-      collapse: false,
-      width: windowDefault.width,
-      height: windowDefault.height,
-      maximized: check?true:false
-    }
-    set(windowsIds, (prev) => [id, ...prev])
-    set(windowFamily(id), windowData)
-  }, [])
+        const id = generateID();
+        const windowData = {
+          type,
+          data,
+          id,
+          collapse: false,
+          width: windowDefault.width,
+          height: windowDefault.height,
+          maximized: check ? true : false,
+        };
+        set(windowsIds, (prev) => [id, ...prev]);
+        set(windowFamily(id), windowData);
+      },
+    []
+  );
 
   const addNewWindow = useCallback(
     ({ data, type }) => {
-      setWindowCallBack({data, type})
-
+      setWindowCallBack({ data, type });
     },
-    [ setWindowCallBack]
+    [setWindowCallBack]
   );
 
   const onImportBpmnFile = useCallback(
@@ -429,7 +433,7 @@ export const Portfolios = () => {
 
   const ServiceChainPopOverContent = useMemo(
     () => (
-      <div key="text3" style={{zIndex:99999999999}}> 
+      <div key="text3" style={{ zIndex: 99999999999 }}>
         <H5>{portfolioPopOver?.type}</H5>
         <form onSubmit={addElmentToPortfolio}>
           <FormGroup
@@ -634,9 +638,9 @@ export const Portfolios = () => {
 
   const PlatformPopOverContent = useMemo(
     () => (
-      <div key="text2" style={{zIndex:99999999999}}>
+      <div key="text2" style={{ zIndex: 99999999999 }}>
         <H5>New Platform</H5>
-        <form onSubmit={addPlatform} style={{zIndex:99999999999}}>
+        <form onSubmit={addPlatform} style={{ zIndex: 99999999999 }}>
           <FormGroup
             label="Name"
             labelInfo="(required)"
@@ -761,7 +765,12 @@ export const Portfolios = () => {
         </form>
       </div>
     ),
-    [addRiskAssessment,referenceGroups, isAddServiceLoading, newRiskAssessmentNameError]
+    [
+      addRiskAssessment,
+      referenceGroups,
+      isAddServiceLoading,
+      newRiskAssessmentNameError,
+    ]
   );
 
   const BpmnPopOverContent = useMemo(
@@ -926,7 +935,7 @@ export const Portfolios = () => {
   useEffect(() => {
     setNodes((prevNodes) =>
       portfolios.data.map((portfolio, portfolioIdx) => ({
-        key:portfolio.id,
+        key: portfolio.id,
         id: portfolio.id,
         hasCaret: portfolio?.serviceChains?.length > 0,
         icon: "folder-close",
@@ -935,16 +944,15 @@ export const Portfolios = () => {
           false,
         label: (
           <Popover2
-          
             popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
             content={ServiceChainPopOverContent}
             isOpen={portfolio.id === portfolioPopOverOpenId}
             usePortal={true}
-            style={{zIndex:99999999999}}
+            style={{ zIndex: 99999999999 }}
           >
             <Popover2
-            usePortal={true}
-            style={{zIndex:99999999999}}
+              usePortal={true}
+              style={{ zIndex: 99999999999 }}
               content={
                 <Menu>
                   <MenuItem
@@ -1021,8 +1029,8 @@ export const Portfolios = () => {
                 ?.isExpanded ?? false,
             label: (
               <Popover2
-              usePortal={true}
-              style={{zIndex:99999999999}}
+                usePortal={true}
+                style={{ zIndex: 99999999999 }}
                 popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
                 content={
                   serviceChainAction === "platform" && serviceChainAction
@@ -1032,10 +1040,10 @@ export const Portfolios = () => {
                 isOpen={serviceChain.id === serviceChainPopOverOpenId}
               >
                 <Popover2
-                usePortal={true}
-                style={{zIndex:99999999999999}}
+                  usePortal={true}
+                  style={{ zIndex: 99999999999999 }}
                   content={
-                    <Menu style={{zIndex:99999999999}}>
+                    <Menu style={{ zIndex: 99999999999 }}>
                       <MenuItem
                         textClassName="target_menu"
                         icon="plus"
@@ -1075,28 +1083,58 @@ export const Portfolios = () => {
               </Popover2>
             ),
             nodeData: { type: "serviceChain", data: serviceChain },
-            childNodes:
-            (serviceChain?.riskAssessments?.map((riskAssessment, riskAssessmentIdx)=>({
-              id:riskAssessment.id,
-              label:riskAssessment.name,
-              icon:"derive-column",
-              nodeData: { type:"risk assessment", data: riskAssessment },
-              childNodes: riskAssessment.noteBooks?.length>0?(riskAssessment.noteBooks?.map((notebook,notebookIndex)=>({
-                id:notebook.id,
-                key:notebookIndex,
-                label:notebook.name,
-                icon:"chart",
-                nodeData: { type:"notebook", data: notebook },
-              }))):[{
-                id:riskAssessment.id,
-                key:`console-${riskAssessment.id}`,
-                label:"Console",
-                icon:"console",
-                nodeData: { type:"raConsole", data: {id:`c${riskAssessment.id}`,riskAssessment:riskAssessment.id} },
-              }]
-              
-            }))??[]).concat
-              (serviceChain?.platforms?.map((platform, platformIdx) => ({
+            childNodes: (
+              serviceChain?.riskAssessments?.map(
+                (riskAssessment, riskAssessmentIdx) => ({
+                  id: riskAssessment.id,
+                  label: riskAssessment.name,
+                  icon: "derive-column",
+                  nodeData: { type: "risk assessment", data: riskAssessment },
+                  childNodes:
+                    riskAssessment.noteBooks?.length > 0
+                      ? [
+                          {
+                            id: riskAssessment.id,
+                            key: `console-${riskAssessment.id}`,
+                            label: "Console",
+                            icon: "console",
+                            nodeData: {
+                              type: "raConsole",
+                              data: {
+                                id: `c${riskAssessment.id}`,
+                                riskAssessment: riskAssessment.id,
+                              },
+                            },
+                          },
+                          ...riskAssessment.noteBooks?.map(
+                            (notebook, notebookIndex) => ({
+                              id: notebook.id,
+                              key: notebookIndex,
+                              label: notebook.name,
+                              icon: "chart",
+                              nodeData: { type: "notebook", data: notebook },
+                            })
+                          ),
+                        ]
+                      : [
+                          {
+                            id: riskAssessment.id,
+                            key: `console-${riskAssessment.id}`,
+                            label: "Console",
+                            icon: "console",
+                            nodeData: {
+                              type: "raConsole",
+                              data: {
+                                id: `c${riskAssessment.id}`,
+                                riskAssessment: riskAssessment.id,
+                              },
+                            },
+                          },
+                        ],
+                })
+              ) ?? []
+            ).concat(
+              serviceChain?.platforms?.map((platform, platformIdx) => ({
                 id: platform.id,
                 hasCaret: platform?.bpmnFiles?.length > 0,
                 icon: "application",
@@ -1108,15 +1146,15 @@ export const Portfolios = () => {
                     ?.isExpanded ?? false,
                 label: (
                   <Popover2
-                  usePortal={true}
-                  style={{zIndex:99999999999}}
+                    usePortal={true}
+                    style={{ zIndex: 99999999999 }}
                     isOpen={platform.id === PlatformPopOverOpenId}
                     popoverClassName={Classes.POPOVER2_CONTENT_SIZING}
                     content={BpmnPopOverContent}
                   >
                     <Popover2
-                    usePortal={true}
-                    style={{zIndex:99999999999}}
+                      usePortal={true}
+                      style={{ zIndex: 99999999999 }}
                       content={
                         <Menu>
                           <MenuItem
@@ -1179,8 +1217,8 @@ export const Portfolios = () => {
                     ),
                     label: (
                       <Popover2
-                      usePortal={true}
-                      style={{zIndex:99999999999}}
+                        usePortal={true}
+                        style={{ zIndex: 99999999999 }}
                         isOpen={bpmnFile?.id === bpmnContextMenu}
                         content={
                           <Menu>
@@ -1254,7 +1292,8 @@ export const Portfolios = () => {
                       </Popover2>
                     ),
                   })) ?? [],
-              })) ?? []),
+              })) ?? []
+            ),
           })) ?? [],
       }))
     );
@@ -1278,26 +1317,25 @@ export const Portfolios = () => {
     onBpmnStateChange,
     onBpmnArchive,
     riskAssessmentPopOverContent,
-    serviceChainAction
+    serviceChainAction,
   ]);
 
   const onNodeClick = useCallback(
     (node, nodePath) => {
-      if (node.nodeData.type === "bpmn"){
+      if (node.nodeData.type === "bpmn") {
         addNewWindow({ type: "bpmn", data: node.nodeData.data });
-      }else if(node.nodeData.type === "risk assessment"){
+      } else if (node.nodeData.type === "risk assessment") {
         addNewWindow({ type: "risk", data: node.nodeData.data });
-      }else if(node.nodeData.type === "notebook"){
+      } else if (node.nodeData.type === "notebook") {
         addNewWindow({ type: "notebook", data: node.nodeData.data });
-      }else if(node.nodeData.type === "raConsole"){
+      } else if (node.nodeData.type === "raConsole") {
         addNewWindow({ type: "raConsole", data: node.nodeData.data });
-      }else{
+      } else {
         return;
-      } 
+      }
 
       // setNodes(setNodesAttribute(nodes, 'isSelected', false))
       // setNodes(setNodeAttribute(nodes, nodePath, 'isSelected', true))
-      
     },
     [addNewWindow]
   );
@@ -1315,7 +1353,7 @@ export const Portfolios = () => {
   );
 
   return (
-    <div style={{zIndex:99999999999}}>
+    <div style={{ zIndex: 99999999999 }}>
       <Tree
         contents={nodes}
         onNodeClick={onNodeClick}

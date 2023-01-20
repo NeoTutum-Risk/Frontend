@@ -2815,7 +2815,7 @@ export const RiskAssessmentWindow = ({
       showDangerToaster(`Can't add scenario`);
       setIsServiceLoading(false);
     }
-  },[window.data.id,scenarioRunName,resetContext,selectedScenario.id]);
+  },[window.data.id,scenarioRunName,resetContext,selectedScenario?.id]);
 
   const addScenarioRunHandler = useCallback( ()=>{
     setContextMenu({
