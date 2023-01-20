@@ -1358,8 +1358,8 @@ export const RiskAssessmentWindow = ({
         // (activeObject);
         const response = await addRiskObjectProperties(activeObject, {
           dataObjectElements: path,
-          senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+          senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
         });
         if (response.status === 200) {
           setContextMenu({
@@ -1441,8 +1441,8 @@ export const RiskAssessmentWindow = ({
             causeProperty,
             effectProperty,
             linkProperty,
-            senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+            senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
           };
 
           const response = await addRiskConnection(payload);
@@ -1465,8 +1465,8 @@ export const RiskAssessmentWindow = ({
             causeProperty,
             effectProperty,
             linkProperty,
-            senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+            senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
           };
 
           const response = await addInstanceConnection(payload);
@@ -1505,8 +1505,8 @@ export const RiskAssessmentWindow = ({
             linkProperty,
             objectType:
               instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
-              senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+              senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
           };
 
           const response = await addInstanceObjectConnection(payload);
@@ -1597,8 +1597,8 @@ export const RiskAssessmentWindow = ({
       if (object?.type === "model") {
         const response = await addModelRiskObjectProperties(object.id, {
           metaDataLevel2Id: mdl2Id,
-          senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+          senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
         });
 
         if (response) {
@@ -1766,8 +1766,8 @@ export const RiskAssessmentWindow = ({
     const payload = {
       riskGroupId: contextMenu.element,
       name: templateName,
-      senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+      senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
     };
 
     const response = await addRiskTemplate(payload);
@@ -1964,8 +1964,8 @@ export const RiskAssessmentWindow = ({
           name: importTemplateName,
           x: contextMenu.offsetX,
           y: contextMenu.offsetY,
-          senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+          senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
         };
         const response = await addGroupFromTemplate(payload);
         resetContext();
@@ -2285,8 +2285,8 @@ export const RiskAssessmentWindow = ({
     setIsServiceLoading(true);
     switch (selectedConnection?.type) {
       case "riskObjects":
-        response = await deleteRiskConnection(selectedConnection.id,{senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun});
+        response = await deleteRiskConnection(selectedConnection.id,{senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id});
         resetContext();
         setConnections((prev) =>
           prev.filter((connection) => connection.id !== selectedConnection.id)
@@ -2335,8 +2335,8 @@ export const RiskAssessmentWindow = ({
       x: contextMenu.offsetX,
       y: contextMenu.offsetY,
       shared: true,
-      senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+      senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
     };
     setIsServiceLoading(true);
     const response = await importGroup(payload);
@@ -2527,8 +2527,8 @@ export const RiskAssessmentWindow = ({
       const response = await unshareGroup({
         riskAssessmentId: window.data.id,
         riskGroupId: activeObject,
-        senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+        senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
       });
       if (response.status >= 200 && response.status < 300) {
         setGroups((prev) => prev.filter((grp) => grp.id !== activeObject));
@@ -2622,8 +2622,8 @@ export const RiskAssessmentWindow = ({
         effectProperty,
         linkProperty,
         connectionType,
-        senarioId: selectedScenario,
-          senarioRunId: selectedScenarioRun
+        senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id
       });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) =>
@@ -2810,6 +2810,7 @@ export const RiskAssessmentWindow = ({
       }));
       setSelectedScenarioRun(response.data.data)
       setScenarioName(null);
+      setScenarioRunName(null);
       resetContext();
     }else{
       showDangerToaster(`Can't add scenario`);
@@ -3236,7 +3237,7 @@ export const RiskAssessmentWindow = ({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                addScenario();
+                addScenarioPost();
               }}
             >
               <FormGroup
@@ -3252,6 +3253,19 @@ export const RiskAssessmentWindow = ({
                   }}
                 />
               </FormGroup>
+              <FormGroup
+                label="First Run Name"
+                labelInfo="(required)"
+                labelFor="newRunName"
+              >
+                <InputGroup
+                  required
+                  id="newRunkName"
+                  onChange={(event) => {
+                    setScenarioRunName(event.target.value);
+                  }}
+                />
+              </FormGroup>
               <div
                 style={{
                   display: "flex",
@@ -3264,6 +3278,7 @@ export const RiskAssessmentWindow = ({
                   style={{ marginRight: 10 }}
                   onClick={() => {
                     setScenarioName(null);
+                    setScenarioRunName(null);
                     resetContext();
                   }}
                 >
@@ -3295,17 +3310,17 @@ export const RiskAssessmentWindow = ({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                addScenarioRun();
+                addScenarioRunPost();
               }}
             >
               <FormGroup
                 label="Name"
                 labelInfo="(required)"
-                labelFor="newViewName"
+                labelFor="newRunName"
               >
                 <InputGroup
                   required
-                  id="newLinkName"
+                  id="newRunkName"
                   onChange={(event) => {
                     setScenarioRunName(event.target.value);
                   }}

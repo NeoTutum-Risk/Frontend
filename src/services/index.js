@@ -257,4 +257,4 @@ export const deleteAnalyticsChart = (id) =>serviceProvider.delete(`/analytics_ch
 
 export const getAnalyticsChartsCausal = (data) => serviceProvider.post(`analytics_charts/bulkCharts/analysispack/causal/${data.riskAssessmentId}`, data);
 
-export const getRiskAssessmentLogs = (id) =>serviceProvider.get(`/${id}`)
+export const getRiskAssessmentLogs = (id) =>serviceProvider.get(`/analytics_runs/logs/${id}`)

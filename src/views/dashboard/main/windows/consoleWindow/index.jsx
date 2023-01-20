@@ -25,19 +25,19 @@ export const ConsoleWindow = ({
 
   const fetchRiskAssessmentLogs = useCallback(async () => {
     try {
-      const response = await getRiskAssessmentLogs(window.data.id);
+      const response = await getRiskAssessmentLogs(window.data.riskAssessment);
       if (response?.status >= 200 && response?.status < 300) {
-        setLogs(response.data.data.logs);
+        setLogs(response.data.data);
       } else {
         showDangerToaster("Error Fetching NoteBook Data");
       }
     } catch (err) {
       showDangerToaster("Error Fetching NoteBook Data");
     }
-  }, [window.data.id]);
+  }, [window.data.riskAssessment]);
 
   useEffect(() => {
-    // fetchRiskAssessmentLogs();
+    fetchRiskAssessmentLogs();
   }, [window.data.id, fetchRiskAssessmentLogs]);
 
   const initialSocket = useCallback(() => {
@@ -58,7 +58,7 @@ export const ConsoleWindow = ({
       onCollapse={onCollapse}
       onRestore={onResotre}
       onTypeChange={onTypeChange}
-      title={window.data.name}
+      title={window.data.id}
       collapseState={collapseState}
       icon="th"
     >

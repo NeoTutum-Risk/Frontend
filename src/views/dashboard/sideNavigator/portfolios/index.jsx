@@ -1101,7 +1101,7 @@ export const Portfolios = () => {
                             nodeData: {
                               type: "raConsole",
                               data: {
-                                id: `c${riskAssessment.id}`,
+                                id: `RA${riskAssessment.id} Console`,
                                 riskAssessment: riskAssessment.id,
                               },
                             },
@@ -1125,7 +1125,7 @@ export const Portfolios = () => {
                             nodeData: {
                               type: "raConsole",
                               data: {
-                                id: `c${riskAssessment.id}`,
+                                id: `RA${riskAssessment.id} Console`,
                                 riskAssessment: riskAssessment.id,
                               },
                             },
