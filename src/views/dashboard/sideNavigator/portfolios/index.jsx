@@ -1083,10 +1083,17 @@ export const Portfolios = () => {
               nodeData: { type:"risk assessment", data: riskAssessment },
               childNodes: riskAssessment.noteBooks?.length>0?(riskAssessment.noteBooks?.map((notebook,notebookIndex)=>({
                 id:notebook.id,
+                key:notebookIndex,
                 label:notebook.name,
                 icon:"chart",
                 nodeData: { type:"notebook", data: notebook },
-              }))):null
+              }))):[{
+                id:riskAssessment.id,
+                key:`console-${riskAssessment.id}`,
+                label:"Console",
+                icon:"console",
+                nodeData: { type:"raConsole", data: {id:`c${riskAssessment.id}`,riskAssessment:riskAssessment.id} },
+              }]
               
             }))??[]).concat
               (serviceChain?.platforms?.map((platform, platformIdx) => ({
@@ -1282,6 +1289,8 @@ export const Portfolios = () => {
         addNewWindow({ type: "risk", data: node.nodeData.data });
       }else if(node.nodeData.type === "notebook"){
         addNewWindow({ type: "notebook", data: node.nodeData.data });
+      }else if(node.nodeData.type === "raConsole"){
+        addNewWindow({ type: "raConsole", data: node.nodeData.data });
       }else{
         return;
       } 

@@ -29,6 +29,10 @@ import {
 } from "../../services";
 import { ChartObject } from "./chartObject";
 export const RiskAssessment = ({
+  addScenarioHandler,
+addScenarioRunHandler,
+applyScenario,
+applyScenarioRun,
   logs,
   scenarios,
   visualObjectEdit,
@@ -225,7 +229,7 @@ export const RiskAssessment = ({
       }
       setLoadingAnalytics(false);
     },
-    [getAnalytics]
+    [getAnalytics,setPortfolios]
   );
   // (() => {
 
@@ -483,8 +487,8 @@ export const RiskAssessment = ({
                         <MenuItem
                           icon="derive-column"
                           text="Create New Scenario"
-                          onClick={() => {}}
-                          disabled={true}
+                          onClick={addScenarioHandler}
+                          // disabled={true}
                         />
                         <MenuDivider />
                           {scenarios?scenarios.map(
@@ -493,8 +497,7 @@ export const RiskAssessment = ({
                               key={`${scenario.id}${scenario.name}`}
                                 icon="derive-column" 
                                 text={scenario.name}
-                                onClick={() => {
-                                }}
+                                onClick={() => applyScenario(scenario.id)}
                               >
                                 
                               </MenuItem>
@@ -527,7 +530,7 @@ export const RiskAssessment = ({
                         <MenuItem
                           icon="derive-column"
                           text="Create New Scenario Run"
-                          onClick={() => {}}
+                          onClick={() => addScenarioRunHandler}
                           disabled={true}
                         />
                         <MenuDivider />
@@ -537,8 +540,7 @@ export const RiskAssessment = ({
                               key={`${run.id}${run.name}`}
                                 icon="derive-column" 
                                 text={run.name}
-                                onClick={() => {
-                                }}
+                                onClick={() => applyScenarioRun(run.id)}
                               />
                                 
                             )

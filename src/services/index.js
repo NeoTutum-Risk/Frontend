@@ -129,7 +129,7 @@ export const updateRiskObjectPosition = (riskAssessmenId, id, data) => servicePr
 
 export const addRiskConnection = (data) => serviceProvider.post(`/riskConnections`, data);
 
-export const deleteRiskConnection = (id) => serviceProvider.delete(`/riskConnections/${id}`);
+export const deleteRiskConnection = (id,data) => serviceProvider.delete(`/riskConnections/${id}`,data);
 
 export const editRiskConnection = (id, data) => serviceProvider.put(`/riskConnections/${id}`, data);
 
@@ -256,3 +256,5 @@ export const editAnalyticsChart = (id,data) => serviceProvider.put(`/analytics_c
 export const deleteAnalyticsChart = (id) =>serviceProvider.delete(`/analytics_charts/${id}`);
 
 export const getAnalyticsChartsCausal = (data) => serviceProvider.post(`analytics_charts/bulkCharts/analysispack/causal/${data.riskAssessmentId}`, data);
+
+export const getRiskAssessmentLogs = (id) =>serviceProvider.get(`/${id}`)

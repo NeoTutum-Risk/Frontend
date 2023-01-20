@@ -10,6 +10,8 @@ import { updateRiskAssessmentGroup } from "../../services";
 import { showDangerToaster } from "../../utils/toaster";
 export const RiskGroup = ({
   data,
+  selectedScenario,
+  selectedScenarioRun,
   elementSelection,
   handleContextMenu,
   selectedElements,
@@ -382,6 +384,8 @@ export const RiskGroup = ({
               ) ||
                 data.opendGroupExpansion) && (
                 <RiskElement
+                selectedScenario={selectedScenario}
+          selectedScenarioRun={selectedScenarioRun}
                   globalViewIndex={globalViewIndex}
                   views={views}
                   charts={charts}
@@ -426,6 +430,8 @@ export const RiskGroup = ({
                 object.disable
               ) && (
                 <DataObject
+                selectedScenario={selectedScenario}
+          selectedScenarioRun={selectedScenarioRun}
                   globalViewIndex={globalViewIndex}
                   views={views}
                   addToGroup={addToGroup}

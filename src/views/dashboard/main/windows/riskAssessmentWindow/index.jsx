@@ -66,6 +66,8 @@ import {
   editAnalyticsChart,
   deleteAnalyticsChart,
   getAnalyticsChartsCausal,
+  addScenario,
+addScenarioRun
 } from "../../../../../services";
 import { windowDefault,BACKEND_URI } from "../../../../../constants";
 import {
@@ -97,6 +99,8 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [scenarioName,setScenarioName]=useState(null);
+  const [scenarioRunName,setScenarioRunName]=useState(null);
   const [logs,setLogs]=useState([]);
   const [scenarios, setScenarios] = useState([]);
   const [selectedScenario,setSelectedScenario]=useState(null);
@@ -1354,6 +1358,8 @@ export const RiskAssessmentWindow = ({
         // (activeObject);
         const response = await addRiskObjectProperties(activeObject, {
           dataObjectElements: path,
+          senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
         });
         if (response.status === 200) {
           setContextMenu({
@@ -1395,7 +1401,7 @@ export const RiskAssessmentWindow = ({
         });
       }
     },
-    [contextMenu.element, activeObject]
+    [contextMenu.element, activeObject,selectedScenario,selectedScenarioRun]
   );
 
   const handleConnection = useCallback(
@@ -1435,6 +1441,8 @@ export const RiskAssessmentWindow = ({
             causeProperty,
             effectProperty,
             linkProperty,
+            senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
           };
 
           const response = await addRiskConnection(payload);
@@ -1457,6 +1465,8 @@ export const RiskAssessmentWindow = ({
             causeProperty,
             effectProperty,
             linkProperty,
+            senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
           };
 
           const response = await addInstanceConnection(payload);
@@ -1495,6 +1505,8 @@ export const RiskAssessmentWindow = ({
             linkProperty,
             objectType:
               instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
+              senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
           };
 
           const response = await addInstanceObjectConnection(payload);
@@ -1527,6 +1539,7 @@ export const RiskAssessmentWindow = ({
       causeProperty,
       effectProperty,
       linkProperty,
+      selectedScenario,selectedScenarioRun
     ]
   );
 
@@ -1584,6 +1597,8 @@ export const RiskAssessmentWindow = ({
       if (object?.type === "model") {
         const response = await addModelRiskObjectProperties(object.id, {
           metaDataLevel2Id: mdl2Id,
+          senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
         });
 
         if (response) {
@@ -1599,7 +1614,7 @@ export const RiskAssessmentWindow = ({
     } catch (error) {
       showDangerToaster(error.message);
     }
-  }, []);
+  }, [selectedScenario,selectedScenarioRun]);
 
   const menu = metaData.map((l1) => {
     return (
@@ -1751,6 +1766,8 @@ export const RiskAssessmentWindow = ({
     const payload = {
       riskGroupId: contextMenu.element,
       name: templateName,
+      senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
     };
 
     const response = await addRiskTemplate(payload);
@@ -1771,7 +1788,7 @@ export const RiskAssessmentWindow = ({
 
     setIsServiceLoading(false);
     // const redraw = await riskAssessmentData();
-  }, [riskAssessmentData, contextMenu, templateName]);
+  }, [riskAssessmentData, contextMenu, templateName,selectedScenario,selectedScenarioRun]);
 
   const handleGrouping = useCallback(
     async (data) => {
@@ -1947,6 +1964,8 @@ export const RiskAssessmentWindow = ({
           name: importTemplateName,
           x: contextMenu.offsetX,
           y: contextMenu.offsetY,
+          senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
         };
         const response = await addGroupFromTemplate(payload);
         resetContext();
@@ -1973,6 +1992,7 @@ export const RiskAssessmentWindow = ({
       setImportTemplateNameError,
       resetContext,
       riskAssessmentData,
+      selectedScenario,selectedScenarioRun
     ]
   );
 
@@ -2265,7 +2285,8 @@ export const RiskAssessmentWindow = ({
     setIsServiceLoading(true);
     switch (selectedConnection?.type) {
       case "riskObjects":
-        response = await deleteRiskConnection(selectedConnection.id);
+        response = await deleteRiskConnection(selectedConnection.id,{senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun});
         resetContext();
         setConnections((prev) =>
           prev.filter((connection) => connection.id !== selectedConnection.id)
@@ -2314,6 +2335,8 @@ export const RiskAssessmentWindow = ({
       x: contextMenu.offsetX,
       y: contextMenu.offsetY,
       shared: true,
+      senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
     };
     setIsServiceLoading(true);
     const response = await importGroup(payload);
@@ -2332,6 +2355,7 @@ export const RiskAssessmentWindow = ({
     window.data.id,
     resetContext,
     riskAssessmentData,
+    selectedScenario,selectedScenarioRun
   ]);
 
   const handleShareGroup = useCallback(async () => {
@@ -2503,6 +2527,8 @@ export const RiskAssessmentWindow = ({
       const response = await unshareGroup({
         riskAssessmentId: window.data.id,
         riskGroupId: activeObject,
+        senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
       });
       if (response.status >= 200 && response.status < 300) {
         setGroups((prev) => prev.filter((grp) => grp.id !== activeObject));
@@ -2513,7 +2539,7 @@ export const RiskAssessmentWindow = ({
     } catch (error) {
       showDangerToaster(`Error unsharing group: ${error}`);
     }
-  }, [window.data.id, activeObject, resetContext]);
+  }, [window.data.id, activeObject, resetContext,selectedScenario,selectedScenarioRun]);
 
   const setForm = useCallback(
     ({ contextX, contextY, x, y, offsetX, offsetY }) => {
@@ -2596,6 +2622,8 @@ export const RiskAssessmentWindow = ({
         effectProperty,
         linkProperty,
         connectionType,
+        senarioId: selectedScenario,
+          senarioRunId: selectedScenarioRun
       });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) =>
@@ -2646,6 +2674,7 @@ export const RiskAssessmentWindow = ({
     resetContext,
     selectedElements.length,
     linkProperty,
+    selectedScenario,selectedScenarioRun
   ]);
 
   const handleVOEdit = useCallback(async(id,data)=>{
@@ -2746,21 +2775,63 @@ export const RiskAssessmentWindow = ({
     riskAssessmentData();
   },[riskAssessmentData])
 
-  const addScenario = useCallback(async (data)=>{
+  const addScenarioHandler = useCallback(()=>{
+    setContextMenu({
+      active:true,
+      type:"new scenario"
+    })
+  },[]);
 
-  });
+  const addScenarioPost = useCallback(async()=>{
+    setIsServiceLoading(true);
+    const response = await addScenario({name:scenarioName,riskAssessmentId:window.data.id});
+    if(response.status>=200 && response.status<300){
+      setScenarios(prev=>([...prev,response.data.data]));
+      setSelectedScenario(response.data.data);
+      setSelectedScenarioRun(response.data.data.SenarioRuns[0])
+      setScenarioName(null);
+      resetContext();
+    }else{
+      showDangerToaster(`Can't add scenario`);
+      setIsServiceLoading(false);
+    }
+  },[window.data.id,scenarioName,resetContext]);
 
-  const addScenarioRun = useCallback(async (data)=>{
+  const addScenarioRunPost = useCallback(async()=>{
+    setIsServiceLoading(true);
+    const response = await addScenarioRun({name:scenarioRunName,riskAssessmentId:window.data.id});
+    if(response.status>=200 && response.status<300){
+      setScenarios(prev=>prev.map(scenario=>{
+        if(scenario.id===selectedScenario.id){
+          return {...scenario,SenarioRuns:[...scenario.SenarioRuns,response.data.data]}
+        }else{
+          return scenario
+        }
+      }));
+      setSelectedScenarioRun(response.data.data)
+      setScenarioName(null);
+      resetContext();
+    }else{
+      showDangerToaster(`Can't add scenario`);
+      setIsServiceLoading(false);
+    }
+  },[window.data.id,scenarioRunName,resetContext,selectedScenario.id]);
 
-  });
+  const addScenarioRunHandler = useCallback( ()=>{
+    setContextMenu({
+      active:true,
+      type:"new scenario run"
+    })
+  },[]);
 
-  const applyScenario = useCallback(async (id)=>{
+  const applyScenario = useCallback((id)=>{
+    setSelectedScenario(scenarios.find(scenario=>scenario.id===id));
+    setSelectedScenarioRun(selectedScenario.SenarioRuns[0]);
+  },[scenarios,selectedScenario]);
 
-  });
-
-  const applyScenarioRun = useCallback(async (id)=>{
-
-  });
+  const applyScenarioRun = useCallback((id)=>{
+    setSelectedScenarioRun(selectedScenario.SenarioRuns.find(run=>run.id===id));
+  },[selectedScenario]);
 
   return (
     <>
@@ -2795,6 +2866,10 @@ export const RiskAssessmentWindow = ({
         {dataLoaded && (
           <>
           <RiskAssessment
+          addScenarioHandler={addScenarioHandler}
+          addScenarioRunHandler={addScenarioRunHandler}
+          applyScenario={applyScenario}
+          applyScenarioRun={applyScenarioRun}
           scenarios={scenarios}
           selectedScenario={selectedScenario}
           selectedScenarioRun={selectedScenarioRun}
@@ -3145,6 +3220,124 @@ export const RiskAssessmentWindow = ({
               <MenuItem text="Unshare" onClick={handleUnshareGroup} />
             ) : null}
           </Menu>
+        )}
+
+{contextMenu.active && contextMenu.type === "new scenario" && (
+          <div
+            key="text3"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>New Scenario Name</H5>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                addScenario();
+              }}
+            >
+              <FormGroup
+                label="Name"
+                labelInfo="(required)"
+                labelFor="newViewName"
+              >
+                <InputGroup
+                  required
+                  id="newLinkName"
+                  onChange={(event) => {
+                    setScenarioName(event.target.value);
+                  }}
+                />
+              </FormGroup>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    setScenarioName(null);
+                    resetContext();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+
+{contextMenu.active && contextMenu.type === "new scenario run" && (
+          <div
+            key="text3"
+            style={{
+              backgroundColor: "#30404D",
+              color: "white",
+              padding: "10px",
+              borderRadius: "2px",
+            }}
+          >
+            <H5 style={{ color: "white" }}>New Scenario Run Name</H5>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                addScenarioRun();
+              }}
+            >
+              <FormGroup
+                label="Name"
+                labelInfo="(required)"
+                labelFor="newViewName"
+              >
+                <InputGroup
+                  required
+                  id="newLinkName"
+                  onChange={(event) => {
+                    setScenarioRunName(event.target.value);
+                  }}
+                />
+              </FormGroup>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 15,
+                }}
+              >
+                <Button
+                  disabled={isServiceLoading}
+                  style={{ marginRight: 10 }}
+                  onClick={() => {
+                    setScenarioRunName(null);
+                    resetContext();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isServiceLoading}
+                  intent={Intent.SUCCESS}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
         )}
 
         {contextMenu.active && contextMenu.type === "view name" && (

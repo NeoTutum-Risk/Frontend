@@ -19,6 +19,8 @@ import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { property } from "lodash";
 import { showDangerToaster, showSuccessToaster } from "../../utils/toaster";
 export const PropertiesWindow = ({
+  selectedScenario,
+  selectedScenarioRun,
   enabled,
   riskAssessmentId,
   data,
@@ -32,7 +34,8 @@ export const PropertiesWindow = ({
   const [editedText, setEditedText] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const getProperties = useCallback(async () => {
-    const response = await getRiskObjectProperties({ ids: [data.id] });
+    const response = await getRiskObjectProperties({ ids: [data.id],senarioId: selectedScenario,
+      senarioRunId: selectedScenarioRun });
     if (response.status >= 200 && response.status < 300) {
       setProperties(
         response.data.data.map((property) => ({
@@ -45,7 +48,7 @@ export const PropertiesWindow = ({
         }))
       );
     }
-  }, [data.id]);
+  }, [data.id,selectedScenario,selectedScenarioRun]);
   const updateXarrow = useXarrow();
   useEffect(() => {
     getProperties();

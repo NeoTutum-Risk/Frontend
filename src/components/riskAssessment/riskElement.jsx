@@ -11,6 +11,8 @@ import Draggable from "react-draggable";
 import { PropertiesWindow } from "./propertiesWindow";
 export const RiskElement = ({
   data,
+  selectedScenario,
+  selectedScenarioRun,
   elementSelection,
   handleContextMenu,
   selectedElements,
@@ -162,6 +164,8 @@ export const RiskElement = ({
       {expanded ? showProperties && data["position.enabled"] && (
         <>
           <PropertiesWindow
+          selectedScenario={selectedScenario}
+          selectedScenarioRun={selectedScenarioRun}
             scale={scale}
             riskAssessmentId={riskAssessmentId}
             enabled={data["position.enabled"]}
