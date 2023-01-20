@@ -1,4 +1,4 @@
-import { H3, H4, Button, Dialog } from "@blueprintjs/core";
+import { H3, H4, Button,AnchorButton, Dialog, ButtonGroup } from "@blueprintjs/core";
 import { Popover2, Tooltip2 } from "@blueprintjs/popover2";
 import { useState } from "react";
 import { Async } from "../../../components/asyncHOC";
@@ -19,6 +19,7 @@ import { showDangerToaster, showSuccessToaster } from "../../../utils/toaster";
 import ConfirmDelete from "../../../components/confirmDelete";
 import ChartsSidebar from "./chartsSidebar";
 import { fullScreenHandlerState } from "../../../store/fullScreen";
+import { JL } from "../../../constants";
 
 export const SideNavigator = () => {
   const [menuOpen, setMenuOpen] = useState(true);
@@ -175,7 +176,12 @@ export const SideNavigator = () => {
               <div className={styles.tree} style={{display:menuOpen?"initial":"none"}}>
                 <div className={styles.addPortfolio}>
                   <H4>Portfolios</H4>
+                  <ButtonGroup>
+                  <AnchorButton text="PY" title="JupyterLab" href={JL} target="_blank" />
+                  {/* <a class="bp4-button" role="button" tabIndex={0}>Click</a> */}
+                  {/* <Button icon="function" title="Edit Notebooks" role="link" /> */}
                   <AddPortfolio />
+                  </ButtonGroup>
                 </div>
                 <Async>
                   <Portfolios />

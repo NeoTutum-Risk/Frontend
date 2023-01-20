@@ -490,7 +490,7 @@ export const RiskGroup = ({
             updateSize(delta, direction, position);
           }}
           scale={scale}
-          style={{ zIndex:expanded ?999  :1 }}
+          style={{ zIndex:!expanded ?999  :1 }}
         >
           {data.modelGroup ? (
             <div

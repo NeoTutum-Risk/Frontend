@@ -7,7 +7,10 @@ import {
   HTMLSelect,
   FormGroup,
   Intent,
+  ButtonGroup,
+  MenuDivider,
 } from "@blueprintjs/core";
+import { Console } from "./console";
 import { Popover2 } from "@blueprintjs/popover2";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
@@ -26,6 +29,8 @@ import {
 } from "../../services";
 import { ChartObject } from "./chartObject";
 export const RiskAssessment = ({
+  logs,
+  scenarios,
   visualObjectEdit,
   analyticsChartsFilter,
   analyticsChartsDelete,
@@ -68,8 +73,11 @@ export const RiskAssessment = ({
   openedGroupConnections,
   handleVOEdit,
   handleVODelete,
-  handleRefresh
+  handleRefresh,
+  selectedScenario,
+  selectedScenarioRun
 }) => {
+
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
     width: 50000,
@@ -274,6 +282,7 @@ export const RiskAssessment = ({
       //   onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
       //   onClick={resetContext}
       // >
+      <>
       <Xwrapper>
         <TransformWrapper
           zoomAnimation={{ disabled: true }}
@@ -321,6 +330,7 @@ export const RiskAssessment = ({
                   zIndex: "99",
                 }}
               >
+                <div style={{display:"flex"}}>
                 <Button
                   small={true}
                   fill={false}
@@ -458,6 +468,101 @@ export const RiskAssessment = ({
                       handleRefresh()
                     }
                   />
+
+                
+                {scenarios.length>0 && 
+                <>
+                <Popover2
+                  // className={styles.addWindowsButton}
+                  // position='left-top'
+                  // isOpen={isOpenAnalysisMenuSelect}
+                  interactionKind="click-target"
+                  content={
+                    <Menu>
+                      <>
+                        <MenuItem
+                          icon="derive-column"
+                          text="Create New Scenario"
+                          onClick={() => {}}
+                          disabled={true}
+                        />
+                        <MenuDivider />
+                          {scenarios?scenarios.map(
+                            (scenario) => (
+                              <MenuItem 
+                              key={`${scenario.id}${scenario.name}`}
+                                icon="derive-column" 
+                                text={scenario.name}
+                                onClick={() => {
+                                }}
+                              >
+                                
+                              </MenuItem>
+                            )
+                          ):null}
+                      </>
+                    </Menu>
+                  }
+                >
+                  <Button
+                    small={true}
+                    fill={false}
+                    text={`Scenario: #${selectedScenario.id}`}
+                    // icon="function"
+                    loading={loadingAnalytics}
+                    onClick={() =>{}
+                      // setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)
+                    }
+                  />
+                  
+                </Popover2>
+               <Popover2
+                  // className={styles.addWindowsButton}
+                  // position='left-top'
+                  // isOpen={isOpenAnalysisMenuSelect}
+                  interactionKind="click-target"
+                  content={
+                    <Menu>
+                      <>
+                        <MenuItem
+                          icon="derive-column"
+                          text="Create New Scenario Run"
+                          onClick={() => {}}
+                          disabled={true}
+                        />
+                        <MenuDivider />
+                          {scenarios.length>0&& selectedScenario?.SenarioRuns.length>0 ? selectedScenario.SenarioRuns.map(
+                            (run) => (
+                              <MenuItem 
+                              key={`${run.id}${run.name}`}
+                                icon="derive-column" 
+                                text={run.name}
+                                onClick={() => {
+                                }}
+                              />
+                                
+                            )
+                          ):null}
+                      </>
+                    </Menu>
+                  }
+                >
+                  <Button
+                    small={true}
+                    fill={false}
+                    text={`Runs: #${selectedScenarioRun.id}`}
+                    // icon="function"
+                    loading={loadingAnalytics}
+                    onClick={() =>{}
+                      // setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)
+                    }
+                  />
+                  
+                </Popover2>
+                </>}
+                  <ButtonGroup>
+
+                  </ButtonGroup>
                 {openedGroup && (
                   <Button
                     intent="DANGER"
@@ -467,11 +572,12 @@ export const RiskAssessment = ({
                     onClick={() => handleOpenedGroup("", "clear")}
                   />
                 )}
+                </div>
               </div>
               <TransformComponent
                 wrapperStyle={{
                   width: "100%",
-                  height: "100%",
+                  height: "96%",
                 }}
                 contentStyle={{
                   width: `${enviroDimension.width}px`,
@@ -666,7 +772,7 @@ export const RiskAssessment = ({
             </React.Fragment>
           )}
         </TransformWrapper>
-
+        <Console logs={logs} />
         {instanceConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
@@ -854,7 +960,9 @@ export const RiskAssessment = ({
             // zIndex={1000000}
           />
         ))}
+        
       </Xwrapper>
+      </>
     );
   }
 };
