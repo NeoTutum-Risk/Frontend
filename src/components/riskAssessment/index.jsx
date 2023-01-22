@@ -699,6 +699,8 @@ applyScenarioRun,
                             ) >
                             0 && (
                             <RiskGroup
+                            selectedScenario={selectedScenario}
+                            selectedScenarioRun={selectedScenarioRun}
                               globalViewIndex={globalViewIndex}
                               views={views}
                               charts={charts}
