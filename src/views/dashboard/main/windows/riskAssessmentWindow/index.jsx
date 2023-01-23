@@ -67,9 +67,9 @@ import {
   deleteAnalyticsChart,
   getAnalyticsChartsCausal,
   addScenario,
-addScenarioRun
+  addScenarioRun,
 } from "../../../../../services";
-import { windowDefault,BACKEND_URI } from "../../../../../constants";
+import { windowDefault, BACKEND_URI } from "../../../../../constants";
 import {
   showDangerToaster,
   showSuccessToaster,
@@ -99,12 +99,12 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
-  const [scenarioName,setScenarioName]=useState(null);
-  const [scenarioRunName,setScenarioRunName]=useState(null);
-  const [logs,setLogs]=useState([]);
+  const [scenarioName, setScenarioName] = useState(null);
+  const [scenarioRunName, setScenarioRunName] = useState(null);
+  const [logs, setLogs] = useState([]);
   const [scenarios, setScenarios] = useState([]);
-  const [selectedScenario,setSelectedScenario]=useState(null);
-  const [selectedScenarioRun,setSelectedScenarioRun]=useState(null);
+  const [selectedScenario, setSelectedScenario] = useState(null);
+  const [selectedScenarioRun, setSelectedScenarioRun] = useState(null);
   const [selectedVisualObject, setSelectedVisualObject] = useState(null);
   const [voFilePath, setVoFilePath] = useState(null);
   const [voText, setVoText] = useState(null);
@@ -211,22 +211,24 @@ export const RiskAssessmentWindow = ({
   });
 
   const initialSocket = useCallback(() => {
-    console.log('initial socket');
+    console.log("initial socket");
     const socket = openSocket(`${BACKEND_URI}`);
     socket.on(`analytics_progress_${window.data.id}`, (log) => {
-      setLogs(prev=>([...prev,log]))
-      console.log(log)
+      setLogs((prev) => [...prev, log]);
+      console.log(log);
     });
     return socket;
-  }, [window.data.id,]);
+  }, [window.data.id]);
 
-  useEffect(()=>{initialSocket()},[initialSocket])
+  useEffect(() => {
+    initialSocket();
+  }, [initialSocket]);
 
-  useEffect(()=>{
-    if(scenarios.length===0)return;
-    setSelectedScenario(scenarios[0])
+  useEffect(() => {
+    if (scenarios.length === 0) return;
+    setSelectedScenario(scenarios[0]);
     setSelectedScenarioRun(scenarios[0].SenarioRuns[0]);
-  },[scenarios])
+  }, [scenarios]);
 
   const checkMaximized = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -800,7 +802,7 @@ export const RiskAssessmentWindow = ({
     if (!selectedVisualObject) return;
     console.log("Ready to show");
     setContextMenu({
-      active:true,
+      active: true,
       type: "create visual object",
       contextX: Number(selectedVisualObject.x),
       contextY: Number(selectedVisualObject.y),
@@ -809,7 +811,10 @@ export const RiskAssessmentWindow = ({
   const riskAssessmentData = useCallback(async () => {
     // if(openedGroup) return;
     try {
-      const response = await getRiskAssessment(window.data.id);
+      const response = await getRiskAssessment(window.data.id, {
+        senarioId: selectedScenario?.id | null,
+        senarioRunId: selectedScenarioRun?.id | null,
+      });
       if (response.status === 200) {
         if (openedGroup) {
           console.log("IN", openedGroup);
@@ -840,12 +845,13 @@ export const RiskAssessmentWindow = ({
           getCenter();
           setAnalyticsCharts(
             response.data.data.charts.filter(
-              (chart) => (chart.riskObjectId === null && chart.status!=="deleted")
+              (chart) =>
+                chart.riskObjectId === null && chart.status !== "deleted"
             )
           );
           setNotebooks(response.data.data.notebooks);
           setVisualObjects(response.data.data.textObjects);
-          setScenarios( response.data.data.senarios);
+          setScenarios(response.data.data.senarios);
         }
 
         setConnections(
@@ -997,14 +1003,17 @@ export const RiskAssessmentWindow = ({
     }
   }, []);
 
-  const analyticsChartsDelete = useCallback(async (id)=>{
-    const response = await deleteAnalyticsChart(id);
-    if(response.status>=200 && response.status<300){
-      analyticsCharts.filter(chart=>chart.id!==id)
-    }else{
-      showDangerToaster(`Faild Deleteing Chart #${id}`)
-    }
-  },[analyticsCharts])
+  const analyticsChartsDelete = useCallback(
+    async (id) => {
+      const response = await deleteAnalyticsChart(id);
+      if (response.status >= 200 && response.status < 300) {
+        analyticsCharts.filter((chart) => chart.id !== id);
+      } else {
+        showDangerToaster(`Faild Deleteing Chart #${id}`);
+      }
+    },
+    [analyticsCharts]
+  );
 
   const analyticsChartsFilter = useCallback(
     (req, pos) => {
@@ -1359,7 +1368,7 @@ export const RiskAssessmentWindow = ({
         const response = await addRiskObjectProperties(activeObject, {
           dataObjectElements: path,
           senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+          senarioRunId: selectedScenarioRun.id,
         });
         if (response.status === 200) {
           setContextMenu({
@@ -1401,7 +1410,7 @@ export const RiskAssessmentWindow = ({
         });
       }
     },
-    [contextMenu.element, activeObject,selectedScenario,selectedScenarioRun]
+    [contextMenu.element, activeObject, selectedScenario, selectedScenarioRun]
   );
 
   const handleConnection = useCallback(
@@ -1442,7 +1451,7 @@ export const RiskAssessmentWindow = ({
             effectProperty,
             linkProperty,
             senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+            senarioRunId: selectedScenarioRun.id,
           };
 
           const response = await addRiskConnection(payload);
@@ -1466,7 +1475,7 @@ export const RiskAssessmentWindow = ({
             effectProperty,
             linkProperty,
             senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+            senarioRunId: selectedScenarioRun.id,
           };
 
           const response = await addInstanceConnection(payload);
@@ -1505,8 +1514,8 @@ export const RiskAssessmentWindow = ({
             linkProperty,
             objectType:
               instance.dataObjectNew.IOtype === "Input" ? "Input" : "Output",
-              senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+            senarioId: selectedScenario.id,
+            senarioRunId: selectedScenarioRun.id,
           };
 
           const response = await addInstanceObjectConnection(payload);
@@ -1539,7 +1548,8 @@ export const RiskAssessmentWindow = ({
       causeProperty,
       effectProperty,
       linkProperty,
-      selectedScenario,selectedScenarioRun
+      selectedScenario,
+      selectedScenarioRun,
     ]
   );
 
@@ -1590,31 +1600,34 @@ export const RiskAssessmentWindow = ({
     [contextMenuAction]
   );
 
-  const setModelRiskObjectProperties = useCallback(async (mdl2Id, riskObj) => {
-    try {
-      const { object } = riskObj;
+  const setModelRiskObjectProperties = useCallback(
+    async (mdl2Id, riskObj) => {
+      try {
+        const { object } = riskObj;
 
-      if (object?.type === "model") {
-        const response = await addModelRiskObjectProperties(object.id, {
-          metaDataLevel2Id: mdl2Id,
-          senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
-        });
+        if (object?.type === "model") {
+          const response = await addModelRiskObjectProperties(object.id, {
+            metaDataLevel2Id: mdl2Id,
+            senarioId: selectedScenario.id,
+            senarioRunId: selectedScenarioRun.id,
+          });
 
-        if (response) {
-          showSuccessToaster(
-            `Successfully Added Properties to Risk Object ${object.id}`
+          if (response) {
+            showSuccessToaster(
+              `Successfully Added Properties to Risk Object ${object.id}`
+            );
+          }
+        } else {
+          throw new Error(
+            "Validation Error: Setting model properties behavior must be on Model Riskobject"
           );
         }
-      } else {
-        throw new Error(
-          "Validation Error: Setting model properties behavior must be on Model Riskobject"
-        );
+      } catch (error) {
+        showDangerToaster(error.message);
       }
-    } catch (error) {
-      showDangerToaster(error.message);
-    }
-  }, [selectedScenario,selectedScenarioRun]);
+    },
+    [selectedScenario, selectedScenarioRun]
+  );
 
   const menu = metaData.map((l1) => {
     return (
@@ -1730,14 +1743,14 @@ export const RiskAssessmentWindow = ({
           type = "object";
           setFirstContext("object");
         }
-      }else if (firstContext === "visualObject") {
+      } else if (firstContext === "visualObject") {
         type = "visualObject";
-          setFirstContext("visualObject");
-          // element=
-      }else if (firstContext === "chartObject") {
+        setFirstContext("visualObject");
+        // element=
+      } else if (firstContext === "chartObject") {
         type = "chartObject";
-          setFirstContext("chartObject");
-          // element=
+        setFirstContext("chartObject");
+        // element=
       }
       element = id
         ? Number(id)
@@ -1767,7 +1780,7 @@ export const RiskAssessmentWindow = ({
       riskGroupId: contextMenu.element,
       name: templateName,
       senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+      senarioRunId: selectedScenarioRun.id,
     };
 
     const response = await addRiskTemplate(payload);
@@ -1788,7 +1801,13 @@ export const RiskAssessmentWindow = ({
 
     setIsServiceLoading(false);
     // const redraw = await riskAssessmentData();
-  }, [riskAssessmentData, contextMenu, templateName,selectedScenario,selectedScenarioRun]);
+  }, [
+    riskAssessmentData,
+    contextMenu,
+    templateName,
+    selectedScenario,
+    selectedScenarioRun,
+  ]);
 
   const handleGrouping = useCallback(
     async (data) => {
@@ -1965,7 +1984,7 @@ export const RiskAssessmentWindow = ({
           x: contextMenu.offsetX,
           y: contextMenu.offsetY,
           senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+          senarioRunId: selectedScenarioRun.id,
         };
         const response = await addGroupFromTemplate(payload);
         resetContext();
@@ -1992,7 +2011,8 @@ export const RiskAssessmentWindow = ({
       setImportTemplateNameError,
       resetContext,
       riskAssessmentData,
-      selectedScenario,selectedScenarioRun
+      selectedScenario,
+      selectedScenarioRun,
     ]
   );
 
@@ -2285,8 +2305,10 @@ export const RiskAssessmentWindow = ({
     setIsServiceLoading(true);
     switch (selectedConnection?.type) {
       case "riskObjects":
-        response = await deleteRiskConnection(selectedConnection.id,{senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id});
+        response = await deleteRiskConnection(selectedConnection.id, {
+          senarioId: selectedScenario.id,
+          senarioRunId: selectedScenarioRun.id,
+        });
         resetContext();
         setConnections((prev) =>
           prev.filter((connection) => connection.id !== selectedConnection.id)
@@ -2326,6 +2348,8 @@ export const RiskAssessmentWindow = ({
     resetContext,
     setSelectedElements,
     setSelectedObjects,
+    selectedScenario,
+    selectedScenarioRun
   ]);
 
   const importSharedGroup = useCallback(async () => {
@@ -2336,7 +2360,7 @@ export const RiskAssessmentWindow = ({
       y: contextMenu.offsetY,
       shared: true,
       senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+      senarioRunId: selectedScenarioRun.id,
     };
     setIsServiceLoading(true);
     const response = await importGroup(payload);
@@ -2355,7 +2379,8 @@ export const RiskAssessmentWindow = ({
     window.data.id,
     resetContext,
     riskAssessmentData,
-    selectedScenario,selectedScenarioRun
+    selectedScenario,
+    selectedScenarioRun,
   ]);
 
   const handleShareGroup = useCallback(async () => {
@@ -2528,7 +2553,7 @@ export const RiskAssessmentWindow = ({
         riskAssessmentId: window.data.id,
         riskGroupId: activeObject,
         senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+        senarioRunId: selectedScenarioRun.id,
       });
       if (response.status >= 200 && response.status < 300) {
         setGroups((prev) => prev.filter((grp) => grp.id !== activeObject));
@@ -2539,7 +2564,13 @@ export const RiskAssessmentWindow = ({
     } catch (error) {
       showDangerToaster(`Error unsharing group: ${error}`);
     }
-  }, [window.data.id, activeObject, resetContext,selectedScenario,selectedScenarioRun]);
+  }, [
+    window.data.id,
+    activeObject,
+    resetContext,
+    selectedScenario,
+    selectedScenarioRun,
+  ]);
 
   const setForm = useCallback(
     ({ contextX, contextY, x, y, offsetX, offsetY }) => {
@@ -2623,7 +2654,7 @@ export const RiskAssessmentWindow = ({
         linkProperty,
         connectionType,
         senarioId: selectedScenario.id,
-          senarioRunId: selectedScenarioRun.id
+        senarioRunId: selectedScenarioRun.id,
       });
       if (response.status >= 200 && response.status < 300) {
         setConnections((prev) =>
@@ -2674,28 +2705,30 @@ export const RiskAssessmentWindow = ({
     resetContext,
     selectedElements.length,
     linkProperty,
-    selectedScenario,selectedScenarioRun
+    selectedScenario,
+    selectedScenarioRun,
   ]);
 
-  const handleVOEdit = useCallback(async(id,data)=>{
-
+  const handleVOEdit = useCallback(async (id, data) => {
     let processCase = false;
     let payload = new FormData();
-    if(data.objectText){
+    if (data.objectText) {
       payload.append("text", data.objectText);
     }
 
-    if(data.objectFont){
+    if (data.objectFont) {
       payload.append("font", data.objectFont);
     }
 
-    if(data.objectFile){
+    if (data.objectFile) {
       payload.append("fileUpload", data.objectFile);
     }
 
-    const response = await editVisualObject(id,payload);
+    const response = await editVisualObject(id, payload);
     if (response.status >= 200 && response.status < 300) {
-      setVisualObjects((prev) => prev.map(obj=>obj.id===data.id?response.data.data:obj));
+      setVisualObjects((prev) =>
+        prev.map((obj) => (obj.id === data.id ? response.data.data : obj))
+      );
       processCase = true;
     } else {
       showDangerToaster(`Can't Edit Object`);
@@ -2703,13 +2736,13 @@ export const RiskAssessmentWindow = ({
 
     setIsServiceLoading(false);
     return processCase;
-  },[])
+  }, []);
 
-  const handleVODelete = useCallback(async(id)=>{
-    let processCase =false;
+  const handleVODelete = useCallback(async (id) => {
+    let processCase = false;
     const response = await deleteVisualObject(id);
     if (response.status >= 200 && response.status < 300) {
-      setVisualObjects((prev) => prev.filter(obj=>obj.id!==id));
+      setVisualObjects((prev) => prev.filter((obj) => obj.id !== id));
       processCase = true;
     } else {
       showDangerToaster(`Can't Delete Object`);
@@ -2717,122 +2750,156 @@ export const RiskAssessmentWindow = ({
 
     setIsServiceLoading(false);
     return processCase;
-  },[])
+  }, []);
 
-  const zIndexing = useCallback(async (type,action)=>{
-    
-    let currentIndex =10;
-    let response;
-    if(!hoveredElement) return
-    if(hoveredElement.zIndex){
-      currentIndex=hoveredElement.zIndex;
-    }
-    switch (action) {
-      case "backward":
-        currentIndex-=1;
-        break;
+  const zIndexing = useCallback(
+    async (type, action) => {
+      let currentIndex = 10;
+      let response;
+      if (!hoveredElement) return;
+      if (hoveredElement.zIndex) {
+        currentIndex = hoveredElement.zIndex;
+      }
+      switch (action) {
+        case "backward":
+          currentIndex -= 1;
+          break;
         case "toBack":
-          currentIndex=1;
-        break;
+          currentIndex = 1;
+          break;
         case "forward":
-          currentIndex+=1;
-        break;
+          currentIndex += 1;
+          break;
         case "toFront":
-          currentIndex=100;
-        break;
-    
-      default:
-        break;
-    }
-    switch (type) {
-      case "ro":
-         response = await updateRiskObjectPosition(window.data.id,hoveredElement.id,{zIndex:currentIndex});
-        break;
+          currentIndex = 100;
+          break;
+
+        default:
+          break;
+      }
+      switch (type) {
+        case "ro":
+          response = await updateRiskObjectPosition(
+            window.data.id,
+            hoveredElement.id,
+            { zIndex: currentIndex }
+          );
+          break;
         case "do":
-         response = await updateNewDataObjectInstance(hoveredElement.id,{zIndex:currentIndex});
-        break;
+          response = await updateNewDataObjectInstance(hoveredElement.id, {
+            zIndex: currentIndex,
+          });
+          break;
         case "vo":
-         response = await editVisualObject(hoveredElement.id,{zIndex:currentIndex});
-        break;
+          response = await editVisualObject(hoveredElement.id, {
+            zIndex: currentIndex,
+          });
+          break;
 
         case "co":
-         response = await editAnalyticsChart(hoveredElement.id,{zIndex:currentIndex});
-        break;
-    
-      default:
-        
-        break;
-    }
+          response = await editAnalyticsChart(hoveredElement.id, {
+            zIndex: currentIndex,
+          });
+          break;
 
-    if(response.status>=200 && response.status <300){
-      riskAssessmentData();
-    }else{
-      showDangerToaster(`Faild To Update`);
-    }
-  },[hoveredElement,riskAssessmentData,window.data.id])
+        default:
+          break;
+      }
 
-  const handleRefresh = useCallback(()=>{
+      if (response.status >= 200 && response.status < 300) {
+        riskAssessmentData();
+      } else {
+        showDangerToaster(`Faild To Update`);
+      }
+    },
+    [hoveredElement, riskAssessmentData, window.data.id]
+  );
+
+  const handleRefresh = useCallback(() => {
     riskAssessmentData();
-  },[riskAssessmentData])
+  }, [riskAssessmentData]);
 
-  const addScenarioHandler = useCallback(()=>{
+  const addScenarioHandler = useCallback(() => {
     setContextMenu({
-      active:true,
-      type:"new scenario"
-    })
-  },[]);
+      active: true,
+      type: "new scenario",
+    });
+  }, []);
 
-  const addScenarioPost = useCallback(async()=>{
+  const addScenarioPost = useCallback(async () => {
     setIsServiceLoading(true);
-    const response = await addScenario({name:scenarioName,riskAssessmentId:window.data.id});
-    if(response.status>=200 && response.status<300){
-      setScenarios(prev=>([...prev,response.data.data]));
+    const response = await addScenario({
+      name: scenarioName,
+      riskAssessmentId: window.data.id,
+    });
+    if (response.status >= 200 && response.status < 300) {
+      setScenarios((prev) => [...prev, response.data.data]);
       setSelectedScenario(response.data.data);
-      setSelectedScenarioRun(response.data.data.SenarioRuns[0])
+      setSelectedScenarioRun(response.data.data.SenarioRuns[0]);
       setScenarioName(null);
       resetContext();
-    }else{
+      riskAssessmentData();
+    } else {
       showDangerToaster(`Can't add scenario`);
       setIsServiceLoading(false);
     }
-  },[window.data.id,scenarioName,resetContext]);
+  }, [window.data.id, scenarioName, resetContext,riskAssessmentData]);
 
-  const addScenarioRunPost = useCallback(async()=>{
+  const addScenarioRunPost = useCallback(async () => {
     setIsServiceLoading(true);
-    const response = await addScenarioRun({name:scenarioRunName,riskAssessmentId:window.data.id});
-    if(response.status>=200 && response.status<300){
-      setScenarios(prev=>prev.map(scenario=>{
-        if(scenario.id===selectedScenario.id){
-          return {...scenario,SenarioRuns:[...scenario.SenarioRuns,response.data.data]}
-        }else{
-          return scenario
-        }
-      }));
-      setSelectedScenarioRun(response.data.data)
+    const response = await addScenarioRun({
+      name: scenarioRunName,
+      riskAssessmentId: window.data.id,
+    });
+    if (response.status >= 200 && response.status < 300) {
+      setScenarios((prev) =>
+        prev.map((scenario) => {
+          if (scenario.id === selectedScenario.id) {
+            return {
+              ...scenario,
+              SenarioRuns: [...scenario.SenarioRuns, response.data.data],
+            };
+          } else {
+            return scenario;
+          }
+        })
+      );
+      setSelectedScenarioRun(response.data.data);
       setScenarioName(null);
       setScenarioRunName(null);
       resetContext();
-    }else{
+      riskAssessmentData();
+    } else {
       showDangerToaster(`Can't add scenario`);
       setIsServiceLoading(false);
     }
-  },[window.data.id,scenarioRunName,resetContext,selectedScenario?.id]);
+  }, [window.data.id, scenarioRunName, resetContext, selectedScenario?.id]);
 
-  const addScenarioRunHandler = useCallback( ()=>{
+  const addScenarioRunHandler = useCallback(() => {
     setContextMenu({
-      active:true,
-      type:"new scenario run"
-    })
-  },[]);
+      active: true,
+      type: "new scenario run",
+    });
+  }, []);
 
-  const applyScenario = useCallback((id)=>{
-    setSelectedScenario(scenarios.find(scenario=>scenario.id===id));
-    setSelectedScenarioRun(selectedScenario.SenarioRuns[0]);
-  },[scenarios,selectedScenario]);
+  const applyScenario = useCallback(
+    (id) => {
+      setSelectedScenario(scenarios.find((scenario) => scenario.id === id));
+      setSelectedScenarioRun(selectedScenario.SenarioRuns[0]);
+      riskAssessmentData();
+    },
+    [scenarios, selectedScenario,riskAssessmentData]
+  );
 
-  const applyScenarioRun = useCallback((id)=>{
-    setSelectedScenarioRun(selectedScenario.SenarioRuns.find(run=>run.id===id));
-  },[selectedScenario]);
+  const applyScenarioRun = useCallback(
+    (id) => {
+      setSelectedScenarioRun(
+        selectedScenario.SenarioRuns.find((run) => run.id === id)
+      );
+      riskAssessmentData();
+    },
+    [selectedScenario,riskAssessmentData]
+  );
 
   return (
     <>
@@ -2866,60 +2933,59 @@ export const RiskAssessmentWindow = ({
         )}
         {dataLoaded && (
           <>
-          <RiskAssessment
-          addScenarioHandler={addScenarioHandler}
-          addScenarioRunHandler={addScenarioRunHandler}
-          applyScenario={applyScenario}
-          applyScenarioRun={applyScenarioRun}
-          scenarios={scenarios}
-          selectedScenario={selectedScenario}
-          selectedScenarioRun={selectedScenarioRun}
-          handleRefresh={handleRefresh}
-          handleVOEdit={handleVOEdit}
-          handleVODelete={handleVODelete}
-            visualObjectEdit={visualObjectEdit}
-            analyticsChartsFilter={analyticsChartsFilter}
-            analyticsChartsDelete={analyticsChartsDelete}
-            analyticsCharts={analyticsCharts}
-            visualObjects={visualObjects}
-            globalViewIndex={globalViewIndex}
-            views={views}
-            analysisPacks={analysisPacks}
-            charts={charts}
-            getAnalytics={getAnalytics}
-            openedGroupConnections={openedGroupConnections}
-            openedGroup={openedGroup}
-            handleOpenedGroup={handleOpenedGroup}
-            objects={riskObjects}
-            groups={groups}
-            metaDataList={metaDataList}
-            dataObjectInstances={dataObjectInstances}
-            riskAssessmentId={window.data.id}
-            handleContextMenu={handleContextMenu}
-            selectedElements={selectedElements}
-            setSelectedElements={setSelectedElements}
-            connections={connections}
-            instanceConnections={instanceConnections}
-            instanceObjectConnections={instanceObjectConnections}
-            resetContext={resetContext}
-            setFirstContext={setFirstContext}
-            editRiskObject={editRiskObject}
-            closedFace={closedFace}
-            setHoveredElement={setHoveredElement}
-            handleObjectAction={handleObjectAction}
-            // onContext={handleRiskViewContext}
-            menu={menu}
-            handleProperties={handleProperties}
-            removeFromGroup={removeFromGroup}
-            addToGroup={addToGroup}
-            checkFilter={checkFilter}
-            checkConnctionVisibility={checkConnctionVisibility}
-            setGroups={setGroups}
-            handleUnshareGroup={handleUnshareGroup}
-            connectionForm={connectionForm}
-            logs={logs}
-          />
-          
+            <RiskAssessment
+              addScenarioHandler={addScenarioHandler}
+              addScenarioRunHandler={addScenarioRunHandler}
+              applyScenario={applyScenario}
+              applyScenarioRun={applyScenarioRun}
+              scenarios={scenarios}
+              selectedScenario={selectedScenario}
+              selectedScenarioRun={selectedScenarioRun}
+              handleRefresh={handleRefresh}
+              handleVOEdit={handleVOEdit}
+              handleVODelete={handleVODelete}
+              visualObjectEdit={visualObjectEdit}
+              analyticsChartsFilter={analyticsChartsFilter}
+              analyticsChartsDelete={analyticsChartsDelete}
+              analyticsCharts={analyticsCharts}
+              visualObjects={visualObjects}
+              globalViewIndex={globalViewIndex}
+              views={views}
+              analysisPacks={analysisPacks}
+              charts={charts}
+              getAnalytics={getAnalytics}
+              openedGroupConnections={openedGroupConnections}
+              openedGroup={openedGroup}
+              handleOpenedGroup={handleOpenedGroup}
+              objects={riskObjects}
+              groups={groups}
+              metaDataList={metaDataList}
+              dataObjectInstances={dataObjectInstances}
+              riskAssessmentId={window.data.id}
+              handleContextMenu={handleContextMenu}
+              selectedElements={selectedElements}
+              setSelectedElements={setSelectedElements}
+              connections={connections}
+              instanceConnections={instanceConnections}
+              instanceObjectConnections={instanceObjectConnections}
+              resetContext={resetContext}
+              setFirstContext={setFirstContext}
+              editRiskObject={editRiskObject}
+              closedFace={closedFace}
+              setHoveredElement={setHoveredElement}
+              handleObjectAction={handleObjectAction}
+              // onContext={handleRiskViewContext}
+              menu={menu}
+              handleProperties={handleProperties}
+              removeFromGroup={removeFromGroup}
+              addToGroup={addToGroup}
+              checkFilter={checkFilter}
+              checkConnctionVisibility={checkConnctionVisibility}
+              setGroups={setGroups}
+              handleUnshareGroup={handleUnshareGroup}
+              connectionForm={connectionForm}
+              logs={logs}
+            />
           </>
         )}
       </Window>
@@ -2939,25 +3005,29 @@ export const RiskAssessmentWindow = ({
             <MenuDivider />
             <MenuItem
               text="Backward"
-              onClick={() =>{zIndexing("ro","backward")}
-              }
+              onClick={() => {
+                zIndexing("ro", "backward");
+              }}
             />
             <MenuItem
               text="Send To Back"
-              onClick={() =>{zIndexing("ro","toBack")}
-              }
+              onClick={() => {
+                zIndexing("ro", "toBack");
+              }}
             />
             <MenuItem
               text="Forward"
-              onClick={() =>{zIndexing("ro","forward")}
-              }
+              onClick={() => {
+                zIndexing("ro", "forward");
+              }}
             />
             <MenuItem
               text="Send To Front"
-              onClick={() =>{zIndexing("ro","toFront")}
-              }
+              onClick={() => {
+                zIndexing("ro", "toFront");
+              }}
             />
-          <MenuDivider />
+            <MenuDivider />
             <MenuItem text="Edit" onClick={updateElementData} />
             {elementEnable ? (
               <>
@@ -2980,73 +3050,85 @@ export const RiskAssessmentWindow = ({
             <MenuDivider />
             <MenuItem
               text="Backward"
-              onClick={() =>{zIndexing("do","backward")}
-              }
+              onClick={() => {
+                zIndexing("do", "backward");
+              }}
             />
             <MenuItem
               text="Send To Back"
-              onClick={() =>{zIndexing("do","toBack")}
-              }
+              onClick={() => {
+                zIndexing("do", "toBack");
+              }}
             />
             <MenuItem
               text="Forward"
-              onClick={() =>{zIndexing("do","forward")}
-              }
+              onClick={() => {
+                zIndexing("do", "forward");
+              }}
             />
             <MenuItem
               text="Send To Front"
-              onClick={() =>{zIndexing("do","toFront")}
-              }
+              onClick={() => {
+                zIndexing("do", "toFront");
+              }}
             />
           </Menu>
         )}
 
-{contextMenu.active && contextMenu.type === "contextCO" && (
+        {contextMenu.active && contextMenu.type === "contextCO" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             <MenuItem
               text="Backward"
-              onClick={() =>{zIndexing("co","backward")}
-              }
+              onClick={() => {
+                zIndexing("co", "backward");
+              }}
             />
             <MenuItem
               text="Send To Back"
-              onClick={() =>{zIndexing("co","toBack")}
-              }
+              onClick={() => {
+                zIndexing("co", "toBack");
+              }}
             />
             <MenuItem
               text="Forward"
-              onClick={() =>{zIndexing("co","forward")}
-              }
+              onClick={() => {
+                zIndexing("co", "forward");
+              }}
             />
             <MenuItem
               text="Send To Front"
-              onClick={() =>{zIndexing("co","toFront")}
-              }
+              onClick={() => {
+                zIndexing("co", "toFront");
+              }}
             />
           </Menu>
         )}
 
-{contextMenu.active && contextMenu.type === "visualObject" && (
+        {contextMenu.active && contextMenu.type === "visualObject" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             <MenuItem
               text="Backward"
-              onClick={() =>{zIndexing("vo","backward")}
-              }
+              onClick={() => {
+                zIndexing("vo", "backward");
+              }}
             />
             <MenuItem
               text="Send To Back"
-              onClick={() =>{zIndexing("vo","toBack")}
-              }
+              onClick={() => {
+                zIndexing("vo", "toBack");
+              }}
             />
             <MenuItem
               text="Forward"
-              onClick={() =>{zIndexing("vo","forward")}
-              }
+              onClick={() => {
+                zIndexing("vo", "forward");
+              }}
             />
             <MenuItem
               text="Send To Front"
-              onClick={() =>{zIndexing("vo","toFront")}
-              }
+              onClick={() => {
+                zIndexing("vo", "toFront");
+              }}
             />
           </Menu>
         )}
@@ -3223,7 +3305,7 @@ export const RiskAssessmentWindow = ({
           </Menu>
         )}
 
-{contextMenu.active && contextMenu.type === "new scenario" && (
+        {contextMenu.active && contextMenu.type === "new scenario" && (
           <div
             key="text3"
             style={{
@@ -3296,7 +3378,7 @@ export const RiskAssessmentWindow = ({
           </div>
         )}
 
-{contextMenu.active && contextMenu.type === "new scenario run" && (
+        {contextMenu.active && contextMenu.type === "new scenario run" && (
           <div
             key="text3"
             style={{
