@@ -617,6 +617,8 @@ applyScenarioRun,
                                 name: grp.name,
                               }))}
                               setFirstContext={setFirstContext}
+                              selectedScenario={selectedScenario}
+                              selectedScenarioRun={selectedScenarioRun}
                               expanded={true}
                               handleContextMenu={handleContextMenu}
                               selectedElements={selectedElements}
@@ -697,6 +699,8 @@ applyScenarioRun,
                             ) >
                             0 && (
                             <RiskGroup
+                            selectedScenario={selectedScenario}
+                            selectedScenarioRun={selectedScenarioRun}
                               globalViewIndex={globalViewIndex}
                               views={views}
                               charts={charts}
