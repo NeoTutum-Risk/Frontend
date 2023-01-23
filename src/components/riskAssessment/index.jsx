@@ -530,8 +530,8 @@ applyScenarioRun,
                         <MenuItem
                           icon="derive-column"
                           text="Create New Scenario Run"
-                          onClick={() => addScenarioRunHandler}
-                          disabled={true}
+                          onClick={addScenarioRunHandler}
+                          // disabled={true}
                         />
                         <MenuDivider />
                           {scenarios.length>0&& selectedScenario?.SenarioRuns.length>0 ? selectedScenario.SenarioRuns.map(

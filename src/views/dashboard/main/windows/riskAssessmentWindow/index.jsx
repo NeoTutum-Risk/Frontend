@@ -815,8 +815,8 @@ export const RiskAssessmentWindow = ({
     // if(openedGroup) return;
     try {
       const response = await getRiskAssessment(window.data.id, {
-        senarioId: selectedScenario.id | null,
-        senarioRunId: selectedScenarioRun.id | null,
+        senarioId: selectedScenario?.id | null,
+        senarioRunId: selectedScenarioRun?.id | null,
       });
       if (response.status === 200) {
         if (openedGroup) {
@@ -2833,6 +2833,7 @@ export const RiskAssessmentWindow = ({
     setIsServiceLoading(true);
     const response = await addScenario({
       name: scenarioName,
+      defaultRunName:scenarioRunName,
       riskAssessmentId: window.data.id,
     });
     if (response.status >= 200 && response.status < 300) {
@@ -2840,19 +2841,21 @@ export const RiskAssessmentWindow = ({
       setSelectedScenario(response.data.data);
       setSelectedScenarioRun(response.data.data.SenarioRuns[0]);
       setScenarioName(null);
+      setScenarioRunName(null);
       resetContext();
       riskAssessmentData();
     } else {
       showDangerToaster(`Can't add scenario`);
       setIsServiceLoading(false);
     }
-  }, [window.data.id, scenarioName, resetContext, riskAssessmentData]);
+  }, [window.data.id, scenarioName, resetContext, riskAssessmentData,scenarioRunName]);
 
   const addScenarioRunPost = useCallback(async () => {
     setIsServiceLoading(true);
     const response = await addScenarioRun({
       name: scenarioRunName,
       riskAssessmentId: window.data.id,
+      senarioId: selectedScenario.id
     });
     if (response.status >= 200 && response.status < 300) {
       setScenarios((prev) =>
@@ -2876,7 +2879,7 @@ export const RiskAssessmentWindow = ({
       showDangerToaster(`Can't add scenario`);
       setIsServiceLoading(false);
     }
-  }, [window.data.id, scenarioRunName, resetContext, selectedScenario?.id]);
+  }, [window.data.id, scenarioRunName, resetContext, selectedScenario?.id,riskAssessmentData]);
 
   const addScenarioRunHandler = useCallback(() => {
     setContextMenu({
