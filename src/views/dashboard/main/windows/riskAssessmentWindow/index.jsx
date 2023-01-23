@@ -645,7 +645,10 @@ export const RiskAssessmentWindow = ({
   const updateViewsList = useCallback(async () => {
     setIsServiceLoading(true);
     try {
-      const response = await getRiskAssessmentViews(window.data.id);
+      const response = await getRiskAssessmentViews(window.data.id, {
+        senarioId: selectedScenario?.id | null,
+        senarioRunId: selectedScenarioRun?.id | null,
+      });
       if (response.status >= 200 && response.status < 300) {
         setViewsList(response.data.data);
         const current = response.data.data.find((view) => view.current);
@@ -812,8 +815,8 @@ export const RiskAssessmentWindow = ({
     // if(openedGroup) return;
     try {
       const response = await getRiskAssessment(window.data.id, {
-        senarioId: selectedScenario?.id | null,
-        senarioRunId: selectedScenarioRun?.id | null,
+        senarioId: selectedScenario.id | null,
+        senarioRunId: selectedScenarioRun.id | null,
       });
       if (response.status === 200) {
         if (openedGroup) {
@@ -2349,7 +2352,7 @@ export const RiskAssessmentWindow = ({
     setSelectedElements,
     setSelectedObjects,
     selectedScenario,
-    selectedScenarioRun
+    selectedScenarioRun,
   ]);
 
   const importSharedGroup = useCallback(async () => {
@@ -2843,7 +2846,7 @@ export const RiskAssessmentWindow = ({
       showDangerToaster(`Can't add scenario`);
       setIsServiceLoading(false);
     }
-  }, [window.data.id, scenarioName, resetContext,riskAssessmentData]);
+  }, [window.data.id, scenarioName, resetContext, riskAssessmentData]);
 
   const addScenarioRunPost = useCallback(async () => {
     setIsServiceLoading(true);
@@ -2888,7 +2891,7 @@ export const RiskAssessmentWindow = ({
       setSelectedScenarioRun(selectedScenario.SenarioRuns[0]);
       riskAssessmentData();
     },
-    [scenarios, selectedScenario,riskAssessmentData]
+    [scenarios, selectedScenario, riskAssessmentData]
   );
 
   const applyScenarioRun = useCallback(
@@ -2898,7 +2901,7 @@ export const RiskAssessmentWindow = ({
       );
       riskAssessmentData();
     },
-    [selectedScenario,riskAssessmentData]
+    [selectedScenario, riskAssessmentData]
   );
 
   return (
