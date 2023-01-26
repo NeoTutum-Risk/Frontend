@@ -662,6 +662,8 @@ applyScenarioRun,
                                 id: grp.id,
                                 name: grp.name,
                               }))}
+                              selectedScenario={selectedScenario}
+                              selectedScenarioRun={selectedScenarioRun}
                               handleContextMenu={handleContextMenu}
                               riskAssessmentId={riskAssessmentId}
                               scale={globalScale}

@@ -32,7 +32,9 @@ export const DataObject = ({
   addToGroup,
   groups,
   handleContextMenu,
-  shared
+  shared,
+  selectedScenario,
+  selectedScenarioRun,
 }) => {
   const [importObjectFile, setImportObjectFile] = useState(null);
   const [size, setSize] = useState({ w: data.width, h: data.height });
@@ -69,6 +71,8 @@ export const DataObject = ({
         riskAssessmentId,
         data.id,
         {
+          senarioId: selectedScenario?.id,
+          senarioRunId: selectedScenarioRun?.id,
           x: Math.round(position.x),
           y: Math.round(position.y),
           width: w,

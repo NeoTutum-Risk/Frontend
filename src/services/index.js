@@ -198,7 +198,7 @@ export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews
 
 export const updateRiskAssessmentView = (id, data) => serviceProvider.put(`filterViews/${id}`, data);
 
-export const testGetRiskAssessment = (id) => serviceProvider(`JSONAnalytics/RA-Analytics-IO/${id}`)
+export const fetchtRiskAssessmentJSON = (id, data) => serviceProvider.post(`JSONAnalytics/RA-Analytics-IO/${id}`, data)
 
 export const updateRiskAssessmentWindowSettings = (id, data) => serviceProvider.put(`riskAssessments/${id}`, data)
 
@@ -258,3 +258,5 @@ export const deleteAnalyticsChart = (id) =>serviceProvider.delete(`/analytics_ch
 export const getAnalyticsChartsCausal = (data) => serviceProvider.post(`analytics_charts/bulkCharts/analysispack/causal/${data.riskAssessmentId}`, data);
 
 export const getRiskAssessmentLogs = (id) =>serviceProvider.get(`/analytics_runs/logs/${id}`)
+
+export const editActiveSenario = (data) => serviceProvider.put(`/senarios/runs`, data)

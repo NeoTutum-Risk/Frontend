@@ -68,8 +68,9 @@ import {
   getAnalyticsChartsCausal,
   addScenario,
   addScenarioRun,
+  editActiveSenario,
 } from "../../../../../services";
-import { windowDefault, BACKEND_URI } from "../../../../../constants";
+import { windowDefault, SOCKET_URI } from "../../../../../constants";
 import {
   showDangerToaster,
   showSuccessToaster,
@@ -212,7 +213,7 @@ export const RiskAssessmentWindow = ({
 
   const initialSocket = useCallback(() => {
     console.log("initial socket");
-    const socket = openSocket(`${BACKEND_URI}`);
+    const socket = openSocket(`${SOCKET_URI}`);
     socket.on(`analytics_progress_${window.data.id}`, (log) => {
       setLogs((prev) => [...prev, log]);
       console.log(log);
@@ -2888,11 +2889,28 @@ export const RiskAssessmentWindow = ({
     });
   }, []);
 
+  const updateActiveSenario = useCallback(async (senarioId, senarioRunId) => {
+
+    try {
+
+      const response = await editActiveSenario({
+        senarioId,
+        senarioRunId
+      })
+      if (response.status >= 200 && response.status < 300) {
+        riskAssessmentData();
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error(error.message)
+    }
+  }, [riskAssessmentData, selectedScenario, selectedScenarioRun]);
+
   const applyScenario = useCallback(
     (id) => {
       setSelectedScenario(scenarios.find((scenario) => scenario.id === id));
       setSelectedScenarioRun(selectedScenario.SenarioRuns[0]);
-      riskAssessmentData();
+      // riskAssessmentData()
     },
     [scenarios, selectedScenario, riskAssessmentData]
   );
@@ -2902,7 +2920,10 @@ export const RiskAssessmentWindow = ({
       setSelectedScenarioRun(
         selectedScenario.SenarioRuns.find((run) => run.id === id)
       );
-      riskAssessmentData();
+
+      const senarioRunIdSelected = selectedScenario.SenarioRuns.find((run) => run.id === id)
+
+      updateActiveSenario(selectedScenario?.id, senarioRunIdSelected?.id)
     },
     [selectedScenario, riskAssessmentData]
   );

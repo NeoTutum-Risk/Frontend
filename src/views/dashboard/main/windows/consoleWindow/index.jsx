@@ -9,7 +9,7 @@ import {
   showDangerToaster,
   showSuccessToaster,
 } from "../../../../../utils/toaster";
-import {BACKEND_URI } from "../../../../../constants";
+import {SOCKET_URI } from "../../../../../constants";
 import { ConsoleObject } from "../../../../../components/riskAssessment/consoleObject";
 
 import openSocket from "socket.io-client";
@@ -42,7 +42,7 @@ export const ConsoleWindow = ({
 
   const initialSocket = useCallback(() => {
     console.log('initial socket');
-    const socket = openSocket(`${BACKEND_URI}`);
+    const socket = openSocket(`${SOCKET_URI}`);
     socket.on(`analytics_progress_${window.data.riskAssessment}`, (log) => {
       setLogs(prev=>([...prev,log]))
       console.log(log)

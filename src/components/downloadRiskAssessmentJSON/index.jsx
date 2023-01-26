@@ -7,7 +7,7 @@ import {
 import { Popover2, Classes } from "@blueprintjs/popover2";
 import RiskAssessmentMenu from "../riskAssessmentMenu";
 import { showDangerToaster } from "../../utils/toaster";
-import { getAllPortfolios, getRiskAssessment, testGetRiskAssessment } from "../../services";
+import { getAllPortfolios, getRiskAssessment, fetchtRiskAssessmentJSON } from "../../services";
 import { BACKEND_URI } from "../../constants";
 
 const DownloadRiskAssessmentJSON = () => {
@@ -33,7 +33,7 @@ const DownloadRiskAssessmentJSON = () => {
 
   const downloadRiskAssessmentHandler = async () => {
     try {
-      const response = await testGetRiskAssessment(
+      const response = await fetchtRiskAssessmentJSON(
         selectedRiskAssessment.riskAssessmentId
       );
       if (response.status === 200) {
