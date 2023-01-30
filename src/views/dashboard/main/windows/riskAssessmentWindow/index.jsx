@@ -222,7 +222,13 @@ export const RiskAssessmentWindow = ({
   }, [window.data.id]);
 
   useEffect(() => {
-    initialSocket();
+    const socketIO = initialSocket();
+    return () => {
+      if (socketIO) {
+        console.log(`Socket disconnected -> ${window.data.id}`);
+        socketIO.disconnect()
+      }
+    };
   }, [initialSocket]);
 
   useEffect(() => {
@@ -957,15 +963,14 @@ export const RiskAssessmentWindow = ({
         }
 
         if (response?.status >= 200 && response?.status < 300) {
+          setIsServiceLoading(false);
           riskAssessmentData();
           return response;
-        } else {
-          throw new Error("Error Getting Analytic Data");
-        }
+        } 
       } catch (error) {
-        showDangerToaster(`${error}`);
+        setIsServiceLoading(false);
+        showDangerToaster(`${error.message}`);
       }
-      setIsServiceLoading(false);
     },
     [window.data.id, riskAssessmentData]
   );

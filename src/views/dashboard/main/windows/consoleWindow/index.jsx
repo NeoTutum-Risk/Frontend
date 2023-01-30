@@ -50,7 +50,16 @@ export const ConsoleWindow = ({
     return socket;
   }, [window.data.riskAssessment,]);
 
-  useEffect(()=>{initialSocket()},[initialSocket])
+  useEffect(() => {
+    const socketIO = initialSocket();
+    return () => {
+      if (socketIO) {
+        console.log(`Socket disconnected -> ${window.data.riskAssessment}`);
+        socketIO.disconnect()
+      }
+    };
+  }, [initialSocket]);
+
   return (
     <Window
       window={window}
