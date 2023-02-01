@@ -514,7 +514,7 @@ applyScenarioRun,
                   <Button
                     small={true}
                     fill={false}
-                    text={`Scenario: #${selectedScenario.id}`}
+                    text={`${selectedScenario.id} - ${selectedScenario.name}`}
                     // icon="function"
                     loading={loadingAnalytics}
                     onClick={() =>{}
@@ -556,7 +556,7 @@ applyScenarioRun,
                   <Button
                     small={true}
                     fill={false}
-                    text={`Runs: #${selectedScenarioRun.id}`}
+                    text={`${selectedScenarioRun.id} - ${selectedScenarioRun.name}`}
                     // icon="function"
                     loading={loadingAnalytics}
                     onClick={() =>{}
@@ -784,7 +784,7 @@ applyScenarioRun,
             </React.Fragment>
           )}
         </TransformWrapper>
-        <Console logs={logs} />
+        {/* <Console logs={logs} /> */}
         {instanceConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
