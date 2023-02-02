@@ -164,7 +164,7 @@ export const RiskElement = ({
   );
 
   const updateSelectedChart = useCallback(async (index)=>{
-    const response = await editRiskObject(data.id, {chartIndex:index}, groupId);
+    const response = await editRiskObject(data.id, {chartIndex:index, riskAssessmentId}, groupId);
   },[data.id,groupId,editRiskObject])
 
   return (
