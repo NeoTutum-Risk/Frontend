@@ -11,8 +11,18 @@ import {
 } from "@blueprintjs/core";
 import { useState } from "react";
 
-export const OpenFace = ({ data, groupId, setView, charts }) => {
-  const [chartIndex, setChartIndex] = useState(0);
+export const OpenFace = ({
+  data,
+  groupId,
+  setView,
+  charts,
+  chartIndex,
+  setChartIndex,
+  setShowChartsWindow,
+  showChartsWindow,
+  handleObjectProperty,
+  updateSelectedChart
+}) => {
   return (
     <>
       {/* <div
@@ -20,40 +30,56 @@ export const OpenFace = ({ data, groupId, setView, charts }) => {
         className="panningDisabled"
         title={data.description}
       > */}
-        <div>
-          <ButtonGroup>
-            <Button
-              onClick={() => setView("full")}
-              text={`${data.type[0].toUpperCase()}: ${data.id}`}
-            />
-            <Button
-              text={groupId ? `G: ${Number(groupId - 2000000)}` : `G: `}
-            />
-            {!!charts[chartIndex] &&
+      <div>
+        <ButtonGroup>
+          <Button
+            onClick={() =>{ setShowChartsWindow(false);setView("full");handleObjectProperty({
+              id: data.id,
+              action: "remove",
+            });}}
+            text={`${data.type[0].toUpperCase()}: ${data.id}`}
+          />
+          <Button text={groupId ? `G: ${Number(groupId - 2000000)}` : `G: `} />
+          <Button
+            icon="expand-all"
+            onClick={() => {
+              setShowChartsWindow((prev) => !prev);
+              handleObjectProperty({
+                id: data.id,
+                action: showChartsWindow ? "remove" : "add",
+              });
+            }}
+          />
+          {!!charts[chartIndex] && (
             <Popover2
-            
               content={
                 <Menu>
-                  {charts.map((chart,index)=><MenuItem text={chart.name} onClick={()=>setChartIndex(index)}/>)}
+                  {charts.map((chart, index) => (
+                    <MenuItem
+                      text={chart.name}
+                      onClick={() => {setChartIndex(index);updateSelectedChart(index)}}
+                    />
+                  ))}
                 </Menu>
               }
             >
               <Button icon="share" text={charts[chartIndex].name} />
-            </Popover2>}
-          </ButtonGroup>
-        </div>
-
-        <div>
-          {!!charts[chartIndex] && (
-            <img
-              style={{ width: "100%", height: "auto", marginTop: "5px" }}
-              src={`data:image/svg+xml;utf8,${encodeURIComponent(
-                charts[chartIndex].svg
-              )}`}
-              alt="Error Rendering Chart"
-            />
+            </Popover2>
           )}
-        </div>
+        </ButtonGroup>
+      </div>
+
+      <div>
+        {!!charts[chartIndex] && (
+          <img
+            style={{ width: "100%", height: "auto", marginTop: "5px" }}
+            src={`data:image/svg+xml;utf8,${encodeURIComponent(
+              charts[chartIndex].svg
+            )}`}
+            alt="Error Rendering Chart"
+          />
+        )}
+      </div>
       {/* </div> */}
     </>
   );

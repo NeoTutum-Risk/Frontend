@@ -229,7 +229,7 @@ applyScenarioRun,
           }));
         }
       } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
         setLoadingAnalytics(false);
       }
     },
@@ -583,7 +583,7 @@ applyScenarioRun,
               <TransformComponent
                 wrapperStyle={{
                   width: "100%",
-                  height: "96%",
+                  height: "100%",
                 }}
                 contentStyle={{
                   width: `${enviroDimension.width}px`,

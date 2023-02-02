@@ -38,6 +38,8 @@ export const ClosedFace = ({
     setEditingValue(null);
   }, []);
 
+
+
   const updateRiskObject = useCallback(async () => {
     setUsingService(true);
     let payload;
