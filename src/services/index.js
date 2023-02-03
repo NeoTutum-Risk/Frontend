@@ -198,7 +198,7 @@ export const addRiskAssessmentView = (data) => serviceProvider.post(`filterViews
 
 export const updateRiskAssessmentView = (id, data) => serviceProvider.put(`filterViews/${id}`, data);
 
-export const fetchtRiskAssessmentJSON = (id, data) => serviceProvider.post(`JSONAnalytics/RA-Analytics-IO/${id}`, data)
+export const fetchtRiskAssessmentJSON = (data) => serviceProvider.get(`JSONAnalytics/RA-Analytics-IO/${data.riskAssessmentId}?scenarioId=${data.scenarioId}&scenarioRunId=${data.scenarioRunId}`)
 
 export const updateRiskAssessmentWindowSettings = (id, data) => serviceProvider.put(`riskAssessments/${id}`, data)
 
@@ -260,3 +260,5 @@ export const getAnalyticsChartsCausal = (data) => serviceProvider.post(`analytic
 export const getRiskAssessmentLogs = (id) =>serviceProvider.get(`/analytics_runs/logs/${id}`)
 
 export const editActiveSenario = (data) => serviceProvider.put(`/senarios/runs`, data)
+
+export const getSenarios = (id) => serviceProvider.get(`/senarios/${id}`)
