@@ -209,6 +209,7 @@ export const RiskAssessmentWindow = ({
     deleted: false,
     invisible: false,
     disabled: true,
+    charts:true
   });
 
   const initialSocket = useCallback(() => {
@@ -408,6 +409,7 @@ export const RiskAssessmentWindow = ({
         check = filter.vObjects && type === "virtual" ? true : check;
         check = filter.pObjects && type === "physical" ? true : check;
         check = filter.mObjects && type === "model" ? true : check;
+        check = filter.charts && type === "chart" ? true : check;
         check =
           filter.riskObjects &&
           (type === "virtual" || type === "physical" || type === "model")
@@ -3572,6 +3574,18 @@ export const RiskAssessmentWindow = ({
                   setFilter((prev) => ({
                     ...prev,
                     connections: !prev.connections,
+                    normal: false,
+                  }))
+                }
+              />
+              <hr />
+              <Checkbox
+                checked={filter.charts}
+                label="Show Charts"
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    charts: !prev.charts,
                     normal: false,
                   }))
                 }

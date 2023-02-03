@@ -765,6 +765,10 @@ applyScenarioRun,
                     ))}
                     {analyticsCharts.length > 0 &&
                     analyticsCharts.filter(chart=>chart.visible).map((obj,index) => (
+                      checkFilter(
+                        "chart",
+                        obj.status,
+                      ) &&
                       <ChartObject
                       key={`co--${obj.id}`}
                       analyticsChartsFilter={analyticsChartsFilter}
