@@ -41,6 +41,7 @@ export const RiskElement = ({
   globalViewIndex,
   views,
 }) => {
+  const [view, setView] = useState(views[data.faceIndex]);
   const [chartIndex, setChartIndex] = useState(data.chartIndex | 0);
   const [size, setSize] = useState({
     w: data["position.width"],
@@ -48,7 +49,7 @@ export const RiskElement = ({
   });
   const [groupIdState, setGroupIdState] = useState(groupId);
   const [face, setFace] = useState(true);
-  const [view, setView] = useState(views[globalViewIndex]);
+  
   const [showProperties, setShowProperties] = useState(false);
   const [showChartsWindow, setShowChartsWindow] = useState(false);
   const [editor, setEditor] = useState(false);
@@ -65,8 +66,8 @@ export const RiskElement = ({
   }, [closedFace]);
 
   useEffect(() => {
-    setView(views[globalViewIndex]);
-  }, [globalViewIndex, views]);
+    setView(views[globalViewIndex?globalViewIndex:data.faceIndex]);
+  }, [globalViewIndex, views,data.faceIndex]);
 
   // useEffect(()=>{
   //   if(!expanded){
@@ -165,7 +166,11 @@ export const RiskElement = ({
 
   const updateSelectedChart = useCallback(async (index)=>{
     const response = await editRiskObject(data.id, {chartIndex:index, riskAssessmentId}, groupId);
-  },[data.id,groupId,editRiskObject])
+  },[data.id,groupId,editRiskObject,riskAssessmentId])
+
+  const updateSelectedFace = useCallback(async (index)=>{
+    const response = await editRiskObject(data.id, {faceIndex:index, riskAssessmentId}, groupId);
+  },[data.id,groupId,editRiskObject,riskAssessmentId])
 
   return (
     <>
@@ -300,6 +305,7 @@ export const RiskElement = ({
           >
             {view === "open" /*&& data['position.enabled'] */ && (
               <OpenFace
+              updateSelectedFace={updateSelectedFace}
                 chartIndex={chartIndex}
                 showChartsWindow={showChartsWindow}
                 setShowChartsWindow={setShowChartsWindow}
@@ -316,6 +322,7 @@ export const RiskElement = ({
             )}
             {view === "full" /*&& data['position.enabled']*/ && (
               <ClosedFace
+              updateSelectedFace={updateSelectedFace}
                 editRiskObject={editRiskObject}
                 data={data}
                 groupId={groupIdState}

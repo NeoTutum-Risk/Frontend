@@ -112,8 +112,8 @@ export const RiskAssessmentWindow = ({
   const [voName, setVoName] = useState(null);
   const [visualObjects, setVisualObjects] = useState([]);
   const [linkProperties, setLinkProperties] = useState([]);
-  const [views, setViews] = useState(["mini", "default", "open", "full"]);
-  const [globalViewIndex, setGlobalViewIndex] = useState(3);
+  const [views, setViews] = useState(["full", "default", "open" ,"mini"]);
+  const [globalViewIndex, setGlobalViewIndex] = useState(null);
   const [charts, setCharts] = useState([]);
   const [analyticsCharts, setAnalyticsCharts] = useState([]);
   const [notebooks, setNotebooks] = useState([]);
@@ -4006,17 +4006,31 @@ export const RiskAssessmentWindow = ({
             />
             <MenuDivider />
             <MenuItem
-              text={
-                globalViewIndex === 3 ? "Show Open Faces" : "Show Closed Faces"
-              }
-              onClick={() => {
-                setGlobalViewIndex(globalViewIndex === 3 ? 2 : 3);
+              text="Global Face"
+              
+            >
+            <MenuItem text="default" onClick={() => {
+                setGlobalViewIndex(null);
                 setContextMenu((prev) => ({
                   ...prev,
                   type: null,
                 }));
-              }}
-            />
+              }} active={!globalViewIndex}/>
+              <MenuItem text="Open" onClick={() => {
+                setGlobalViewIndex(2);
+                setContextMenu((prev) => ({
+                  ...prev,
+                  type: null,
+                }));
+              }} active={globalViewIndex===2}/>
+              <MenuItem text="Closed" onClick={() => {
+                setGlobalViewIndex(0);
+                setContextMenu((prev) => ({
+                  ...prev,
+                  type: null,
+                }));
+              }} active={globalViewIndex===0}/>
+              </MenuItem>
           </Menu>
         )}
 

@@ -21,7 +21,8 @@ export const OpenFace = ({
   setShowChartsWindow,
   showChartsWindow,
   handleObjectProperty,
-  updateSelectedChart
+  updateSelectedChart,
+  updateSelectedFace
 }) => {
   return (
     <>
@@ -33,7 +34,7 @@ export const OpenFace = ({
       <div>
         <ButtonGroup>
           <Button
-            onClick={() =>{ setShowChartsWindow(false);setView("full");handleObjectProperty({
+            onClick={() =>{ setShowChartsWindow(false);setView("full");updateSelectedFace(0);handleObjectProperty({
               id: data.id,
               action: "remove",
             });}}
