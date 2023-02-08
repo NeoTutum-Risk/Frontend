@@ -113,7 +113,7 @@ export const RiskAssessmentWindow = ({
   const [visualObjects, setVisualObjects] = useState([]);
   const [linkProperties, setLinkProperties] = useState([]);
   const [views, setViews] = useState(["full", "default", "open" ,"mini"]);
-  const [globalViewIndex, setGlobalViewIndex] = useState(null);
+  const [globalViewIndex, setGlobalViewIndex] = useState(7);
   const [charts, setCharts] = useState([]);
   const [analyticsCharts, setAnalyticsCharts] = useState([]);
   const [notebooks, setNotebooks] = useState([]);
@@ -4009,13 +4009,13 @@ export const RiskAssessmentWindow = ({
               text="Global Face"
               
             >
-            <MenuItem text="default" onClick={() => {
-                setGlobalViewIndex(null);
+            <MenuItem text="Default" onClick={() => {
+                setGlobalViewIndex(7);
                 setContextMenu((prev) => ({
                   ...prev,
                   type: null,
                 }));
-              }} active={!globalViewIndex}/>
+              }} active={globalViewIndex===7}/>
               <MenuItem text="Open" onClick={() => {
                 setGlobalViewIndex(2);
                 setContextMenu((prev) => ({

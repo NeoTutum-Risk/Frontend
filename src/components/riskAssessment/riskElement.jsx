@@ -66,7 +66,7 @@ export const RiskElement = ({
   }, [closedFace]);
 
   useEffect(() => {
-    setView(views[globalViewIndex?globalViewIndex:data.faceIndex]);
+    setView(views[globalViewIndex<7?globalViewIndex:data.faceIndex]);
   }, [globalViewIndex, views,data.faceIndex]);
 
   // useEffect(()=>{
