@@ -110,6 +110,8 @@ export const RiskAssessmentWindow = ({
   const [voFilePath, setVoFilePath] = useState(null);
   const [voText, setVoText] = useState(null);
   const [voName, setVoName] = useState(null);
+  const [voBGC, setVoBGC] = useState(null);
+  const [voB, setVoB] = useState(0);
   const [visualObjects, setVisualObjects] = useState([]);
   const [linkProperties, setLinkProperties] = useState([]);
   const [views, setViews] = useState(["full", "default", "open" ,"mini"]);
@@ -913,6 +915,8 @@ export const RiskAssessmentWindow = ({
     payload.append("name", voName);
     payload.append("x", contextMenu.offsetX);
     payload.append("y", contextMenu.offsetY);
+    payload.append("color", voBGC);
+    payload.append("border", voB);
     const response = await addVisualObject(payload);
     if (response.status >= 200 && response.status < 300) {
       setVisualObjects((prev) => [...prev, response.data.data]);
@@ -930,7 +934,7 @@ export const RiskAssessmentWindow = ({
     }
 
     setIsServiceLoading(false);
-  }, [window.data.id, voFilePath, voName, voText, contextMenu]);
+  }, [window.data.id, voFilePath, voName, voText, contextMenu,voB,voBGC]);
 
   const getAnalytics = useCallback(
     async (type, data) => {
@@ -2731,6 +2735,14 @@ export const RiskAssessmentWindow = ({
       payload.append("font", data.objectFont);
     }
 
+    if (data.color) {
+      payload.append("color", data.color);
+    }
+
+    if (data.border) {
+      payload.append("border", data.border);
+    }
+
     if (data.objectFile) {
       payload.append("fileUpload", data.objectFile);
     }
@@ -4078,6 +4090,41 @@ export const RiskAssessmentWindow = ({
                   }}
                 ></FileInput>
               </FormGroup>
+              <FormGroup
+                label="Border"
+                labelFor="border"
+              >
+                <NumericInput
+                  // required
+                  max={5}
+                  min={0}
+                  value={voB}
+                  id="border"
+                  onValueChange={(e) => {
+                    setVoB(e);
+                  }}
+                />
+              </FormGroup>
+              <FormGroup
+                label="Background Color"
+                labelFor="bcg"
+                >
+              <HTMLSelect
+                  id="bcg"
+                  defaultValue={voBGC}
+                  onChange={(e) => setVoBGC(e.target.value)}
+                >
+                  <option selected disabled>
+                    Select Background Color
+                  </option>
+                  <option style={{backgroundColor:""}} value="">N/A</option>
+                  <option style={{backgroundColor:"#FA8072"}} value="#FA8072">Red</option>
+                  <option style={{backgroundColor:"#CDC9C9"}} value="#CDC9C9">Grey</option>
+                  <option style={{backgroundColor:"#7D9EC0"}} value="#7D9EC0">Blue</option>
+                  <option style={{backgroundColor:"#FCE6C9	"}} value="#FCE6C9	">Yellow</option>
+                  <option style={{backgroundColor:"#B4EEB4"}} value="#B4EEB4">Green</option>
+                  </HTMLSelect>
+                  </FormGroup>
               <div
                 style={{
                   display: "flex",
