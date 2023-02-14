@@ -2777,12 +2777,15 @@ export const RiskAssessmentWindow = ({
 
   const zIndexing = useCallback(
     async (type, action) => {
+      console.log(type, action)
       let currentIndex = 10;
       let response;
       if (!hoveredElement) return;
-      if (hoveredElement.zIndex) {
-        currentIndex = hoveredElement.zIndex;
-      }
+      // if (hoveredElement.zIndex) {
+      //   currentIndex = hoveredElement.zIndex;
+      // }
+      currentIndex = Number(hoveredElement.zIndex);
+
       switch (action) {
         case "backward":
           currentIndex -= 1;
@@ -2794,12 +2797,13 @@ export const RiskAssessmentWindow = ({
           currentIndex += 1;
           break;
         case "toFront":
-          currentIndex = 100;
+          currentIndex = 1000;
           break;
 
         default:
           break;
       }
+      console.log("zindex",currentIndex)
       switch (type) {
         case "ro":
           response = await updateRiskObjectPosition(
@@ -2820,6 +2824,7 @@ export const RiskAssessmentWindow = ({
           break;
 
         case "co":
+          
           response = await editAnalyticsChart(hoveredElement.id, {
             zIndex: currentIndex,
           });
@@ -2828,7 +2833,7 @@ export const RiskAssessmentWindow = ({
         default:
           break;
       }
-
+      setHoveredElement(prev=>({...prev,zIndex: currentIndex}))
       if (response.status >= 200 && response.status < 300) {
         riskAssessmentData();
       } else {
@@ -3121,7 +3126,7 @@ export const RiskAssessmentWindow = ({
           </Menu>
         )}
 
-        {contextMenu.active && contextMenu.type === "contextCO" && (
+        {contextMenu.active && contextMenu.type === "chartObject" && (
           <Menu className={` ${Classes.ELEVATION_1}`}>
             <MenuItem
               text="Backward"

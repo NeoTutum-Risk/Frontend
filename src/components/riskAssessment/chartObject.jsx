@@ -23,7 +23,7 @@ export const ChartObject = ({
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
-  console.log("obj")
+  // console.log("obj")
   const [isServiceLoading, setIsServiceLoading] = useState(false);
 
   const [size, setSize] = useState({
@@ -161,7 +161,7 @@ export const ChartObject = ({
 
             <div
               onMouseLeave={() => setFirstContext("main")}
-              onMouseEnter={() => {setHoveredElement(data);setFirstContext("visualObject")}}
+              onMouseEnter={() => {setHoveredElement(data);setFirstContext("chartObject")}}
               onContextMenu={(e) => {
                 e.preventDefault();
                 handleContextMenu(e, data);
