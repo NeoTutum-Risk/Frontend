@@ -175,7 +175,7 @@ const DownloadRiskAssessmentJSON = () => {
                       >
                         Download
                       </Button>
-                      {/* <a href={`${BACKEND_URI}/JSONAnalytics/RA-Analytics-IO/${selectedRiskAssessment.riskAssessmentId}`} target="_blank">
+                      <a href={`${BACKEND_URI}/JSONAnalytics/RA-Analytics-IO/${selectedRiskAssessment.riskAssessmentId}?scenarioId=${scenarioSelected.scenarioId}&scenarioRunId=${scenarioSelected.scenarioRunId}`} target="_blank">
                         <Button
                           icon="link"
                           intent={Intent.SUCCESS}
@@ -183,7 +183,7 @@ const DownloadRiskAssessmentJSON = () => {
                         >
                           Preview File
                         </Button>
-                      </a> */}
+                      </a>
                     </>
                   )}
                 </div>

@@ -10,10 +10,11 @@ import {
 const JSONUploadAnalyticsPack = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [configFile, setConfigFile] = useState(null);
+    const [validFile, setValidFile] = useState(null);
     const [analysisPackName, setAnalysisPackName] = useState('');
     const [isPopOverOpen, setPopOverOpen] = useState(false);
     const [metaData, setMetaData] = useState([]);
-    const [metaDataIdentifier, setMetaDataIdentifier] = useState(null);
+    // const [metaDataIdentifier, setMetaDataIdentifier] = useState(null);
     const [filesCount, setFilesCount] = useState(1);
 
     const fetchMetaData = useCallback(async () => {
@@ -24,16 +25,15 @@ const JSONUploadAnalyticsPack = () => {
     useEffect(() => {
         fetchMetaData();
     }, [fetchMetaData]);
-    
-    const resetHandler = useCallback( () => {
-            setPopOverOpen(false);
-            setFilesCount(1);
-            setSelectedFiles([])
-            setConfigFile(null)
-            setMetaDataIdentifier('')
-            setAnalysisPackName('');
-        },[])
 
+    const resetHandler = useCallback(() => {
+        setPopOverOpen(false);
+        setFilesCount(1);
+        setSelectedFiles([])
+        setConfigFile(null)
+        setAnalysisPackName('');
+    }, [])
+  
     const onFileUpload = useCallback(
         async (e) => {
             e.preventDefault();
@@ -41,8 +41,8 @@ const JSONUploadAnalyticsPack = () => {
                 const payload = new FormData();
 
                 payload.append("name", analysisPackName)
-                payload.append("metaDataIdentifier", metaDataIdentifier)
                 payload.append("fileJSON", configFile)
+                payload.append("fileJSON", validFile)
 
                 for (const file of selectedFiles) {
                     payload.append("fileJSON", file.fileData);
@@ -58,7 +58,7 @@ const JSONUploadAnalyticsPack = () => {
             }
             resetHandler()
         },
-        [filesCount, selectedFiles, configFile, metaDataIdentifier],
+        [filesCount, selectedFiles, configFile],
     )
 
     const AnalysisPackFileContentForm = useMemo(() => (
@@ -103,6 +103,23 @@ const JSONUploadAnalyticsPack = () => {
 
                 </FormGroup>
                 <FormGroup
+                    label={`Upload Validation File`}
+                    labelInfo="(required)"
+                    intent={false ? Intent.DANGER : Intent.NONE}
+                    labelFor="Type"
+                >
+
+                    <FileInput
+                        hasSelection={validFile?.name}
+                        text={validFile?.name ? validFile.name : "Choose file"}
+                        onInputChange={(e) => {
+                            setValidFile(e.target.files[0]);
+                        }}
+
+                    ></FileInput>
+
+                </FormGroup>
+                {/* <FormGroup
                     label="Analysis Pack Property"
                     labelInfo="(required)"
                     intent={false ? Intent.DANGER : Intent.NONE}
@@ -127,7 +144,7 @@ const JSONUploadAnalyticsPack = () => {
                             <option>Loading Data</option>
                         )}
                     </HTMLSelect>
-                </FormGroup>
+                </FormGroup> */}
                 <div
                     style={{
                         display: "flex",
@@ -143,7 +160,7 @@ const JSONUploadAnalyticsPack = () => {
                     >
                         <NumericInput
                             min="1"
-                            max="5"
+                            max="12"
                             defaultValue="1"
                             onValueChange={(e) => setFilesCount(e)}
                         ></NumericInput>

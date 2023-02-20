@@ -405,14 +405,13 @@ applyScenarioRun,
                           // onClick={() => updateAnalytics('analysispack')}
                         >
                           {analysisPacks.map(
-                            ({ name: packName, metaDataIdentifierId }) => (
+                            ({ name: packName }) => (
                               <MenuItem 
                                 icon="derive-column" 
                                 text={packName}
                                 onClick={() => {
                                   updateAnalytics("analysispackcausal", {
                                     name: packName,
-                                    metaDataIdentifierId,
                                   });
                                 }}
                               >
@@ -421,7 +420,6 @@ applyScenarioRun,
                                     e.target.value !== "Select Property" &&
                                       updateAnalytics("analysispack", {
                                         name: packName,
-                                        metaDataIdentifierId,
                                         property: e.target.value,
                                       });
                                   }}
