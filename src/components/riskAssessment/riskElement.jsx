@@ -9,8 +9,11 @@ import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { updateRiskObjectPosition } from "../../services";
 import Draggable from "react-draggable";
 import { PropertiesWindow } from "./propertiesWindow";
+import { ChartWindow } from "./chartWindow";
 export const RiskElement = ({
   data,
+  selectedScenario,
+  selectedScenarioRun,
   elementSelection,
   handleContextMenu,
   selectedElements,
@@ -36,16 +39,19 @@ export const RiskElement = ({
   shared,
   charts,
   globalViewIndex,
-  views
+  views,
 }) => {
+  const [view, setView] = useState(views[data.faceIndex]);
+  const [chartIndex, setChartIndex] = useState(data.chartIndex | 0);
   const [size, setSize] = useState({
     w: data["position.width"],
     h: data["position.height"],
   });
   const [groupIdState, setGroupIdState] = useState(groupId);
   const [face, setFace] = useState(true);
-  const [view, setView] = useState(views[globalViewIndex])
+  
   const [showProperties, setShowProperties] = useState(false);
+  const [showChartsWindow, setShowChartsWindow] = useState(false);
   const [editor, setEditor] = useState(false);
   const updateXarrow = useXarrow();
   const [drag, setDrag] = useState({
@@ -60,8 +66,8 @@ export const RiskElement = ({
   }, [closedFace]);
 
   useEffect(() => {
-    setView(views[globalViewIndex])
-  }, [globalViewIndex,views]);
+    setView(views[globalViewIndex<7?globalViewIndex:data.faceIndex]);
+  }, [globalViewIndex, views,data.faceIndex]);
 
   // useEffect(()=>{
   //   if(!expanded){
@@ -70,6 +76,8 @@ export const RiskElement = ({
   //     updateXarrow();
   //   }
   // },[expanded,expandPosition,updateXarrow])
+
+  const handleCharts = useCallback(() => {}, []);
 
   const updateSize = useCallback(
     async (delta, direction, position) => {
@@ -99,7 +107,6 @@ export const RiskElement = ({
           enabled: data["position.enabled"],
         }
       );
-
     },
     [riskAssessmentId, data, updateXarrow, size]
   );
@@ -137,7 +144,7 @@ export const RiskElement = ({
         }
       );
     },
-    [riskAssessmentId, data, updateXarrow,enviroDimension]
+    [riskAssessmentId, data, updateXarrow, enviroDimension]
   );
 
   const handleClick = useCallback(
@@ -157,28 +164,72 @@ export const RiskElement = ({
     [elementSelection, data, selectedElements]
   );
 
+  const updateSelectedChart = useCallback(async (index)=>{
+    const response = await editRiskObject(data.id, {chartIndex:index, riskAssessmentId}, groupId);
+  },[data.id,groupId,editRiskObject,riskAssessmentId])
+
+  const updateSelectedFace = useCallback(async (index)=>{
+    const response = await editRiskObject(data.id, {faceIndex:index, riskAssessmentId}, groupId);
+  },[data.id,groupId,editRiskObject,riskAssessmentId])
+
   return (
     <>
-      {expanded ? showProperties && data["position.enabled"] && (
-        <>
-          <PropertiesWindow
-            scale={scale}
-            riskAssessmentId={riskAssessmentId}
-            enabled={data["position.enabled"]}
-            setShowProperties={setShowProperties}
-            data={{
-              id: data.id,
-              x:
-                drag.cx - (420 + 50) > 0
-                  ? drag.cx - (420 + 50)
-                  : drag.cx + data["position.width"] + 50,
-              y: drag.cy,
-            }}
-            menu={menu}
-            handleProperties={handleProperties}
-          />
-        </>
-      ):null}
+      {expanded
+        ? showProperties &&
+          data["position.enabled"] && (
+            <>
+              <PropertiesWindow
+                selectedScenario={selectedScenario}
+                selectedScenarioRun={selectedScenarioRun}
+                scale={scale}
+                riskAssessmentId={riskAssessmentId}
+                enabled={data["position.enabled"]}
+                setShowProperties={setShowProperties}
+                data={{
+                  id: data.id,
+                  x:
+                    drag.cx - (420 + 50) > 0
+                      ? drag.cx - (420 + 50)
+                      : drag.cx + data["position.width"] + 50,
+                  y: drag.cy,
+                }}
+                menu={menu}
+                handleProperties={handleProperties}
+              />
+            </>
+          )
+        : null}
+      {expanded
+        ? showChartsWindow &&
+          data["position.enabled"] && (
+            <>
+              <ChartWindow
+              updateSelectedChart={updateSelectedChart}
+                charts={charts.filter(
+                  (chart) => chart.riskObjectId === String(data.id)
+                )}
+                selectedScenario={selectedScenario}
+                selectedScenarioRun={selectedScenarioRun}
+                scale={scale}
+                riskAssessmentId={riskAssessmentId}
+                enabled={data["position.enabled"]}
+                setShowProperties={setShowProperties}
+                data={{
+                  id: data.id,
+                  x:
+                    drag.cx - (420 + 50) > 0
+                      ? drag.cx - (420 + 50)
+                      : drag.cx + data["position.width"] + 50,
+                  y: drag.cy,
+                }}
+                menu={menu}
+                handleCharts={handleCharts}
+                chartIndex={chartIndex}
+                setChartIndex={setChartIndex}
+              />
+            </>
+          )
+        : null}
       <Rnd
         id={`R-${riskAssessmentId}-${data.id}`}
         key={`R-${riskAssessmentId}-${data.id}`}
@@ -208,8 +259,13 @@ export const RiskElement = ({
         }}
         scale={scale}
         onDragStop={(e, d) => updateLocation(e, d)}
-        style={{ zIndex:expanded ? data["position.zIndex"] | 1 : showProperties ? 100:1 }}
-        
+        style={{
+          zIndex: expanded
+            ? data["position.zIndex"] | 1
+            : showProperties
+            ? 100
+            : 1,
+        }}
       >
         {expanded ? (
           <div
@@ -243,16 +299,30 @@ export const RiskElement = ({
               borderRadius: "15px",
               backgroundColor: "white",
               padding: "5px",
-              overflow:"hidden",
-              zIndex: data.zIndex | 2
+              overflow: "hidden",
+              zIndex: data.zIndex | 2,
             }}
           >
-            {(view==="open") /*&& data['position.enabled'] */ && (
-              <OpenFace charts={charts.filter(chart=>chart.riskObjectId===String(data.id))} data={data} groupId={groupIdState} setView={setView} />
+            {view === "open" /*&& data['position.enabled'] */ && (
+              <OpenFace
+              updateSelectedFace={updateSelectedFace}
+                chartIndex={chartIndex}
+                showChartsWindow={showChartsWindow}
+                setShowChartsWindow={setShowChartsWindow}
+                setChartIndex={setChartIndex}
+                charts={charts.filter(
+                  (chart) => chart.riskObjectId === String(data.id)
+                )}
+                data={data}
+                groupId={groupIdState}
+                setView={setView}
+                handleObjectProperty={handleObjectProperty}
+                updateSelectedChart={updateSelectedChart}
+              />
             )}
-            {(view==="full") /*&& data['position.enabled']*/ && (
+            {view === "full" /*&& data['position.enabled']*/ && (
               <ClosedFace
-
+              updateSelectedFace={updateSelectedFace}
                 editRiskObject={editRiskObject}
                 data={data}
                 groupId={groupIdState}
@@ -273,7 +343,7 @@ export const RiskElement = ({
             )}
             {/* {!data['position.enabled'] && } */}
           </div>
-        ):null}
+        ) : null}
       </Rnd>
       {/* <div style={{position:"relative",zIndex:"99999999",top:(drag.cx+230)}}>
       {true && <ClosedEitor />}

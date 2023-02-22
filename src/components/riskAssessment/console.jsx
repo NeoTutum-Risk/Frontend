@@ -28,7 +28,7 @@ export const Console = ({ logs }) => {
       }}
     >
       <span>{logs.length > 0 ? logsIndex + 1 : 0}</span>
-      <span>{logs.length > 0 ? logs[logsIndex].msg : "No Logs Yet"}</span>
+      <span>{logs.length > 0 ? logs[logsIndex]?.msg : "No Logs Yet"}</span>
       <ButtonGroup>
         <Button icon="arrow-left" onClick={()=>buttonAction("forward")} small={true}/>
         <Button icon="arrow-right" onClick={()=>buttonAction("backward")} small={true}/>

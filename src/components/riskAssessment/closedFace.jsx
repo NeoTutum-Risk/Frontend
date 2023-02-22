@@ -18,7 +18,8 @@ export const ClosedFace = ({
   showProperties,
   groups,
   addToGroup,
-  shared
+  shared,
+  updateSelectedFace
 }) => {
   const [viewedAttribute, setViewedAttribute] = useState(data.description);
   const [activeAttribute, setActiveAttribute] = useState("D");
@@ -37,6 +38,8 @@ export const ClosedFace = ({
     setEdit(false);
     setEditingValue(null);
   }, []);
+
+
 
   const updateRiskObject = useCallback(async () => {
     setUsingService(true);
@@ -106,7 +109,7 @@ export const ClosedFace = ({
         <Button
           small={true}
           intent={data["position.enabled"] ? "primary" : "none"}
-          onClick={() => setView("open")}
+          onClick={() => {setView("open");updateSelectedFace(2)}}
           className="panningDisabled"
           style={{
             backgroundColor:

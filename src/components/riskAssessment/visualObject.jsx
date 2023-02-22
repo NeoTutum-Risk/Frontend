@@ -12,12 +12,14 @@ import {
   Slider,
   InputGroup,
   NumericInput,
+  HTMLSelect
 } from "@blueprintjs/core";
 import "./dataElement.css";
 // import { Tooltip } from "./dataElementTooltip";
 import Xarrow, { useXarrow, Xwrapper } from "react-xarrows";
 import { editVisualObject } from "../../services";
 import { showDangerToaster } from "../../utils/toaster";
+import { trim } from "lodash";
 export const VisualObject = ({
   visualObjectEdit,
   data,
@@ -32,12 +34,15 @@ export const VisualObject = ({
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
+  const [color,setColor] = useState(String(data.color).slice(0,7));
   const [isServiceLoading, setIsServiceLoading] = useState(false);
   const [openDescription, setOpenDescription] = useState(false);
   const [editText, setEditText] = useState(false);
   const [objectText, setObjectText] = useState(data.text);
   const [objectFile, setObjectFile] = useState(null);
   const [objectFont, setObjectFont] = useState(data.font | 24);
+  
+  const [border, setBorder] = useState(data.border | 0);
   const [edit, setEdit] = useState(false);
   const [size, setSize] = useState({
     w: data.width,
@@ -89,12 +94,14 @@ export const VisualObject = ({
       objectFont,
       objectText,
       objectFile,
+      color,
+      border
     });
     if (response) {
       setEdit(false);
     }
     setIsServiceLoading(false);
-  }, [data.id, objectFont, objectText, objectFile, handleVOEdit]);
+  }, [data.id, objectFont, objectText, objectFile, handleVOEdit,border,color]);
 
   const handleDelete = useCallback(async () => {
     setIsServiceLoading(true);
@@ -163,16 +170,16 @@ export const VisualObject = ({
         default={{
           x: drag.cx,
           y: drag.cy,
-          width: size.w,
-          height: size.h,
+          width: edit?"auto":size.w,
+          height: edit?"auto":size.h,
         }}
         position={{
           x: drag.cx,
           y: drag.cy,
         }}
         size={{
-          width: size.w,
-          height: size.h,
+          width: edit?"auto":size.w,
+          height: edit?"auto":size.h,
         }}
         minWidth={75}
         minHeight={75}
@@ -185,7 +192,7 @@ export const VisualObject = ({
           updateSize(delta, direction, position);
         }}
         scale={scale}
-        style={{zIndex: data.zIndex | 5}}
+        style={{zIndex:edit?9999: data.zIndex | 5}}
       >
         <div
           onMouseLeave={() => setFirstContext("main")}
@@ -199,14 +206,14 @@ export const VisualObject = ({
           }}
           className="risk-object-container panningDisabled pinchDisabled wheelDisabled "
           style={{
-            border: edit? "1px solid grey":"",
-            backgroundColor: "white",
+            border: edit? `${border>0?border:1}px solid grey`:border>0?`${border}px solid grey`:"",
+            backgroundColor: color,
             color: "black",
             padding: "5px",
             textAlign: "center",
             display: "flex",
             flexDirection: "column",
-            overflow: edit ? "auto" : ""
+            overflow: edit ? "auto" : "hidden"
           }}
         >
           {data.text && edit ? (
@@ -232,8 +239,7 @@ export const VisualObject = ({
               {objectText}
             </p>
           )}
-          {data.filePath &&
-            (edit ? (
+          {edit ? (
               <FormGroup
                 className="panningDisabled pinchDisabled wheelDisabled "
                 label={`Image`}
@@ -249,7 +255,8 @@ export const VisualObject = ({
                   }}
                 ></FileInput>
               </FormGroup>
-            ) : (
+            ) : data.filePath &&
+            (
               <div
                 className="panningDisabled pinchDisabled wheelDisabled "
                 style={{
@@ -272,7 +279,7 @@ export const VisualObject = ({
                   alt="Error Rendering Chart"
                 />
               </div>
-            ))}
+            )}
           {edit && data.text && (
             <FormGroup
               className="panningDisabled pinchDisabled wheelDisabled "
@@ -294,6 +301,47 @@ export const VisualObject = ({
                 }}
               />
             </FormGroup>
+          )}
+          {edit && (
+            <>
+            <FormGroup
+            label="Border"
+            labelFor="border"
+          >
+            <NumericInput
+              // required
+              max={5}
+              min={0}
+              value={border}
+              fill={true}
+              id="border"
+              onValueChange={(e) => {
+                setBorder(e);
+              }}
+            />
+          </FormGroup>
+          <FormGroup
+            label="Background Color"
+            labelFor="bcg"
+            >
+          <HTMLSelect
+          fill={true}
+              id="bcg"
+              defaultValue={color}
+              onChange={(e) => setColor(e.target.value)}
+            >
+              <option selected disabled>
+                Select Background Color
+              </option>
+              <option style={{backgroundColor:""}} value="">N/A</option>
+              <option style={{backgroundColor:"#FA8072"}} value="#FA8072">Red</option>
+              <option style={{backgroundColor:"#CDC9C9"}} value="#CDC9C9">Grey</option>
+              <option style={{backgroundColor:"#7D9EC0"}} value="#7D9EC0">Blue</option>
+              <option style={{backgroundColor:"#FCE6C9	"}} value="#FCE6C9	">Yellow</option>
+              <option style={{backgroundColor:"#B4EEB4"}} value="#B4EEB4">Green</option>
+              </HTMLSelect>
+              </FormGroup>
+              </>
           )}
 
           

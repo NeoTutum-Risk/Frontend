@@ -29,6 +29,10 @@ import {
 } from "../../services";
 import { ChartObject } from "./chartObject";
 export const RiskAssessment = ({
+  addScenarioHandler,
+addScenarioRunHandler,
+applyScenario,
+applyScenarioRun,
   logs,
   scenarios,
   visualObjectEdit,
@@ -185,47 +189,51 @@ export const RiskAssessment = ({
   const updateAnalytics = useCallback(
     async (chartsType, data = {}) => {
       setOpenAnalysisMenuSelect(false);
-      console.log('true here');
-      setLoadingAnalytics(true);
-      const response = await getAnalytics(chartsType, data);
-      const newNotebookPath = response.data.data.newNotebookPath;
-      if (newNotebookPath && response) {
-        setPortfolios((prevPortfolios) => ({
-          ...prevPortfolios,
-          data: prevPortfolios.data.map((portfolio) =>
-            portfolio.id === newNotebookPath[0]
-              ? {
+      try {
+        setLoadingAnalytics(true);
+        const response = await getAnalytics(chartsType, data);
+        const newNotebookPath = response.data.data.newNotebookPath;
+        setLoadingAnalytics(false);
+        if (newNotebookPath && response) {
+          setPortfolios((prevPortfolios) => ({
+            ...prevPortfolios,
+            data: prevPortfolios.data.map((portfolio) =>
+              portfolio.id === newNotebookPath[0]
+                ? {
                   ...portfolio,
                   serviceChains:
                     portfolio?.serviceChains.map((serviceChain) =>
                       newNotebookPath[1] === serviceChain.id
                         ? {
-                            ...serviceChain,
-                            riskAssessments: serviceChain?.riskAssessments.map(
-                              (riskassessment) =>
-                                riskassessment.id === newNotebookPath[2]
-                                  ? {
-                                      ...riskassessment,
-                                      noteBooks: riskassessment.noteBooks
-                                        ? [
-                                            ...response.data.data.newNotebooks,
-                                            ...riskassessment.noteBooks,
-                                          ]
-                                        : [...response.data.data.newNotebooks],
-                                    }
-                                  : riskassessment
-                            ),
-                          }
+                          ...serviceChain,
+                          riskAssessments: serviceChain?.riskAssessments.map(
+                            (riskassessment) =>
+                              riskassessment.id === newNotebookPath[2]
+                                ? {
+                                  ...riskassessment,
+                                  noteBooks: riskassessment.noteBooks
+                                    ? [
+                                      ...response.data.data.newNotebooks,
+                                      ...riskassessment.noteBooks,
+                                    ]
+                                    : [...response.data.data.newNotebooks],
+                                }
+                                : riskassessment
+                          ),
+                        }
                         : serviceChain
                     ) ?? [],
                 }
-              : portfolio
-          ),
-        }));
+                : portfolio
+            ),
+          }));
+        }
+      } catch (error) {
+        // console.log(error.message);
+        setLoadingAnalytics(false);
       }
-      setLoadingAnalytics(false);
     },
-    [getAnalytics]
+    [getAnalytics, setPortfolios]
   );
   // (() => {
 
@@ -397,14 +405,13 @@ export const RiskAssessment = ({
                           // onClick={() => updateAnalytics('analysispack')}
                         >
                           {analysisPacks.map(
-                            ({ name: packName, metaDataIdentifierId }) => (
+                            ({ name: packName }) => (
                               <MenuItem 
                                 icon="derive-column" 
                                 text={packName}
                                 onClick={() => {
                                   updateAnalytics("analysispackcausal", {
                                     name: packName,
-                                    metaDataIdentifierId,
                                   });
                                 }}
                               >
@@ -413,7 +420,6 @@ export const RiskAssessment = ({
                                     e.target.value !== "Select Property" &&
                                       updateAnalytics("analysispack", {
                                         name: packName,
-                                        metaDataIdentifierId,
                                         property: e.target.value,
                                       });
                                   }}
@@ -483,8 +489,8 @@ export const RiskAssessment = ({
                         <MenuItem
                           icon="derive-column"
                           text="Create New Scenario"
-                          onClick={() => {}}
-                          disabled={true}
+                          onClick={addScenarioHandler}
+                          // disabled={true}
                         />
                         <MenuDivider />
                           {scenarios?scenarios.map(
@@ -493,8 +499,7 @@ export const RiskAssessment = ({
                               key={`${scenario.id}${scenario.name}`}
                                 icon="derive-column" 
                                 text={scenario.name}
-                                onClick={() => {
-                                }}
+                                onClick={() => applyScenario(scenario.id)}
                               >
                                 
                               </MenuItem>
@@ -507,7 +512,7 @@ export const RiskAssessment = ({
                   <Button
                     small={true}
                     fill={false}
-                    text={`Scenario: #${selectedScenario.id}`}
+                    text={`${selectedScenario.id} - ${selectedScenario.name}`}
                     // icon="function"
                     loading={loadingAnalytics}
                     onClick={() =>{}
@@ -527,8 +532,8 @@ export const RiskAssessment = ({
                         <MenuItem
                           icon="derive-column"
                           text="Create New Scenario Run"
-                          onClick={() => {}}
-                          disabled={true}
+                          onClick={addScenarioRunHandler}
+                          // disabled={true}
                         />
                         <MenuDivider />
                           {scenarios.length>0&& selectedScenario?.SenarioRuns.length>0 ? selectedScenario.SenarioRuns.map(
@@ -537,8 +542,7 @@ export const RiskAssessment = ({
                               key={`${run.id}${run.name}`}
                                 icon="derive-column" 
                                 text={run.name}
-                                onClick={() => {
-                                }}
+                                onClick={() => applyScenarioRun(run.id)}
                               />
                                 
                             )
@@ -550,7 +554,7 @@ export const RiskAssessment = ({
                   <Button
                     small={true}
                     fill={false}
-                    text={`Runs: #${selectedScenarioRun.id}`}
+                    text={`${selectedScenarioRun.id} - ${selectedScenarioRun.name}`}
                     // icon="function"
                     loading={loadingAnalytics}
                     onClick={() =>{}
@@ -577,7 +581,7 @@ export const RiskAssessment = ({
               <TransformComponent
                 wrapperStyle={{
                   width: "100%",
-                  height: "96%",
+                  height: "100%",
                 }}
                 contentStyle={{
                   width: `${enviroDimension.width}px`,
@@ -615,6 +619,8 @@ export const RiskAssessment = ({
                                 name: grp.name,
                               }))}
                               setFirstContext={setFirstContext}
+                              selectedScenario={selectedScenario}
+                              selectedScenarioRun={selectedScenarioRun}
                               expanded={true}
                               handleContextMenu={handleContextMenu}
                               selectedElements={selectedElements}
@@ -658,6 +664,8 @@ export const RiskAssessment = ({
                                 id: grp.id,
                                 name: grp.name,
                               }))}
+                              selectedScenario={selectedScenario}
+                              selectedScenarioRun={selectedScenarioRun}
                               handleContextMenu={handleContextMenu}
                               riskAssessmentId={riskAssessmentId}
                               scale={globalScale}
@@ -695,6 +703,8 @@ export const RiskAssessment = ({
                             ) >
                             0 && (
                             <RiskGroup
+                            selectedScenario={selectedScenario}
+                            selectedScenarioRun={selectedScenarioRun}
                               globalViewIndex={globalViewIndex}
                               views={views}
                               charts={charts}
@@ -753,6 +763,10 @@ export const RiskAssessment = ({
                     ))}
                     {analyticsCharts.length > 0 &&
                     analyticsCharts.filter(chart=>chart.visible).map((obj,index) => (
+                      checkFilter(
+                        "chart",
+                        obj.status,
+                      ) &&
                       <ChartObject
                       key={`co--${obj.id}`}
                       analyticsChartsFilter={analyticsChartsFilter}
@@ -772,7 +786,7 @@ export const RiskAssessment = ({
             </React.Fragment>
           )}
         </TransformWrapper>
-        <Console logs={logs} />
+        {/* <Console logs={logs} /> */}
         {instanceConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
