@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { RiskElement } from "./riskElement";
 import { DataObject } from "./dataObject";
+import  "./visualObject.css"
 import { Rnd } from "react-rnd";
 import {
   Button,
@@ -27,6 +28,7 @@ export const VisualObject = ({
   handleContextMenu,
   setHoveredElement,
   handleVOEdit,
+  handleVODelete,
 }) => {
   // (data.id)
   // const updateXarrow = useXarrow();
@@ -93,6 +95,15 @@ export const VisualObject = ({
     }
     setIsServiceLoading(false);
   }, [data.id, objectFont, objectText, objectFile, handleVOEdit]);
+
+  const handleDelete = useCallback(async () => {
+    setIsServiceLoading(true);
+    const response = await handleVODelete(data.id);
+    if (response) {
+      setEdit(false);
+    }
+    setIsServiceLoading(false);
+  }, [data.id, handleVODelete]);
 
   const updateSize = useCallback(
     async (delta, direction, position) => {
@@ -174,6 +185,7 @@ export const VisualObject = ({
           updateSize(delta, direction, position);
         }}
         scale={scale}
+        style={{zIndex: data.zIndex | 5}}
       >
         <div
           onMouseLeave={() => setFirstContext("main")}
@@ -187,14 +199,14 @@ export const VisualObject = ({
           }}
           className="risk-object-container panningDisabled pinchDisabled wheelDisabled "
           style={{
-            border: "2px dashed #173c67",
+            border: edit? "1px solid grey":"",
             backgroundColor: "white",
             color: "black",
             padding: "5px",
             textAlign: "center",
             display: "flex",
             flexDirection: "column",
-            overflow:edit?"scroll":""
+            overflow: edit ? "auto" : ""
           }}
         >
           {data.text && edit ? (
@@ -202,20 +214,23 @@ export const VisualObject = ({
               label=""
               labelFor="vot"
               className="panningDisabled pinchDisabled wheelDisabled "
+              style={{height:"100%" }}
             >
               <TextArea
                 className="panningDisabled pinchDisabled wheelDisabled "
                 fill={true}
                 id="vot"
                 defaultValue={objectText}
-                style={{ fontSize:`${objectFont}px`}}
+                style={{ fontSize: `${objectFont}px`,height:"100%"}}
                 onChange={(event) => {
                   setObjectText(event.target.value);
                 }}
               />
             </FormGroup>
           ) : (
-            <p style={{ fontSize:`${objectFont}px`}} onClick={handleClick}>{objectText}</p>
+            <p style={{textAlign:"left", fontSize: `${objectFont}px` }} onClick={handleClick}>
+              {objectText}
+            </p>
           )}
           {data.filePath &&
             (edit ? (
@@ -235,20 +250,30 @@ export const VisualObject = ({
                 ></FileInput>
               </FormGroup>
             ) : (
-              <img
+              <div
                 className="panningDisabled pinchDisabled wheelDisabled "
                 style={{
-                  width: "100%",
-                  height: "auto",
-                  marginTop: "5px",
+                  // width: "100%",
+                  // height: "auto",
+                  // marginTop: "5px",
                   overflow: "auto",
                 }}
-                src={data.filePath}
-                alt="Error Rendering Chart"
                 onClick={handleClick}
-              />
+              >
+                <img
+                  className="panningDisabled pinchDisabled wheelDisabled "
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    marginTop: "5px",
+                    overflow: "auto",
+                  }}
+                  src={data.filePath}
+                  alt="Error Rendering Chart"
+                />
+              </div>
             ))}
-          {edit && (
+          {edit && data.text && (
             <FormGroup
               className="panningDisabled pinchDisabled wheelDisabled "
               style={{ padding: "5px" }}
@@ -264,14 +289,16 @@ export const VisualObject = ({
                 id="vof"
                 defaultValue={objectFont}
                 onValueChange={(event) => {
-                  console.log(event)
+                  console.log(event);
                   setObjectFont(event);
                 }}
               />
             </FormGroup>
           )}
 
-          {edit && (
+          
+        </div>
+        {edit && (
             <div
               className="panningDisabled pinchDisabled wheelDisabled "
               style={{
@@ -301,9 +328,16 @@ export const VisualObject = ({
               >
                 Add
               </Button>
+              <Button
+                // type="submit"
+                onClick={handleDelete}
+                loading={isServiceLoading}
+                intent="Danger"
+              >
+                Delete
+              </Button>
             </div>
           )}
-        </div>
       </Rnd>
     </>
   );

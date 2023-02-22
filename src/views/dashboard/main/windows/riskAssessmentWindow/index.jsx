@@ -17,10 +17,12 @@ import {
   Checkbox,
   NumericInput,
 } from "@blueprintjs/core";
+import openSocket from "socket.io-client";
 // import {ContextMenuComponent} from "../../../../../components/FlowChart/context/contextMenuComponent"
 // import { Classes } from '@blueprintjs/popover2'
 import { useCallback, useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
+import { Console } from "../../../../../components/riskAssessment/console";
 import {
   getRiskAssessment,
   addRiskObjectProperties,
@@ -60,10 +62,12 @@ import {
   getDataObject,
   addVisualObject,
   editVisualObject,
+  deleteVisualObject,
   editAnalyticsChart,
-  deleteAnalyticsChart
+  deleteAnalyticsChart,
+  getAnalyticsChartsCausal,
 } from "../../../../../services";
-import { windowDefault } from "../../../../../constants";
+import { windowDefault,BACKEND_URI } from "../../../../../constants";
 import {
   showDangerToaster,
   showSuccessToaster,
@@ -80,6 +84,7 @@ import {
 import { generateID } from "../../../../../utils/generateID";
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil";
 import { data } from "vis-network";
+import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
 // import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextMenu";
 // import { map, set } from "lodash";
 // import { data } from "vis-network";
@@ -92,6 +97,10 @@ export const RiskAssessmentWindow = ({
   collapseState,
   onTypeChange,
 }) => {
+  const [logs,setLogs]=useState([]);
+  const [scenarios, setScenarios] = useState([]);
+  const [selectedScenario,setSelectedScenario]=useState(null);
+  const [selectedScenarioRun,setSelectedScenarioRun]=useState(null);
   const [selectedVisualObject, setSelectedVisualObject] = useState(null);
   const [voFilePath, setVoFilePath] = useState(null);
   const [voText, setVoText] = useState(null);
@@ -196,6 +205,24 @@ export const RiskAssessmentWindow = ({
     invisible: false,
     disabled: true,
   });
+
+  const initialSocket = useCallback(() => {
+    console.log('initial socket');
+    const socket = openSocket(`${BACKEND_URI}`);
+    socket.on(`analytics_progress_${window.data.id}`, (log) => {
+      setLogs(prev=>([...prev,log]))
+      console.log(log)
+    });
+    return socket;
+  }, [window.data.id,]);
+
+  useEffect(()=>{initialSocket()},[initialSocket])
+
+  useEffect(()=>{
+    if(scenarios.length===0)return;
+    setSelectedScenario(scenarios[0])
+    setSelectedScenarioRun(scenarios[0].SenarioRuns[0]);
+  },[scenarios])
 
   const checkMaximized = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -809,11 +836,12 @@ export const RiskAssessmentWindow = ({
           getCenter();
           setAnalyticsCharts(
             response.data.data.charts.filter(
-              (chart) => chart.riskObjectId === null
+              (chart) => (chart.riskObjectId === null && chart.status!=="deleted")
             )
           );
           setNotebooks(response.data.data.notebooks);
           setVisualObjects(response.data.data.textObjects);
+          setScenarios( response.data.data.senarios);
         }
 
         setConnections(
@@ -900,6 +928,12 @@ export const RiskAssessmentWindow = ({
             break;
           case "analysispack":
             response = await getAnalysispackCharts({
+              riskAssessmentId: window.data.id,
+              ...data,
+            });
+            break;
+          case "analysispackcausal":
+            response = await getAnalyticsChartsCausal({
               riskAssessmentId: window.data.id,
               ...data,
             });
@@ -1681,6 +1715,14 @@ export const RiskAssessmentWindow = ({
           type = "object";
           setFirstContext("object");
         }
+      }else if (firstContext === "visualObject") {
+        type = "visualObject";
+          setFirstContext("visualObject");
+          // element=
+      }else if (firstContext === "chartObject") {
+        type = "chartObject";
+          setFirstContext("chartObject");
+          // element=
       }
       element = id
         ? Number(id)
@@ -2634,6 +2676,92 @@ export const RiskAssessmentWindow = ({
     return processCase;
   },[])
 
+  const handleVODelete = useCallback(async(id)=>{
+    let processCase =false;
+    const response = await deleteVisualObject(id);
+    if (response.status >= 200 && response.status < 300) {
+      setVisualObjects((prev) => prev.filter(obj=>obj.id!==id));
+      processCase = true;
+    } else {
+      showDangerToaster(`Can't Delete Object`);
+    }
+
+    setIsServiceLoading(false);
+    return processCase;
+  },[])
+
+  const zIndexing = useCallback(async (type,action)=>{
+    
+    let currentIndex =10;
+    let response;
+    if(!hoveredElement) return
+    if(hoveredElement.zIndex){
+      currentIndex=hoveredElement.zIndex;
+    }
+    switch (action) {
+      case "backward":
+        currentIndex-=1;
+        break;
+        case "toBack":
+          currentIndex=1;
+        break;
+        case "forward":
+          currentIndex+=1;
+        break;
+        case "toFront":
+          currentIndex=100;
+        break;
+    
+      default:
+        break;
+    }
+    switch (type) {
+      case "ro":
+         response = await updateRiskObjectPosition(window.data.id,hoveredElement.id,{zIndex:currentIndex});
+        break;
+        case "do":
+         response = await updateNewDataObjectInstance(hoveredElement.id,{zIndex:currentIndex});
+        break;
+        case "vo":
+         response = await editVisualObject(hoveredElement.id,{zIndex:currentIndex});
+        break;
+
+        case "co":
+         response = await editAnalyticsChart(hoveredElement.id,{zIndex:currentIndex});
+        break;
+    
+      default:
+        
+        break;
+    }
+
+    if(response.status>=200 && response.status <300){
+      riskAssessmentData();
+    }else{
+      showDangerToaster(`Faild To Update`);
+    }
+  },[hoveredElement,riskAssessmentData,window.data.id])
+
+  const handleRefresh = useCallback(()=>{
+    riskAssessmentData();
+  },[riskAssessmentData])
+
+  const addScenario = useCallback(async (data)=>{
+
+  });
+
+  const addScenarioRun = useCallback(async (data)=>{
+
+  });
+
+  const applyScenario = useCallback(async (id)=>{
+
+  });
+
+  const applyScenarioRun = useCallback(async (id)=>{
+
+  });
+
   return (
     <>
       <Window
@@ -2665,8 +2793,14 @@ export const RiskAssessmentWindow = ({
           </div>
         )}
         {dataLoaded && (
+          <>
           <RiskAssessment
+          scenarios={scenarios}
+          selectedScenario={selectedScenario}
+          selectedScenarioRun={selectedScenarioRun}
+          handleRefresh={handleRefresh}
           handleVOEdit={handleVOEdit}
+          handleVODelete={handleVODelete}
             visualObjectEdit={visualObjectEdit}
             analyticsChartsFilter={analyticsChartsFilter}
             analyticsChartsDelete={analyticsChartsDelete}
@@ -2707,7 +2841,10 @@ export const RiskAssessmentWindow = ({
             setGroups={setGroups}
             handleUnshareGroup={handleUnshareGroup}
             connectionForm={connectionForm}
+            logs={logs}
           />
+          
+          </>
         )}
       </Window>
       <Rnd
@@ -2724,6 +2861,27 @@ export const RiskAssessmentWindow = ({
             {elementEnable ? menu : null}
 
             <MenuDivider />
+            <MenuItem
+              text="Backward"
+              onClick={() =>{zIndexing("ro","backward")}
+              }
+            />
+            <MenuItem
+              text="Send To Back"
+              onClick={() =>{zIndexing("ro","toBack")}
+              }
+            />
+            <MenuItem
+              text="Forward"
+              onClick={() =>{zIndexing("ro","forward")}
+              }
+            />
+            <MenuItem
+              text="Send To Front"
+              onClick={() =>{zIndexing("ro","toFront")}
+              }
+            />
+          <MenuDivider />
             <MenuItem text="Edit" onClick={updateElementData} />
             {elementEnable ? (
               <>
@@ -2741,6 +2899,77 @@ export const RiskAssessmentWindow = ({
               text="Attach"
               onClick={() =>
                 setContextMenu((prev) => ({ ...prev, type: "uploadDO" }))
+              }
+            />
+            <MenuDivider />
+            <MenuItem
+              text="Backward"
+              onClick={() =>{zIndexing("do","backward")}
+              }
+            />
+            <MenuItem
+              text="Send To Back"
+              onClick={() =>{zIndexing("do","toBack")}
+              }
+            />
+            <MenuItem
+              text="Forward"
+              onClick={() =>{zIndexing("do","forward")}
+              }
+            />
+            <MenuItem
+              text="Send To Front"
+              onClick={() =>{zIndexing("do","toFront")}
+              }
+            />
+          </Menu>
+        )}
+
+{contextMenu.active && contextMenu.type === "contextCO" && (
+          <Menu className={` ${Classes.ELEVATION_1}`}>
+            <MenuItem
+              text="Backward"
+              onClick={() =>{zIndexing("co","backward")}
+              }
+            />
+            <MenuItem
+              text="Send To Back"
+              onClick={() =>{zIndexing("co","toBack")}
+              }
+            />
+            <MenuItem
+              text="Forward"
+              onClick={() =>{zIndexing("co","forward")}
+              }
+            />
+            <MenuItem
+              text="Send To Front"
+              onClick={() =>{zIndexing("co","toFront")}
+              }
+            />
+          </Menu>
+        )}
+
+{contextMenu.active && contextMenu.type === "visualObject" && (
+          <Menu className={` ${Classes.ELEVATION_1}`}>
+            <MenuItem
+              text="Backward"
+              onClick={() =>{zIndexing("vo","backward")}
+              }
+            />
+            <MenuItem
+              text="Send To Back"
+              onClick={() =>{zIndexing("vo","toBack")}
+              }
+            />
+            <MenuItem
+              text="Forward"
+              onClick={() =>{zIndexing("vo","forward")}
+              }
+            />
+            <MenuItem
+              text="Send To Front"
+              onClick={() =>{zIndexing("vo","toFront")}
               }
             />
           </Menu>

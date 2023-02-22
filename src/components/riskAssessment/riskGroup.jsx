@@ -490,6 +490,7 @@ export const RiskGroup = ({
             updateSize(delta, direction, position);
           }}
           scale={scale}
+          style={{ zIndex:!expanded ?999  :1 }}
         >
           {data.modelGroup ? (
             <div
@@ -697,11 +698,11 @@ export const RiskGroup = ({
               className="risk-object-container panningDisabled"
               style={{
                 border: !expanded
-                  ? "5px solid #173c67"
-                  : "5px dashed rgb(56	142	142	)",
-                backgroundColor: !expanded ? "#173c67" : "white",
+                  ? "3px solid #173c67"
+                  : "3px dashed rgb(56	142	142	)",
+                backgroundColor: !expanded ? "#A7C7E7" : "white",
                 color: !expanded ? "white" : "rgb(56	142	142	)",
-                borderRadius: "150px",
+                borderRadius: "15px",
                 padding: "5px",
                 textAlign: "center",
                 display: "flex",

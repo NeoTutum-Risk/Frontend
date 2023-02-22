@@ -7,7 +7,10 @@ import {
   HTMLSelect,
   FormGroup,
   Intent,
+  ButtonGroup,
+  MenuDivider,
 } from "@blueprintjs/core";
+import { Console } from "./console";
 import { Popover2 } from "@blueprintjs/popover2";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { RiskElement } from "./riskElement";
@@ -26,6 +29,8 @@ import {
 } from "../../services";
 import { ChartObject } from "./chartObject";
 export const RiskAssessment = ({
+  logs,
+  scenarios,
   visualObjectEdit,
   analyticsChartsFilter,
   analyticsChartsDelete,
@@ -66,8 +71,13 @@ export const RiskAssessment = ({
   openedGroup,
   handleOpenedGroup,
   openedGroupConnections,
-  handleVOEdit
+  handleVOEdit,
+  handleVODelete,
+  handleRefresh,
+  selectedScenario,
+  selectedScenarioRun
 }) => {
+
   const [enviroDimension, setEnviroDimension] = useState({
     height: 50000,
     width: 50000,
@@ -175,10 +185,11 @@ export const RiskAssessment = ({
   const updateAnalytics = useCallback(
     async (chartsType, data = {}) => {
       setOpenAnalysisMenuSelect(false);
+      console.log('true here');
       setLoadingAnalytics(true);
       const response = await getAnalytics(chartsType, data);
       const newNotebookPath = response.data.data.newNotebookPath;
-      if (response) {
+      if (newNotebookPath && response) {
         setPortfolios((prevPortfolios) => ({
           ...prevPortfolios,
           data: prevPortfolios.data.map((portfolio) =>
@@ -197,10 +208,10 @@ export const RiskAssessment = ({
                                       ...riskassessment,
                                       noteBooks: riskassessment.noteBooks
                                         ? [
-                                            response.data.data.newNotebook,
+                                            ...response.data.data.newNotebooks,
                                             ...riskassessment.noteBooks,
                                           ]
-                                        : [response.data.data.newNotebook],
+                                        : [...response.data.data.newNotebooks],
                                     }
                                   : riskassessment
                             ),
@@ -216,7 +227,6 @@ export const RiskAssessment = ({
     },
     [getAnalytics]
   );
-
   // (() => {
 
   // })();
@@ -272,6 +282,7 @@ export const RiskAssessment = ({
       //   onContextMenu={(e) => handleContextMenu(e, { from: "main" })}
       //   onClick={resetContext}
       // >
+      <>
       <Xwrapper>
         <TransformWrapper
           zoomAnimation={{ disabled: true }}
@@ -319,10 +330,12 @@ export const RiskAssessment = ({
                   zIndex: "99",
                 }}
               >
+                <div style={{display:"flex"}}>
                 <Button
                   small={true}
                   fill={false}
                   icon="plus"
+                  title="Zoom In"
                   onClick={(e) => {
                     zoomIn();
                     setGlobalScale((prev) => (prev += 0.2));
@@ -332,6 +345,7 @@ export const RiskAssessment = ({
                   small={true}
                   fill={false}
                   icon="minus"
+                  title="Zoom Out"
                   onClick={() => {
                     zoomOut();
                     setGlobalScale((prev) => (prev -= 0.2));
@@ -340,6 +354,7 @@ export const RiskAssessment = ({
                 <Button
                   small={true}
                   fill={false}
+                  title="Reset View"
                   icon="reset"
                   onClick={() => {
                     setTransform(
@@ -383,7 +398,16 @@ export const RiskAssessment = ({
                         >
                           {analysisPacks.map(
                             ({ name: packName, metaDataIdentifierId }) => (
-                              <MenuItem icon="derive-column" text={packName}>
+                              <MenuItem 
+                                icon="derive-column" 
+                                text={packName}
+                                onClick={() => {
+                                  updateAnalytics("analysispackcausal", {
+                                    name: packName,
+                                    metaDataIdentifierId,
+                                  });
+                                }}
+                              >
                                 <HTMLSelect
                                   onClick={(e) => {
                                     e.target.value !== "Select Property" &&
@@ -426,13 +450,119 @@ export const RiskAssessment = ({
                   <Button
                     small={true}
                     fill={false}
-                    icon="refresh"
+                    title="Run Analytics"
+                    icon="function"
                     loading={loadingAnalytics}
                     onClick={() =>
                       setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)
                     }
                   />
                 </Popover2>
+                <Button
+                    small={true}
+                    fill={false}
+                    title="Refresh"
+                    icon="refresh"
+                    // loading={loadingAnalytics}
+                    onClick={() =>
+                      handleRefresh()
+                    }
+                  />
+
+                
+                {scenarios.length>0 && 
+                <>
+                <Popover2
+                  // className={styles.addWindowsButton}
+                  // position='left-top'
+                  // isOpen={isOpenAnalysisMenuSelect}
+                  interactionKind="click-target"
+                  content={
+                    <Menu>
+                      <>
+                        <MenuItem
+                          icon="derive-column"
+                          text="Create New Scenario"
+                          onClick={() => {}}
+                          disabled={true}
+                        />
+                        <MenuDivider />
+                          {scenarios?scenarios.map(
+                            (scenario) => (
+                              <MenuItem 
+                              key={`${scenario.id}${scenario.name}`}
+                                icon="derive-column" 
+                                text={scenario.name}
+                                onClick={() => {
+                                }}
+                              >
+                                
+                              </MenuItem>
+                            )
+                          ):null}
+                      </>
+                    </Menu>
+                  }
+                >
+                  <Button
+                    small={true}
+                    fill={false}
+                    text={`Scenario: #${selectedScenario.id}`}
+                    // icon="function"
+                    loading={loadingAnalytics}
+                    onClick={() =>{}
+                      // setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)
+                    }
+                  />
+                  
+                </Popover2>
+               <Popover2
+                  // className={styles.addWindowsButton}
+                  // position='left-top'
+                  // isOpen={isOpenAnalysisMenuSelect}
+                  interactionKind="click-target"
+                  content={
+                    <Menu>
+                      <>
+                        <MenuItem
+                          icon="derive-column"
+                          text="Create New Scenario Run"
+                          onClick={() => {}}
+                          disabled={true}
+                        />
+                        <MenuDivider />
+                          {scenarios.length>0&& selectedScenario?.SenarioRuns.length>0 ? selectedScenario.SenarioRuns.map(
+                            (run) => (
+                              <MenuItem 
+                              key={`${run.id}${run.name}`}
+                                icon="derive-column" 
+                                text={run.name}
+                                onClick={() => {
+                                }}
+                              />
+                                
+                            )
+                          ):null}
+                      </>
+                    </Menu>
+                  }
+                >
+                  <Button
+                    small={true}
+                    fill={false}
+                    text={`Runs: #${selectedScenarioRun.id}`}
+                    // icon="function"
+                    loading={loadingAnalytics}
+                    onClick={() =>{}
+                      // setOpenAnalysisMenuSelect(!isOpenAnalysisMenuSelect)
+                    }
+                  />
+                  
+                </Popover2>
+                </>}
+                  <ButtonGroup>
+
+                  </ButtonGroup>
                 {openedGroup && (
                   <Button
                     intent="DANGER"
@@ -442,11 +572,12 @@ export const RiskAssessment = ({
                     onClick={() => handleOpenedGroup("", "clear")}
                   />
                 )}
+                </div>
               </div>
               <TransformComponent
                 wrapperStyle={{
                   width: "100%",
-                  height: "100%",
+                  height: "96%",
                 }}
                 contentStyle={{
                   width: `${enviroDimension.width}px`,
@@ -617,6 +748,7 @@ export const RiskAssessment = ({
                         visualObjectEdit={visualObjectEdit}
                         setHoveredElement={setHoveredElement}
                         handleVOEdit={handleVOEdit}
+                        handleVODelete={handleVODelete}
                       />
                     ))}
                     {analyticsCharts.length > 0 &&
@@ -627,6 +759,7 @@ export const RiskAssessment = ({
                       analyticsChartsDelete={analyticsChartsDelete}
                         handleContextMenu={handleContextMenu}
                         setFirstContext={setFirstContext}
+                        setHoveredElement={setHoveredElement}
                         data={obj}
                         scale={globalScale}
                         enviroDimension={enviroDimension}
@@ -639,7 +772,7 @@ export const RiskAssessment = ({
             </React.Fragment>
           )}
         </TransformWrapper>
-
+        <Console logs={logs} />
         {instanceConnections.map(
           (edge) =>
             checkConnctionVisibility(edge, "dataObjects") && (
@@ -827,7 +960,9 @@ export const RiskAssessment = ({
             // zIndex={1000000}
           />
         ))}
+        
       </Xwrapper>
+      </>
     );
   }
 };
