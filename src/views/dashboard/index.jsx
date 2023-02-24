@@ -7,10 +7,18 @@ import { showDashboardState } from "../../store/dashboard";
 import AdminPanel from "../adminPanel";
 import DashboardCharts from "../dashboardCharts";
 import ChartPanel from "../chartPanel";
-
+import { useEffect } from "react";
 export const Dashboard = () => {
   const showDashboard = useRecoilValue(showDashboardState);
-
+    useEffect(() => {
+    window.addEventListener(
+      "wheel",
+      (e) => {
+       if(e.ctrlKey) e.preventDefault();
+      },
+      { passive: false }
+    );
+  }, []);
   return (
     <div className={styles.container} >
       <SideNavigator />
