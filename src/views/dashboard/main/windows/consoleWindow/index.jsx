@@ -44,7 +44,7 @@ export const ConsoleWindow = ({
     console.log('initial socket');
     const socket = openSocket(`${SOCKET_URI}`);
     socket.on(`analytics_progress_${window.data.riskAssessment}`, (log) => {
-      setLogs(prev=>([...prev,log]))
+      setLogs(prev=>([log,...prev]))
       console.log(log)
     });
     return socket;
