@@ -759,7 +759,7 @@ export const RiskAssessmentWindow = ({
 
   const getGlobalGroups = useCallback(async () => {
     const response = await getGroups();
-    if (response.status === 201) {
+    if (response.status>=200 && response.status<300) {
       setGlobalGroups(
         response.data.data
           .filter((group) => group.shared)
