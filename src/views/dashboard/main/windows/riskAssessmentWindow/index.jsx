@@ -830,6 +830,7 @@ export const RiskAssessmentWindow = ({
         senarioRunId: selectedScenarioRun?.id | null,
       });
       if (response.status === 200) {
+        console.log(response.data.data.charts.filter(obj=>!obj.riskObjectId))
         if (openedGroup) {
           console.log("IN", openedGroup);
           setRiskObjects([]);
@@ -3025,7 +3026,7 @@ export const RiskAssessmentWindow = ({
               closedFace={closedFace}
               setHoveredElement={setHoveredElement}
               handleObjectAction={handleObjectAction}
-              // onContext={handleRiskViewContext}
+              riskAssessmentData={riskAssessmentData}
               menu={menu}
               handleProperties={handleProperties}
               removeFromGroup={removeFromGroup}

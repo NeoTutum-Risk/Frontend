@@ -232,6 +232,8 @@ export const getGenericCharts = (data) => serviceProvider.post(`analytics_charts
 
 export const getAnalysispackCharts = (data) => serviceProvider.post(`analytics_charts/bulkCharts/analysispack/${data.riskAssessmentId}`, data);
 
+export const getAnalysisglued = (riskAssessmentId) => serviceProvider.post(`analytics_charts/bulkCharts/glued/${riskAssessmentId}`);
+
 export const addAnalysisPack = (data) => serviceProvider.post(`analytics_charts/analysis/pack`, data);
 
 export const getAnalysisPacks = () => serviceProvider.get(`analytics_charts/analysis/pack`);
