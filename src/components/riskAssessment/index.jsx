@@ -23,11 +23,13 @@ import React, { useEffect } from "react";
 import { protfoliosState } from "../../store/portfolios";
 import { VisualObject } from "./visualObject";
 import {
+  getAnalysisglued,
   getPortfolios,
   getRiskAssessmentWindowSettings,
   updateRiskAssessmentWindowSettings,
 } from "../../services";
 import { ChartObject } from "./chartObject";
+import { showDangerToaster, showSuccessToaster } from "../../utils/toaster";
 export const RiskAssessment = ({
   addScenarioHandler,
 addScenarioRunHandler,
@@ -79,7 +81,8 @@ applyScenarioRun,
   handleVODelete,
   handleRefresh,
   selectedScenario,
-  selectedScenarioRun
+  selectedScenarioRun,
+  riskAssessmentData
 }) => {
 
   const [enviroDimension, setEnviroDimension] = useState({
@@ -185,6 +188,18 @@ applyScenarioRun,
     },
     [setSelectedElements, setSelectedObjects]
   );
+
+
+  const updateGlued = useCallback(async ()=>{
+
+    const response = await getAnalysisglued(riskAssessmentId);
+    if(response.status>=200 && response.status<300){
+      riskAssessmentData();
+      showSuccessToaster("Faild TO Updaye Glued Operation")
+    }else{
+      showDangerToaster("Faild TO Updaye Glued Operation")
+    }
+  },[riskAssessmentId,riskAssessmentData]);
 
   const updateAnalytics = useCallback(
     async (chartsType, data = {}) => {
@@ -449,6 +464,11 @@ applyScenarioRun,
                             )
                           )}
                         </MenuItem>
+                        <MenuItem
+                          icon="derive-column"
+                          text="Glued"
+                          onClick={updateGlued}
+                        />
                       </>
                     </Menu>
                   }
