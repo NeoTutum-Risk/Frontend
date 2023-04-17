@@ -71,7 +71,7 @@ export const AddObjectForm = ({ setAddNewObjectDialog, getData }) => {
     }
 
     const response = await addNewDataObjects(payload);
-    if (response.status ===200) {
+    if (response.status >= 200 && response.status<300) {
       getData();
       clearForm();
     }

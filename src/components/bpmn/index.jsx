@@ -34,7 +34,7 @@ export const Bpmn = memo(
       try {
         const response = await checkDeletedPhysicalDataObj(bpmnId);
 
-        if (response.status === 200) {
+        if (response.status >= 200 && response.status<300) {
           const deletedPhysicalDataObjArr = response.data.data;
           const existingElements = modeler
             .get("elementRegistry")

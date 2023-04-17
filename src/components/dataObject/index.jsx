@@ -10,7 +10,7 @@ export const DataObject = () => {
 
   const getData = useCallback(async () => {
     const response = await getNewDataObjects();
-    if (response.status === 200) {
+    if (response.status >= 200 && response.status<300) {
       setObjects(response.data.data);
     }
   }, []);

@@ -747,7 +747,7 @@ export const RiskAssessmentWindow = ({
   const fetchTemplates = useCallback(async () => {
     try {
       const response = await getTemplates();
-      if (response.status === 201) {
+      if (response.status >= 200 && response.status<300) {
         setTemplates(response.data.data);
       } else {
         showDangerToaster(`Error Fetching Templates`);
@@ -829,7 +829,7 @@ export const RiskAssessmentWindow = ({
         senarioId: selectedScenario?.id | null,
         senarioRunId: selectedScenarioRun?.id | null,
       });
-      if (response.status === 200) {
+      if (response.status >= 200 && response.status<300) {
         console.log(response.data.data.charts.filter(obj=>!obj.riskObjectId))
         if (openedGroup) {
           console.log("IN", openedGroup);
@@ -1386,7 +1386,7 @@ export const RiskAssessmentWindow = ({
           senarioId: selectedScenario.id,
           senarioRunId: selectedScenarioRun.id,
         });
-        if (response.status === 200) {
+        if (response.status >= 200 && response.status<300) {
           setContextMenu({
             active: false,
             type: "",
@@ -1885,7 +1885,7 @@ export const RiskAssessmentWindow = ({
     async (id, payload, groupId) => {
       setIsServiceLoading(true);
       const response = await updateRiskObject(id, payload);
-      if (response.status === 200) {
+      if (response.status >= 200 && response.status<300) {
         riskAssessmentData();
       } else {
         showDangerToaster(`Update Faild`);
@@ -1947,7 +1947,7 @@ export const RiskAssessmentWindow = ({
           riskAssessmentData();
         } else {
           const response = await addNewRiskObject(payload);
-          if (response.status === 201) {
+          if (response.status >= 200 && response.status<300) {
             const newObject = { ...response.data.data };
             newObject["position.x"] =
               response.data.data.riskObjectsPositions[0].x;
@@ -2195,7 +2195,7 @@ export const RiskAssessmentWindow = ({
         enabled: !elementEnable,
       }
     );
-    if (response.status === 200) {
+    if (response.status >= 200 && response.status<300) {
       setRiskObjects((prev) =>
         prev.map((object) => {
           if (object?.id === activeObject) {
@@ -2407,7 +2407,7 @@ export const RiskAssessmentWindow = ({
       { shared: 1 }
     );
 
-    if (response.status === 201) {
+    if (response.status >= 200 && response.status<300) {
       showSuccessToaster(
         `Group #${contextMenu.element} is Shared Successfully`
       );
@@ -2429,7 +2429,7 @@ export const RiskAssessmentWindow = ({
       { name: groupName, description: groupDescription }
     );
 
-    if (response.status === 201) {
+    if (response.status >= 200 && response.status<300) {
       showSuccessToaster(`Con #${contextMenu.element} is Updated Successfully`);
       resetContext();
       riskAssessmentData();
@@ -2458,7 +2458,7 @@ export const RiskAssessmentWindow = ({
         { modelGroup: 1 }
       );
 
-      if (response.status === 201) {
+      if (response.status >= 200 && response.status<300) {
         showSuccessToaster(
           `Group #${contextMenu.element} is updated Successfully`
         );
@@ -2476,7 +2476,7 @@ export const RiskAssessmentWindow = ({
 
   const fetchDataObjects = useCallback(async () => {
     const response = await getNewDataObjects();
-    if (response.status === 200) {
+    if (response.status >= 200 && response.status<300) {
       setGlobalDataObjects(response.data.data);
     } else {
       showDangerToaster(`Faild to get the Data Objects`);
@@ -2504,7 +2504,7 @@ export const RiskAssessmentWindow = ({
 
     try {
       const response = await addNewDataObjectInstance(payload);
-      if (response.status === 200) {
+      if (response.status >= 200 && response.status<300) {
         resetContext();
         setImportObjectId(null);
         setImportObject(null);

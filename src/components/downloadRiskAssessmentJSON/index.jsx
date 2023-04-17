@@ -51,7 +51,7 @@ const DownloadRiskAssessmentJSON = () => {
         ...scenarioSelected
       });
 
-      if (response.status === 200) {
+      if (response.status >= 200 && response.status<300) {
         const result = response.data;
 
         result.metaData && delete result.metaData;

@@ -173,7 +173,7 @@ export const GraphWindow = ({
   
       const response = await addNewRiskObject(payload);
   
-      if(response.status===201){
+      if(response.status >= 200 && response.status<300){
         setIsAddPhysicalObjectLoading(false);
 
         // do the coloring of the data reference object

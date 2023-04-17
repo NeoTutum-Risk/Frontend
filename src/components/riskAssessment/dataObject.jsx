@@ -108,12 +108,12 @@ export const DataObject = ({
     payload = { textType: editingValue, riskAssessmentId };
 
     const response = await updateNewDataObjectInstance(data.id, payload);
-    if (response.status === 200) {
+    if (response.status >= 200 && response.status<300) {
       setViewedAttribute(editingValue);
       resetFace();
     }
     setUsingService(false);
-  }, [editingValue, data.id, resetFace]);
+  }, [editingValue, data.id, resetFace,riskAssessmentId]);
 
   const updateLocation = useCallback(
     async (e, d) => {

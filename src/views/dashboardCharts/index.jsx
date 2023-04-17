@@ -8,7 +8,7 @@ import {
   Icon,
 } from "@blueprintjs/core";
 import { Popover2, Tooltip2 } from "@blueprintjs/popover2";
-import Iframe from 'react-iframe'
+import Iframe from "react-iframe";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   getAllLookup,
@@ -32,7 +32,7 @@ import { showDashboardState } from "../../store/dashboard";
 import styles from "../dashboard/styles.module.scss";
 import RiskAssessmentMenu from "../../components/riskAssessmentMenu";
 import JupyterViewer from "react-jupyter-notebook";
-import nb_test from "./Test.json"; 
+import nb_test from "./Test.json";
 const heatmapRules = [
   { minValue: 1, maxValue: 1, hexColorCode: "#92d050" },
   { minValue: 2, maxValue: 2, hexColorCode: "#ffff00" },
@@ -87,14 +87,15 @@ const DashboardCharts = () => {
 
   const riskAssessmentData = useCallback(async (riskAssessmentId) => {
     const response = await getRiskAssessment(riskAssessmentId);
-    if (response.status === 200) {
+    if (response.status >= 200 && response.status < 300) {
       setMetaData(response.data.data.metaData.referenceGroupJsons[0].json);
     } else {
       showDangerToaster(`Error Retrieving Risk Assessment Data`);
     }
   }, []);
 
-  useEffect(async () => {
+  const fun = useCallback(async () => 
+  {
     if (
       selectedRiskAssessment.riskAssessmentId &&
       currentDataLevel.propertyId &&
@@ -153,10 +154,22 @@ const DashboardCharts = () => {
           heatMap,
           drillDown: riskAssessmentDrillDown,
         });
-      } catch (error) {
-      }
+      } catch (error) {}
     }
-  }, [selectedRiskAssessment.riskAssessmentId, currentDataLevel.propertyId]);
+  },[
+    currentDataLevel,
+    dataLevel,
+    heatmapBackground,
+    riskAssessmentData,
+    selectedRiskAssessment,
+    selectedLookup.propertyId
+  ])
+  useEffect(()=>{
+    fun();
+  }
+  , [
+    fun
+  ]);
 
   const initialLoading = useCallback(async () => {
     try {
@@ -176,8 +189,7 @@ const DashboardCharts = () => {
           name: lookup.tableName,
         }))
       );
-    } catch (error) {
-    }
+    } catch (error) {}
   }, []);
 
   useEffect(() => {
@@ -242,8 +254,7 @@ const DashboardCharts = () => {
 
         // change the old datalevel to the new datalevel that was made
         setDataLevel(dlPayload);
-      } catch (error) {
-      }
+      } catch (error) {}
     },
     [currentDataLevel, selectedRiskAssessment, dataLevel]
   );
@@ -283,8 +294,7 @@ const DashboardCharts = () => {
 
       setSelectedRiskAssessment({ ...selectedRiskAssessment, heatMap });
       setSelectedRiskType(riskType);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const checkIfHasPathProperty = (object) => {
@@ -366,7 +376,7 @@ const DashboardCharts = () => {
   );
 
   return (
-    <JupyterViewer rawIpynb={nb_test}/>
+    <JupyterViewer rawIpynb={nb_test} />
     // <div>
     //   <div
     //     style={{
