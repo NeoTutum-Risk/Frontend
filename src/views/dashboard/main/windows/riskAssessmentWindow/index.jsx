@@ -214,25 +214,25 @@ export const RiskAssessmentWindow = ({
     charts:true
   });
 
-  const initialSocket = useCallback(() => {
-    console.log("initial socket");
-    const socket = openSocket(`${SOCKET_URI}`);
-    socket.on(`analytics_progress_${window.data.id}`, (log) => {
-      setLogs((prev) => [...prev, log]);
-      console.log(log);
-    });
-    return socket;
-  }, [window.data.id]);
+  // const initialSocket = useCallback(() => {
+  //   console.log("initial socket");
+  //   const socket = openSocket(`${SOCKET_URI}`);
+  //   socket.on(`analytics_progress_${window.data.id}`, (log) => {
+  //     setLogs((prev) => [...prev, log]);
+  //     console.log(log);
+  //   });
+  //   return socket;
+  // }, [window.data.id]);
 
-  useEffect(() => {
-    const socketIO = initialSocket();
-    return () => {
-      if (socketIO) {
-        console.log(`Socket disconnected -> ${window.data.id}`);
-        socketIO.disconnect()
-      }
-    };
-  }, [initialSocket]);
+  // useEffect(() => {
+  //   const socketIO = initialSocket();
+  //   return () => {
+  //     if (socketIO) {
+  //       console.log(`Socket disconnected -> ${window.data.id}`);
+  //       socketIO.disconnect()
+  //     }
+  //   };
+  // }, [initialSocket]);
 
   useEffect(() => {
     if (scenarios.length === 0) return;
