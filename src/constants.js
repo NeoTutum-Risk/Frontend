@@ -1,4 +1,4 @@
-export const BACKEND_URI = 'https://uat-service-dot-neotutum.nw.r.appspot.com';
+export const BACKEND_URI = 'https://production-service-dot-neotutum.nw.r.appspot.com/';
 export const SOCKET_URI = 'https://socket-service-dot-neotutum.nw.r.appspot.com'
 
 export const TEST_BACKEND_URI = 'https://test-service-dot-neotutum.nw.r.appspot.com/'

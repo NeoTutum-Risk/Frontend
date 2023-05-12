@@ -2919,8 +2919,8 @@ export const RiskAssessmentWindow = ({
     try {
 
       const response = await editActiveSenario({
-        senarioId,
-        senarioRunId
+        senarioId:selectedScenario.id,
+        senarioRunId:selectedScenarioRun.id
       })
       if (response.status >= 200 && response.status < 300) {
         riskAssessmentData();
@@ -2935,9 +2935,10 @@ export const RiskAssessmentWindow = ({
     (id) => {
       setSelectedScenario(scenarios.find((scenario) => scenario.id === id));
       setSelectedScenarioRun(selectedScenario.SenarioRuns[0]);
+      updateActiveSenario();
       // riskAssessmentData()
     },
-    [scenarios, selectedScenario, riskAssessmentData]
+    [scenarios, selectedScenario,updateActiveSenario]
   );
 
   const applyScenarioRun = useCallback(
@@ -2946,11 +2947,11 @@ export const RiskAssessmentWindow = ({
         selectedScenario.SenarioRuns.find((run) => run.id === id)
       );
 
-      const senarioRunIdSelected = selectedScenario.SenarioRuns.find((run) => run.id === id)
+      setScenarioRunName(selectedScenario.SenarioRuns.find((run) => run.id === id));
 
-      updateActiveSenario(selectedScenario?.id, senarioRunIdSelected?.id)
+      updateActiveSenario()
     },
-    [selectedScenario, riskAssessmentData]
+    [selectedScenario,updateActiveSenario]
   );
 
   return (
