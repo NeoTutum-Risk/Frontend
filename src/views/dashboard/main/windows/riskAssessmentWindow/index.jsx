@@ -1385,6 +1385,7 @@ export const RiskAssessmentWindow = ({
           dataObjectElements: path,
           senarioId: selectedScenario.id,
           senarioRunId: selectedScenarioRun.id,
+          riskObjectId:activeObject
         });
         if (response.status >= 200 && response.status<300) {
           setContextMenu({
