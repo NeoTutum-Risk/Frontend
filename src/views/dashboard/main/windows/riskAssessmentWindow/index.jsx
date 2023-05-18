@@ -92,6 +92,7 @@ import { show } from "@blueprintjs/core/lib/esm/components/context-menu/contextM
 // import { map, set } from "lodash";
 // import { data } from "vis-network";
 // import { easeExpInOut } from "d3";
+const senarioData={senario:0,run:0}
 export const RiskAssessmentWindow = ({
   onClose,
   onCollapse,
@@ -236,8 +237,9 @@ export const RiskAssessmentWindow = ({
 
   useEffect(() => {
     if (scenarios.length === 0) return;
-    setSelectedScenario(scenarios[0]);
-    setSelectedScenarioRun(scenarios[0].SenarioRuns[0]);
+    console.log(scenarios.find(s=>s.activeSenario),scenarios.find(s=>s.activeSenario).SenarioRuns.find(run=>run.activeRun));
+    setSelectedScenario(scenarios.find(s=>s.activeSenario));
+    setSelectedScenarioRun(scenarios.find(s=>s.activeSenario).SenarioRuns.find(run=>run.activeRun));
   }, [scenarios]);
 
   const checkMaximized = useRecoilCallback(
@@ -826,8 +828,8 @@ export const RiskAssessmentWindow = ({
     // if(openedGroup) return;
     try {
       const response = await getRiskAssessment(window.data.id, {
-        senarioId: selectedScenario?.id | null,
-        senarioRunId: selectedScenarioRun?.id | null,
+        senarioId: senarioData.senario,
+        senarioRunId: senarioData.run,
       });
       if (response.status >= 200 && response.status<300) {
         console.log(response.data.data.charts.filter(obj=>!obj.riskObjectId))
@@ -2936,10 +2938,12 @@ export const RiskAssessmentWindow = ({
   const applyScenario = useCallback(
     (id) => {
       const newSenario=scenarios.find((scenario) => scenario.id === id)
-      // setSelectedScenario(newSenario);
-      // setSelectedScenarioRun(newSenario.SenarioRuns[0]);
+      setSelectedScenario(newSenario);
+      setSelectedScenarioRun(newSenario.SenarioRuns[0]);
+      senarioData.senario=newSenario.id;
+        senarioData.run=newSenario.SenarioRuns[0].id;
       updateActiveSenario(newSenario.id,newSenario.SenarioRuns[0].id);
-      riskAssessmentData()
+      // riskAssessmentData()
     },
     [scenarios,updateActiveSenario,riskAssessmentData]
   );
@@ -2947,14 +2951,14 @@ export const RiskAssessmentWindow = ({
   const applyScenarioRun = useCallback(
     (id) => {
       const newSenarioRun = selectedScenario.SenarioRuns.find((run) => run.id === id)
-      // setSelectedScenarioRun(
-      //   newSenarioRun
-      // );
+      setSelectedScenarioRun(
+        newSenarioRun
+      );
 
-      // setScenarioRunName(newSenarioRun);
-
+      setScenarioRunName(newSenarioRun);
+      senarioData.run=newSenarioRun.id;
       updateActiveSenario(selectedScenario.id,newSenarioRun.id);
-      riskAssessmentData()
+      // riskAssessmentData()
     },
     [selectedScenario,updateActiveSenario,riskAssessmentData]
   );
