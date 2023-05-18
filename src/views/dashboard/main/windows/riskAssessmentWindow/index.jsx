@@ -2916,12 +2916,13 @@ export const RiskAssessmentWindow = ({
   }, []);
 
   const updateActiveSenario = useCallback(async (senarioId, senarioRunId) => {
-
+// console.log(senarioId, senarioRunId);
+// return;
     try {
 
       const response = await editActiveSenario({
-        senarioId:selectedScenario.id,
-        senarioRunId:selectedScenarioRun.id
+        senarioId,
+        senarioRunId
       })
       if (response.status >= 200 && response.status < 300) {
         riskAssessmentData();
@@ -2930,29 +2931,32 @@ export const RiskAssessmentWindow = ({
       console.log(error);
       throw new Error(error.message)
     }
-  }, [riskAssessmentData, selectedScenario, selectedScenarioRun]);
+  }, [riskAssessmentData]);
 
   const applyScenario = useCallback(
     (id) => {
-      setSelectedScenario(scenarios.find((scenario) => scenario.id === id));
-      setSelectedScenarioRun(selectedScenario.SenarioRuns[0]);
-      updateActiveSenario();
-      // riskAssessmentData()
+      const newSenario=scenarios.find((scenario) => scenario.id === id)
+      // setSelectedScenario(newSenario);
+      // setSelectedScenarioRun(newSenario.SenarioRuns[0]);
+      updateActiveSenario(newSenario.id,newSenario.SenarioRuns[0].id);
+      riskAssessmentData()
     },
-    [scenarios, selectedScenario,updateActiveSenario]
+    [scenarios,updateActiveSenario,riskAssessmentData]
   );
 
   const applyScenarioRun = useCallback(
     (id) => {
-      setSelectedScenarioRun(
-        selectedScenario.SenarioRuns.find((run) => run.id === id)
-      );
+      const newSenarioRun = selectedScenario.SenarioRuns.find((run) => run.id === id)
+      // setSelectedScenarioRun(
+      //   newSenarioRun
+      // );
 
-      setScenarioRunName(selectedScenario.SenarioRuns.find((run) => run.id === id));
+      // setScenarioRunName(newSenarioRun);
 
-      updateActiveSenario()
+      updateActiveSenario(selectedScenario.id,newSenarioRun.id);
+      riskAssessmentData()
     },
-    [selectedScenario,updateActiveSenario]
+    [selectedScenario,updateActiveSenario,riskAssessmentData]
   );
 
   return (
