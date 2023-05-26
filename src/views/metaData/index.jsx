@@ -32,7 +32,7 @@ const MetaData = () => {
   const initialLoading = useCallback(async () => {
     const res = await getMetaData();
 
-    if (res.status === 201) {
+    if (res.status >= 200 && res.status<300) {
       const { data } = res.data;
 
       // getting all the data from the api but extracting the metadatalevel2's names in an array without there attributes
@@ -45,7 +45,7 @@ const MetaData = () => {
 
       setMetaDataList(data);
     }
-  }, [setMetaData]);
+  }, []);
 
   useEffect(() => {
     initialLoading();
